@@ -70,7 +70,6 @@
       <key>/schemas/apps/gnucash/dialogs/last_path</key>
       <applyto>/apps/gnucash/dialogs/export_accounts/last_path</applyto>
       <applyto>/apps/gnucash/dialogs/log_replay/last_path</applyto>
-      <applyto>/apps/gnucash/dialogs/import/mt940/last_path</applyto>
       <applyto>/apps/gnucash/dialogs/import/ofx/last_path</applyto>
       <applyto>/apps/gnucash/dialogs/import/qif/last_path</applyto>
       <owner>gnucash</owner>

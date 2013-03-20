@@ -1,9 +1,6 @@
 if WITH_OFX
     OFX_DIR=ofx
 endif
-if WITH_AQBANKING
-    AQBANKING_DIR=aqbanking
-endif
 SUBDIRS = . schemas qif qif-import \
 	${OFX_DIR} ${AQBANKING_DIR} log-replay test csv-import csv-export
 

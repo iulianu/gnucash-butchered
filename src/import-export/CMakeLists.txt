@@ -2,10 +2,6 @@
 
 # ############################################################
 
-IF (WITH_AQBANKING)
-  ADD_SUBDIRECTORY (aqbanking)
-ENDIF (WITH_AQBANKING)
-
 ADD_DEFINITIONS (-DG_LOG_DOMAIN=\"gnc.import\")
 
 INCLUDE_DIRECTORIES (${GLIB2_INCLUDE_DIRS})

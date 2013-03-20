@@ -261,52 +261,6 @@ Use:  date that the copy was created.
 
 \subsection kvpH H
 
-\verbatim
-Name: /hbci/
-Type: frame
-Entitites: Account, Book
-Use: subdirectory for information related to the German online banking
-protocol HBCI
-\endverbatim
-
-\verbatim
-Name: /hbci/account-id
-Type: string
-Entities: Account
-Use: HBCI Account code of the HBCI counterpart of this gnucash account
-in the real world
-\endverbatim
-
-\verbatim
-Name: /hbci/bank-code
-Type: string
-Entitites: Account
-Use: Bank code of HBCI account
-\endverbatim
-
-\verbatim
-Name: /hbci/country-code
-Type: gint64
-Entitites: Account
-Use: Country code of the bank of HBCI account
-\endverbatim
-
-\verbatim
-Name: /hbci/trans-retrieval
-Type: Timespec
-Entities: Account
-Use: Time of the last statement retrieval through HBCI for this
-specific account
-\endverbatim
-
-\verbatim
-Name: /hbci/config-filename
-Type: string
-Entitied: Book
-Use: OpenHBCI configuration file name, where the real HBCI
-configuration for the OpenHBCI library can be found 
-\endverbatim
-
 \subsection kvpJ J
 
 \subsection kvpK K

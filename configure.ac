@@ -591,57 +591,6 @@ if test x${want_ofx} != xno ; then
 fi
 AM_CONDITIONAL([WITH_OFX], [test "x${want_ofx}" != xno])
 ### --------------------------------------------------------------------------
-### MT940
-AC_ARG_ENABLE( mt940,
-  [AS_HELP_STRING([--enable-mt940],[obsolete, included in --enable-aqbanking])],
-  if test "x$enableval" != "xno" ; then
-    AC_MSG_ERROR([--enable-mt940 is obsolete -- all functionality is already included in --enable-aqbanking])
-  fi)
-
-### --------------------------------------------------------------------------
-### AqBanking
-
-AC_ARG_ENABLE( aqbanking,
-  [AS_HELP_STRING([--enable-aqbanking],[compile with AqBanking support])],
-  if test "x$enableval" != "xno" ; then
-    want_aqbanking=yes
-  fi)
-AC_ARG_ENABLE( hbci,
-  [AS_HELP_STRING([--enable-hbci],[obsolete, replaced by --enable-aqbanking])],
-  if test "x$enableval" != "xno" ; then
-    AC_MSG_ERROR([--enable-hbci is obsolete -- the option has been renamed into --enable-aqbanking])
-  fi)
-if test x${want_aqbanking} = xyes ;
-then
-  # Check for Aqbanking library
-  # We require aqbanking-4.0.0 because our implementation doesn't run
-  # with earlier version anymore. (libaqbanking ships with a pkgconfig
-  # file since its version 1.6.1.)
-  PKG_CHECK_MODULES(AQBANKING, aqbanking >= 4.0.0 gwenhywfar, , [
-    AC_MSG_ERROR([Could not find aqbanking >= 4.0.0. If you use --enable-aqbanking, you MUST have aqbanking installed!])
-  ])
-  # For libgwenhywfar > 3.99.20, look for its library gwengui-gtk2.
-  PKG_CHECK_MODULES([GWENGUI_GTK2], [gwengui-gtk2 gwenhywfar], [has_gwengui_gtk2=1], [has_gwengui_gtk2=0])
-
-  # also check for ktoblzcheck
-  AC_CHECK_HEADERS(ktoblzcheck.h)
-  if test "x$ac_cv_header_ktoblzcheck_h" != xno; then
-    AQBANKING_LIBS="${AQBANKING_LIBS} -lktoblzcheck"
-  fi
-
-  AS_SCRUB_INCLUDE(AQBANKING_CFLAGS)
-  AC_SUBST(AQBANKING_LIBS)
-  AC_SUBST(AQBANKING_CFLAGS)
-  _COMPONENTS="$_COMPONENTS aqbanking"
-fi
-AM_CONDITIONAL([WITH_AQBANKING], [test x${want_aqbanking} = xyes])
-
-AC_ARG_WITH(qt3_wizard_package,
-                 [AS_HELP_STRING([--with-qt3-wizard-package=name],[name of package containing qt3-wizard (aqbanking)])],
-    [QT3_WIZARD_PACKAGE=$withval], [QT3_WIZARD_PACKAGE=aqbanking])
-AC_DEFINE_UNQUOTED([QT3_WIZARD_PACKAGE],["$QT3_WIZARD_PACKAGE"],[Name of package containing qt3-wizard.])
-
-### --------------------------------------------------------------------------
 ### i18n
 
 # This variable is set by GLIB_WITH_NLS, called through
@@ -1259,8 +1208,6 @@ AC_CONFIG_FILES(
   src/import-export/csv-export/Makefile
   src/import-export/csv-export/schemas/Makefile
   src/import-export/log-replay/Makefile
-  src/import-export/aqbanking/Makefile
-  src/import-export/aqbanking/schemas/Makefile
   src/libqof/Makefile
   src/libqof/qof/Makefile
   src/libqof/qof/test/Makefile
