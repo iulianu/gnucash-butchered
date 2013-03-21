@@ -1,8 +1,5 @@
-if WITH_OFX
-    OFX_DIR=ofx
-endif
 SUBDIRS = . schemas qif qif-import \
-	${OFX_DIR} ${AQBANKING_DIR} log-replay test csv-import csv-export
+	log-replay test csv-import csv-export
 
 pkglib_LTLIBRARIES=libgncmod-generic-import.la
 

@@ -570,27 +570,6 @@ AC_ARG_ENABLE( profile,
   LDFLAGS="${LDFLAGS} -pg")
 
 ### --------------------------------------------------------------------------
-### OFX
-want_ofx=auto
-AC_ARG_ENABLE( ofx,
-  [AS_HELP_STRING([--enable-ofx],[compile with ofx support (needs LibOFX)])],
-  [ case "$enableval" in
-    yes) want_ofx=yes ;;
-    no)  want_ofx=no ;;
-    esac[]dnl
-  ] )
-AC_MSG_CHECKING(whether to use OFX)
-case "${want_ofx}" in
-  yes)  AC_MSG_RESULT(yes -- failure is fatal) ;;
-  no)   AC_MSG_RESULT(no) ;;
-  auto) AC_MSG_RESULT(yes -- automatic test) ;;
-esac
-if test x${want_ofx} != xno ; then
-  PKG_CHECK_MODULES(LIBOFX, libofx, [want_ofx="yes"], [want_ofx="no"])
-  _COMPONENTS="$_COMPONENTS ofx"
-fi
-AM_CONDITIONAL([WITH_OFX], [test "x${want_ofx}" != xno])
-### --------------------------------------------------------------------------
 ### i18n
 
 # This variable is set by GLIB_WITH_NLS, called through
