@@ -777,12 +777,6 @@ then
   AC_SUBST(GDK_PIXBUF_CFLAGS)
   AC_SUBST(GDK_PIXBUF_LIBS)
 
-   # checks for goffice
-  PKG_CHECK_MODULES(GOFFICE, libgoffice-0.8 >= 0.7.0, [goffice=1], [AC_MSG_ERROR([Cannot find libgoffice.>= 0.5.1])])
-  AS_SCRUB_INCLUDE(GOFFICE_CFLAGS)
-  AC_SUBST(GOFFICE_CFLAGS)
-  AC_SUBST(GOFFICE_LIBS)
-
   ### --------------------------------------------------------------------------
   ### determine the HTML engine
 
@@ -1125,7 +1119,6 @@ AC_CONFIG_FILES(
   lib/Makefile
   lib/guile-www/Makefile
   lib/libc/Makefile
-  lib/stf/Makefile
   packaging/Makefile
   packaging/win32/Makefile
   packaging/win32/gnucash.iss
@@ -1180,10 +1173,6 @@ AC_CONFIG_FILES(
   src/import-export/qif-import/schemas/Makefile
   src/import-export/qif-import/test/Makefile
   src/import-export/schemas/Makefile
-  src/import-export/csv-import/Makefile
-  src/import-export/csv-import/schemas/Makefile
-  src/import-export/csv-export/Makefile
-  src/import-export/csv-export/schemas/Makefile
   src/import-export/log-replay/Makefile
   src/libqof/Makefile
   src/libqof/qof/Makefile

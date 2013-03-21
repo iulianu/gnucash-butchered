@@ -1,5 +1,5 @@
 SUBDIRS = . schemas qif qif-import \
-	log-replay test csv-import csv-export
+	log-replay test 
 
 pkglib_LTLIBRARIES=libgncmod-generic-import.la
 
