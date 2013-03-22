@@ -23,7 +23,6 @@ libtest_core_la_CPPFLAGS = \
 libtest_core_la_LDFLAGS = \
   -rpath ${exec-prefix}/lib
 
-if BUILDING_FROM_SCM
 swig-unittest-support-guile.c: unittest-support.i $(top_srcdir)/src/base-typemaps.i
 	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
 	-I${top_srcdir}/src \
@@ -35,7 +34,7 @@ swig-unittest-support-python.c: unittest-support.i $(top_srcdir)/src/base-typema
 	${AM_CPPFLAGS} -o $@ $<
 
 unittest-support.py: swig-unittest-support-python.c ${SWIG_FILES}
-endif
+
 noinst_LTLIBRARIES += libtest-core-guile.la
 libtest_core_guile_la_SOURCES = swig-unittest-support-guile.c
 libtest_core_guile_la_LIBADD = \

@@ -53,10 +53,8 @@ noinst_HEADERS = \
 
 noinst_DATA = gnc-test-env
 
-if BUILDING_FROM_SCM
 swig-runtime.h:
 	$(SWIG) -guile -external-runtime $@
-endif
 MAINTAINERCLEANFILES = swig-runtime.h
 
 EXTRA_DIST = \

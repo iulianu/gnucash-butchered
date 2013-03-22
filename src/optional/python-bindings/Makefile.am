@@ -37,7 +37,6 @@ _gnucash_core_c_la_LIBADD = \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
   ${top_builddir}/src/gnc-module/libgnc-module.la \
   ${top_builddir}/src/engine/libgncmod-engine.la
-if BUILDING_FROM_SCM
 _gnucash_core_c_includes= \
 	${top_builddir}/config.h \
 	${top_srcdir}/src/libqof/qof/qofsession.h \
@@ -76,7 +75,6 @@ gnucash_core.c: $(SWIG_FILES) ${top_srcdir}/src/base-typemaps.i ${top_srcdir}/sr
 	-o $@ $<
 
 gnucash_core_c.py: gnucash_core.c $(SWIG_FILES)
-endif
 
 EXTRA_DIST = \
   $(pkgpyexec_DATA) \

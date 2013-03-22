@@ -188,7 +188,6 @@ endif
 
 noinst_DATA = .scm-links
 
-if BUILDING_FROM_SCM
 
 # The generated file depends on various libqof headers. Out of
 # laziness I only include a few here - more might be needed
@@ -202,7 +201,6 @@ swig-engine.c: engine.i $(top_srcdir)/src/base-typemaps.i \
                $(gncinclude_HEADERS) $(noinst_HEADERS)
 	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
 	-I${top_srcdir}/src/libqof/qof -I${top_srcdir}/src -o $@ $<
-endif
 
 iso-4217-currencies.c: iso-4217-currencies.scm iso-currencies-to-c
 	-chmod u+x ${srcdir}/iso-currencies-to-c

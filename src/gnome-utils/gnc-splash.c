@@ -85,6 +85,10 @@ gnc_show_splash_screen (void)
     frame = gtk_frame_new (NULL);
     vbox = gtk_vbox_new (FALSE, 3);
     hbox = gtk_hbox_new (FALSE, 3);
+#ifndef GNUCASH_SCM_REV
+#define GNUCASH_SCM_REV "unknown-rev"
+#endif
+
 #ifdef GNUCASH_SCM
     /* Development version */
     /* Translators: 1st %s is the GnuCash version (eg 2.4.11);

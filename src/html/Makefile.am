@@ -54,12 +54,10 @@ libgncmod_html_la_LIBADD = \
   ${GUILE_LIBS} \
   ${REGEX_LIBS}
 
-if BUILDING_FROM_SCM
 swig-gnc-html.c: gnc-html.i gnc-html.h \
                     ${top_srcdir}/src/base-typemaps.i
 	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
 	-I${top_srcdir}/src -o $@ $<
-endif
 
 EXTRA_DIST = \
   gnc-html.i

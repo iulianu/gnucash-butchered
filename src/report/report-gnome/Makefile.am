@@ -51,11 +51,9 @@ libgncmod_report_gnome_la_LIBADD = \
   ${GCONF_LIBS} \
   ${GLIB_LIBS}
 
-if BUILDING_FROM_SCM
 swig-report-gnome.c: report-gnome.i ${top_srcdir}/src/base-typemaps.i
 	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
 	-I${top_srcdir}/src -o $@ $<
-endif
 
 gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash/report
 gncmod_DATA = report-gnome.scm

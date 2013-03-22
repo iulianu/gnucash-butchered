@@ -26,10 +26,8 @@ libgncmodbaz_la_LIBADD = \
   $(GUILE_LIBS) \
   $(GLIB_LIBS)
 
-if BUILDING_FROM_SCM
 swig-baz.c: baz.i
 	$(SWIG) -guile $(SWIG_ARGS) -Linkage module -o $@ $<
-endif
 
 EXTRA_DIST = \
   baz.i \

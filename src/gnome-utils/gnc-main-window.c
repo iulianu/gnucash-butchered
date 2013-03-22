@@ -4175,6 +4175,10 @@ gnc_main_window_cmd_help_about (GtkAction *action, GncMainWindow *window)
     authors = get_file_strsplit("AUTHORS");
     documenters = get_file_strsplit("DOCUMENTERS");
     license = get_file("LICENSE");
+#ifndef GNUCASH_SCM_REV
+#define GNUCASH_SCM_REV "unknown-rev"
+#endif
+
 #ifdef GNUCASH_SCM
     /* Development version */
     /* Translators: 1st %s is a fixed message, which is translated independently;

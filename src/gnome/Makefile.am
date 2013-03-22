@@ -99,11 +99,9 @@ noinst_HEADERS = \
   window-reconcile.h \
   window-autoclear.h
 
-if BUILDING_FROM_SCM
 swig-gnome.c: gnome.i dialog-progress.h ${top_srcdir}/src/base-typemaps.i
 	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
 	-I${top_srcdir}/src -o $@ $<
-endif
 
 EXTRA_DIST = \
   gnucash.desktop.in \

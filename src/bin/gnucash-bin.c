@@ -518,6 +518,13 @@ gnc_parse_command_line(int *argc, char ***argv)
     }
     g_option_context_free (context);
 
+#ifndef GNUCASH_SCM
+#define GNUCASH_SCM "unknown-scm"
+#endif
+#ifndef GNUCASH_SCM_REV
+#define GNUCASH_SCM_REV "unknown-rev"
+#endif
+
     if (gnucash_show_version)
     {
         gchar *fixed_message;

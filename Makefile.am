@@ -76,8 +76,7 @@ EXTRA_DIST = \
   po/glossary/zh_TW.po \
   intltool-extract.in \
   intltool-merge.in \
-  intltool-update.in \
-  util/gnc-scm-info
+  intltool-update.in
 
 ## We borrow guile's convention and use @-...-@ as the substitution
 ## brackets here, instead of the usual @...@.  This prevents autoconf
@@ -186,7 +185,6 @@ intl-scm/guile-strings.c:
 SVN = svn
 XSLTPROC = xsltproc
 
-if BUILDING_FROM_SCM
 # This rule will generate a ChangeLog of gnucash/trunk commits, plus
 # all additional branches that are added in
 # ./macros/svn2cl.xsl. (FIXME: Is the dependency on NEWS really a good
@@ -196,7 +194,6 @@ ChangeLog: NEWS
 	$(SVN) log -v --xml -r HEAD:20021 http://svn.gnucash.org/repo/gnucash | \
 	  $(XSLTPROC) --stringparam strip-prefix "gnucash/trunk" \
 	  --stringparam include-rev "yes" $(srcdir)/macros/svn2cl.xsl - > $@
-endif
 
 ASTYLE = /usr/bin/astyle
 .PHONY: indent

@@ -94,14 +94,12 @@ libgncmod_app_utils_la_LIBADD = \
   ${GUILE_LIBS} \
   ${GLIB_LIBS}
 
-if BUILDING_FROM_SCM
 swig-app-utils-guile.c: app-utils.i ${top_srcdir}/src/base-typemaps.i
 	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
 	-I${top_srcdir}/src -o $@ $<
 swig-app-utils-python.c: app-utils.i ${top_srcdir}/src/base-typemaps.i
 	$(SWIG) -python -Wall -Werror $(SWIG_ARGS) \
 	-I${top_srcdir}/src -o $@ $<
-endif
 
 if WITH_PYTHON
 pkglib_LTLIBRARIES += libgncmod-app-utils-python.la

@@ -27,10 +27,8 @@ EXTRA_DIST = \
   foo.i \
   gnucash/foo.scm
 
-if BUILDING_FROM_SCM
 swig-foo.c: foo.i
 	$(SWIG) -guile $(SWIG_ARGS) -Linkage module -o $@ $<
-endif
 
 BUILT_SOURCES = swig-foo.c
 MAINTAINERCLEANFILES = swig-foo.c
