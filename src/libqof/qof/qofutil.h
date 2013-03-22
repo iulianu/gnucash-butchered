@@ -41,21 +41,6 @@
 #include "qofbook.h"
 #include "qofinstance.h"
 
-/** Do not use these for printf, only scanf */
-#if HAVE_SCANF_LLD
-# define QOF_SCANF_LLD "%lld"
-#else
-# if HAVE_SCANF_QD
-#  define QOF_SCANF_LLD "%qd"
-# else
-#  if HAVE_SCANF_I64D
-#   define QOF_SCANF_LLD "%I64d"
-#  else
-#   error "No scanf format string is known for LLD. Fix your ./configure so that the correct one is detected!"
-#  endif
-# endif
-#endif
-
 #define QOF_MOD_UTIL "qof.utilities"
 
 /** \name typedef enum as string macros
