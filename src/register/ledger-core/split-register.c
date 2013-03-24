@@ -26,7 +26,6 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
-#include <libguile.h>
 
 #include <gnc-gdate-utils.h>
 #include "combocell.h"
@@ -37,7 +36,6 @@
 #include "split-register-p.h"
 #include "gnc-ledger-display.h"
 #include "gnc-ui.h"
-#include "guile-util.h"
 #include "numcell.h"
 #include "pricecell.h"
 #include "quickfillcell.h"
@@ -61,17 +59,7 @@ static QofLogModule log_module = GNC_MOD_LEDGER;
 
 /* The copied split or transaction, if any */
 static CursorClass copied_class = CURSOR_CLASS_NONE;
-static SCM copied_item = SCM_UNDEFINED;
 static GncGUID copied_leader_guid;
-
-
-/** static prototypes *****************************************************/
-
-static gboolean gnc_split_register_save_to_scm (SplitRegister *reg,
-        SCM trans_scm, SCM split_scm,
-        gboolean use_cut_semantics);
-static gboolean gnc_split_register_auto_calc (SplitRegister *reg,
-        Split *split);
 
 
 /** implementations *******************************************************/
@@ -80,6 +68,7 @@ static gboolean gnc_split_register_auto_calc (SplitRegister *reg,
 static void
 gnc_copy_split_onto_split(Split *from, Split *to, gboolean use_cut_semantics)
 {
+#if 0
     SCM split_scm;
 
     if ((from == NULL) || (to == NULL))
@@ -90,6 +79,7 @@ gnc_copy_split_onto_split(Split *from, Split *to, gboolean use_cut_semantics)
         return;
 
     gnc_copy_split_scm_onto_split(split_scm, to, gnc_get_current_book ());
+#endif
 }
 
 /* Uses the scheme transaction copying routines */
@@ -98,6 +88,7 @@ gnc_copy_trans_onto_trans(Transaction *from, Transaction *to,
                           gboolean use_cut_semantics,
                           gboolean do_commit)
 {
+#if 0
     SCM trans_scm;
 
     if ((from == NULL) || (to == NULL))
@@ -109,6 +100,7 @@ gnc_copy_trans_onto_trans(Transaction *from, Transaction *to,
 
     gnc_copy_trans_scm_onto_trans(trans_scm, to, do_commit,
                                   gnc_get_current_book ());
+#endif
 }
 
 static int
@@ -684,6 +676,7 @@ static void
 gnc_split_register_copy_current_internal (SplitRegister *reg,
         gboolean use_cut_semantics)
 {
+#if 0
     SRInfo *info = gnc_split_register_get_info(reg);
     CursorClass cursor_class;
     Transaction *trans;
@@ -800,6 +793,7 @@ gnc_split_register_copy_current_internal (SplitRegister *reg,
     copied_class = cursor_class;
     LEAVE("%s %s", use_cut_semantics ? "cut" : "copied",
           cursor_class == CURSOR_CLASS_SPLIT ? "split" : "transaction");
+#endif
 }
 
 void
@@ -854,6 +848,7 @@ gnc_split_register_cut_current (SplitRegister *reg)
 void
 gnc_split_register_paste_current (SplitRegister *reg)
 {
+#if 0
     SRInfo *info = gnc_split_register_get_info(reg);
     CursorClass cursor_class;
     Transaction *trans;
@@ -1018,6 +1013,7 @@ gnc_split_register_paste_current (SplitRegister *reg)
     /* Refresh the GUI. */
     gnc_resume_gui_refresh ();
     LEAVE(" ");
+#endif
 }
 
 void
@@ -1351,208 +1347,6 @@ gnc_split_register_redraw (SplitRegister *reg)
     gnc_ledger_display_refresh_by_split_register (reg);
 }
 
-/* Copy from the register object to scheme. This needs to be
- * in sync with gnc_split_register_save and xaccSRSaveChangedCells. */
-static gboolean
-gnc_split_register_save_to_scm (SplitRegister *reg,
-                                SCM trans_scm, SCM split_scm,
-                                gboolean use_cut_semantics)
-{
-    SCM other_split_scm = SCM_UNDEFINED;
-    Transaction *trans;
-
-    /* use the changed flag to avoid heavy-weight updates
-     * of the split & transaction fields. This will help
-     * cut down on uneccessary register redraws. */
-    if (!gnc_table_current_cursor_changed (reg->table, FALSE))
-        return FALSE;
-
-    /* get the handle to the current split and transaction */
-    trans = gnc_split_register_get_current_trans (reg);
-    if (trans == NULL)
-        return FALSE;
-
-    /* copy the contents from the cursor to the split */
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, DATE_CELL, TRUE))
-    {
-        BasicCell *cell;
-        Timespec ts;
-
-        cell = gnc_table_layout_get_cell (reg->table->layout, DATE_CELL);
-        gnc_date_cell_get_date ((DateCell *) cell, &ts);
-
-        gnc_trans_scm_set_date(trans_scm, &ts);
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, NUM_CELL, TRUE))
-    {
-        const char *value;
-
-        value = gnc_table_layout_get_cell_value (reg->table->layout, NUM_CELL);
-        if (reg->use_tran_num_for_num_field)
-            gnc_trans_scm_set_num (trans_scm, value);
-     /* else this contains the same as ACTN_CELL which is already handled below *
-      * and the TNUM_CELL contains transaction number which is handled in next  *
-      * if statement. */
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, TNUM_CELL, TRUE))
-    {
-        const char *value;
-
-        value = gnc_table_layout_get_cell_value (reg->table->layout, TNUM_CELL);
-        if (!reg->use_tran_num_for_num_field)
-            gnc_trans_scm_set_num (trans_scm, value);
-     /* else this cell is not used */
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, DESC_CELL, TRUE))
-    {
-        const char *value;
-
-        value = gnc_table_layout_get_cell_value (reg->table->layout, DESC_CELL);
-        gnc_trans_scm_set_description (trans_scm, value);
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, NOTES_CELL, TRUE))
-    {
-        const char *value;
-
-        value = gnc_table_layout_get_cell_value (reg->table->layout, NOTES_CELL);
-        gnc_trans_scm_set_notes (trans_scm, value);
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, RECN_CELL, TRUE))
-    {
-        BasicCell *cell;
-        char flag;
-
-        cell = gnc_table_layout_get_cell (reg->table->layout, RECN_CELL);
-        flag = gnc_recn_cell_get_flag ((RecnCell *) cell);
-
-        gnc_split_scm_set_reconcile_state(split_scm, flag);
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, ACTN_CELL, TRUE))
-    {
-        const char *value;
-
-        value = gnc_table_layout_get_cell_value (reg->table->layout, ACTN_CELL);
-        gnc_split_scm_set_action (split_scm, value);
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, MEMO_CELL, TRUE))
-    {
-        const char *value;
-
-        value = gnc_table_layout_get_cell_value (reg->table->layout, MEMO_CELL);
-        gnc_split_scm_set_memo (split_scm, value);
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, XFRM_CELL, TRUE))
-    {
-        Account *new_account;
-
-        new_account = gnc_split_register_get_account (reg, XFRM_CELL);
-
-        if (new_account != NULL)
-            gnc_split_scm_set_account (split_scm, new_account);
-    }
-
-    if (reg->style == REG_STYLE_LEDGER)
-        other_split_scm = gnc_trans_scm_get_other_split_scm (trans_scm, split_scm);
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, MXFRM_CELL, TRUE))
-    {
-        other_split_scm = gnc_trans_scm_get_other_split_scm (trans_scm, split_scm);
-
-        if (other_split_scm == SCM_UNDEFINED)
-        {
-            if (gnc_trans_scm_get_num_splits(trans_scm) == 1)
-            {
-                Split *temp_split;
-
-                temp_split = xaccMallocSplit (gnc_get_current_book ());
-                other_split_scm = gnc_copy_split (temp_split, use_cut_semantics);
-                xaccSplitDestroy (temp_split);
-
-                gnc_trans_scm_append_split_scm (trans_scm, other_split_scm);
-            }
-        }
-
-        if (other_split_scm != SCM_UNDEFINED)
-        {
-            Account *new_account;
-
-            new_account = gnc_split_register_get_account (reg, MXFRM_CELL);
-
-            if (new_account != NULL)
-                gnc_split_scm_set_account (other_split_scm, new_account);
-        }
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout,
-                                           DEBT_CELL, TRUE) ||
-            gnc_table_layout_get_cell_changed (reg->table->layout,
-                    CRED_CELL, TRUE))
-    {
-        BasicCell *cell;
-        gnc_numeric new_value;
-        gnc_numeric credit;
-        gnc_numeric debit;
-
-        cell = gnc_table_layout_get_cell (reg->table->layout, CRED_CELL);
-        credit = gnc_price_cell_get_value ((PriceCell *) cell);
-
-        cell = gnc_table_layout_get_cell (reg->table->layout, DEBT_CELL);
-        debit = gnc_price_cell_get_value ((PriceCell *) cell);
-
-        new_value = gnc_numeric_sub_fixed (debit, credit);
-
-        gnc_split_scm_set_value (split_scm, new_value);
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, PRIC_CELL, TRUE))
-    {
-        /* do nothing for now */
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout, SHRS_CELL, TRUE))
-    {
-        BasicCell *cell;
-        gnc_numeric shares;
-
-        cell = gnc_table_layout_get_cell (reg->table->layout, SHRS_CELL);
-
-        shares = gnc_price_cell_get_value ((PriceCell *) cell);
-
-        gnc_split_scm_set_amount (split_scm, shares);
-    }
-
-    if (gnc_table_layout_get_cell_changed (reg->table->layout,
-                                           DEBT_CELL, TRUE) ||
-            gnc_table_layout_get_cell_changed (reg->table->layout,
-                    CRED_CELL, TRUE) ||
-            gnc_table_layout_get_cell_changed (reg->table->layout,
-                    PRIC_CELL, TRUE) ||
-            gnc_table_layout_get_cell_changed (reg->table->layout,
-                    SHRS_CELL, TRUE))
-    {
-        if (other_split_scm != SCM_UNDEFINED)
-        {
-            gnc_numeric num;
-
-            num = gnc_split_scm_get_amount (split_scm);
-            gnc_split_scm_set_amount (other_split_scm, gnc_numeric_neg (num));
-
-            num = gnc_split_scm_get_value (split_scm);
-            gnc_split_scm_set_value (other_split_scm, gnc_numeric_neg (num));
-        }
-    }
-
-    return TRUE;
-}
-
 gboolean
 gnc_split_register_save (SplitRegister *reg, gboolean do_commit)
 {
@@ -1650,12 +1444,14 @@ gnc_split_register_save (SplitRegister *reg, gboolean do_commit)
     (void) gnc_split_register_check_cell (reg,
                                           gnc_table_get_current_cell_name (reg->table));
 
+#if 0
     if (!gnc_split_register_auto_calc (reg, split))
     {
         LEAVE("auto calc failed");
         return FALSE;
     }
-
+#endif
+    
     /* Validate the transfer account names */
     (void)gnc_split_register_get_account (reg, MXFRM_CELL);
     (void)gnc_split_register_get_account (reg, XFRM_CELL);
@@ -2236,14 +2032,15 @@ gnc_split_register_get_debit_string (SplitRegister *reg)
 
     if (info->debit_str)
         return info->debit_str;
-
+#if 0
     info->debit_str =
         gnc_get_debit_string
         (gnc_split_register_type_to_account_type (reg->type));
 
     if (info->debit_str)
         return info->debit_str;
-
+#endif
+    
     info->debit_str = g_strdup (_("Debit"));
 
     return info->debit_str;
@@ -2260,13 +2057,15 @@ gnc_split_register_get_credit_string (SplitRegister *reg)
     if (info->credit_str)
         return info->credit_str;
 
+#if 0
     info->credit_str =
         gnc_get_credit_string
         (gnc_split_register_type_to_account_type (reg->type));
 
     if (info->credit_str)
         return info->credit_str;
-
+#endif
+    
     info->credit_str = g_strdup (_("Credit"));
 
     return info->credit_str;

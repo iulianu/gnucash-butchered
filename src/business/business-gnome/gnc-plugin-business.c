@@ -44,7 +44,6 @@
 #include "gnc-ui-util.h"
 #include "gnc-date.h"
 #include "gnc-file.h"
-#include "guile-mappings.h"
 #include "gnc-session.h"
 #include "gnome-utils/gnc-icons.h" /* for GNC_STOCK_INVOICE_NEW */
 

@@ -193,18 +193,6 @@ void gnc_progress_dialog_set_cancel_func(GNCProgressDialog *progress,
         GNCProgressCancelFunc cancel_func,
         gpointer user_data);
 
-/** Show a Cancel button and set the Guile procedure that will be called
- *  when it is pressed by the user. It will be called after any C function
- *  registered with gnc_progress_dialog_set_cancel_func(). The procedure
- *  must return @c \#t if the dialog should be hidden. If there is no C or
- *  Guile cancel callback (the default state), the Cancel button is hidden.
- *
- *  @param progress a ::GNCProgressDialog
- *
- *  @param cancel_scm_func the Guile callback procedure */
-void gnc_progress_dialog_set_cancel_scm_func(GNCProgressDialog *progress,
-        SCM cancel_scm_func);
-
 /** Set the fraction of the progress bar to fill, where 0 is empty and
  *  1 is full. If @a value is over 1, the bar will pulse instead of fill.
  *

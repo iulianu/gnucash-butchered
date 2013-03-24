@@ -23,12 +23,8 @@
 #ifndef GNC_MENU_EXTENSIONS_H
 #define GNC_MENU_EXTENSIONS_H
 
-#include <libguile.h>
-
 typedef struct _ExtensionInfo
 {
-    SCM extension;
-
     GtkActionEntry ae;
     gchar *path;
     gchar *sort_key;
@@ -41,15 +37,6 @@ typedef struct _ExtensionInfo
 #define ADDITIONAL_MENUS_PLACEHOLDER "AdditionalMenusPlaceholder"
 
 GSList *gnc_extensions_get_menu_list (void);
-void gnc_extension_invoke_cb (SCM extension, SCM window);
-
-/** This function stores a menu item/callback for later insertion into
- *  the application menus,
- *
- *  @param extension A scheme object descrubing the menu to be
- *  inserted.  Functions written in C should use the gnc-plugin code.
- */
-void gnc_add_scm_extension(SCM extension);
 
 /** This function releases any memory being held by the 'extensions'
  *  code.  It is called from the window shutdown code.

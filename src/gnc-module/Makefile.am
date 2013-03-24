@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
 
 lib_LTLIBRARIES = libgnc-module.la
 
-libgnc_module_la_SOURCES = gnc-module.c swig-gnc-module.c
+libgnc_module_la_SOURCES = gnc-module.c
 
 libgnc_module_la_LIBADD = \
   ../core-utils/libgnc-core-utils.la \
@@ -28,10 +28,6 @@ gncinclude_HEADERS = \
   gnc-module.h
 
 noinst_DATA = .scm-links
-
-swig-gnc-module.c: gnc-module.i ${top_srcdir}/src/base-typemaps.i
-	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
-	-I${top_srcdir}/src -o $@ $<
 
 EXTRA_DIST = \
   ${gncmod_DATA} \

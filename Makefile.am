@@ -165,7 +165,6 @@ libtool: $(LIBTOOL_DEPS)
 .PHONY: pot
 pot: Makefile po/POTFILES.in
 	rm -f intl-scm/guile-strings.c
-	${MAKE} -C intl-scm
 	rm -f po/$(PACKAGE).pot
 	${MAKE} -C po $(PACKAGE).pot
 
@@ -175,10 +174,8 @@ $(srcdir)/po/POTFILES.in: make-gnucash-potfiles .potfiles
 
 # Creation rules so that po/gnucash.pot can always be created for
 # make dist.
-po/gnucash.pot: po/POTFILES.in intl-scm/guile-strings.c
+po/gnucash.pot: po/POTFILES.in
 	${MAKE} -C po gnucash.pot
-intl-scm/guile-strings.c:
-	${MAKE} -C intl-scm guile-strings.c
 
 .potfiles:
 

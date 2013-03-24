@@ -11,7 +11,6 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/engine/test-core \
   -I${top_srcdir}/src/libqof/qof \
   -I${top_srcdir}/src/core-utils \
-  ${GUILE_INCS} \
   ${GLIB_CFLAGS}
 
 LDADD = \
@@ -64,7 +63,6 @@ GNC_TEST_DEPS = \
   --library-dir    ${top_builddir}/src/backend/sql
 
 TESTS_ENVIRONMENT = \
-  GUILE_WARN_DEPRECATED=no \
   SRCDIR=${srcdir} \
   GNC_BUILDDIR=`\cd ${top_builddir} && pwd` \
   $(shell ${top_srcdir}/src/gnc-test-env --no-exports ${GNC_TEST_DEPS})

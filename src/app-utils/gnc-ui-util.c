@@ -26,7 +26,6 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
-#include <libguile.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -42,7 +41,6 @@
 
 
 #include "qof.h"
-#include "guile-mappings.h"
 #include "core-utils/gnc-gconf-utils.h"
 #include "gnc-module/gnc-module.h"
 #include "engine/Account.h"
@@ -55,7 +53,6 @@
 #include "gnc-locale-utils.h"
 #include "gnc-component-manager.h"
 #include "gnc-features.h"
-#include "gnc-guile-utils.h"
 
 #define KEY_CURRENCY_CHOICE "currency_choice"
 #define KEY_CURRENCY_OTHER  "currency_other"
@@ -301,246 +298,6 @@ gnc_account_lookup_for_register(const Account *base_account, const char *name)
         return gnc_account_lookup_by_full_name (base_account, name);
 }
 
-
-/* Caller is responsible for g_free'ing returned memory */
-char *
-gnc_ui_account_get_tax_info_string (const Account *account)
-{
-    static SCM get_form = SCM_UNDEFINED;
-    static SCM get_desc = SCM_UNDEFINED;
-
-    gboolean tax_related = FALSE;
-    const char *code;
-
-    if (!account)
-        return NULL;
-
-    tax_related = xaccAccountGetTaxRelated (account);
-    code = xaccAccountGetTaxUSCode (account);
-
-    if (!code)
-    {
-        if (!tax_related)
-            return NULL;
-        /* tax_related && !code */
-        else
-            /* Translators: This and the following strings appear on
-             * the account tab if the Tax Info column is displayed,
-             * i.e. if the user wants to record the tax form number
-             * and location on that tax form which corresponds to this
-             * gnucash account. For the US Income Tax support in
-             * gnucash, each tax code that can be assigned to an
-             * account generally corresponds to a specific line number
-             * on a paper form and each form has a unique
-             * identification (e.g., Form 1040, Schedule A). */
-            return g_strdup (_("Tax-related but has no tax code"));
-    }
-    else  /* with tax code */
-    {
-        const gchar *tax_type;
-        GNCAccountType atype;
-        SCM tax_entity_type;
-        SCM category;
-        gchar *num_code = NULL;
-        const gchar *prefix = "N";
-        gchar *return_string = NULL;
-
-        tax_type = gnc_get_current_book_tax_type ();
-        if (tax_type == NULL || (g_strcmp0 (tax_type, "") == 0))
-            return g_strdup (_("Tax entity type not specified"));
-
-        atype = xaccAccountGetType (account);
-        tax_entity_type = scm_from_locale_string (tax_type);
-
-        if (get_form == SCM_UNDEFINED)
-        {
-            GNCModule module;
-            const gchar *tax_module;
-            /* load the tax info */
-#ifdef LOCALE_SPECIFIC_TAX
-            /* This is a very simple hack that loads the (new, special) German
-               tax definition file in a German locale, or (default) loads the
-               previous US tax file. */
-# ifdef G_OS_WIN32
-            gchar *thislocale = g_win32_getlocale();
-            gboolean is_de_DE = (strncmp(thislocale, "de_DE", 5) == 0);
-            g_free(thislocale);
-# else /* !G_OS_WIN32 */
-            const char *thislocale = setlocale(LC_ALL, NULL);
-            gboolean is_de_DE = (strncmp(thislocale, "de_DE", 5) == 0);
-# endif /* G_OS_WIN32 */
-#else /* LOCALE_SPECIFIC_TAX */
-            gboolean is_de_DE = FALSE;
-#endif /* LOCALE_SPECIFIC_TAX */
-            tax_module = is_de_DE ?
-                         "gnucash/tax/de_DE" :
-                         "gnucash/tax/us";
-
-            module = gnc_module_load ((char *)tax_module, 0);
-
-            g_return_val_if_fail (module, NULL);
-
-            get_form = scm_c_eval_string
-                       ("(false-if-exception gnc:txf-get-form)");
-            get_desc = scm_c_eval_string
-                       ("(false-if-exception gnc:txf-get-description)");
-        }
-
-        g_return_val_if_fail (scm_is_procedure (get_form), NULL);
-        g_return_val_if_fail (scm_is_procedure (get_desc), NULL);
-
-        category = scm_c_eval_string (atype == ACCT_TYPE_INCOME ?
-                                      "txf-income-categories" :
-                                      (atype == ACCT_TYPE_EXPENSE ?
-                                       "txf-expense-categories" :
-                                       (((atype == ACCT_TYPE_BANK)      ||
-                                         (atype == ACCT_TYPE_CASH)      ||
-                                         (atype == ACCT_TYPE_ASSET)     ||
-                                         (atype == ACCT_TYPE_STOCK)     ||
-                                         (atype == ACCT_TYPE_MUTUAL)    ||
-                                         (atype == ACCT_TYPE_RECEIVABLE)) ?
-                                        "txf-asset-categories" :
-                                        (((atype == ACCT_TYPE_CREDIT)    ||
-                                          (atype == ACCT_TYPE_LIABILITY) ||
-                                          (atype == ACCT_TYPE_EQUITY)    ||
-                                          (atype == ACCT_TYPE_PAYABLE)) ?
-                                         "txf-liab-eq-categories" : ""))));
-
-        if (g_str_has_prefix (code, prefix))
-        {
-            const gchar *num_code_tmp;
-            num_code_tmp = g_strdup (code);
-            num_code_tmp++; /* to lose the leading N */
-            num_code = g_strdup (num_code_tmp);
-            num_code_tmp--;
-            g_free ((gpointer *) num_code_tmp);
-        }
-        else
-        {
-            num_code = g_strdup (code);
-        }
-
-        if (category == SCM_UNDEFINED)
-        {
-            if (tax_related)
-                return_string = g_strdup_printf
-                                (_("Tax type %s: invalid code %s for account type"),
-                                 tax_type, num_code);
-            else
-                return_string = g_strdup_printf
-                                (_("Not tax-related; tax type %s: invalid code %s for account type"),
-                                 tax_type, num_code);
-        }
-        else
-        {
-            SCM code_scm;
-            SCM form_scm;
-            code_scm = scm_from_locale_symbol (code);
-            form_scm = scm_call_3 (get_form, category, code_scm, tax_entity_type);
-            if (!scm_is_string (form_scm))
-            {
-                if (tax_related)
-                    return_string =  g_strdup_printf
-                                     (_("Invalid code %s for tax type %s"),
-                                      num_code, tax_type);
-                else
-                    return_string =  g_strdup_printf
-                                     (_("Not tax-related; invalid code %s for tax type %s"),
-                                      num_code, tax_type);
-            }
-            else
-            {
-                gchar *form = NULL;
-
-                /* Note: using scm_to_locale_string directly here instead
-                   of our wrapper gnc_scm_to_locale_string. 'form' should
-                   be freed with 'free' instead of 'g_free'. This will
-                   be taken care of automatically during scm_dynwind_end,
-                   because we inform guile of this memory allocation via
-                   scm_dynwind_free a little further. */
-                form = scm_to_locale_string (form_scm);
-                if (!form)
-                {
-                    if (tax_related)
-                        return_string = g_strdup_printf
-                                        (_("No form: code %s, tax type %s"), num_code,
-                                         tax_type);
-                    else
-                        return_string = g_strdup_printf
-                                        (_("Not tax-related; no form: code %s, tax type %s"),
-                                         num_code, tax_type);
-                }
-                else
-                {
-                    SCM desc_scm;
-
-                    /* Create a dynwind context because we will be calling (scm) functions
-                       that potentially exit non-locally */
-                    scm_dynwind_begin (0);
-                    scm_dynwind_free (form);
-                    desc_scm = scm_call_3 (get_desc, category, code_scm,
-                                           tax_entity_type);
-                    if (!scm_is_string (desc_scm))
-                    {
-                        if (tax_related)
-                            return_string = g_strdup_printf
-                                            (_("No description: form %s, code %s, tax type %s"),
-                                             form, num_code, tax_type);
-                        else
-                            return_string = g_strdup_printf
-                                            (_("Not tax-related; no description: form %s, code %s, tax type %s"),
-                                             form, num_code, tax_type);
-                    }
-                    else
-                    {
-                        gchar *desc = NULL;
-                        desc = gnc_scm_to_locale_string (desc_scm);
-                        if (!desc)
-                        {
-                            if (tax_related)
-                                return_string = g_strdup_printf
-                                                (_("No description: form %s, code %s, tax type %s"),
-                                                 form, num_code, tax_type);
-                            else
-                                return_string = g_strdup_printf
-                                                (_("Not tax-related; no description: form %s, code %s, tax type %s"),
-                                                 form, num_code, tax_type);
-                        }
-                        else
-                        {
-                            gint64 copy_number;
-                            gchar *copy_txt = NULL;
-                            copy_number = xaccAccountGetTaxUSCopyNumber (account);
-                            copy_txt = (copy_number == 1) ?
-                                       g_strdup ("") :
-                                       g_strdup_printf ("(%d)",
-                                                        (gint) copy_number);
-                            if (tax_related)
-                            {
-                                if (g_strcmp0 (form, "") == 0)
-                                    return_string = g_strdup_printf ("%s", desc);
-                                else
-                                    return_string = g_strdup_printf ("%s%s: %s",
-                                                                     form, copy_txt, desc);
-                            }
-                            else
-                            {
-                                return_string = g_strdup_printf
-                                                (_("Not tax-related; %s%s: %s (code %s, tax type %s)"),
-                                                 form, copy_txt, desc, num_code, tax_type);
-                            }
-                            g_free (copy_txt);
-                        }
-                        g_free (desc);
-                    }
-                    scm_dynwind_end ();
-                }
-            }
-        }
-        g_free (num_code);
-        return return_string;
-    }
-}
 
 /* Caller is responsible for g_free'ing returned memory */
 char *

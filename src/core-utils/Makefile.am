@@ -10,13 +10,11 @@ libgnc_core_utils_la_SOURCES = \
   gnc-gdate-utils.c \
   gnc-gkeyfile-utils.c \
   gnc-glib-utils.c \
-  gnc-guile-utils.c \
   gnc-jalali.c \
   gnc-locale-utils.c \
   gnc-main.c \
   gnc-path.c \
-  gnc-uri-utils.c \
-  swig-core-utils-guile.c
+  gnc-uri-utils.c
 
 libgnc_core_utils_la_LIBADD = \
   ${GUILE_LIBS} \
@@ -36,21 +34,12 @@ noinst_HEADERS = \
   gnc-gdate-utils.h \
   gnc-gkeyfile-utils.h \
   gnc-glib-utils.h \
-  gnc-guile-utils.h \
   gnc-jalali.h \
   gnc-locale-utils.h \
   gnc-path.h \
   gnc-uri-utils.h
 
-swig-core-utils-guile.c: core-utils.i ${top_srcdir}/src/base-typemaps.i
-	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
-	-I${top_srcdir}/src -o $@ $<
-swig-core-utils-python.c: core-utils.i ${top_srcdir}/src/base-typemaps.i
-	$(SWIG) -python -Wall -Werror $(SWIG_ARGS) \
-	-I${top_srcdir}/src -o $@ $<
-
 AM_CPPFLAGS = \
-  ${GUILE_INCS} \
   ${GLIB_CFLAGS} \
   ${GCONF_CFLAGS} \
   ${GTK_MAC_CFLAGS} \
@@ -66,29 +55,6 @@ if GNUCASH_SEPARATE_BUILDDIR
 #Only needed when srcdir and builddir are different
 #for running
 SCM_FILE_LINKS = ${gncmod_DATA}
-endif
-
-if WITH_PYTHON
-
-lib_LTLIBRARIES += libgnc-core-utils-python.la
-
-libgnc_core_utils_python_la_SOURCES = \
-	swig-core-utils-python.c
-
-libgnc_core_utils_python_la_LIBADD = \
-	${PYTHON_LIBS} \
-	libgnc-core-utils.la
-
-libgnc_core_utils_python_la_CPPFLAGS = \
-  ${GLIB_CFLAGS} \
-  ${GCONF_CFLAGS} \
-  ${GTK_MAC_CFLAGS} \
-  ${QOF_CFLAGS} \
-  ${PYTHON_CPPFLAGS} \
-  -I${top_srcdir}/src/libqof/qof \
-  -I${top_builddir}/src \
-  -I${top_srcdir}/src
-
 endif
 
 .scm-links: 

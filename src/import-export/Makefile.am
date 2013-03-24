@@ -1,4 +1,4 @@
-SUBDIRS = . schemas qif qif-import \
+SUBDIRS = . schemas \
 	log-replay test 
 
 pkglib_LTLIBRARIES=libgncmod-generic-import.la

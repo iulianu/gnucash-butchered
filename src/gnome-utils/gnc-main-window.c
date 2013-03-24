@@ -3765,8 +3765,8 @@ gnc_book_options_dialog_apply_cb(GNCOptionWin * optionwin,
 
     if (!options) return;
 
-    gnc_option_db_commit (options);
-    gnc_option_db_save_to_kvp (options, slots, TRUE);
+//    gnc_option_db_commit (options);
+//    gnc_option_db_save_to_kvp (options, slots, TRUE);
     qof_book_kvp_changed (gnc_get_current_book());
     use_split_action_for_num_after =
         qof_book_use_split_action_for_num_field (gnc_get_current_book ());
@@ -3788,27 +3788,27 @@ GtkWidget *
 gnc_book_options_dialog_cb (gboolean modal, gchar *title)
 {
     kvp_frame *slots = qof_book_get_slots (gnc_get_current_book ());
-    GNCOptionDB *options;
+//    GNCOptionDB *options;
     GNCOptionWin *optionwin;
 
-    options = gnc_option_db_new_for_type (QOF_ID_BOOK);
-    gnc_option_db_load_from_kvp (options, slots);
-    gnc_option_db_clean (options);
+//    options = gnc_option_db_new_for_type (QOF_ID_BOOK);
+//    gnc_option_db_load_from_kvp (options, slots);
+//    gnc_option_db_clean (options);
 
     optionwin = gnc_options_dialog_new_modal (modal,
                                                 (title ? title : _( "Book Options")));
-    gnc_options_dialog_build_contents (optionwin, options);
-
-    gnc_options_dialog_set_book_options_help_cb (optionwin);
-
-    gnc_options_dialog_set_apply_cb (optionwin,
-                                     gnc_book_options_dialog_apply_cb,
-                                     (gpointer)options);
-    gnc_options_dialog_set_close_cb (optionwin,
-                                     gnc_book_options_dialog_close_cb,
-                                     (gpointer)options);
-    if (modal)
-        gnc_options_dialog_set_new_book_option_values (options);
+//    gnc_options_dialog_build_contents (optionwin, options);
+//
+//    gnc_options_dialog_set_book_options_help_cb (optionwin);
+//
+//    gnc_options_dialog_set_apply_cb (optionwin,
+//                                     gnc_book_options_dialog_apply_cb,
+//                                     (gpointer)options);
+//    gnc_options_dialog_set_close_cb (optionwin,
+//                                     gnc_book_options_dialog_close_cb,
+//                                     (gpointer)options);
+//    if (modal)
+//        gnc_options_dialog_set_new_book_option_values (options);
     return gnc_options_dialog_widget (optionwin);
 }
 

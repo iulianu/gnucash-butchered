@@ -44,7 +44,6 @@
 #include "gnc-session.h"
 #include "gnc-ui.h"
 #include "gnc-ui-util.h"
-#include "guile-util.h"
 #include "engine-helpers.h"
 
 

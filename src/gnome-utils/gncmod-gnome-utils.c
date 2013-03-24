@@ -8,7 +8,6 @@
 #include "config.h"
 
 #include <gmodule.h>
-#include <libguile.h>
 
 #include "gnc-module.h"
 #include "gnc-module-api.h"
@@ -40,16 +39,6 @@ libgncmod_gnome_utils_gnc_module_description(void)
     return g_strdup("Utilities for using Gnome/Gtk with GnuCash");
 }
 
-static void
-lmod(char * mn)
-{
-    char * form = g_strdup_printf("(use-modules %s)\n", mn);
-    scm_c_eval_string(form);
-    g_free(form);
-}
-
-extern SCM scm_init_sw_gnome_utils_module(void);
-
 int
 libgncmod_gnome_utils_gnc_module_init(int refcount)
 {
@@ -63,10 +52,6 @@ libgncmod_gnome_utils_gnc_module_init(int refcount)
     {
         return FALSE;
     }
-
-    scm_init_sw_gnome_utils_module();
-    lmod("(sw_gnome_utils)");
-    lmod("(gnucash gnome-utils)");
 
     /* Initialize the options-ui database */
     if (refcount == 0)

@@ -49,26 +49,6 @@ libtest_core_guile_la_CFLAGS = \
 libtest_core_guile_la_LDFLAGS = \
   -rpath ${exec-prefix}/lib
 
-if WITH_PYTHON
-
-noinst_LTLIBRARIES += _unittest_support.la
-
-_unittest_support_la_SOURCES = \
-  swig-unittest-support-python.c
-_unittest_support_la_CFLAGS = \
-  ${libtest_core_la_CPPFLAGS} \
-  ${PYTHON_CPPFLAGS}
-_unittest_support_la_LDFLAGS = \
-  ${PYTHON_LDFLAGS} \
-  -module \
-  -rpath ${exec-prefix}/lib
-
-_unittest_support_la_LIBADD = \
-  ${PYTHON_LIBS} \
-  ${PYTHON_EXTRA_LIBS} \
-  libtest-core.la
-
-endif
 SCM_FILES = unittest-support.scm
 
 gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash

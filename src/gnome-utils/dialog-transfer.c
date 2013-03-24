@@ -43,9 +43,6 @@
 #include "gnc-ui.h"
 #include "Transaction.h"
 #include "Account.h"
-#include <libguile.h>
-#include "swig-runtime.h"
-#include "guile-mappings.h"
 #include "engine-helpers.h"
 #include "app-utils/QuickFill.h"
 
@@ -1688,6 +1685,11 @@ gnc_xfer_dialog_close_cb(GtkDialog *dialog, gpointer data)
 void
 gnc_xfer_dialog_fetch (GtkButton *button, XferDialog *xferData)
 {
+    ENTER(" ");
+
+    LEAVE("feature disabled");
+    return;
+#if 0
     gnc_numeric rate;
     GNCPrice *prc;
     gnc_commodity *from = xferData->from_commodity;
@@ -1756,7 +1758,7 @@ gnc_xfer_dialog_fetch (GtkButton *button, XferDialog *xferData)
     }
 
     LEAVE("quote retrieved");
-
+#endif
 }
 
 static void

@@ -27,8 +27,6 @@
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <libguile.h>
-#include "swig-runtime.h"
 
 #include "qof.h"
 
@@ -42,7 +40,6 @@
 #include "gnc-date-edit.h"
 #include "gnc-amount-edit.h"
 #include "gnucash-sheet.h"
-#include "window-report.h"
 #include "dialog-search.h"
 #include "search-param.h"
 #include "gnc-session.h"
@@ -62,7 +59,6 @@
 #include "dialog-tax-table.h"
 #include "dialog-billterms.h"
 #include "dialog-account.h"
-#include "guile-mappings.h"
 #include "dialog-dup-trans.h"
 
 #include "dialog-query-view.h"
@@ -628,42 +624,6 @@ gnc_invoice_window_blankCB (GtkWidget *widget, gpointer data)
     }
 }
 
-static void
-gnc_invoice_window_print_invoice(GncInvoice *invoice)
-{
-    SCM func, arg, arg2;
-    SCM args = SCM_EOL;
-    int report_id;
-    const char *reportname = gnc_plugin_business_get_invoice_printreport();
-
-    g_return_if_fail (invoice);
-    if (!reportname)
-        reportname = "Printable Invoice"; // fallback if the option lookup failed
-
-    func = scm_c_eval_string ("gnc:invoice-report-create-withname");
-    g_return_if_fail (scm_is_procedure (func));
-
-    arg = SWIG_NewPointerObj(invoice, SWIG_TypeQuery("_p__gncInvoice"), 0);
-    arg2 = scm_from_locale_string(reportname);
-    args = scm_cons2 (arg, arg2, args);
-
-    /* scm_gc_protect_object(func); */
-
-    arg = scm_apply (func, args, SCM_EOL);
-    g_return_if_fail (scm_is_exact (arg));
-    report_id = scm_to_int (arg);
-
-    /* scm_gc_unprotect_object(func); */
-    if (report_id >= 0)
-        reportWindow (report_id);
-}
-void
-gnc_invoice_window_printCB (GtkWidget *unused_widget, gpointer data)
-{
-    InvoiceWindow *iw = data;
-    gnc_invoice_window_print_invoice(iw_get_invoice (iw));
-}
-
 void
 gnc_invoice_window_postCB (GtkWidget *unused_widget, gpointer data)
 {
@@ -964,53 +924,6 @@ void gnc_invoice_window_new_invoice_cb (GtkWidget *widget, gpointer data)
     {
         gnc_ui_invoice_new (&iw->owner, iw->book);
     }
-}
-
-void gnc_business_call_owner_report (GncOwner *owner, Account *acc)
-{
-    int id;
-    SCM args;
-    SCM func;
-    SCM arg;
-
-    g_return_if_fail (owner);
-
-    args = SCM_EOL;
-
-    func = scm_c_eval_string ("gnc:owner-report-create");
-    g_return_if_fail (scm_is_procedure (func));
-
-    if (acc)
-    {
-        swig_type_info * qtype = SWIG_TypeQuery("_p_Account");
-        g_return_if_fail (qtype);
-
-        arg = SWIG_NewPointerObj(acc, qtype, 0);
-        g_return_if_fail (arg != SCM_UNDEFINED);
-        args = scm_cons (arg, args);
-    }
-    else
-    {
-        args = scm_cons (SCM_BOOL_F, args);
-    }
-
-    arg = SWIG_NewPointerObj(owner, SWIG_TypeQuery("_p__gncOwner"), 0);
-    g_return_if_fail (arg != SCM_UNDEFINED);
-    args = scm_cons (arg, args);
-
-    /* Apply the function to the args */
-    arg = scm_apply (func, args, SCM_EOL);
-    g_return_if_fail (scm_is_exact (arg));
-    id = scm_to_int (arg);
-
-    if (id >= 0)
-        reportWindow (id);
-}
-
-void gnc_invoice_window_report_owner_cb (GtkWidget *widget, gpointer data)
-{
-    InvoiceWindow *iw = data;
-    gnc_business_call_owner_report (&iw->owner, NULL);
 }
 
 void gnc_invoice_window_payment_cb (GtkWidget *widget, gpointer data)
@@ -2733,21 +2646,6 @@ multi_post_invoice_cb (GList *invoice_list, gpointer user_data)
     g_list_foreach(invoice_list, post_one_invoice_cb, user_data);
 }
 
-static void print_one_invoice_cb(gpointer data, gpointer user_data)
-{
-    GncInvoice *invoice = data;
-    gnc_invoice_window_print_invoice(invoice); // that's all!
-}
-
-static void
-multi_print_invoice_cb (GList *invoice_list, gpointer user_data)
-{
-    if (g_list_length(invoice_list) == 0)
-        return;
-
-    g_list_foreach(invoice_list, print_one_invoice_cb, user_data);
-}
-
 static gpointer
 new_invoice_cb (gpointer user_data)
 {
@@ -2788,7 +2686,6 @@ gnc_invoice_search (GncInvoice *start, GncOwner *owner, QofBook *book)
         { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
         { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
         { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
-        { N_("Printable Report"), NULL, multi_print_invoice_cb, TRUE},
         { NULL },
     };
     static GNCSearchCallbackButton bill_buttons[] =
@@ -2797,7 +2694,6 @@ gnc_invoice_search (GncInvoice *start, GncOwner *owner, QofBook *book)
         { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
         { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
         { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
-        { N_("Printable Report"), NULL, multi_print_invoice_cb, TRUE},
         { NULL },
     };
     static GNCSearchCallbackButton emp_buttons[] =
@@ -2808,7 +2704,6 @@ gnc_invoice_search (GncInvoice *start, GncOwner *owner, QofBook *book)
         { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
         { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
         { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
-        { N_("Printable Report"), NULL, multi_print_invoice_cb, TRUE},
         { NULL },
     };
 

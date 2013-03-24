@@ -30,7 +30,6 @@
 #include <gmodule.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <libguile.h>
 
 #include "gnc-hooks.h"
 #include "gnc-module.h"
@@ -93,9 +92,6 @@ libgncmod_business_gnome_gnc_module_init(int refcount)
     {
         return FALSE;
     }
-
-    scm_c_eval_string("(use-modules (gnucash business-gnome))");
-    scm_c_eval_string("(use-modules (gnucash report business-reports))");
 
     if (refcount == 0)
     {

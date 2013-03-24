@@ -26,17 +26,5 @@
 #define GLIB_HELPERS_H
 
 #include <glib.h>
-#include <libguile.h>
-
-SCM gnc_glist_to_scm_list(GList *glist, gchar *wct);
-GList* gnc_scm_list_to_glist(SCM wcp_list);
-
-SCM     gnc_glist_string_to_scm(GList * list);
-GList * gnc_scm_to_glist_string(SCM list);
-int     gnc_glist_string_p(SCM list);
-
-GSList * gnc_scm_to_gslist_string(SCM list);
-
-
 
 #endif

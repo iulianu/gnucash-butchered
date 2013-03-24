@@ -818,7 +818,9 @@ gnc_tree_model_account_get_value (GtkTreeModel *tree_model,
 
     case GNC_TREE_MODEL_ACCOUNT_COL_TAX_INFO:
         g_value_init (value, G_TYPE_STRING);
+#if 0
         g_value_take_string (value, gnc_ui_account_get_tax_info_string (account));
+#endif
         break;
 
     case GNC_TREE_MODEL_ACCOUNT_COL_TAX_INFO_SUB_ACCT:

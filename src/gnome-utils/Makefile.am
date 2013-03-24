@@ -104,7 +104,6 @@ libgncmod_gnome_utils_la_SOURCES = \
   misc-gnome-utils.c \
   search-param.c \
   print-session.c \
-  swig-gnome-utils.c \
   window-main-summarybar.c
 
 gncincludedir = ${GNC_INCLUDE_DIR}
@@ -213,11 +212,6 @@ libgncmod_gnome_utils_la_LIBADD = \
 if HAVE_X11_XLIB_H
   libgncmod_gnome_utils_la_LIBADD += -lX11
 endif
-
-swig-gnome-utils.c: gnome-utils.i \
-                    ${top_srcdir}/src/base-typemaps.i
-	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
-	-I${top_srcdir}/src -o $@ $<
 
 gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
 gncmod_DATA = gnome-utils.scm 

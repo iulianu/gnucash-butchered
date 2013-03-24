@@ -26,27 +26,15 @@
 #include <glib/gi18n.h>
 #include <ctype.h>
 
-#include "guile-util.h"
 #include "gnc-engine.h"
 #include "gnc-menu-extensions.h"
 #include "gnc-ui.h"
 
-typedef struct _Getters Getters;
-struct _Getters
-{
-    SCM type;
-    SCM name;
-    SCM guid;
-    SCM documentation;
-    SCM path;
-    SCM script;
-};
 
 /* This static indicates the debugging module that this .o belongs to.  */
 static QofLogModule log_module = GNC_MOD_GUI;
 
 static GSList *extension_list = NULL;
-static Getters getters = {0, 0, 0, 0, 0, 0};
 
 GSList *
 gnc_extensions_get_menu_list (void)
@@ -54,158 +42,6 @@ gnc_extensions_get_menu_list (void)
     return g_slist_copy(extension_list);
 }
 
-static void
-initialize_getters()
-{
-    static gboolean getters_initialized = FALSE;
-
-    if (getters_initialized)
-        return;
-
-    getters.type = scm_c_eval_string("gnc:extension-type");
-    getters.name = scm_c_eval_string("gnc:extension-name");
-    getters.guid = scm_c_eval_string("gnc:extension-guid");
-    getters.documentation = scm_c_eval_string("gnc:extension-documentation");
-    getters.path = scm_c_eval_string("gnc:extension-path");
-    getters.script = scm_c_eval_string("gnc:extension-script");
-
-    getters_initialized = TRUE;
-}
-
-
-static gboolean
-gnc_extension_type (SCM extension, GtkUIManagerItemType *type)
-{
-    char *string;
-
-    initialize_getters();
-
-    string = gnc_scm_call_1_symbol_to_string(getters.type, extension);
-    if (string == NULL)
-    {
-        PERR("bad type");
-        return FALSE;
-    }
-
-    if (g_strcmp0(string, "menu-item") == 0)
-    {
-        *type = GTK_UI_MANAGER_MENUITEM;
-    }
-    else if (g_strcmp0(string, "menu") == 0)
-    {
-        *type = GTK_UI_MANAGER_MENU;
-    }
-    else if (g_strcmp0(string, "separator") == 0)
-    {
-        *type = GTK_UI_MANAGER_SEPARATOR;
-    }
-    else
-    {
-        PERR("bad type");
-        return FALSE;
-    }
-
-    free(string);
-
-    return TRUE;
-}
-
-/* returns malloc'd name */
-static char *
-gnc_extension_name (SCM extension)
-{
-    initialize_getters();
-
-    return gnc_scm_call_1_to_string(getters.name, extension);
-}
-
-
-/* returns malloc'd guid */
-static char *
-gnc_extension_guid (SCM extension)
-{
-    initialize_getters();
-
-    return gnc_scm_call_1_to_string(getters.guid, extension);
-}
-
-
-/* returns malloc'd docs */
-static char *
-gnc_extension_documentation (SCM extension)
-{
-    initialize_getters();
-
-    return gnc_scm_call_1_to_string(getters.documentation, extension);
-}
-
-/* returns g_malloc'd path */
-static void
-gnc_extension_path (SCM extension, char **fullpath)
-{
-    SCM path;
-    gchar **strings;
-    gint i;
-    gint num_strings;
-
-    initialize_getters();
-
-    path = gnc_scm_call_1_to_list(getters.path, extension);
-    if ((path == SCM_UNDEFINED) || scm_is_null(path))
-    {
-        *fullpath = g_strdup("");
-        return;
-    }
-
-    num_strings = scm_ilength(path) + 2;
-    strings = g_new0(gchar *, num_strings);
-    strings[0] = "/menubar";
-
-    i = 1;
-    while (!scm_is_null(path))
-    {
-        SCM item;
-
-        item = SCM_CAR(path);
-        path = SCM_CDR(path);
-
-        if (scm_is_string(item))
-        {
-            gchar* s;
-            s = gnc_scm_to_locale_string(item);
-
-            if (i == 1)
-                strings[i] = g_strdup(s);
-            else
-                strings[i] = g_strdup(gettext(s));
-
-            g_free (s);
-        }
-        else
-        {
-            g_free(strings);
-
-            PERR("not a string");
-
-            *fullpath = g_strdup("");
-            return;
-        }
-
-        i++;
-    }
-
-    *fullpath = g_strjoinv("/", strings);
-
-    for (i = 1; i < num_strings; i++)
-    {
-        if (strings[i] != NULL)
-        {
-            g_free(strings[i]);
-        }
-    }
-
-    g_free(strings);
-}
 
 /******************** New Menu Item ********************/
 
@@ -234,92 +70,13 @@ gnc_ext_gen_action_name (const gchar *name)
 
 /******************** Callback ********************/
 
-void
-gnc_extension_invoke_cb (SCM extension, SCM window)
-{
-    SCM script;
-
-    initialize_getters();
-
-    script = gnc_scm_call_1_to_procedure(getters.script, extension);
-    if (script == SCM_UNDEFINED)
-    {
-        PERR("not a procedure.");
-        return;
-    }
-
-    scm_call_1(script, window);
-}
-
-/******************** New Menu Item ********************/
-
-static gboolean
-gnc_create_extension_info (SCM extension)
-{
-    ExtensionInfo *ext_info;
-    gchar *typeStr, *tmp;
-    gchar* name;
-    gchar* guid;
-
-    ext_info = g_new0(ExtensionInfo, 1);
-    ext_info->extension = extension;
-    gnc_extension_path(extension, &ext_info->path);
-    if (!gnc_extension_type( extension, &ext_info->type ))
-    {
-        /* Can't parse the type passed to us.  Bail now. */
-        g_free(ext_info);
-        return FALSE;
-    }
-
-    /* Get all the pieces */
-    name = gnc_extension_name(extension);
-    guid = gnc_extension_guid(extension);
-    ext_info->ae.label = g_strdup(gettext(name));
-    ext_info->ae.name = gnc_ext_gen_action_name(guid);
-    ext_info->ae.tooltip = gnc_extension_documentation(extension);
-    ext_info->ae.stock_id = NULL;
-    ext_info->ae.accelerator = NULL;
-    ext_info->ae.callback = NULL;
-    g_free(name);
-    g_free(guid);
-
-    tmp = g_strdup_printf("%s/%s", ext_info->path, ext_info->ae.label);
-    ext_info->sort_key = g_utf8_collate_key(tmp, -1);
-    g_free(tmp);
-
-    switch (ext_info->type)
-    {
-    case GTK_UI_MANAGER_MENU:
-        typeStr = "menu";
-        break;
-    case GTK_UI_MANAGER_MENUITEM:
-        typeStr = "menuitem";
-        break;
-    default:
-        typeStr = "unk";
-        break;
-    }
-    ext_info->typeStr = typeStr;
-
-    DEBUG( "extension: %s/%s [%s] tip [%s] type %s\n",
-           ext_info->path, ext_info->ae.label, ext_info->ae.name,
-           ext_info->ae.tooltip, ext_info->typeStr );
-
-    scm_gc_protect_object(extension);
-
-    /* need to append so we can run them in order */
-    extension_list = g_slist_append(extension_list, ext_info);
-
-    return TRUE;
-}
-
 static void
 cleanup_extension_info(gpointer extension_info, gpointer not_used)
 {
     ExtensionInfo *ext_info = extension_info;
 
-    if (ext_info->extension)
-        scm_gc_unprotect_object(ext_info->extension);
+//    if (ext_info->extension)
+//        scm_gc_unprotect_object(ext_info->extension);
 
     g_free(ext_info->sort_key);
     g_free((gchar *)ext_info->ae.name);
@@ -327,17 +84,6 @@ cleanup_extension_info(gpointer extension_info, gpointer not_used)
     g_free((gchar *)ext_info->ae.tooltip);
     g_free(ext_info->path);
     g_free(ext_info);
-}
-
-
-void
-gnc_add_scm_extension (SCM extension)
-{
-    if (!gnc_create_extension_info(extension))
-    {
-        PERR("bad extension");
-        return;
-    }
 }
 
 /******************** Shutdown ********************/

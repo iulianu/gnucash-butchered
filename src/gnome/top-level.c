@@ -58,16 +58,13 @@
 #include "gnc-plugin-manager.h" /* FIXME Remove this line*/
 #include "gnc-html.h"
 #include "gnc-gnome-utils.h"
-#include "gnc-report.h"
 #include "gnc-split-reg.h"
 #include "gnc-ui.h"
 #include "gnc-ui-util.h"
 #include "gnucash-color.h"
 #include "gnucash-sheet.h"
 #include "gnucash-style.h"
-#include "guile-util.h"
 #include "top-level.h"
-#include "window-report.h"
 #include "gnc-window.h"
 #include "gnc-gkeyfile-utils.h"
 
@@ -436,10 +433,10 @@ gnc_main_gui_init (void)
     gnc_hook_add_dangler(HOOK_BOOK_CLOSED,
                          gnc_save_all_state, NULL);
 
-    /* CAS: I'm not really sure why we remove before adding. */
-    gnc_hook_remove_dangler(HOOK_BOOK_CLOSED, (GFunc)gnc_reports_flush_global);
-    gnc_hook_add_dangler(HOOK_BOOK_CLOSED,
-                         (GFunc)gnc_reports_flush_global, NULL);
+//    /* CAS: I'm not really sure why we remove before adding. */
+//    gnc_hook_remove_dangler(HOOK_BOOK_CLOSED, (GFunc)gnc_reports_flush_global);
+//    gnc_hook_add_dangler(HOOK_BOOK_CLOSED,
+//                         (GFunc)gnc_reports_flush_global, NULL);
 
 
     LEAVE(" ");

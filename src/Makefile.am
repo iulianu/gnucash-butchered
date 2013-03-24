@@ -13,10 +13,6 @@ NONGUI_SUBDIRS = \
   quotes \
   tax
 
-if WITH_PYTHON
-   PYTHON_DIR = python
-endif
-
 # These directories should also not contain any gtk dependencies, but
 # currently there is only single very little dependency in
 # app-utils. It should go away in the long run, though.
@@ -29,12 +25,10 @@ GUI_SUBDIRS = \
   gnome-utils \
   html \
   gnome-search \
-  report \
   register \
   gnome \
   import-export \
   business \
-  optional \
   plugins \
   bin
 
@@ -42,24 +36,17 @@ GUI_SUBDIRS = \
 if GNUCASH_ENABLE_GUI
 SUBDIRS = . $(NONGUI_SUBDIRS) $(ALMOST_NONGUI_SUBDIRS) $(GUI_SUBDIRS)
 else
-# Note: In non-GUI build, "optional" needs to be added as well, but
-# cannot be added in the variable because in with-GUI mode it depends
-# on other parts.
-SUBDIRS = . $(NONGUI_SUBDIRS) $(ALMOST_NONGUI_SUBDIRS) optional
+SUBDIRS = . $(NONGUI_SUBDIRS) $(ALMOST_NONGUI_SUBDIRS) 
 endif
 
-noinst_HEADERS = \
-  swig-runtime.h
+noinst_HEADERS =
 
 noinst_DATA = gnc-test-env
 
-swig-runtime.h:
-	$(SWIG) -guile -external-runtime $@
 MAINTAINERCLEANFILES = swig-runtime.h
 
 EXTRA_DIST = \
   base-typemaps.i \
   README.modules \
   gnc-test-env \
-  guile-mappings.h \
   platform.h

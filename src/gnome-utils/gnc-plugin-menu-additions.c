@@ -37,9 +37,7 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
-#include "swig-runtime.h"
 
-#include "guile-util.h"
 #include "gnc-engine.h"
 #include "gnc-main-window.h"
 #include "gnc-plugin-menu-additions.h"
@@ -50,11 +48,9 @@
 
 static GObjectClass *parent_class = NULL;
 
-static void gnc_plugin_menu_additions_class_init (GncPluginMenuAdditionsClass *klass);
 static void gnc_plugin_menu_additions_init (GncPluginMenuAdditions *plugin);
 static void gnc_plugin_menu_additions_finalize (GObject *object);
 
-static void gnc_plugin_menu_additions_add_to_window (GncPlugin *plugin, GncMainWindow *window, GQuark type);
 static void gnc_plugin_menu_additions_remove_from_window (GncPlugin *plugin, GncMainWindow *window, GQuark type);
 
 /* Command callbacks */
@@ -91,54 +87,6 @@ typedef struct _GncPluginMenuAdditionsPerWindow
  *                  Object Implementation                   *
  ************************************************************/
 
-GType
-gnc_plugin_menu_additions_get_type (void)
-{
-    static GType gnc_plugin_menu_additions_type = 0;
-
-    if (gnc_plugin_menu_additions_type == 0)
-    {
-        static const GTypeInfo our_info =
-        {
-            sizeof (GncPluginMenuAdditionsClass),
-            NULL,		/* base_init */
-            NULL,		/* base_finalize */
-            (GClassInitFunc) gnc_plugin_menu_additions_class_init,
-            NULL,		/* class_finalize */
-            NULL,		/* class_data */
-            sizeof (GncPluginMenuAdditions),
-            0,
-            (GInstanceInitFunc) gnc_plugin_menu_additions_init
-        };
-
-        gnc_plugin_menu_additions_type = g_type_register_static (GNC_TYPE_PLUGIN,
-                                         "GncPluginMenuAdditions",
-                                         &our_info, 0);
-    }
-
-    return gnc_plugin_menu_additions_type;
-}
-
-static void
-gnc_plugin_menu_additions_class_init (GncPluginMenuAdditionsClass *klass)
-{
-    GObjectClass *object_class = G_OBJECT_CLASS (klass);
-    GncPluginClass *plugin_class = GNC_PLUGIN_CLASS (klass);
-
-    parent_class = g_type_class_peek_parent (klass);
-
-    object_class->finalize = gnc_plugin_menu_additions_finalize;
-
-    /* plugin info */
-    plugin_class->plugin_name   = GNC_PLUGIN_MENU_ADDITIONS_NAME;
-
-    /* function overrides */
-    plugin_class->add_to_window = gnc_plugin_menu_additions_add_to_window;
-    plugin_class->remove_from_window = gnc_plugin_menu_additions_remove_from_window;
-
-    g_type_class_add_private(klass, sizeof(GncPluginMenuAdditionsPrivate));
-}
-
 static void
 gnc_plugin_menu_additions_init (GncPluginMenuAdditions *plugin)
 {
@@ -149,7 +97,7 @@ gnc_plugin_menu_additions_init (GncPluginMenuAdditions *plugin)
 static void
 gnc_plugin_menu_additions_finalize (GObject *object)
 {
-    g_return_if_fail (GNC_IS_PLUGIN_MENU_ADDITIONS (object));
+//    g_return_if_fail (GNC_IS_PLUGIN_MENU_ADDITIONS (object));
 
     ENTER("plugin %p", object);
     G_OBJECT_CLASS (parent_class)->finalize (object);
@@ -168,50 +116,9 @@ gnc_plugin_menu_additions_new (void)
     GncPlugin *plugin_page = NULL;
 
     ENTER("");
-    plugin_page = GNC_PLUGIN (g_object_new (GNC_TYPE_PLUGIN_MENU_ADDITIONS, NULL));
+//    plugin_page = GNC_PLUGIN (g_object_new (GNC_TYPE_PLUGIN_MENU_ADDITIONS, NULL));
     LEAVE("plugin %p", plugin_page);
     return plugin_page;
-}
-
-/************************************************************
- *              Plugin Function Implementation              *
- ************************************************************/
-
-static SCM
-gnc_main_window_to_scm (GncMainWindow *window)
-{
-    static swig_type_info * main_window_type = NULL;
-
-    if (!window)
-        return SCM_BOOL_F;
-
-    if (!main_window_type)
-        main_window_type = SWIG_TypeQuery("_p_GncMainWindow");
-
-    return SWIG_NewPointerObj(window, main_window_type, 0);
-}
-
-
-/** The user has selected one of the items added by this plugin.
- *  Invoke the callback function that was registered along with the
- *  menu item.
- *
- *  @param action A pointer to the action selected by the user.  This
- *  action represents one of the items in the file history menu.
- *
- *  @param data A pointer to the gnc-main-window data to be used by
- *  this function.  This is mainly to find out which window it was
- *  that had a menu selected.
- */
-static void
-gnc_plugin_menu_additions_action_cb (GtkAction *action,
-                                     GncMainWindowActionData *data)
-{
-
-    g_return_if_fail(GTK_IS_ACTION(action));
-    g_return_if_fail(data != NULL);
-
-    gnc_extension_invoke_cb(data->data, gnc_main_window_to_scm(data->window));
 }
 
 
@@ -379,93 +286,6 @@ gnc_menu_additions_assign_accel (ExtensionInfo *info, GHashTable *table)
     LEAVE("assigned");
 }
 
-
-/** Add one extension item to the UI manager.  This function creates a
- *  per-callback data structure for easy access to the opaque Scheme
- *  data block in the callback.  It then adds the action to the UI
- *  manager.
- *
- *  @param ext_info The extension info data block.
- *
- *  @param per_window The per-window data block maintained by the
- *  plugin. */
-static void
-gnc_menu_additions_menu_setup_one (ExtensionInfo *ext_info,
-                                   GncPluginMenuAdditionsPerWindow *per_window)
-{
-    GncMainWindowActionData *cb_data;
-
-    DEBUG( "Adding %s/%s [%s] as [%s]", ext_info->path, ext_info->ae.label,
-           ext_info->ae.name, ext_info->typeStr );
-
-    cb_data = g_new0 (GncMainWindowActionData, 1);
-    cb_data->window = per_window->window;
-    cb_data->data = ext_info->extension;
-
-    if (ext_info->type == GTK_UI_MANAGER_MENUITEM)
-        ext_info->ae.callback = (GCallback)gnc_plugin_menu_additions_action_cb;
-
-    gtk_action_group_add_actions_full(per_window->group, &ext_info->ae, 1,
-                                      cb_data, g_free);
-    gtk_ui_manager_add_ui(per_window->ui_manager, per_window->merge_id,
-                          ext_info->path, ext_info->ae.label, ext_info->ae.name,
-                          ext_info->type, FALSE);
-    gtk_ui_manager_ensure_update(per_window->ui_manager);
-}
-
-
-/** Initialize the report menu and other additional menus.  This
- *  function is called as part of the initialization of a window, when
- *  the plugin menu items are being added to the menu structure.
- *
- *  @param plugin A pointer to the gnc-plugin object responsible for
- *  adding/removing the additional menu items.
- *
- *  @param window A pointer the gnc-main-window where this plugin
- *  should add its actions.
- *
- *  @param type Unused
- */
-static void
-gnc_plugin_menu_additions_add_to_window (GncPlugin *plugin,
-        GncMainWindow *window,
-        GQuark type)
-{
-    GncPluginMenuAdditionsPerWindow per_window;
-    static GOnce accel_table_init = G_ONCE_INIT;
-    static GHashTable *table;
-    GSList *menu_list;
-
-    ENTER(" ");
-
-    per_window.window = window;
-    per_window.ui_manager = window->ui_merge;
-    per_window.group = gtk_action_group_new ("MenuAdditions" );
-    gnc_gtk_action_group_set_translation_domain (per_window.group, GETTEXT_PACKAGE);
-    per_window.merge_id = gtk_ui_manager_new_merge_id(window->ui_merge);
-    gtk_ui_manager_insert_action_group(window->ui_merge, per_window.group, 0);
-
-    menu_list = g_slist_sort(gnc_extensions_get_menu_list(),
-                             (GCompareFunc)gnc_menu_additions_sort);
-
-    /* Assign accelerators */
-    table = g_once(&accel_table_init, gnc_menu_additions_init_accel_table, NULL);
-    g_slist_foreach(menu_list,
-                    (GFunc)gnc_menu_additions_do_preassigned_accel, table);
-    g_slist_foreach(menu_list, (GFunc)gnc_menu_additions_assign_accel, table);
-
-    /* Add to window. */
-    g_slist_foreach(menu_list, (GFunc)gnc_menu_additions_menu_setup_one,
-                    &per_window);
-
-    /* Tell the window code about the actions that were just added
-     * behind its back (so to speak) */
-    gnc_main_window_manual_merge_actions (window, PLUGIN_ACTIONS_NAME,
-                                          per_window.group, per_window.merge_id);
-
-    g_slist_free(menu_list);
-    LEAVE(" ");
-}
 
 
 /** Tear down the report menu and other additional menus.  This

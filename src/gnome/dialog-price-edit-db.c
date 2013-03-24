@@ -27,8 +27,6 @@
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <libguile.h>
-#include "guile-mappings.h"
 #include <time.h>
 
 #include "dialog-utils.h"
@@ -45,9 +43,7 @@
 #include "gnc-tree-view-price.h"
 #include "gnc-ui.h"
 #include "gnc-ui-util.h"
-#include "guile-util.h"
 #include "engine-helpers.h"
-#include "swig-runtime.h"
 
 
 #define DIALOG_PRICE_DB_CM_CLASS "dialog-price-edit-db"
@@ -288,6 +284,7 @@ gnc_prices_dialog_add_clicked (GtkWidget *widget, gpointer data)
 void
 gnc_prices_dialog_get_quotes_clicked (GtkWidget *widget, gpointer data)
 {
+#if 0
     PricesDialog *pdb_dialog = data;
     SCM quotes_func;
     SCM book_scm;
@@ -320,6 +317,7 @@ gnc_prices_dialog_get_quotes_clicked (GtkWidget *widget, gpointer data)
     gnc_gui_refresh_all ();
 
     LEAVE(" ");
+#endif
 }
 
 

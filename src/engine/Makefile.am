@@ -36,12 +36,9 @@ libgncmod_engine_la_SOURCES = \
   gnc-pricedb.c \
   gnc-session.c \
   gncmod-engine.c \
-  swig-engine.c \
-  kvp-scm.c \
   engine-helpers.c \
   glib-helpers.c  \
   policy.c \
-  gncBusGuile.c \
   gncBusiness.c \
   gncAddress.c \
   gncBillTerm.c \
@@ -85,14 +82,12 @@ gncinclude_HEADERS = \
   gnc-hooks.h \
   gnc-pricedb.h \
   gnc-session.h \
-  kvp-scm.h \
   policy.h \
   gncAddress.h \
   gncAddressP.h \
   gncBillTerm.h \
   gncBillTermP.h \
   gncBusiness.h \
-  gncBusGuile.h \
   gncCustomer.h \
   gncCustomerP.h \
   gncEmployee.h \
@@ -120,7 +115,6 @@ noinst_HEADERS = \
   SX-book.h \
   SX-ttinfo.h \
   TransactionP.h \
-  gnc-hooks-scm.h \
   gnc-lot.h \
   gnc-lot-p.h \
   gnc-pricedb-p.h \
@@ -158,8 +152,6 @@ EXTRA_DIST = \
   iso-currencies-to-c \
   kvp_doc.txt \
   SX-book-p.h \
-  engine.i \
-  business-core.i \
   ${gncmod_DATA} \
   ${gncscm_DATA}
 
@@ -195,12 +187,6 @@ noinst_DATA = .scm-links
 QOFHEADERS = \
   $(top_srcdir)/src/libqof/qof/qofbook.h \
   $(top_srcdir)/src/libqof/qof/qofbookslots.h
-
-swig-engine.c: engine.i $(top_srcdir)/src/base-typemaps.i \
-               $(QOFHEADERS) \
-               $(gncinclude_HEADERS) $(noinst_HEADERS)
-	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
-	-I${top_srcdir}/src/libqof/qof -I${top_srcdir}/src -o $@ $<
 
 iso-4217-currencies.c: iso-4217-currencies.scm iso-currencies-to-c
 	-chmod u+x ${srcdir}/iso-currencies-to-c

@@ -6,8 +6,6 @@ libgnc_gnome_la_LIBADD = \
   ${top_builddir}/src/register/ledger-core/libgncmod-ledger-core.la \
   ${top_builddir}/src/register/register-gnome/libgncmod-register-gnome.la \
   ${top_builddir}/src/register/register-core/libgncmod-register-core.la \
-  ${top_builddir}/src/report/report-gnome/libgncmod-report-gnome.la \
-  ${top_builddir}/src/report/report-system/libgncmod-report-system.la \
   ${top_builddir}/src/gnome-search/libgncmod-gnome-search.la \
   ${top_builddir}/src/gnome-utils/libgncmod-gnome-utils.la \
   ${top_builddir}/src/backend/xml/libgnc-backend-xml-utils.la \
@@ -24,7 +22,6 @@ libgnc_gnome_la_LIBADD = \
   ${QOF_LIBS}
 
 libgnc_gnome_la_SOURCES = \
-  swig-gnome.c \
   assistant-acct-period.c \
   assistant-hierarchy.c \
   assistant-loan.c \
@@ -99,13 +96,8 @@ noinst_HEADERS = \
   window-reconcile.h \
   window-autoclear.h
 
-swig-gnome.c: gnome.i dialog-progress.h ${top_srcdir}/src/base-typemaps.i
-	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
-	-I${top_srcdir}/src -o $@ $<
-
 EXTRA_DIST = \
-  gnucash.desktop.in \
-  gnome.i
+  gnucash.desktop.in
 
 AM_CPPFLAGS = \
   -I${top_srcdir}/src \
@@ -121,8 +113,6 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/register/ledger-core \
   -I${top_srcdir}/src/register/register-core \
   -I${top_srcdir}/src/register/register-gnome \
-  -I${top_srcdir}/src/report/report-system \
-  -I${top_srcdir}/src/report/report-gnome \
   -I${top_srcdir}/lib/libc \
   -I${top_srcdir}/src/libqof/qof \
   ${LIBXML2_CFLAGS} \

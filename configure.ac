@@ -111,35 +111,6 @@ AC_PROG_INSTALL
 PKG_PROG_PKG_CONFIG
 
 
-###--------------------------------------------------------
-### Optionally enable gtkmm plugin (requires c++ compiler)
-###--------------------------------------------------------
-enable_GTKMM=false
-
-AC_ARG_ENABLE(gtkmm,
-  [AS_HELP_STRING([--enable-gtkmm],[enable gtkmm gui])],
-  [case "${enableval}" in
-     yes) enable_GTKMM=true ;;
-     no) enable_GTKMM=false ;;
-     *) enable_GTKMM=false ;;
-   esac]
-  )
-
-AS_IF([test x${enable_GTKMM} = "xtrue"],
-  [
-    # We require gtkmm, of course
-    PKG_CHECK_MODULES(GTKMM, gtkmm-2.4 >= 2.24)
-    # and also the c++ compiler
-    AC_PROG_CXXCPP
-    AC_PROG_CXX
-    _COMPONENTS="$_COMPONENTS gtkmm"
-  ])
-AM_CONDITIONAL([WITH_GTKMM], [test x${enable_GTKMM} = "xtrue"])
-# This section must come before AC_PROG_LIBTOOL because libtool
-# must know about the c++ compiler.
-###--------------------------------------------------------
-
-
 AC_LIBTOOL_DLOPEN
 AC_LIBTOOL_WIN32_DLL
 AM_DISABLE_STATIC
@@ -349,55 +320,6 @@ AM_CONDITIONAL(HAVE_X11_XLIB_H, test "x$ac_cv_header_X11_Xlib_h" = "xyes")
 AC_CHECK_FUNCS(chown gethostname getppid getuid gettimeofday gmtime_r)
 AC_CHECK_FUNCS(gethostid link)
 ##################################################
-
-
-
-### --------------------------------------------------------------------------
-### Guile version checks (should this be something other than the Gnome check?)
-
-# If the user has given these values, cache them to override the
-# detected values.
-if test "x$GUILE_LIBS" != x; then
-  saved_GUILE_LIBS="$GUILE_LIBS"
-fi
-if test "x$GUILE_INCS" != x; then
-  saved_GUILE_INCS="$GUILE_INCS"
-fi
-GUILE_LIBS=""
-
-# Look up GUILE_CFLAGS and GUILE_LIBS, and version check
-PKG_CHECK_MODULES(GUILE, [guile-1.8 >= 1.8.5], , [
-  PKG_CHECK_MODULES(GUILE, [guile-2.0 >= 2.0.0], , [AC_MSG_ERROR([
-    guile does not appear to be installed correctly, or is not in the
-    correct version range.  Perhaps you have not installed the guile
-    development packages?  Gnucash requires at least version 1.8.5 to build.
-  ])])
-])
-# Look up GUILE executable
-AC_PATH_PROG(GUILE, guile)
-
-GUILE_INCS="${GUILE_CFLAGS}"
-if test "x$saved_GUILE_LIBS" != x; then
-  GUILE_LIBS="$saved_GUILE_LIBS"
-fi
-if test "x$saved_GUILE_INCS" != x; then
-  GUILE_INCS="$saved_GUILE_INCS"
-fi
-
-AS_SCRUB_INCLUDE(GUILE_INCS)
-AC_SUBST(GUILE_INCS)
-AC_SUBST(GUILE_LIBS)
-AC_SUBST(GUILE)
-
-### --------------------------------------------------------------------------
-### See if we need guile-www
-
-gnc_have_guile_www=no
-
-AC_MSG_CHECKING([if guile needs our copy of (guile www)])
-GUILE_MODULE_AVAILABLE(gnc_have_guile_www,[(www main)])
-
-AM_CONDITIONAL(GNC_HAVE_GUILE_WWW, test "${gnc_have_guile_www}" = yes)
 
 ### --------------------------------------------------------------------------
 ### look for gconf
@@ -921,44 +843,6 @@ else
 fi
 AC_SUBST(LC_MESSAGES_ENUM)
 
-###--------------------------------------------------------
-### Make Python plugin and bindings optional
-###--------------------------------------------------------
-
-AC_ARG_ENABLE(python,
-  [AS_HELP_STRING([--enable-python],[enable python plugin and bindings])],
-  [case "${enableval}" in
-     yes) enable_python=true ;;
-     no) enable_python=false ;;
-     *) enable_python=false    # default: false
-   esac],
-  [enable_python=false] # default: false
-  )
-if test x${enable_python} = "xtrue"
-then
-  # Check for Python. We require python-2.4 because our implementation
-  # doesn't run with earlier version anymore. Building Python from
-  # source creates python.pc, Debian installs python2.pc, and Fedora
-  # 17 makes both.
-  PKG_CHECK_MODULES(PYTHON, python >= 2.4 , , [
-    PKG_CHECK_MODULES(PYTHON, python2 >= 2.4 , , [
-	    AC_MSG_ERROR([Could not find python >= 2.4. If you use --enable-python, you MUST have python installed!])
-    ])
-  ])
-  AM_PATH_PYTHON(2.4)
-  AC_PYTHON_DEVEL(>= '2.4')
-  SWIG_PYTHON
-  _COMPONENTS="$_COMPONENTS python"
-fi
-AM_CONDITIONAL(WITH_PYTHON, [test x${enable_python} = xtrue])
-
-AC_ARG_ENABLE(python-bindings,
-  [AS_HELP_STRING([--enable-python-bindings],[obsolete: replaced by --enable-python])],
-  if test "x$enableval" != "xno" ; then
-    AC_MSG_ERROR([--enable-python-bindings is obsolete: The option has been renamed into --enable-python])
-  fi)
-
-
 ###-------------------------------------------------------------------------
 ### Additional compiler warnings (or not) if we're running GCC
 ###-------------------------------------------------------------------------
@@ -1076,7 +960,6 @@ AC_CONFIG_FILES(
   doc/examples/Makefile
   intl-scm/Makefile
   lib/Makefile
-  lib/guile-www/Makefile
   lib/libc/Makefile
   packaging/Makefile
   packaging/win32/Makefile
@@ -1126,24 +1009,12 @@ AC_CONFIG_FILES(
   src/html/Makefile
   src/import-export/Makefile
   src/import-export/test/Makefile
-  src/import-export/qif-import/Makefile
-  src/import-export/qif/Makefile
-  src/import-export/qif/test/Makefile
-  src/import-export/qif-import/schemas/Makefile
-  src/import-export/qif-import/test/Makefile
   src/import-export/schemas/Makefile
   src/import-export/log-replay/Makefile
   src/libqof/Makefile
   src/libqof/qof/Makefile
   src/libqof/qof/test/Makefile
-  src/optional/Makefile
-  src/optional/gtkmm/Makefile
-  src/optional/gtkmm/test/Makefile
-  src/optional/python-bindings/Makefile
-  src/optional/python-bindings/tests/Makefile
   src/pixmaps/Makefile
-  src/python/Makefile
-  src/python/pycons/Makefile
   src/quotes/Makefile
   src/register/Makefile
   src/register/ledger-core/Makefile
@@ -1152,22 +1023,6 @@ AC_CONFIG_FILES(
   src/register/register-core/test/Makefile
   src/register/register-gnome/Makefile
   src/register/register-gnome/test/Makefile
-  src/report/Makefile
-  src/report/report-gnome/Makefile
-  src/report/report-gnome/test/Makefile
-  src/report/report-system/Makefile
-  src/report/report-system/test/Makefile
-  src/report/standard-reports/Makefile
-  src/report/standard-reports/test/Makefile
-  src/report/business-reports/Makefile
-  src/report/locale-specific/Makefile
-  src/report/locale-specific/us/Makefile
-  src/report/locale-specific/us/test/Makefile
-  src/report/stylesheets/Makefile
-  src/report/stylesheets/test/Makefile
-  src/report/utility-reports/Makefile
-  src/report/utility-reports/test/Makefile
-  src/report/jqplot/Makefile
   src/scm/Makefile
   src/scm/gnumeric/Makefile
   src/tax/Makefile

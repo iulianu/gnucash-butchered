@@ -373,7 +373,6 @@ void gnc_entry_ledger_load (GncEntryLedger *ledger, GList *entry_list)
                 GncTaxIncluded taxincluded_p = GNC_TAXINCLUDED_USEGLOBAL;
                 gboolean taxincluded = FALSE;
                 gnc_numeric discount = gnc_numeric_zero ();
-                GNCOptionDB *odb;
 
                 /* Determine the TaxIncluded and Discount values */
                 switch (gncOwnerGetType (owner))
@@ -411,36 +410,32 @@ void gnc_entry_ledger_load (GncEntryLedger *ledger, GList *entry_list)
                 }
 
                 /* Compute the proper taxtable */
-                odb = gnc_option_db_new_for_type (GNC_ID_BOOK);
-                gnc_option_db_load_from_kvp (odb, qof_book_get_slots (ledger->book));
 
                 switch (gncOwnerGetType (owner))
                 {
                 case GNC_OWNER_CUSTOMER:
-                    table = gnc_option_db_lookup_taxtable_option (odb,
-                            "Business",
-                            "Default Customer TaxTable",
-                            NULL);
-
-                    if (gncCustomerGetTaxTableOverride (owner->owner.customer))
+//                    table = gnc_option_db_lookup_taxtable_option (odb,
+//                            "Business",
+//                            "Default Customer TaxTable",
+//                            NULL);
+//
+//                    if (gncCustomerGetTaxTableOverride (owner->owner.customer))
                         table = gncCustomerGetTaxTable (owner->owner.customer);
                     break;
 
                 case GNC_OWNER_VENDOR:
-                    table = gnc_option_db_lookup_taxtable_option (odb,
-                            "Business",
-                            "Default Vendor TaxTable",
-                            NULL);
-
-                    if (gncVendorGetTaxTableOverride (owner->owner.vendor))
+//                    table = gnc_option_db_lookup_taxtable_option (odb,
+//                            "Business",
+//                            "Default Vendor TaxTable",
+//                            NULL);
+//
+//                    if (gncVendorGetTaxTableOverride (owner->owner.vendor))
                         table = gncVendorGetTaxTable (owner->owner.vendor);
                     break;
 
                 default:
                     break;
                 }
-
-                gnc_option_db_destroy (odb);
 
                 if (ledger->is_cust_doc)
                 {

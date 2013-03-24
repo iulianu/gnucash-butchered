@@ -25,8 +25,6 @@
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <libguile.h>
-#include "guile-mappings.h"
 
 #include "dialog-progress.h"
 #include "dialog-utils.h"
@@ -56,8 +54,6 @@ struct _GNCProgressDialog
 
     GNCProgressCancelFunc cancel_func;
     gpointer user_data;
-
-    SCM cancel_scm_func;
 
     gboolean use_ok_button;
     gboolean closed;
@@ -109,15 +105,15 @@ cancel_cb(GtkWidget * widget, gpointer data)
     if (progress->cancel_func && !progress->cancel_func(progress->user_data))
         return;
 
-    if (progress->cancel_scm_func != SCM_UNDEFINED)
-    {
-        SCM result;
-
-        result = scm_call_0(progress->cancel_scm_func);
-
-        if (!scm_is_true(result))
-            return;
-    }
+//    if (progress->cancel_scm_func != SCM_UNDEFINED)
+//    {
+//        SCM result;
+//
+//        result = scm_call_0(progress->cancel_scm_func);
+//
+//        if (!scm_is_true(result))
+//            return;
+//    }
 
     if (progress->dialog != NULL)
         gtk_widget_hide(progress->dialog);
@@ -154,21 +150,21 @@ delete_cb(GtkWidget *widget, GdkEvent  *event, gpointer data)
         }
     }
 
-    if (progress->cancel_scm_func != SCM_UNDEFINED)
-    {
-        SCM result;
-
-        result = scm_call_0(progress->cancel_scm_func);
-
-        if (scm_is_true(result))
-        {
-            if (progress->dialog != NULL)
-                gtk_widget_hide(progress->dialog);
-            progress->closed = TRUE;
-            gnc_progress_maybe_destroy(progress);
-            return TRUE;
-        }
-    }
+//    if (progress->cancel_scm_func != SCM_UNDEFINED)
+//    {
+//        SCM result;
+//
+//        result = scm_call_0(progress->cancel_scm_func);
+//
+//        if (scm_is_true(result))
+//        {
+//            if (progress->dialog != NULL)
+//                gtk_widget_hide(progress->dialog);
+//            progress->closed = TRUE;
+//            gnc_progress_maybe_destroy(progress);
+//            return TRUE;
+//        }
+//    }
 
     /* Don't delete the window, wait for gnc_progress_dialog_destroy. */
     return TRUE;
@@ -184,9 +180,9 @@ destroy_cb(GtkObject *object, gpointer data)
 
     /* Make sure the callbacks aren't invoked */
     progress->cancel_func = NULL;
-    if (progress->cancel_scm_func != SCM_UNDEFINED)
-        scm_gc_unprotect_object(progress->cancel_scm_func);
-    progress->cancel_scm_func = SCM_UNDEFINED;
+//    if (progress->cancel_scm_func != SCM_UNDEFINED)
+//        scm_gc_unprotect_object(progress->cancel_scm_func);
+//    progress->cancel_scm_func = SCM_UNDEFINED;
 
     g_free(progress);
 }
@@ -250,7 +246,7 @@ gnc_progress_dialog_create(GtkWidget * parent, GNCProgressDialog *progress)
     progress->cancel_func = NULL;
     progress->user_data = NULL;
 
-    progress->cancel_scm_func = SCM_UNDEFINED;
+//    progress->cancel_scm_func = SCM_UNDEFINED;
 
     progress->closed = FALSE;
     progress->finished = FALSE;
@@ -308,7 +304,7 @@ gnc_progress_dialog_custom(GtkLabel       *primary,
     progress->bar_value = 0;
     progress->cancel_func = NULL;
     progress->user_data = NULL;
-    progress->cancel_scm_func = SCM_UNDEFINED;
+//    progress->cancel_scm_func = SCM_UNDEFINED;
     progress->use_ok_button = FALSE;
     progress->closed = FALSE;
     progress->finished = FALSE;
@@ -594,28 +590,6 @@ gnc_progress_dialog_set_cancel_func(GNCProgressDialog *progress,
 }
 
 
-void
-gnc_progress_dialog_set_cancel_scm_func(GNCProgressDialog *progress,
-                                        SCM cancel_scm_func)
-{
-    g_return_if_fail(progress);
-
-    if (progress->cancel_button == NULL)
-        return;
-
-    if (progress->cancel_scm_func != SCM_UNDEFINED)
-        scm_gc_unprotect_object(progress->cancel_scm_func);
-
-    if (scm_is_procedure(cancel_scm_func))
-    {
-        progress->cancel_scm_func = cancel_scm_func;
-        scm_gc_protect_object(cancel_scm_func);
-        gtk_widget_show(progress->cancel_button);
-    }
-    else
-        progress->cancel_scm_func = SCM_UNDEFINED;
-}
-
 
 void
 gnc_progress_dialog_set_value(GNCProgressDialog *progress, gdouble value)
@@ -784,9 +758,9 @@ gnc_progress_dialog_destroy(GNCProgressDialog *progress)
 
     /* Make sure the callbacks aren't invoked */
     progress->cancel_func = NULL;
-    if (progress->cancel_scm_func != SCM_UNDEFINED)
-        scm_gc_unprotect_object(progress->cancel_scm_func);
-    progress->cancel_scm_func = SCM_UNDEFINED;
+//    if (progress->cancel_scm_func != SCM_UNDEFINED)
+//        scm_gc_unprotect_object(progress->cancel_scm_func);
+//    progress->cancel_scm_func = SCM_UNDEFINED;
 
     if (!progress->finished)
     {

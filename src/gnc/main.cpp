@@ -28,7 +28,6 @@
 #include <string.h>
 #include <glib/gi18n.h>
 #include <glib.h>
-#include <libguile.h>
 extern "C"
 {
 #include "gnc-module/gnc-module.h"

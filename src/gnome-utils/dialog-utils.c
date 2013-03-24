@@ -40,7 +40,6 @@
 #include "gnc-euro.h"
 #include "gnc-ui-util.h"
 #include "gnc-gconf-utils.h"
-#include "guile-util.h"
 #include "gnc-main-window.h"
 #include <gnc-gdate-utils.h>
 

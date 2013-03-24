@@ -101,14 +101,14 @@ gnc_options_dialog_set_new_book_option_values (GNCOptionDB *odb)
                                                     NULL);
     if (num_source_is_split_action)
     {
-        num_source_option = gnc_option_db_get_option_by_name(odb,
-                                                 OPTION_SECTION_ACCOUNTS,
-                                                 OPTION_NAME_NUM_FIELD_SOURCE);
-        num_source_is_split_action_button =
-                                gnc_option_get_gtk_widget (num_source_option);
-        gtk_toggle_button_set_active
-                    (GTK_TOGGLE_BUTTON (num_source_is_split_action_button),
-                        num_source_is_split_action);
+//        num_source_option = gnc_option_db_get_option_by_name(odb,
+//                                                 OPTION_SECTION_ACCOUNTS,
+//                                                 OPTION_NAME_NUM_FIELD_SOURCE);
+//        num_source_is_split_action_button =
+//                                gnc_option_get_gtk_widget (num_source_option);
+//        gtk_toggle_button_set_active
+//                    (GTK_TOGGLE_BUTTON (num_source_is_split_action_button),
+//                        num_source_is_split_action);
     }
 }
 

@@ -29,8 +29,6 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/core-utils \
   -I${top_srcdir}/src/engine \
   -I${top_srcdir}/src/libqof/qof \
-  ${GUILE_INCS} \
-  ${PYTHON_CPPFLAGS} \
   ${GLIB_CFLAGS} \
   ${GCONF_CFLAGS} \
   ${GTK_CFLAGS}
@@ -38,7 +36,6 @@ AM_CPPFLAGS = \
 libgncmod_app_utils_la_SOURCES = \
   calculation/expression_parser.c \
   calculation/fin.c \
-  swig-app-utils-guile.c \
   business-options.c \
   QuickFill.c \
   file-utils.c \
@@ -56,7 +53,6 @@ libgncmod_app_utils_la_SOURCES = \
   gncmod-app-utils.c \
   gnc-ui-balances.c \
   gnc-ui-util.c \
-  guile-util.c \
   option-util.c
 
 gncincludedir = ${GNC_INCLUDE_DIR}
@@ -79,7 +75,6 @@ gncinclude_HEADERS = \
   gnc-sx-instance-model.h \
   gnc-ui-balances.h \
   gnc-ui-util.h \
-  guile-util.h \
   option-util.h
 
 libgncmod_app_utils_la_LDFLAGS = -avoid-version
@@ -93,28 +88,6 @@ libgncmod_app_utils_la_LIBADD = \
   ${GTK_LIBS} \
   ${GUILE_LIBS} \
   ${GLIB_LIBS}
-
-swig-app-utils-guile.c: app-utils.i ${top_srcdir}/src/base-typemaps.i
-	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
-	-I${top_srcdir}/src -o $@ $<
-swig-app-utils-python.c: app-utils.i ${top_srcdir}/src/base-typemaps.i
-	$(SWIG) -python -Wall -Werror $(SWIG_ARGS) \
-	-I${top_srcdir}/src -o $@ $<
-
-if WITH_PYTHON
-pkglib_LTLIBRARIES += libgncmod-app-utils-python.la
-
-libgncmod_app_utils_python_la_SOURCES = \
-  swig-app-utils-python.c
-
-libgncmod_app_utils_python_la_LDFLAGS = \
-  ${PYTHON_LDFLAGS}
-
-libgncmod_app_utils_python_la_LIBADD = \
-  ${PYTHON_LIBS} \
-  ${PYTHON_EXTRA_LIBS} \
-  libgncmod-app-utils.la
-endif
 
 gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
 gncmod_DATA = app-utils.scm 
@@ -140,8 +113,6 @@ noinst_HEADERS = \
   calculation/fin_static_proto.h
 
 EXTRA_DIST = \
-  swig-app-utils-python.c \
-  app-utils.i \
   ${gncmod_DATA} \
   ${gncscm_DATA}
 

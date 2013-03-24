@@ -37,7 +37,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <regex.h>
-#include <libguile.h>
 
 #include <webkit/webkit.h>
 

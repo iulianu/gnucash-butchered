@@ -24,8 +24,7 @@ libgncmod_html_la_SOURCES = \
   gnc-html.c \
   gnc-html-history.c \
   gnc-html-factory.c \
-  gnc-html-webkit.c \
-  swig-gnc-html.c
+  gnc-html-webkit.c 
 
 gncincludedir = ${GNC_INCLUDE_DIR}
 gncinclude_HEADERS = \
@@ -54,13 +53,9 @@ libgncmod_html_la_LIBADD = \
   ${GUILE_LIBS} \
   ${REGEX_LIBS}
 
-swig-gnc-html.c: gnc-html.i gnc-html.h \
-                    ${top_srcdir}/src/base-typemaps.i
-	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
-	-I${top_srcdir}/src -o $@ $<
 
-EXTRA_DIST = \
-  gnc-html.i
+EXTRA_DIST =
+
 
 CLEANFILES = $(BUILT_SOURCES) gnucash
 MAINTAINERCLEANFILES = swig-gnc-html.c

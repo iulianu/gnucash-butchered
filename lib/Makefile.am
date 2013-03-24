@@ -1,4 +1,4 @@
-SUBDIRS = libc guile-www
+SUBDIRS = libc
 
 EXTRA_DIST = README
 

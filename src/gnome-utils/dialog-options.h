@@ -23,7 +23,6 @@
 #ifndef OPTIONS_DIALOG_H
 #define OPTIONS_DIALOG_H
 
-#include <libguile.h>
 #include "app-utils/option-util.h"
 #include <gtk/gtk.h>
 
@@ -66,12 +65,6 @@ void gnc_options_dialog_set_global_help_cb(GNCOptionWinCallback thunk,
 void gnc_options_dialog_build_contents(GNCOptionWin *win,
                                        GNCOptionDB  *odb);
 
-/* Both apply_cb and close_cb should be scheme functions with 0 arguments.
- * References to these functions will be held until the close_cb is called
- */
-void gnc_options_dialog_set_scm_callbacks (GNCOptionWin *win,
-        SCM apply_cb,
-        SCM close_cb);
 
 /*****************************************************************/
 /* Option Registration                                           */
@@ -83,22 +76,10 @@ typedef GtkWidget *
                          /* Return values */
                          GtkWidget **enclosing, gboolean *packed);
 
-/* Function to set the UI Value for a particular option */
-typedef gboolean
-(*GNCOptionUISetValue)  (GNCOption *option, gboolean use_default,
-                         GtkWidget *widget, SCM value);
-
-/* Function to get the UI Value for a particular option */
-typedef SCM
-(*GNCOptionUIGetValue)  (GNCOption *option, GtkWidget *widget);
-
-
 typedef struct gnc_option_def
 {
     const char *         option_name;
     GNCOptionUISetWidget set_widget;
-    GNCOptionUISetValue  set_value;
-    GNCOptionUIGetValue  get_value;
 } GNCOptionDef_t;
 
 

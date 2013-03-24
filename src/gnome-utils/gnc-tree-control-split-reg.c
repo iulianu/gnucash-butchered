@@ -28,8 +28,8 @@
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <libguile.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "gnc-tree-control-split-reg.h"
 #include "gnc-tree-model-split-reg.h"
@@ -39,7 +39,6 @@
 #include "gnc-gconf-utils.h"
 #include "gnc-gdate-utils.h"
 #include "dialog-utils.h"
-#include "guile-util.h"
 #include "dialog-dup-trans.h"
 
 #include "Transaction.h"
@@ -48,15 +47,13 @@
 /** Static Globals *******************************************************/
 static QofLogModule log_module = GNC_MOD_LEDGER;
 
-
-static SCM copied_item = SCM_UNDEFINED;
-
 /** implementations *******************************************************/
 
 /* Uses the scheme split copying routines */
 static void
 gtc_copy_split_onto_split (Split *from, Split *to, gboolean use_cut_semantics)
 {
+#if 0
     SCM split_scm;
 
     if ((from == NULL) || (to == NULL))
@@ -67,6 +64,7 @@ gtc_copy_split_onto_split (Split *from, Split *to, gboolean use_cut_semantics)
         return;
 
     gnc_copy_split_scm_onto_split (split_scm, to, gnc_get_current_book ());
+#endif
 }
 
 /* Uses the scheme transaction copying routines */
@@ -75,6 +73,7 @@ gtc_copy_trans_onto_trans (Transaction *from, Transaction *to,
                           gboolean use_cut_semantics,
                           gboolean do_commit)
 {
+#if 0
     SCM trans_scm;
 
     if ((from == NULL) || (to == NULL))
@@ -86,6 +85,7 @@ gtc_copy_trans_onto_trans (Transaction *from, Transaction *to,
 
     gnc_copy_trans_scm_onto_trans (trans_scm, to, do_commit,
                                   gnc_get_current_book ());
+#endif
 }
 
 

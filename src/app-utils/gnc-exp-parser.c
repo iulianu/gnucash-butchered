@@ -22,12 +22,10 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
-#include <libguile.h>
 #include <ctype.h>
 #include <locale.h>
 #include <string.h>
 
-#include "gfec.h"
 #include "finproto.h"
 #include "fin_spl_protos.h"
 #include "gnc-filepath-utils.h"
@@ -35,7 +33,6 @@
 #include "gnc-exp-parser.h"
 #include "gnc-ui-util.h"
 #include "gnc-locale-utils.h"
-#include "guile-mappings.h"
 
 #define GEP_GROUP_NAME "Variables"
 
@@ -283,6 +280,9 @@ static
 void*
 func_op(const char *fname, int argc, void **argv)
 {
+    printf( "gnc: Guile support is disabled\n" );
+    return NULL;
+ #if 0
     SCM scmFn, scmArgs, scmTmp;
     int i;
     var_store *vs;
@@ -342,6 +342,7 @@ func_op(const char *fname, int argc, void **argv)
                                      GNC_HOW_DENOM_SIGFIGS(6) | GNC_HOW_RND_ROUND_HALF_UP );
     /* FIXME: cleanup scmArgs = scm_list, cons'ed cells? */
     return (void*)result;
+#endif
 }
 
 static void *

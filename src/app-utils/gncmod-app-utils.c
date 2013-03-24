@@ -7,7 +7,6 @@
 
 #include "config.h"
 #include <gmodule.h>
-#include <libguile.h>
 
 #include "gnc-module.h"
 #include "gnc-module-api.h"
@@ -40,22 +39,11 @@ libgncmod_app_utils_gnc_module_description(void)
 }
 
 static void
-lmod(char * mn)
-{
-    char * form = g_strdup_printf("(use-modules %s)\n", mn);
-    scm_c_eval_string(form);
-    g_free(form);
-}
-
-static void
 app_utils_shutdown(void)
 {
     gnc_exp_parser_shutdown();
     gnc_hook_run(HOOK_SAVE_OPTIONS, NULL);
 }
-
-
-extern SCM scm_init_sw_app_utils_module(void);
 
 int
 libgncmod_app_utils_gnc_module_init(int refcount)
@@ -65,12 +53,6 @@ libgncmod_app_utils_gnc_module_init(int refcount)
     {
         return FALSE;
     }
-
-    scm_init_sw_app_utils_module();
-    /* publish swig bindings */
-    /* load the scheme code */
-    lmod("(sw_app_utils)");
-    lmod("(gnucash app-utils)");
 
     if (refcount == 0)
     {

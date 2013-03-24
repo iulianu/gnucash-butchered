@@ -35,16 +35,12 @@
 
 #include "config.h"
 
-#include <libguile.h>
-#include "guile-mappings.h"
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include "swig-runtime.h"
 
 #include "gnc-plugin-page-register.h"
 #include "gnc-plugin-register.h"
 #include "gnc-plugin-menu-additions.h"
-#include "gnc-plugin-page-report.h"
 
 #include "dialog-account.h"
 #include "dialog-find-transactions.h"
@@ -74,7 +70,6 @@
 #include "qof.h"
 #include "window-reconcile.h"
 #include "window-autoclear.h"
-#include "window-report.h"
 #include "engine-helpers.h"
 #include "qofbookslots.h"
 
@@ -165,8 +160,6 @@ static void gnc_plugin_page_register_cmd_jump (GtkAction *action, GncPluginPageR
 static void gnc_plugin_page_register_cmd_schedule (GtkAction *action, GncPluginPageRegister *plugin_page);
 static void gnc_plugin_page_register_cmd_scrub_all (GtkAction *action, GncPluginPageRegister *plugin_page);
 static void gnc_plugin_page_register_cmd_scrub_current (GtkAction *action, GncPluginPageRegister *plugin_page);
-static void gnc_plugin_page_register_cmd_account_report (GtkAction *action, GncPluginPageRegister *plugin_page);
-static void gnc_plugin_page_register_cmd_transaction_report (GtkAction *action, GncPluginPageRegister *plugin_page);
 
 static void gnc_plugin_page_help_changed_cb( GNCSplitReg *gsr, GncPluginPageRegister *register_page );
 static void gnc_plugin_page_register_refresh_cb (GHashTable *changes, gpointer user_data);
@@ -346,18 +339,6 @@ static GtkActionEntry gnc_plugin_page_register_actions [] =
         G_CALLBACK (gnc_plugin_page_register_cmd_scrub_current)
     },
 
-    /* Reports menu */
-
-    {
-        "ReportsAccountReportAction", NULL, N_("Account Report"), NULL,
-        N_("Open a register report for this Account"),
-        G_CALLBACK (gnc_plugin_page_register_cmd_account_report)
-    },
-    {
-        "ReportsAcctTransReportAction", NULL, N_("Account Transaction Report"), NULL,
-        N_("Open a register report for the selected Transaction"),
-        G_CALLBACK (gnc_plugin_page_register_cmd_transaction_report)
-    },
 };
 
 static guint gnc_plugin_page_register_n_actions = G_N_ELEMENTS (gnc_plugin_page_register_actions);
@@ -2416,90 +2397,6 @@ gnc_reg_get_name (GNCLedgerDisplay *ledger, gboolean for_window)
     return name;
 }
 
-static int
-report_helper (GNCLedgerDisplay *ledger, Split *split, Query *query)
-{
-    SplitRegister *reg = gnc_ledger_display_get_split_register (ledger);
-    Account *account;
-    char *str;
-    const char *tmp;
-    swig_type_info * qtype;
-    SCM args;
-    SCM func;
-    SCM arg;
-
-    args = SCM_EOL;
-
-    func = scm_c_eval_string ("gnc:register-report-create");
-    g_return_val_if_fail (scm_is_procedure (func), -1);
-
-    tmp = gnc_split_register_get_credit_string (reg);
-    arg = scm_from_locale_string (tmp ? tmp : _("Credit"));
-    args = scm_cons (arg, args);
-
-    tmp = gnc_split_register_get_debit_string (reg);
-    arg = scm_from_locale_string (tmp ? tmp : _("Debit"));
-    args = scm_cons (arg, args);
-
-    str = gnc_reg_get_name (ledger, FALSE);
-    arg = scm_from_locale_string (str ? str : "");
-    args = scm_cons (arg, args);
-    g_free (str);
-
-    arg = SCM_BOOL (reg->use_double_line);
-    args = scm_cons (arg, args);
-
-    arg = SCM_BOOL (reg->type == GENERAL_LEDGER || reg->type == INCOME_LEDGER
-                                                || reg->type == SEARCH_LEDGER);
-    args = scm_cons (arg, args);
-
-    arg = SCM_BOOL (reg->style == REG_STYLE_JOURNAL);
-    args = scm_cons (arg, args);
-
-    if (!query)
-    {
-        query = gnc_ledger_display_get_query (ledger);
-        g_return_val_if_fail (query != NULL, -1);
-    }
-
-    qtype = SWIG_TypeQuery ("_p__QofQuery");
-    g_return_val_if_fail (qtype, -1);
-
-    arg = SWIG_NewPointerObj (query, qtype, 0);
-    args = scm_cons (arg, args);
-    g_return_val_if_fail (arg != SCM_UNDEFINED, -1);
-
-
-    if (split)
-    {
-        qtype = SWIG_TypeQuery ("_p_Split");
-        g_return_val_if_fail (qtype, -1);
-        arg = SWIG_NewPointerObj (split, qtype, 0);
-    }
-    else
-    {
-        arg = SCM_BOOL_F;
-    }
-    args = scm_cons (arg, args);
-    g_return_val_if_fail (arg != SCM_UNDEFINED, -1);
-
-
-    qtype = SWIG_TypeQuery ("_p_Account");
-    g_return_val_if_fail (qtype, -1);
-
-    account = gnc_ledger_display_leader (ledger);
-    arg = SWIG_NewPointerObj (account, qtype, 0);
-    args = scm_cons (arg, args);
-    g_return_val_if_fail (arg != SCM_UNDEFINED, -1);
-
-
-    /* Apply the function to the args */
-    arg = scm_apply (func, args, SCM_EOL);
-    g_return_val_if_fail (scm_is_exact (arg), -1);
-
-    return scm_to_int (arg);
-}
-
 /************************************************************/
 /*                     Command callbacks                    */
 /************************************************************/
@@ -3529,63 +3426,6 @@ gnc_plugin_page_register_cmd_scrub_all (GtkAction *action,
     }
 
     gnc_resume_gui_refresh();
-    LEAVE(" ");
-}
-
-static void
-gnc_plugin_page_register_cmd_account_report (GtkAction *action,
-        GncPluginPageRegister *plugin_page)
-{
-    GncPluginPageRegisterPrivate *priv;
-    GncMainWindow *window;
-    int id;
-
-    ENTER("(action %p, plugin_page %p)", action, plugin_page);
-
-    g_return_if_fail(GNC_IS_PLUGIN_PAGE_REGISTER(plugin_page));
-
-    window = GNC_MAIN_WINDOW(GNC_PLUGIN_PAGE(plugin_page)->window);
-    priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(plugin_page);
-    id = report_helper (priv->ledger, NULL, NULL);
-    if (id >= 0)
-        gnc_main_window_open_report(id, window);
-    LEAVE(" ");
-}
-
-static void
-gnc_plugin_page_register_cmd_transaction_report (GtkAction *action,
-        GncPluginPageRegister *plugin_page)
-{
-    GncPluginPageRegisterPrivate *priv;
-    GncMainWindow *window;
-    SplitRegister *reg;
-    Split *split;
-    Query *query;
-    int id;
-
-
-    ENTER("(action %p, plugin_page %p)", action, plugin_page);
-
-    g_return_if_fail(GNC_IS_PLUGIN_PAGE_REGISTER(plugin_page));
-
-    priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(plugin_page);
-    reg = gnc_ledger_display_get_split_register (priv->ledger);
-
-    split = gnc_split_register_get_current_split (reg);
-    if (!split)
-        return;
-
-    query = qof_query_create_for(GNC_ID_SPLIT);
-
-    qof_query_set_book (query, gnc_get_current_book ());
-
-    xaccQueryAddGUIDMatch (query, xaccSplitGetGUID (split),
-                           GNC_ID_SPLIT, QOF_QUERY_AND);
-
-    window = GNC_MAIN_WINDOW(GNC_PLUGIN_PAGE(plugin_page)->window);
-    id = report_helper (priv->ledger, split, query);
-    if (id >= 0)
-        gnc_main_window_open_report(id, window);
     LEAVE(" ");
 }
 

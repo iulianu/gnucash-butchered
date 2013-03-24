@@ -54,7 +54,6 @@
 #include "gnc-plugin-page-register.h"
 #include "gnc-ui.h"
 #include "gnc-ui-balances.h"
-#include "guile-util.h"
 #include "reconcile-view.h"
 #include "window-reconcile.h"
 
@@ -1064,12 +1063,12 @@ gnc_reconcile_window_set_titles(RecnWindow *recnData)
     gboolean formal;
     gchar *title;
 
-    formal = gnc_gconf_get_bool(GCONF_GENERAL, KEY_ACCOUNTING_LABELS, NULL);
+    formal = 1;//gnc_gconf_get_bool(GCONF_GENERAL, KEY_ACCOUNTING_LABELS, NULL);
 
     if (formal)
         title = _("Debits");
-    else
-        title = gnc_get_debit_string(ACCT_TYPE_NONE);
+//    else
+//        title = gnc_get_debit_string(ACCT_TYPE_NONE);
 
     gtk_frame_set_label(GTK_FRAME(recnData->debit_frame), title);
 
@@ -1078,8 +1077,8 @@ gnc_reconcile_window_set_titles(RecnWindow *recnData)
 
     if (formal)
         title = _("Credits");
-    else
-        title = gnc_get_credit_string(ACCT_TYPE_NONE);
+//    else
+//        title = gnc_get_credit_string(ACCT_TYPE_NONE);
 
     gtk_frame_set_label(GTK_FRAME(recnData->credit_frame), title);
 

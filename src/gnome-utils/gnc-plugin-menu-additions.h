@@ -43,7 +43,7 @@
 G_BEGIN_DECLS
 
 /* type macros */
-#define GNC_TYPE_PLUGIN_MENU_ADDITIONS            (gnc_plugin_menu_additions_get_type ())
+//#define GNC_TYPE_PLUGIN_MENU_ADDITIONS            (gnc_plugin_menu_additions_get_type ())
 #define GNC_PLUGIN_MENU_ADDITIONS(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GNC_TYPE_PLUGIN_MENU_ADDITIONS, GncPluginMenuAdditions))
 #define GNC_PLUGIN_MENU_ADDITIONS_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), GNC_TYPE_PLUGIN_MENU_ADDITIONS, GncPluginMenuAdditionsClass))
 #define GNC_IS_PLUGIN_MENU_ADDITIONS(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GNC_TYPE_PLUGIN_MENU_ADDITIONS))
@@ -64,13 +64,6 @@ typedef struct
 } GncPluginMenuAdditionsClass;
 
 /* function prototypes */
-
-
-/** Get the type of an extensions plugin.
- *
- *  @return A GType.
- */
-GType gnc_plugin_menu_additions_get_type (void);
 
 
 /** Create a new menu_additions plugin.  This plugin attaches the menu
