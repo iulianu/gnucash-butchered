@@ -685,134 +685,6 @@ function inst_isocodes() {
 }
 
 
-function inst_libdbi() {
-    setup LibDBI
-    _SQLITE3_UDIR=`unix_path ${SQLITE3_DIR}`
-    _MYSQL_LIB_UDIR=`unix_path ${MYSQL_LIB_DIR}`
-    _PGSQL_UDIR=`unix_path ${PGSQL_DIR}`
-    _LIBDBI_UDIR=`unix_path ${LIBDBI_DIR}`
-    _LIBDBI_DRIVERS_UDIR=`unix_path ${LIBDBI_DRIVERS_DIR}`
-    add_to_env -I$_LIBDBI_UDIR/include LIBDBI_CPPFLAGS
-    add_to_env -L$_LIBDBI_UDIR/lib LIBDBI_LDFLAGS
-    add_to_env -I${_SQLITE3_UDIR}/include SQLITE3_CFLAGS
-    add_to_env -L${_SQLITE3_UDIR}/lib SQLITE3_LDFLAGS
-    if test -f ${_SQLITE3_UDIR}/bin/libsqlite3-0.dll
-    then
-        echo "SQLite3 already installed in $_SQLITE3_UDIR.  skipping."
-    else
-        wget_unpacked $SQLITE3_URL $DOWNLOAD_DIR $TMP_DIR
-        assert_one_dir $TMP_UDIR/sqlite-*
-        qpushd $TMP_UDIR/sqlite-*
-            ./configure ${HOST_XCOMPILE} \
-                --prefix=${_SQLITE3_UDIR}
-            make
-            make install
-        qpopd
-        test -f ${_SQLITE3_UDIR}/bin/libsqlite3-0.dll || die "SQLite3 not installed correctly"
-        rm -rf ${TMP_UDIR}/sqlite-*
-    fi
-    if test -f ${_MYSQL_LIB_UDIR}/lib/libmysql.dll -a \
-	        -f ${_MYSQL_LIB_UDIR}/lib/libmysqlclient.a
-    then
-        echo "MySQL library already installed in $_MYSQL_LIB_UDIR.  skipping."
-    else
-        wget_unpacked $MYSQL_LIB_URL $DOWNLOAD_DIR $TMP_DIR
-        mkdir -p $_MYSQL_LIB_UDIR
-        assert_one_dir $TMP_UDIR/mysql*
-        cp -r $TMP_UDIR/mysql*/* $_MYSQL_LIB_UDIR
-        cp -r $TMP_UDIR/mysql*/include $_MYSQL_LIB_UDIR/include/mysql
-        rm -rf ${TMP_UDIR}/mysql*
-        qpushd $_MYSQL_LIB_UDIR/lib
-        ${DLLTOOL} --input-def $LIBMYSQL_DEF --dllname libmysql.dll --output-lib libmysqlclient.a -k
-        test -f ${_MYSQL_LIB_UDIR}/lib/libmysql.dll || die "mysql not installed correctly - libmysql.dll"
-        test -f ${_MYSQL_LIB_UDIR}/lib/libmysqlclient.a || die "mysql not installed correctly - libmysqlclient.a"
-        qpopd
-    fi
-    if test -f ${_PGSQL_UDIR}/lib/libpq.dll
-    then
-        echo "PGSQL library already installed in $_PGSQL_UDIR.  skipping."
-    else
-        wget_unpacked $PGSQL_LIB_URL $DOWNLOAD_DIR $TMP_DIR
-        cp -r $TMP_UDIR/pgsql* $_PGSQL_UDIR
-        rm -rf ${TMP_UDIR}/pgsql*
-        test -f ${_PGSQL_UDIR}/lib/libpq.dll || die "libpq not installed correctly"
-    fi
-    if test -f ${_LIBDBI_UDIR}/bin/libdbi-0.dll
-    then
-        echo "libdbi already installed in $_LIBDBI_UDIR.  skipping."
-    else
-        wget_unpacked $LIBDBI_URL $DOWNLOAD_DIR $TMP_DIR
-        assert_one_dir $TMP_UDIR/libdbi-0*
-        qpushd $TMP_UDIR/libdbi-0*
-            if [ -n "$LIBDBI_PATCH" -a -f "$LIBDBI_PATCH" ]; then
-                patch -p1 < $LIBDBI_PATCH
-                ./autogen.sh
-            fi
-            if [ -n "$LIBDBI_PATCH2" -a -f "$LIBDBI_PATCH2" ]; then
-                patch -p1 < $LIBDBI_PATCH2
-            fi
-            if [ "$CROSS_COMPILE" = "yes" ]; then
-                rm ltmain.sh aclocal.m4
-                libtoolize --force
-                aclocal -I ${_AUTOTOOLS_UDIR}/share/aclocal
-                autoheader
-                automake --add-missing
-                autoconf
-            fi
-            ./configure ${HOST_XCOMPILE} \
-                --disable-docs \
-                --prefix=${_LIBDBI_UDIR}
-            make
-            make install
-        qpopd
-        qpushd ${_LIBDBI_UDIR}
-        if [ x"$(which pexports.exe > /dev/null 2>&1)" != x ]
-        then
-            pexports bin/libdbi-0.dll > lib/libdbi.def
-            ${DLLTOOL} -d lib/libdbi.def -D bin/libdbi-0.dll -l lib/libdbi.lib
-        fi
-        qpopd
-        test -f ${_LIBDBI_UDIR}/bin/libdbi-0.dll || die "libdbi not installed correctly"
-        rm -rf ${TMP_UDIR}/libdbi-0*
-    fi
-    if test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdsqlite3.dll -a \
-            -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdmysql.dll -a \
-            -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdpgsql.dll
-    then
-        echo "libdbi drivers already installed in $_LIBDBI_DRIVERS_UDIR.  skipping."
-    else
-        wget_unpacked $LIBDBI_DRIVERS_URL $DOWNLOAD_DIR $TMP_DIR
-        assert_one_dir $TMP_UDIR/libdbi-drivers-*
-        qpushd $TMP_UDIR/libdbi-drivers*
-            [ -n "$LIBDBI_DRIVERS_PATCH" -a -f "$LIBDBI_DRIVERS_PATCH" ] && \
-                patch -p0 < $LIBDBI_DRIVERS_PATCH
-            [ -n "$LIBDBI_DRIVERS_PATCH2" -a -f "$LIBDBI_DRIVERS_PATCH2" ] && \
-                patch -p0 < $LIBDBI_DRIVERS_PATCH2
-            [ -n "$LIBDBI_DRIVERS_PATCH3" -a -f "$LIBDBI_DRIVERS_PATCH3" ] && \
-                patch -p0 < $LIBDBI_DRIVERS_PATCH3
-            [ -n "$LIBDBI_DRIVERS_PATCH4" -a -f "$LIBDBI_DRIVERS_PATCH4" ] && \
-                patch -p0 < $LIBDBI_DRIVERS_PATCH4
-            LDFLAGS=-no-undefined ./configure ${HOST_XCOMPILE} \
-                --disable-docs \
-                --with-dbi-incdir=${_LIBDBI_UDIR}/include \
-                --with-dbi-libdir=${_LIBDBI_UDIR}/lib \
-                --with-sqlite3 \
-                --with-sqlite3-dir=${_SQLITE3_UDIR} \
-                --with-mysql \
-                --with-mysql-dir=${_MYSQL_LIB_UDIR} \
-                --with-pgsql \
-                --with-pgsql-dir=${_PGSQL_UDIR} \
-                --prefix=${_LIBDBI_DRIVERS_UDIR}
-            make
-            make install
-        qpopd
-        test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdsqlite3.dll || die "libdbi sqlite3 driver not installed correctly"
-        test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdmysql.dll || die "libdbi mysql driver not installed correctly"
-        test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdpgsql.dll || die "libdbi pgsql driver not installed correctly"
-        rm -rf ${TMP_UDIR}/libdbi-drivers-*
-    fi
-}
-
 function inst_libgsf() {
     setup libGSF
     _LIBGSF_UDIR=`unix_path $LIBGSF_DIR`
@@ -1193,8 +1065,6 @@ function inst_cutecash() {
             -DZLIB_LIBRARY=${_GNOME_UDIR}/bin/zlib1.dll \
             -DHTMLHELP_INCLUDE_PATH=${_HH_UDIR}/include \
             -DWITH_SQL=ON \
-            -DLIBDBI_INCLUDE_PATH=${_LIBDBI_UDIR}/include \
-            -DLIBDBI_LIBRARY=${_LIBDBI_UDIR}/lib/libdbi.dll.a \
             -DCMAKE_BUILD_TYPE=Debug
         make
     qpopd
@@ -1224,14 +1094,10 @@ function inst_gnucash() {
             --prefix=$_INSTALL_WFSDIR \
             --enable-debug \
             --enable-schemas-install=no \
-            --enable-dbi \
-            --with-dbi-dbd-dir=$( echo ${_LIBDBI_DRIVERS_UDIR} | sed 's,^/\([A-Za-z]\)/,\1:/,g' )/lib/dbd \
-            ${LIBOFX_OPTIONS} \
-            ${AQBANKING_OPTIONS} \
             --enable-binreloc \
             --enable-locale-specific-tax \
-            CPPFLAGS="${AUTOTOOLS_CPPFLAGS} ${REGEX_CPPFLAGS} ${GNOME_CPPFLAGS} ${GMP_CPPFLAGS} ${LIBDBI_CPPFLAGS} ${HH_CPPFLAGS} ${LIBSOUP_CPPFLAGS} -D_WIN32 ${EXTRA_CFLAGS}" \
-            LDFLAGS="${AUTOTOOLS_LDFLAGS} ${REGEX_LDFLAGS} ${GNOME_LDFLAGS} ${GMP_LDFLAGS} ${LIBDBI_LDFLAGS} ${HH_LDFLAGS} -L${_SQLITE3_UDIR}/lib -L${_ENCHANT_UDIR}/lib -L${_LIBXSLT_UDIR}/lib -L${_MINGW_UDIR}/lib" \
+            CPPFLAGS="${AUTOTOOLS_CPPFLAGS} ${REGEX_CPPFLAGS} ${GNOME_CPPFLAGS} ${GMP_CPPFLAGS} ${HH_CPPFLAGS} ${LIBSOUP_CPPFLAGS} -D_WIN32 ${EXTRA_CFLAGS}" \
+            LDFLAGS="${AUTOTOOLS_LDFLAGS} ${REGEX_LDFLAGS} ${GNOME_LDFLAGS} ${GMP_LDFLAGS} ${HH_LDFLAGS} -L${_SQLITE3_UDIR}/lib -L${_ENCHANT_UDIR}/lib -L${_LIBXSLT_UDIR}/lib -L${_MINGW_UDIR}/lib" \
             PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
 
         make
@@ -1257,7 +1123,6 @@ function make_install() {
     _AQBANKING_UDIR=`unix_path ${AQBANKING_DIR}`
     _LIBOFX_UDIR=`unix_path ${LIBOFX_DIR}`
     _OPENSP_UDIR=`unix_path ${OPENSP_DIR}`
-    _LIBDBI_UDIR=`unix_path ${LIBDBI_DIR}`
     _SQLITE3_UDIR=`unix_path ${SQLITE3_DIR}`
     _WEBKIT_UDIR=`unix_path ${WEBKIT_DIR}`
     _GNUTLS_UDIR=`unix_path ${GNUTLS_DIR}`
@@ -1330,11 +1195,7 @@ set PATH=$AUTOTOOLS_DIR\\bin;%PATH%
 set PATH=$AQBANKING_PATH;%PATH%
 set PATH=$LIBOFX_DIR\\bin;%PATH%
 set PATH=$OPENSP_DIR\\bin;%PATH%
-set PATH=$LIBDBI_DIR\\bin;%PATH%
 set PATH=$SQLITE3_DIR\\bin;%PATH%
-set PATH=$MYSQL_LIB_DIR\\lib;%PATH%
-set PATH=$PGSQL_DIR\\bin;%PATH%
-set PATH=$PGSQL_DIR\\lib;%PATH%
 
 set LTDL_LIBRARY_PATH=${INSTALL_DIR}\\lib
 

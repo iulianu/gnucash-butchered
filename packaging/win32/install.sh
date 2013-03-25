@@ -41,8 +41,6 @@ register_env_var GNUTLS_LDFLAGS " "
 register_env_var HH_CPPFLAGS " "
 register_env_var HH_LDFLAGS " "
 register_env_var INTLTOOL_PERL " "
-register_env_var LIBDBI_CPPFLAGS " "
-register_env_var LIBDBI_LDFLAGS " "
 register_env_var PATH ":"
 register_env_var PCRE_CPPFLAGS " "
 register_env_var PCRE_LDFLAGS " "
@@ -89,7 +87,6 @@ if [ "$CROSS_COMPILE" != "yes" ]; then
 fi
 #add_step inst_glade
 add_step inst_opensp
-add_step inst_libdbi
 
 # libsoup and enchant needed by webkit
 add_step inst_libsoup
