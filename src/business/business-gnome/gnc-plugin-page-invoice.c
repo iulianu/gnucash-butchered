@@ -78,7 +78,6 @@ static void gnc_plugin_page_invoice_cmd_delete (GtkAction *action, GncPluginPage
 static void gnc_plugin_page_invoice_cmd_blank (GtkAction *action, GncPluginPageInvoice *plugin_page);
 static void gnc_plugin_page_invoice_cmd_duplicateEntry (GtkAction *action, GncPluginPageInvoice *plugin_page);
 static void gnc_plugin_page_invoice_cmd_pay_invoice (GtkAction *action, GncPluginPageInvoice *plugin_page);
-static void gnc_plugin_page_invoice_cmd_company_report (GtkAction *action, GncPluginPageInvoice *plugin_page);
 
 static void gnc_plugin_page_redraw_help_cb( GnucashRegister *gsr, GncPluginPageInvoice *invoice_page );
 static void gnc_plugin_page_invoice_refresh_cb (GHashTable *changes, gpointer user_data);
@@ -192,13 +191,6 @@ static GtkActionEntry gnc_plugin_page_invoice_actions [] =
         "ToolsProcessPaymentAction", GNC_STOCK_INVOICE_PAY, N_("_Pay Invoice"), NULL,
         N_("Enter a payment for the owner of this Invoice"),
         G_CALLBACK (gnc_plugin_page_invoice_cmd_pay_invoice)
-    },
-
-    /* Reports menu */
-    {
-        "ReportsCompanyReportAction", NULL, N_("_Company Report"), NULL,
-        N_("Open a company report window for the owner of this Invoice"),
-        G_CALLBACK (gnc_plugin_page_invoice_cmd_company_report)
     },
 };
 static guint gnc_plugin_page_invoice_n_actions = G_N_ELEMENTS (gnc_plugin_page_invoice_actions);
@@ -667,7 +659,7 @@ gnc_plugin_page_invoice_cmd_print (GtkAction *action,
 
     ENTER("(action %p, plugin_page %p)", action, plugin_page);
     priv = GNC_PLUGIN_PAGE_INVOICE_GET_PRIVATE(plugin_page);
-    gnc_invoice_window_printCB(NULL, priv->iw);
+    // gnc_invoice_window_printCB(NULL, priv->iw);
     LEAVE(" ");
 }
 
@@ -901,20 +893,6 @@ gnc_plugin_page_invoice_cmd_pay_invoice (GtkAction *action,
     ENTER("(action %p, plugin_page %p)", action, plugin_page);
     priv = GNC_PLUGIN_PAGE_INVOICE_GET_PRIVATE(plugin_page);
     gnc_invoice_window_payment_cb(NULL, priv->iw);
-    LEAVE(" ");
-}
-
-static void
-gnc_plugin_page_invoice_cmd_company_report (GtkAction *action,
-        GncPluginPageInvoice *plugin_page)
-{
-    GncPluginPageInvoicePrivate *priv;
-
-    g_return_if_fail(GNC_IS_PLUGIN_PAGE_INVOICE(plugin_page));
-
-    ENTER("(action %p, plugin_page %p)", action, plugin_page);
-    priv = GNC_PLUGIN_PAGE_INVOICE_GET_PRIVATE(plugin_page);
-    gnc_invoice_window_report_owner_cb(NULL, priv->iw);
     LEAVE(" ");
 }
 

@@ -70,8 +70,6 @@ InvoiceWindow * gnc_ui_invoice_duplicate (GncInvoice *invoice, gboolean open_pro
 /* Search for invoices */
 GNCSearchWindow * gnc_invoice_search (GncInvoice *start, GncOwner *owner, QofBook *book);
 
-void gnc_business_call_owner_report (GncOwner *owner, Account *acc);
-
 void gnc_invoice_window_sort (InvoiceWindow *iw, invoice_sort_type_t sort_code);
 
 GtkWidget * gnc_invoice_window_create_summary_bar (InvoiceWindow *iw);
@@ -98,7 +96,6 @@ GtkWidget *gnc_invoice_get_register(InvoiceWindow *iw);
 void gnc_invoice_window_destroy_cb (GtkWidget *widget, gpointer data);
 
 void gnc_invoice_window_new_invoice_cb (GtkWidget *widget, gpointer data);
-void gnc_invoice_window_printCB (GtkWidget *widget, gpointer data);
 void gnc_invoice_window_cut_cb (GtkWidget *widget, gpointer data);
 void gnc_invoice_window_copy_cb (GtkWidget *widget, gpointer data);
 void gnc_invoice_window_paste_cb (GtkWidget *widget, gpointer data);
