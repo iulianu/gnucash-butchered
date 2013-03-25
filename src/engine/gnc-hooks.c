@@ -25,7 +25,6 @@
 
 #include <glib.h>
 #include <stdio.h>
-#include <libguile.h>
 #include "gnc-hooks.h"
 #include "gnc-engine.h"
 
@@ -41,11 +40,6 @@ typedef struct
     GHookList	*scm_danglers;
     gint           num_args;
 } GncHook;
-
-typedef struct
-{
-    SCM		proc;
-} GncScmDangler;
 
 gchar *
 gnc_hook_create (const gchar *name, gint num_args, const gchar *desc)
