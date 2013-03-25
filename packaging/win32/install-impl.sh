@@ -103,8 +103,8 @@ function inst_dtk() {
         smart_wget $DTK_URL $DOWNLOAD_DIR
         $LAST_FILE //SP- //SILENT //DIR="$MSYS_DIR"
         for file in \
-            /bin/{aclocal*,auto*,ifnames,libtool*,guile*} \
-            /share/{aclocal,aclocal-1.7,autoconf,autogen,automake-1.7,guile,libtool}
+            /bin/{aclocal*,auto*,ifnames,libtool*} \
+            /share/{aclocal,aclocal-1.7,autoconf,autogen,automake-1.7,libtool}
         do
 			[ -f $file ] || continue
             [ "${file##*.bak}" ] || continue
@@ -214,26 +214,6 @@ function inst_svn() {
 		cp -a $TMP_UDIR/svn-win32-*/* $SVN_DIR
 		rm -rf $TMP_UDIR/svn-win32-*
         quiet $_SVN_UDIR/bin/svn --version || die "svn not installed correctly"
-    fi
-}
-
-function inst_swig() {
-    setup Swig
-    _SWIG_UDIR=`unix_path $SWIG_DIR`
-    add_to_env $_SWIG_UDIR PATH
-    if quiet swig -version
-    then
-        echo "swig already installed in $_SWIG_UDIR.  skipping."
-    else
-        wget_unpacked $SWIG_URL $DOWNLOAD_DIR $SWIG_DIR
-        qpushd $SWIG_DIR
-            mv swigwin-* mydir
-            mv mydir/* .
-            mv mydir/.[A-Za-z]* . # hidden files
-            rmdir mydir
-            rm INSTALL # bites with /bin/install
-        qpopd
-        quiet swig -version || die "swig unavailable"
     fi
 }
 
@@ -683,138 +663,6 @@ function inst_goffice() {
     fi
 }
 
-function inst_guile() {
-    setup Guile
-    _GUILE_WFSDIR=`win_fs_path $GUILE_DIR`
-    _GUILE_UDIR=`unix_path $GUILE_DIR`
-    _WIN_UDIR=`unix_path $WINDIR`
-    add_to_env -I$_GUILE_UDIR/include GUILE_CPPFLAGS
-    add_to_env -L$_GUILE_UDIR/lib GUILE_LDFLAGS
-    add_to_env $_GUILE_UDIR/bin PATH
-    add_to_env ${_GUILE_UDIR}/lib/pkgconfig PKG_CONFIG_PATH
-    if quiet guile -c '(use-modules (srfi srfi-39))' &&
-        quiet ${PKG_CONFIG} --atleast-version=${GUILE_VERSION} guile-1.8
-    then
-        echo "guile and slib already installed in $_GUILE_UDIR.  skipping."
-    else
-        smart_wget $GUILE_URL $DOWNLOAD_DIR
-        _GUILE_BALL=$LAST_FILE
-        tar -xzpf $_GUILE_BALL -C $TMP_UDIR
-        assert_one_dir $TMP_UDIR/guile-*
-        qpushd $TMP_UDIR/guile-*
-            if [ -n "$GUILE_PATCH" -a -f "$GUILE_PATCH" ]; then
-                patch -p1 < $GUILE_PATCH
-            fi
-            ACLOCAL="aclocal $ACLOCAL_FLAGS" autoreconf -fvi $ACLOCAL_FLAGS
-            ./configure ${HOST_XCOMPILE} \
-                --disable-static \
-                --disable-elisp \
-                --disable-dependency-tracking \
-                -C --prefix=$_GUILE_WFSDIR \
-                ac_cv_func_regcomp_rx=yes \
-                CFLAGS="-D__MINGW32__" \
-                CPPFLAGS="${READLINE_CPPFLAGS} ${REGEX_CPPFLAGS} ${AUTOTOOLS_CPPFLAGS} ${GMP_CPPFLAGS} -D__MINGW32__" \
-                LDFLAGS="${READLINE_LDFLAGS} ${REGEX_LDFLAGS} ${AUTOTOOLS_LDFLAGS} ${GMP_LDFLAGS} -Wl,--enable-auto-import"
-            make LDFLAGS="${READLINE_LDFLAGS} ${REGEX_LDFLAGS} ${AUTOTOOLS_LDFLAGS} ${GMP_LDFLAGS} -Wl,--enable-auto-import -no-undefined -avoid-version"
-            make install
-        qpopd
-        guile -c '(use-modules (srfi srfi-39))' || die "guile not installed correctly"
-
-        # If this libguile is used from MSVC compiler, we must
-        # deactivate some macros of scmconfig.h again.
-        SCMCONFIG_H=$_GUILE_UDIR/include/libguile/scmconfig.h
-        cat >> ${SCMCONFIG_H} <<EOF
-
-#ifdef _MSC_VER
-# undef HAVE_STDINT_H
-# undef HAVE_INTTYPES_H
-# undef HAVE_UNISTD_H
-#endif
-EOF
-        # Also, for MSVC compiler we need to create an import library
-        if [ x"$(which pexports.exe > /dev/null 2>&1)" != x ]
-        then
-            pexports $_GUILE_UDIR/bin/libguile.dll > $_GUILE_UDIR/lib/libguile.def
-            ${DLLTOOL} -d $_GUILE_UDIR/lib/libguile.def -D $_GUILE_UDIR/bin/libguile.dll -l $_GUILE_UDIR/lib/libguile.lib
-        fi
-        # Also, for MSVC compiler we need to slightly modify the gc.h header
-        GC_H=$_GUILE_UDIR/include/libguile/gc.h
-        grep -v 'extern .*_freelist2;' ${GC_H} > ${GC_H}.tmp
-        grep -v 'extern int scm_block_gc;' ${GC_H}.tmp > ${GC_H}
-        cat >> ${GC_H} <<EOF
-#ifdef _MSC_VER
-# define LIBGUILEDECL __declspec (dllimport)
-#else
-# define LIBGUILEDECL /* */
-#endif
-extern LIBGUILEDECL SCM scm_freelist2;
-extern LIBGUILEDECL struct scm_t_freelist scm_master_freelist2;
-extern LIBGUILEDECL int scm_block_gc;
-EOF
-        rm -rf ${TMP_UDIR}/guile-*
-    fi
-    if [ "$CROSS_COMPILE" = "yes" ]; then
-        mkdir -p $_GUILE_UDIR/bin
-        qpushd $_GUILE_UDIR/bin
-        # The cross-compiling guile expects these program names
-        # for the build-time guile
-        ln -sf /usr/bin/guile-config mingw32-guile-config
-        ln -sf /usr/bin/guile mingw32-build-guile
-        qpopd
-    fi
-    [ ! -d $_GUILE_UDIR/share/aclocal ] || add_to_env "-I $_GUILE_UDIR/share/aclocal" ACLOCAL_FLAGS
-}
-
-function inst_gwenhywfar() {
-    setup Gwenhywfar
-    _GWENHYWFAR_UDIR=`unix_path ${GWENHYWFAR_DIR}`
-    add_to_env ${_GWENHYWFAR_UDIR}/bin PATH
-    add_to_env ${_GWENHYWFAR_UDIR}/lib/pkgconfig PKG_CONFIG_PATH
-    if quiet ${PKG_CONFIG} --exact-version=${GWENHYWFAR_VERSION} gwenhywfar
-    then
-        echo "Gwenhywfar already installed in $_GWENHYWFAR_UDIR. skipping."
-    else
-        wget_unpacked $GWENHYWFAR_URL $DOWNLOAD_DIR $TMP_DIR
-        assert_one_dir $TMP_UDIR/gwenhywfar-*
-        qpushd $TMP_UDIR/gwenhywfar-*
-            # circumvent binreloc bug, http://trac.autopackage.org/ticket/28
-            if [ "$AQBANKING5" = "yes" ]; then
-                # Note: gwenhywfar-3.x and higher don't use openssl anymore.
-                ./configure ${HOST_XCOMPILE} \
-                    --with-libgcrypt-prefix=$_GNUTLS_UDIR \
-                    --disable-binreloc \
-                    --disable-ssl \
-                    --prefix=$_GWENHYWFAR_UDIR \
-                    --with-guis=gtk2 \
-                    CPPFLAGS="${REGEX_CPPFLAGS} ${GNOME_CPPFLAGS} ${GNUTLS_CPPFLAGS} `pkg-config --cflags gtk+-2.0`" \
-                    LDFLAGS="${REGEX_LDFLAGS} ${GNOME_LDFLAGS} ${GNUTLS_LDFLAGS} -lintl"
-            else
-                if [ -n "$GWENHYWFAR_PATCH" -a -f "$GWENHYWFAR_PATCH" ] ; then
-                    patch -p1 < $GWENHYWFAR_PATCH
-                    #aclocal -I m4 ${ACLOCAL_FLAGS}
-                    #automake
-                    #autoconf
-                fi
-                # Note: gwenhywfar-3.x and higher don't use openssl anymore.
-                ./configure ${HOST_XCOMPILE} \
-                    --with-libgcrypt-prefix=$_GNUTLS_UDIR \
-                    --disable-binreloc \
-                    --disable-ssl \
-                    --prefix=$_GWENHYWFAR_UDIR \
-                    CPPFLAGS="${REGEX_CPPFLAGS} ${GNOME_CPPFLAGS} ${GNUTLS_CPPFLAGS}" \
-                    LDFLAGS="${REGEX_LDFLAGS} ${GNOME_LDFLAGS} ${GNUTLS_LDFLAGS} -lintl"
-            fi
-            make
-#            [ "$CROSS_COMPILE" != "yes" ] && make check
-            rm -rf ${_GWENHYWFAR_UDIR}
-            make install
-        qpopd
-        ${PKG_CONFIG} --exists gwenhywfar || die "Gwenhywfar not installed correctly"
-        rm -rf ${TMP_UDIR}/gwenhywfar-*
-    fi
-    [ ! -d $_GWENHYWFAR_UDIR/share/aclocal ] || add_to_env "-I $_GWENHYWFAR_UDIR/share/aclocal" ACLOCAL_FLAGS
-}
-
 function inst_isocodes() {
     setup isocodes
     _ISOCODES_UDIR=`unix_path ${ISOCODES_DIR}`
@@ -836,32 +684,6 @@ function inst_isocodes() {
     fi
 }
 
-function inst_ktoblzcheck() {
-    setup Ktoblzcheck
-    # Out of convenience ktoblzcheck is being installed into
-    # GWENHYWFAR_DIR
-    add_to_env "-I${_GWENHYWFAR_UDIR}/include" KTOBLZCHECK_CPPFLAGS
-    add_to_env "-L${_GWENHYWFAR_UDIR}/lib" KTOBLZCHECK_LDFLAGS
-    if quiet ${PKG_CONFIG} --exact-version=${KTOBLZCHECK_VERSION} ktoblzcheck
-    then
-        echo "Ktoblzcheck already installed in $_GWENHYWFAR_UDIR. skipping."
-    else
-        wget_unpacked $KTOBLZCHECK_URL $DOWNLOAD_DIR $TMP_DIR
-        assert_one_dir $TMP_UDIR/ktoblzcheck-*
-        qpushd $TMP_UDIR/ktoblzcheck-*
-            # circumvent binreloc bug, http://trac.autopackage.org/ticket/28
-            ./configure ${HOST_XCOMPILE} \
-                --prefix=${_GWENHYWFAR_UDIR} \
-                --disable-binreloc \
-                --disable-python
-            make
-#            [ "$CROSS_COMPILE" != "yes" ] && make check
-            make install
-        qpopd
-        ${PKG_CONFIG} --exists ktoblzcheck || die "Ktoblzcheck not installed correctly"
-        rm -rf ${TMP_UDIR}/ktoblzcheck-*
-    fi
-}
 
 function inst_libdbi() {
     setup LibDBI
@@ -1016,41 +838,6 @@ function inst_libgsf() {
             make install
         qpopd
         ${PKG_CONFIG} --exists libgsf-1 libgsf-gnome-1 || die "libgsf not installed correctly"
-    fi
-}
-
-function inst_libofx() {
-    setup Libofx
-    _LIBOFX_UDIR=`unix_path ${LIBOFX_DIR}`
-    add_to_env ${_LIBOFX_UDIR}/bin PATH
-    add_to_env ${_LIBOFX_UDIR}/lib/pkgconfig PKG_CONFIG_PATH
-    if quiet ${PKG_CONFIG} --exists libofx && quiet ${PKG_CONFIG} --atleast-version=${LIBOFX_VERSION} libofx
-    then
-        echo "Libofx already installed in $_LIBOFX_UDIR. skipping."
-    else
-        wget_unpacked $LIBOFX_URL $DOWNLOAD_DIR $TMP_DIR
-        assert_one_dir $TMP_UDIR/libofx-*
-        qpushd $TMP_UDIR/libofx-*
-            if [ -n "$LIBOFX_PATCH" -a -f "$LIBOFX_PATCH" ]; then
-                patch -p1 < $LIBOFX_PATCH
-#                libtoolize --force
-#                aclocal ${ACLOCAL_FLAGS}
-#                automake
-#                autoconf
-#                ACLOCAL="aclocal $ACLOCAL_FLAGS" autoreconf -fvi $ACLOCAL_FLAGS -B $_AUTOTOOLS_UDIR/share/autoconf/autoconf
-            fi
-            ./configure ${HOST_XCOMPILE} \
-                --prefix=${_LIBOFX_UDIR} \
-                --with-opensp-includes=${_OPENSP_UDIR}/include/OpenSP \
-                --with-opensp-libs=${_OPENSP_UDIR}/lib \
-                CPPFLAGS="-DOS_WIN32 ${GNOME_CPPFLAGS}" \
-                --disable-static \
-                --with-iconv=${_GNOME_UDIR}
-            make LDFLAGS="${LDFLAGS} -no-undefined ${GNOME_LDFLAGS} -liconv"
-            make install
-        qpopd
-        quiet ${PKG_CONFIG} --exists libofx || die "Libofx not installed correctly"
-        rm -rf ${TMP_UDIR}/libofx-*
     fi
 }
 
@@ -1397,8 +1184,6 @@ function inst_cutecash() {
             -G"MSYS Makefiles" \
             -DREGEX_INCLUDE_PATH=${_REGEX_UDIR}/include \
             -DREGEX_LIBRARY=${_REGEX_UDIR}/lib/libregex.a \
-            -DGUILE_INCLUDE_DIR=${_GUILE_UDIR}/include \
-            -DGUILE_LIBRARY=${_GUILE_UDIR}/bin/libguile.dll \
             -DLIBINTL_INCLUDE_PATH=${_GNOME_UDIR}/include \
             -DLIBINTL_LIBRARY=${_GNOME_UDIR}/bin/intl.dll \
             -DLIBXML2_INCLUDE_DIR=${_GNOME_UDIR}/include/libxml2 \
@@ -1406,7 +1191,6 @@ function inst_cutecash() {
             -DPKG_CONFIG_EXECUTABLE=${_GNOME_UDIR}/bin/pkg-config \
             -DZLIB_INCLUDE_DIR=${_GNOME_UDIR}/include \
             -DZLIB_LIBRARY=${_GNOME_UDIR}/bin/zlib1.dll \
-            -DSWIG_EXECUTABLE=${_SWIG_UDIR}/swig.exe \
             -DHTMLHELP_INCLUDE_PATH=${_HH_UDIR}/include \
             -DWITH_SQL=ON \
             -DLIBDBI_INCLUDE_PATH=${_LIBDBI_UDIR}/include \
@@ -1425,9 +1209,9 @@ function inst_gnucash() {
     mkdir -p $_BUILD_UDIR
     add_to_env $_INSTALL_UDIR/bin PATH
 
-    AQBANKING_OPTIONS="--enable-aqbanking"
+    AQBANKING_OPTIONS=""
     AQBANKING_UPATH="${_OPENSSL_UDIR}/bin:${_GWENHYWFAR_UDIR}/bin:${_AQBANKING_UDIR}/bin"
-    LIBOFX_OPTIONS="--enable-ofx --with-ofx-prefix=${_LIBOFX_UDIR}"
+    LIBOFX_OPTIONS=""
 
     if [ "$BUILD_FROM_TARBALL" != "yes" ]; then
         qpushd $REPOS_DIR
@@ -1446,8 +1230,8 @@ function inst_gnucash() {
             ${AQBANKING_OPTIONS} \
             --enable-binreloc \
             --enable-locale-specific-tax \
-            CPPFLAGS="${AUTOTOOLS_CPPFLAGS} ${REGEX_CPPFLAGS} ${GNOME_CPPFLAGS} ${GMP_CPPFLAGS} ${GUILE_CPPFLAGS} ${LIBDBI_CPPFLAGS} ${KTOBLZCHECK_CPPFLAGS} ${HH_CPPFLAGS} ${LIBSOUP_CPPFLAGS} -D_WIN32 ${EXTRA_CFLAGS}" \
-            LDFLAGS="${AUTOTOOLS_LDFLAGS} ${REGEX_LDFLAGS} ${GNOME_LDFLAGS} ${GMP_LDFLAGS} ${GUILE_LDFLAGS} ${LIBDBI_LDFLAGS} ${KTOBLZCHECK_LDFLAGS} ${HH_LDFLAGS} -L${_SQLITE3_UDIR}/lib -L${_ENCHANT_UDIR}/lib -L${_LIBXSLT_UDIR}/lib -L${_MINGW_UDIR}/lib" \
+            CPPFLAGS="${AUTOTOOLS_CPPFLAGS} ${REGEX_CPPFLAGS} ${GNOME_CPPFLAGS} ${GMP_CPPFLAGS} ${LIBDBI_CPPFLAGS} ${HH_CPPFLAGS} ${LIBSOUP_CPPFLAGS} -D_WIN32 ${EXTRA_CFLAGS}" \
+            LDFLAGS="${AUTOTOOLS_LDFLAGS} ${REGEX_LDFLAGS} ${GNOME_LDFLAGS} ${GMP_LDFLAGS} ${LIBDBI_LDFLAGS} ${HH_LDFLAGS} -L${_SQLITE3_UDIR}/lib -L${_ENCHANT_UDIR}/lib -L${_LIBXSLT_UDIR}/lib -L${_MINGW_UDIR}/lib" \
             PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
 
         make
@@ -1466,7 +1250,6 @@ function make_install() {
     _LIBGSF_UDIR=`unix_path $LIBGSF_DIR`
     _PCRE_UDIR=`unix_path $PCRE_DIR`
     _GNOME_UDIR=`unix_path $GNOME_DIR`
-    _GUILE_UDIR=`unix_path $GUILE_DIR`
     _REGEX_UDIR=`unix_path $REGEX_DIR`
     _AUTOTOOLS_UDIR=`unix_path $AUTOTOOLS_DIR`
     _OPENSSL_UDIR=`unix_path $OPENSSL_DIR`
@@ -1541,7 +1324,6 @@ set PATH=$GOFFICE_DIR\\bin;%PATH%
 set PATH=$LIBGSF_DIR\\bin;%PATH%
 set PATH=$PCRE_DIR\\bin;%PATH%
 set PATH=$GNOME_DIR\\bin;%PATH%
-set PATH=$GUILE_DIR\\bin;%PATH%
 set PATH=$WEBKIT_DIR\\bin;%PATH%
 set PATH=$REGEX_DIR\\bin;%PATH%
 set PATH=$AUTOTOOLS_DIR\\bin;%PATH%

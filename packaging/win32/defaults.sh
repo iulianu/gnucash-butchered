@@ -21,15 +21,7 @@ set_default GLOBAL_DIR c:\\soft
 set_default TMP_DIR $GLOBAL_DIR\\tmp
 set_default DOWNLOAD_DIR $GLOBAL_DIR\\downloads
 
-if [ -z "$BUILD_FROM_TARBALL" ]; then
-    if [ -f "../../src/swig-runtime.h" ]; then
-        BUILD_FROM_TARBALL=yes
-    else
-        BUILD_FROM_TARBALL=no
-    fi
-fi
-
-if [ "$BUILD_FROM_TARBALL" = "yes" ]; then
+if [ "yes" = "yes" ]; then
     set_default GNUCASH_DIR "$(wpwd ..\\..)"
     set_default REPOS_DIR $GNUCASH_DIR
     # keep this pointing from BUILD_DIR to REPOS_DIR
@@ -192,11 +184,6 @@ set_default GMP_DIR $GLOBAL_DIR\\gmp
 set_default GMP5_BIN_URL "$SF_MIRROR/mingw/libgmp-5.0.1-1-mingw32-dll-10.tar.lzma"
 set_default GMP5_DEV_URL "$SF_MIRROR/mingw/gmp-5.0.1-1-mingw32-dev.tar.lzma"
 
-GUILE_VERSION="1.8.8"
-set_default GUILE_URL "http://ftp.gnu.org/pub/gnu/guile/guile-${GUILE_VERSION}.tar.gz"
-set_default GUILE_DIR $GLOBAL_DIR\\guile
-set_default GUILE_PATCH `pwd`/guile-1.8.8.patch
-
 set_default OPENSSL_URL "http://www.openssl.org/source/openssl-0.9.8j.tar.gz"
 set_default OPENSSL_DIR $GLOBAL_DIR\\openssl
 
@@ -277,9 +264,6 @@ set_default ZLIB_URL                "$GNOME_WIN32_DEPS_URL/zlib_1.2.5-2_win32.zi
 set_default ZLIB_DEV_URL            "$GNOME_WIN32_DEPS_URL/zlib-dev_1.2.5-2_win32.zip"
 set_default GNOME_DIR $GLOBAL_DIR\\gnome
 
-set_default SWIG_URL "$SF_MIRROR/swig/swigwin-1.3.36.zip"
-set_default SWIG_DIR $GLOBAL_DIR\\swig
-
 set_default PCRE_BIN_URL "$SF_MIRROR/gnuwin32/pcre-7.0-bin.zip"
 set_default PCRE_LIB_URL "$SF_MIRROR/gnuwin32/pcre-7.0-lib.zip"
 set_default PCRE_DIR $GLOBAL_DIR\\pcre
@@ -348,7 +332,7 @@ set_default LIBOFX_DIR $GLOBAL_DIR\\libofx
 #set_default LIBOFX_PATCH `pwd`/libofx-x.x.x.patch
 
 ## online banking: gwenhywfar+aqbanking
-set_default AQBANKING5 yes
+set_default AQBANKING5 no
 # If sticking to aqbanking4, make sure to enable the QtCore4.dll et al
 # in gnucash.iss.in again because in aqbanking4 those DLLs are still
 # needed.

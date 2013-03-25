@@ -38,16 +38,11 @@ register_env_var GNOME_CPPFLAGS " "
 register_env_var GNOME_LDFLAGS " "
 register_env_var GNUTLS_CPPFLAGS " "
 register_env_var GNUTLS_LDFLAGS " "
-register_env_var GUILE_LOAD_PATH ";"
-register_env_var GUILE_CPPFLAGS " "
-register_env_var GUILE_LDFLAGS " "
 register_env_var HH_CPPFLAGS " "
 register_env_var HH_LDFLAGS " "
 register_env_var INTLTOOL_PERL " "
 register_env_var LIBDBI_CPPFLAGS " "
 register_env_var LIBDBI_LDFLAGS " "
-register_env_var KTOBLZCHECK_CPPFLAGS " "
-register_env_var KTOBLZCHECK_LDFLAGS " "
 register_env_var PATH ":"
 register_env_var PCRE_CPPFLAGS " "
 register_env_var PCRE_LDFLAGS " "
@@ -80,7 +75,6 @@ add_step inst_autotools
 add_step inst_gmp
 add_step inst_exetype
 add_step inst_gnome
-add_step inst_guile
 if [ "$CROSS_COMPILE" != "yes" ]; then
  add_step inst_svn
  add_step inst_git
@@ -88,20 +82,13 @@ fi
 add_step inst_gnutls
 add_step inst_libxslt
 add_step inst_isocodes
-add_step inst_swig
 add_step inst_pcre
-add_step inst_libgsf
+#add_step inst_libgsf
 if [ "$CROSS_COMPILE" != "yes" ]; then
  add_step inst_hh
 fi
-add_step inst_goffice
 #add_step inst_glade
 add_step inst_opensp
-add_step inst_libofx
-## Online banking:
-add_step inst_gwenhywfar
-add_step inst_ktoblzcheck
-add_step inst_aqbanking
 add_step inst_libdbi
 
 # libsoup and enchant needed by webkit
