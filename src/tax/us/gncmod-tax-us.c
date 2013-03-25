@@ -11,7 +11,6 @@
 #include <locale.h>
 #endif // LOCALE_SPECIFIC_TAX
 #include <gmodule.h>
-#include <libguile.h>
 
 #include "gnc-module.h"
 #include "gnc-module-api.h"
@@ -53,14 +52,6 @@ libgncmod_tax_us_gnc_module_description(void)
     return g_strdup("US income tax information");
 }
 
-static void
-lmod(char * mn)
-{
-    char * form = g_strdup_printf("(use-modules %s)\n", mn);
-    scm_c_eval_string(form);
-    g_free(form);
-}
-
 int
 libgncmod_tax_us_gnc_module_init(int refcount)
 {
@@ -77,10 +68,10 @@ libgncmod_tax_us_gnc_module_init(int refcount)
     gboolean is_de_DE = (strncmp(thislocale, "de_DE", 5) == 0);
 # endif /* G_OS_WIN32 */
     if (is_de_DE)
-        lmod("(gnucash tax de_DE)");
+        ;//lmod("(gnucash tax de_DE)");
     else
 #endif /* LOCALE_SPECIFIC_TAX */
-        lmod("(gnucash tax us)");
+        ;//lmod("(gnucash tax us)");
     return TRUE;
 }
 
