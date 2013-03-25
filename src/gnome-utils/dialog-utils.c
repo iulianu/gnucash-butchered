@@ -263,7 +263,8 @@ gnc_window_adjust_for_screen(GtkWindow * window)
 
     screen_width = gdk_screen_width();
     screen_height = gdk_screen_height();
-    gdk_drawable_get_size(GTK_WIDGET(window)->window, &width, &height);
+    width = gdk_window_get_width(GTK_WIDGET(window)->window);
+    height = gdk_window_get_height(GTK_WIDGET(window)->window);
 
     if ((width <= screen_width) && (height <= screen_height))
         return;

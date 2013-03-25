@@ -54,10 +54,10 @@ enum {
 static GtkEventBoxClass *parent_class;
 static guint signals[LAST_SIGNAL];
 
-GtkType
+GType
 gnc_popup_entry_get_type (void)
 {
-	static GtkType widget_type = 0;
+	static GType widget_type = 0;
 	
 	if (!widget_type) {
 		static const GTypeInfo widget_info = {
@@ -116,7 +116,7 @@ gnc_popup_entry_init (GncPopupEntry *widget)
 
 	gtk_container_add (GTK_CONTAINER (widget), widget->hbox);
 
-	GTK_WIDGET_SET_FLAGS (widget, GTK_CAN_FOCUS);
+	gtk_widget_set_can_focus(GTK_WIDGET (widget), TRUE);
 	gtk_widget_add_events (GTK_WIDGET (widget), GDK_KEY_PRESS_MASK);
 	gtk_widget_add_events (GTK_WIDGET (widget), GDK_KEY_RELEASE_MASK);
 }
@@ -128,7 +128,12 @@ gnc_popup_entry_class_init (GncPopupEntryClass *klass)
 
 	widget_class->key_press_event = gpw_key_press_event;
 
-        gtk_object_add_arg_type ("GncPopupEntry::editing-canceled", GTK_TYPE_BOOL, GTK_ARG_READWRITE, ARG_EDITING_CANCELED);
+	g_object_class_install_property( (GObjectClass*) widget_class,
+			ARG_EDITING_CANCELED,
+			g_param_spec_boolean("editing-canceled", "editing-canceled", "editing-canceled",
+				FALSE,
+				G_PARAM_READWRITE)
+			);
 	
 	parent_class = GTK_EVENT_BOX_CLASS (g_type_class_peek_parent (klass));
 
