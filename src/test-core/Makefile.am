@@ -1,8 +1,5 @@
 noinst_LTLIBRARIES = libtest-core.la
 
-SWIG_FILES = \
-	unittest-support.i
-
 libtest_core_la_SOURCES = \
 	test-stuff.c \
 	unittest-support.c
@@ -21,32 +18,6 @@ libtest_core_la_CPPFLAGS = \
   ${GLIB_CFLAGS}
 
 libtest_core_la_LDFLAGS = \
-  -rpath ${exec-prefix}/lib
-
-swig-unittest-support-guile.c: unittest-support.i $(top_srcdir)/src/base-typemaps.i
-	$(SWIG) -guile $(SWIG_ARGS) -Linkage module \
-	-I${top_srcdir}/src \
-	${AM_CPPFLAGS} -o $@ $<
-
-swig-unittest-support-python.c: unittest-support.i $(top_srcdir)/src/base-typemaps.i
-	$(SWIG) -python  -Wall -Werror $(SWIG_ARGS) \
-	-I${top_srcdir}/src \
-	${AM_CPPFLAGS} -o $@ $<
-
-unittest-support.py: swig-unittest-support-python.c ${SWIG_FILES}
-
-noinst_LTLIBRARIES += libtest-core-guile.la
-libtest_core_guile_la_SOURCES = swig-unittest-support-guile.c
-libtest_core_guile_la_LIBADD = \
-  ${GUILE_LIBS} \
-  ${GLIB_LIBS} \
-  libtest-core.la
-
-libtest_core_guile_la_CFLAGS = \
-	${libtest_core_la_CPPFLAGS} \
-	${GUILE_CFLAGS}
-
-libtest_core_guile_la_LDFLAGS = \
   -rpath ${exec-prefix}/lib
 
 SCM_FILES = unittest-support.scm
@@ -75,10 +46,7 @@ noinst_DATA = .scm-links
 CLEANFILES = .scm-links
 
 EXTRA_DIST = \
-  $(SCM_FILES) \
-  swig-unittest-support-python.c \
-  swig-unittest-support-guile.c \
-  unittest-support.i
+  $(SCM_FILES)
 
 MAINTAINERCLEANFILES = \
 	swig-unittest-support-guile.c \
