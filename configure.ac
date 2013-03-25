@@ -373,44 +373,6 @@ QOF_LIBS='${top_builddir}/src/libqof/qof/libgnc-qof.la'
 AC_SUBST(QOF_CFLAGS)
 AC_SUBST(QOF_LIBS)
 
-### ----------------------
-### LIBDBI
-
-AC_ARG_ENABLE(dbi,
-  [AS_HELP_STRING([--disable-dbi],[don't build with the libdbi backend])],
-  [case "${enableval}" in
-     yes) want_dbi=true ;;
-     no)  want_dbi=false ;;
-     *) want_dbi=false ;;
-   esac],
-   [want_dbi=true])
-if test x${want_dbi} = xtrue
-then
-  AC_CHECK_HEADERS(dbi/dbi.h)
-  if test "x$ac_cv_header_dbi_dbi_h" != xno; then
-    AC_ARG_WITH( dbi-dbd-dir,
-      [AS_HELP_STRING([--with-dbi-dbd-dir=PATH],[specify location of libdbi drivers @<:@default=${libdir}/dbd@:>@])],
-      GNC_DBD_DIR="$with_dbi_dbd_dir",
-      GNC_DBD_DIR="")
-
-    LIBDBI_LIBS=-ldbi
-    _COMPONENTS="$_COMPONENTS dbi"
-  else
-    AC_MSG_ERROR([
-
- Unable to find <dbi/dbi.h>. Either install the libdbi development
- package (such as libdbi0-dev), or switch off the database backend of
- gnucash by --disable-dbi.
- Note: If you install libdbi, you should also install its database
- drivers (such as libdbd-sqlite3 libdbd-mysql libdbd-pgsql).
-])
-  fi
-fi
-AC_SUBST(LIBDBI_LIBS)
-AC_SUBST(GNC_DBD_DIR)
-AM_CONDITIONAL(CUSTOM_GNC_DBD_DIR, [test x"$GNC_DBD_DIR" != "x"])
-AM_CONDITIONAL(WITH_DBI, [test "x$ac_cv_header_dbi_dbi_h" = xyes])
-
 ### --------------------------------------------------------------------------
 ### Variables
 ### Set up all the initial variable values...
@@ -968,8 +930,6 @@ AC_CONFIG_FILES(
   src/app-utils/Makefile
   src/app-utils/test/Makefile
   src/backend/Makefile
-  src/backend/dbi/Makefile
-  src/backend/dbi/test/Makefile
   src/backend/xml/Makefile
   src/backend/xml/test/Makefile
   src/backend/xml/test/test-files/Makefile

@@ -43,10 +43,6 @@ PLATFORM_FILES = gnucash-setup-env \
 	gnucash-gdb \
 	gnucash-valgrind
 
-if CUSTOM_GNC_DBD_DIR
-gnc_dbd_dir_override = export GNC_DBD_DIR="@GNC_DBD_DIR@"
-endif
-
 else !PLATFORM_OSX_QUARTZ
 # All other platforms use these settings:
 PLATFORM_FILES = gnucash-valgrind
@@ -115,9 +111,6 @@ environment: environment.in ${top_builddir}/config.status Makefile
 	rm -f $@.tmp
 	sed < $< > $@.tmp \
 	    -e '/@-NOTE.*-@/ D'
-if CUSTOM_GNC_DBD_DIR
-	echo 'GNC_DBD_DIR=@GNC_DBD_DIR@' >> $@.tmp
-endif
 	mv $@.tmp $@
 
 CLEANFILES = $(BUILT_SOURCES) ${config_DATA} ${PLATFORM_FILES}
