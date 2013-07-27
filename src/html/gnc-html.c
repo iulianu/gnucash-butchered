@@ -40,7 +40,6 @@
 #include <regex.h>
 
 #include "Account.h"
-#include "print-session.h"
 #include "gnc-engine.h"
 #include "gnc-html.h"
 #include "gnc-html-history.h"
@@ -88,7 +87,6 @@ gnc_html_class_init( GncHtmlClass* klass )
     klass->reload = NULL;
     klass->copy_to_clipboard = NULL;
     klass->export_to_file = NULL;
-    klass->print = NULL;
     klass->cancel = NULL;
     klass->parse_url = NULL;
     klass->set_parent = NULL;
@@ -520,22 +518,6 @@ gnc_html_export_to_file( GncHtml* self, const gchar* filepath )
     {
         DEBUG( "'export_to_file' not implemented" );
         return FALSE;
-    }
-}
-
-void
-gnc_html_print( GncHtml* self, const gchar* jobname, gboolean export_pdf )
-{
-    g_return_if_fail( self != NULL );
-    g_return_if_fail( GNC_IS_HTML(self) );
-
-    if ( GNC_HTML_GET_CLASS(self)->print != NULL )
-    {
-        GNC_HTML_GET_CLASS(self)->print( self, jobname, export_pdf );
-    }
-    else
-    {
-        DEBUG( "'print' not implemented" );
     }
 }
 

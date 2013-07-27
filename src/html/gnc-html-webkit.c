@@ -46,7 +46,6 @@
 #include "gnc-html.h"
 #include "gnc-html-webkit.h"
 #include "gnc-html-history.h"
-#include "print-session.h"
 
 G_DEFINE_TYPE(GncHtmlWebkit, gnc_html_webkit, GNC_TYPE_HTML )
 
@@ -106,7 +105,6 @@ static void impl_webkit_show_data( GncHtml* self, const gchar* data, int datalen
 static void impl_webkit_reload( GncHtml* self );
 static void impl_webkit_copy_to_clipboard( GncHtml* self );
 static gboolean impl_webkit_export_to_file( GncHtml* self, const gchar* filepath );
-static void impl_webkit_print( GncHtml* self, const gchar* jobname, gboolean export_pdf );
 static void impl_webkit_cancel( GncHtml* self );
 static void impl_webkit_set_parent( GncHtml* self, GtkWindow* parent );
 
@@ -197,7 +195,6 @@ gnc_html_webkit_class_init( GncHtmlWebkitClass* klass )
     html_class->reload = impl_webkit_reload;
     html_class->copy_to_clipboard = impl_webkit_copy_to_clipboard;
     html_class->export_to_file = impl_webkit_export_to_file;
-    html_class->print = impl_webkit_print;
     html_class->cancel = impl_webkit_cancel;
     html_class->set_parent = impl_webkit_set_parent;
 }
@@ -1071,217 +1068,6 @@ impl_webkit_export_to_file( GncHtml* self, const char *filepath )
     }
 }
 
-/**
- * Prints the current page.
- *
- * If printing on WIN32, in order to prevent the font from being tiny, (see bug #591177),
- * A GtkPrintOperation object needs to be created so that the unit can be set, and then
- * webkit_web_frame_print_full() needs to be called to use that GtkPrintOperation.  On
- * other platforms (specifically linux - not sure about MacOSX), the version of webkit may
- * not contain the function webkit_web_frame_print_full(), so webkit_web_frame_print() is
- * called instead (the font size problem doesn't show up on linux).
- *
- * @param self HTML renderer object
- */
-static void
-impl_webkit_print( GncHtml* self, const gchar* jobname, gboolean export_pdf )
-{
-#if !HAVE(WEBKIT_WEB_FRAME_PRINT_FULL)
-    extern void webkit_web_frame_print( WebKitWebFrame * frame );
-#endif
-
-    gchar *export_filename = NULL;
-    GncHtmlWebkitPrivate* priv;
-    WebKitWebFrame* frame;
-#if HAVE(WEBKIT_WEB_FRAME_PRINT_FULL)
-    GtkPrintOperation* op = gtk_print_operation_new();
-    GError* error = NULL;
-    GtkPrintSettings *print_settings;
-#endif
-
-    priv = GNC_HTML_WEBKIT_GET_PRIVATE(self);
-    frame = webkit_web_view_get_main_frame( priv->web_view );
-
-#if HAVE(WEBKIT_WEB_FRAME_PRINT_FULL)
-    gnc_print_operation_init( op, jobname );
-    print_settings = gtk_print_operation_get_print_settings (op);
-    if (!print_settings)
-    {
-        print_settings = gtk_print_settings_new();
-        gtk_print_operation_set_print_settings(op, print_settings);
-    }
-#ifdef G_OS_WIN32
-    gtk_print_operation_set_unit( op, GTK_UNIT_POINTS );
-#endif
-
-    // Make sure to generate a full export filename
-    if (g_str_has_suffix(jobname, ".pdf"))
-    {
-        export_filename = g_strdup(jobname);
-    }
-    else
-    {
-        export_filename = g_strconcat(jobname, ".pdf", NULL);
-    }
-
-    // Two different modes of operation. Either export to PDF, or run the
-    // normal print dialog
-    if (export_pdf)
-    {
-        GtkWidget *dialog;
-        gint result;
-        gchar *export_dirname = NULL;
-        gchar* basename;
-
-        // Before we save the PDF file, we always as the user for the export
-        // file name. We will store the chosen directory in the gtk print settings
-        // as well.
-        dialog = gtk_file_chooser_dialog_new (_("Export to PDF File"),
-                                              NULL,
-                                              GTK_FILE_CHOOSER_ACTION_SAVE,
-                                              GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                              GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-                                              NULL);
-        gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
-
-        // Does the jobname look like a valid full file path?
-        basename = g_path_get_basename(jobname);
-        if (strcmp(basename, jobname) != 0)
-        {
-            gchar *tmp_basename;
-            gchar *tmp_dirname = g_path_get_dirname(jobname);
-
-            if (g_file_test(tmp_dirname, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR))
-            {
-                // Yes, the jobname starts with a directory name that actually
-                // exists. Hence we use this as output directory.
-                export_dirname = tmp_dirname;
-                tmp_dirname = NULL;
-
-                // As the prefix part of the "jobname" is the directory path, we
-                // need to extract the suffix part for the filename.
-                tmp_basename = g_path_get_basename(export_filename);
-                g_free(export_filename);
-                export_filename = tmp_basename;
-            }
-            g_free(tmp_dirname);
-        }
-        g_free(basename);
-
-        // Set the output file name from the given jobname
-        gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), export_filename);
-
-        // Do we have a stored output directory?
-        if (!export_dirname && gtk_print_settings_has_key(print_settings, GNC_GTK_PRINT_SETTINGS_EXPORT_DIR))
-        {
-            const char* tmp_dirname = gtk_print_settings_get(print_settings,
-                                      GNC_GTK_PRINT_SETTINGS_EXPORT_DIR);
-            // Only use the directory subsequently if it exists.
-            if (g_file_test(tmp_dirname, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR))
-            {
-                export_dirname = g_strdup(tmp_dirname);
-            }
-        }
-
-        // If we have an already existing directory, propose it now.
-        if (export_dirname)
-        {
-            gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), export_dirname);
-        }
-        g_free(export_dirname);
-
-        result = gtk_dialog_run (GTK_DIALOG (dialog));
-        // Weird. In gtk_dialog_run, the gtk code will run a fstat() on the
-        // proposed new output filename, which of course fails with "file not
-        // found" as this file doesn't exist. It will still show a warning output
-        // in the trace file, though.
-
-        if (result == GTK_RESPONSE_ACCEPT)
-        {
-            // The user pressed "Ok", so use the file name for the actual file output.
-            gchar *dirname;
-            char *tmp = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-            g_free(export_filename);
-            export_filename = tmp;
-
-            // Store the directory part of the file for later
-            dirname = g_path_get_dirname(export_filename);
-            if (g_file_test(dirname, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR))
-            {
-                gtk_print_settings_set(print_settings, GNC_GTK_PRINT_SETTINGS_EXPORT_DIR, dirname);
-            }
-            g_free(dirname);
-        }
-        gtk_widget_destroy (dialog);
-
-        if (result != GTK_RESPONSE_ACCEPT)
-        {
-            // User pressed cancel - no saving of the PDF file here.
-            g_free(export_filename);
-            g_object_unref( op );
-            return;
-        }
-
-        // This function expects the full filename including (absolute?) path
-        gtk_print_operation_set_export_filename(op, export_filename);
-
-        // Run the "Export to PDF" print operation
-        webkit_web_frame_print_full( frame, op, GTK_PRINT_OPERATION_ACTION_EXPORT, &error );
-    }
-    else
-    {
-
-        // Also store this export file name as output URI in the settings
-        if (gtk_print_settings_has_key(print_settings, GTK_PRINT_SETTINGS_OUTPUT_URI))
-        {
-            // Get the previous output URI, extract the directory part, and
-            // append the current filename.
-            const gchar *olduri = gtk_print_settings_get(print_settings, GTK_PRINT_SETTINGS_OUTPUT_URI);
-            gchar *dirname = g_path_get_dirname(olduri);
-            gchar *newuri = (g_strcmp0(dirname, ".") == 0)
-                            ? g_strdup(export_filename)
-                            : g_build_filename(dirname, export_filename, NULL);
-            //g_warning("olduri=%s newuri=%s", olduri, newuri);
-
-            // This function expects the full filename including protocol, path, and name
-            gtk_print_settings_set(print_settings, GTK_PRINT_SETTINGS_OUTPUT_URI, newuri);
-
-            g_free(newuri);
-            g_free(dirname);
-        }
-        else
-        {
-            // No stored output URI from the print settings, so just set our export filename
-            gtk_print_settings_set(print_settings, GTK_PRINT_SETTINGS_OUTPUT_URI, export_filename);
-        }
-
-        // Run the normal printing dialog
-        webkit_web_frame_print_full( frame, op, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, &error );
-    }
-
-    if ( error != NULL )
-    {
-        GtkWidget* window = gtk_widget_get_toplevel( GTK_WIDGET(priv->web_view) );
-        GtkWidget* dialog = gtk_message_dialog_new( gtk_widget_is_toplevel(window) ? GTK_WINDOW(window) : NULL,
-                            GTK_DIALOG_DESTROY_WITH_PARENT,
-                            GTK_MESSAGE_ERROR,
-                            GTK_BUTTONS_CLOSE,
-                            "%s", error->message );
-        g_error_free( error );
-
-        g_signal_connect( dialog, "response", G_CALLBACK(gtk_widget_destroy), NULL);
-        gtk_widget_show( dialog );
-    }
-
-    // Remember to save the printing settings after this print job
-    gnc_print_operation_save_print_settings(op);
-    g_object_unref( op );
-    g_free(export_filename);
-
-#else
-    webkit_web_frame_print( frame );
-#endif
-}
 
 static void
 impl_webkit_set_parent( GncHtml* self, GtkWindow* parent )

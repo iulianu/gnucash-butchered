@@ -135,7 +135,6 @@ struct _GncHtmlClass
     void (*reload)( GncHtml* html );
     void (*copy_to_clipboard)( GncHtml* html );
     gboolean (*export_to_file)( GncHtml* html, const gchar* file );
-    void (*print)( GncHtml* html, const gchar* jobname, gboolean export_pdf );
     void (*cancel)( GncHtml* html );
     URLType (*parse_url)( GncHtml* html, const gchar* url,
                           gchar** url_location, gchar** url_label );
@@ -194,16 +193,6 @@ void gnc_html_copy_to_clipboard( GncHtml* html );
  * @param TRUE if successful, FALSE if unsuccessful
  */
 gboolean gnc_html_export_to_file( GncHtml* html, const gchar* filename );
-
-/**
- * Prints the report.
- *
- * @param html GncHtml object
- * \param jobname A jobname for identifying this job, or to be used as an output file
- * \param export_pdf If TRUE, only run a "print to PDF" operation in order to
- *        export this to pdf. If FALSE, run a normal printing dialog.
- */
-void gnc_html_print( GncHtml* html, const gchar* jobname, gboolean export_pdf );
 
 /**
  * Cancels the current operation

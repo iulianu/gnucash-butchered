@@ -103,7 +103,6 @@ libgncmod_gnome_utils_la_SOURCES = \
   gncmod-gnome-utils.c \
   misc-gnome-utils.c \
   search-param.c \
-  print-session.c \
   window-main-summarybar.c
 
 gncincludedir = ${GNC_INCLUDE_DIR}
@@ -179,7 +178,6 @@ gncinclude_HEADERS = \
   gnc-ui.h \
   gnc-window.h \
   misc-gnome-utils.h \
-  print-session.h \
   window-main-summarybar.h
 
 noinst_HEADERS = \
