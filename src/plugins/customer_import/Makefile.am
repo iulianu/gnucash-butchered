@@ -23,7 +23,6 @@ libgncmod_customer_import_la_LIBADD = \
   ${top_builddir}/src/core-utils/libgnc-core-utils.la \
   ${top_builddir}/src/gnc-module/libgnc-module.la \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
-  ${top_builddir}/lib/libc/libc-missing.la \
   ${GCONF_LIBS} \
   ${QOF_LIBS} \
   ${GLIB_LIBS}

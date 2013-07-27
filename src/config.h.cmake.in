@@ -14,11 +14,7 @@
 #define QOF_DISABLE_DEPRECATED 1
 #define GNC_NO_LOADABLE_MODULES 1
 
-/* WIN32 */
-#cmakedefine HAVE_HTMLHELPW 1
-#cmakedefine OS_WIN32 1
-
-/* Unix or Mingw or Win32 */
+/* Unix */
 #define GETTEXT_PACKAGE "@GETTEXT_PACKAGE@"
 #cmakedefine HAVE_BIND_TEXTDOMAIN_CODESET 1
 #cmakedefine HAVE_CHOWN 1

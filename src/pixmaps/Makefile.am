@@ -125,7 +125,6 @@ gnucash-icon-32x32.png:
 	cp ${top_srcdir}/art/tango/32x32/gnucash.png gnucash-icon-32x32.png
 
 # As suggested by <http://live.gnome.org/GnomeGoals/AppIcon>
-if !OS_WIN32
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
 install-data-hook: update-icon-cache
 uninstall-hook: update-icon-cache
@@ -137,7 +136,6 @@ update-icon-cache:
 		echo "*** Icon cache not updated.  After (un)install, run this:"; \
 		echo "***   $(gtk_update_icon_cache)"; \
 	fi
-endif
 
 ico_files_hr = \
   ${gnchuge256icon_DATA} \

@@ -31,9 +31,6 @@
 #include "../gnc-date-p.h"
 #include <locale.h>
 #include <glib/gprintf.h>
-#ifndef HAVE_STRPTIME
-#  include "strptime.h"
-#endif
 
 static const gchar *suitename = "/qof/gnc-date";
 void test_suite_gnc_date ( void );
@@ -88,11 +85,9 @@ test_gnc_localtime (void)
 	    g_assert_cmpint (time->tm_isdst, ==, 1);
 	else
 	    g_assert_cmpint (time->tm_isdst, ==, 0);
-#ifdef HAVE_STRUCT_TM_GMTOFF
 	g_assert_cmpint (time->tm_gmtoff, ==, - timezone);
 	g_assert_cmpint (time->tm_gmtoff, ==,
 	    g_date_time_get_utc_offset (gdt) / G_TIME_SPAN_SECOND);
-#endif
 	g_date_time_unref (gdt);
 	gnc_tm_free (time);
     }
@@ -106,21 +101,12 @@ test_gnc_gmtime (void)
     time64 secs[6] = {-43238956734LL, -1123692LL, 432761LL,
 		      723349832LL, 887326459367LL, 1175964426LL};
     struct tm answers[6] = {
-#ifdef HAVE_STRUCT_TM_GMTOFF
 	 { 6, 41, 2, 24, 9, -1301, 4, 297, 0, 0, NULL },
 	 { 48, 51, 23, 18, 11, 69, 4, 352, 0, 0, NULL },
 	 { 41, 12, 0, 6, 0, 70, 2, 6, 0, 0, NULL },
 	 { 32, 30, 2, 3, 11, 92, 4, 338, 0, 0, NULL },
 	 { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL },
 	 { 6, 47, 16, 7, 3, 107, 6, 97, 0, 0, NULL },
-#else
-	 { 6, 41, 2, 24, 9, -1301, 4, 297, 0 },
-	 { 48, 51, 23, 18, 11, 69, 4, 352, 0 },
-	 { 41, 12, 0, 6, 0, 70, 2, 6, 0 },
-	 { 32, 30, 2, 3, 11, 92, 4, 338, 0 },
-	 { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	 { 6, 47, 16, 7, 3, 107, 6, 97, 0 },
-#endif
     };
     guint ind;
     gchar *msg = "gnc_gmtime: assertion `gdt != NULL' failed";
@@ -148,9 +134,7 @@ test_gnc_gmtime (void)
 	g_assert_cmpint (time->tm_wday, ==, answers[ind].tm_wday);
 	g_assert_cmpint (time->tm_yday, ==, answers[ind].tm_yday);
 	    g_assert_cmpint (time->tm_isdst, ==, 0);
-#ifdef HAVE_STRUCT_TM_GMTOFF
 	g_assert_cmpint (time->tm_gmtoff, ==, 0);
-#endif
 	g_date_time_unref (gdt);
 	gnc_tm_free (time);
     }
@@ -174,19 +158,11 @@ test_gnc_mktime (void)
     };
 
     struct tm time[5] = {
-#ifdef HAVE_STRUCT_TM_GMTOFF
 	{ 6, 41, 2, 24, 9, -1301, 0, 0, -1, 0, NULL },
 	{ 48, 51, 23, 18, 11, 69, 0, 0, -1, 0, NULL },
 	{ 41, 12, 0, 6, 0, 70, 0, 0, -1, 0, NULL },
 	{ 32, 30, 2, 3, 11, 92, 0, 0, -1, 0, NULL },
 	{ 6, 47, 16, 7, 3, 107, 0, 0, -1, 0, NULL },
-#else
-	{ 6, 41, 2, 24, 9, -1301, 0, 0, -1 },
-	{ 48, 51, 23, 18, 11, 69, 0, 0, -1 },
-	{ 41, 12, 0, 6, 0, 70, 0, 0, -1 },
-	{ 32, 30, 2, 3, 11, 92, 0, 0, -1 },
-	{ 6, 47, 16, 7, 3, 107, 0, 0, -1 },
-#endif
     };
     guint ind;
 
@@ -208,9 +184,7 @@ test_gnc_mktime (void)
 	else
 	    g_assert_cmpint (time[ind].tm_isdst, ==, 0);
 
-#ifdef HAVE_STRUCT_TM_GMTOFF
 	g_assert_cmpint (time[ind].tm_gmtoff, ==, offset);
-#endif
 	g_date_time_unref (gdt);
     }
 }
@@ -229,24 +203,13 @@ test_gnc_mktime_normalization (void)
     } ans = { 723349832LL, 4, 338 };
 
     struct tm normal_time =
-#ifdef HAVE_STRUCT_TM_GMTOFF
 	 { 32, 30, 2, 3, 11, 92, 0, 0, -1, 0, NULL };
-#else
-         { 32, 30, 2, 3, 11, 92, 0, 0, -1 };
-#endif
 
     struct tm time[4] = {
-#ifdef HAVE_STRUCT_TM_GMTOFF
 	 { 92, -31, 27, -29, 24, 91, 0, 0, -1, 0, NULL },
 	 { -28, 91, -47, 35, -2, 93, 0, 0, -1, 0, NULL },
 	 { -28, 91, -47, 66, -3, 93, 0, 0, -1, 0, NULL },
 	 { -28, 91, -47, 35, -26, 95, 0, 0, -1, 0, NULL },
-#else
-	 { 92, -31, 27, -29, 24, 91, 0, 0, -1 },
-	 { -28, 91, -47, 35, -2, 93, 0, 0, -1 },
-	 { -28, 91, -47, 66, -3, 93, 0, 0, -1 },
-	 { -28, 91, -47, 35, -26, 95, 0, 0, -1 },
-#endif
     };
     guint ind;
     for (ind = 0; ind < G_N_ELEMENTS (time); ind++)
@@ -272,9 +235,7 @@ test_gnc_mktime_normalization (void)
 	    g_assert_cmpint (time[ind].tm_isdst, ==, 1);
 	else
 	    g_assert_cmpint (time[ind].tm_isdst, ==, 0);
-#ifdef HAVE_STRUCT_TM_GMTOFF
 	g_assert_cmpint (time[ind].tm_gmtoff, ==, offset);
-#endif
 	g_date_time_unref (gdt);
     }
 }
@@ -406,19 +367,6 @@ test_gnc_setlocale (int category, gchar *locale)
 {
     gchar *suffixes[] = {"utf8", "UTF-8"};
     guint i;
-/* Msys defines a different set of locales */
-#ifdef G_OS_WIN32
-    if (g_strcmp0 (locale, "en_US") == 0
-	&& setlocale (category, "English_US"))
-	return;
-    if (g_strcmp0 (locale, "en_GB") == 0
-	&& setlocale (category, "English_UK"))
-	return;
-    if (g_strcmp0 (locale, "fr_FR") == 0
-	&& setlocale (category, "French_France"))
-	return;
-
-#endif
     if (setlocale (category, locale) != NULL)
         return;
 
@@ -763,10 +711,6 @@ qof_print_date_dmy_buff (char * buff, size_t len, int day, int month, int year)/
 #  define GNC_D_FMT (nl_langinfo (D_FMT))
 #  define GNC_D_T_FMT (nl_langinfo (D_T_FMT))
 #  define GNC_T_FMT (nl_langinfo (T_FMT))
-#elif defined(G_OS_WIN32)
-#  define GNC_D_FMT (qof_win32_get_time_format(QOF_WIN32_PICTURE_DATE))
-#  define GNC_T_FMT (qof_win32_get_time_format(QOF_WIN32_PICTURE_TIME))
-#  define GNC_D_T_FMT (qof_win32_get_time_format(QOF_WIN32_PICTURE_DATETIME))
 #else
 #  define GNC_D_FMT "%Y-%m-%d"
 #  define GNC_D_T_FMT "%Y-%m-%d %r"
@@ -786,9 +730,7 @@ test_qof_print_date_dmy_buff (void)
     gchar buff[MAX_DATE_LENGTH], t_buff[MAX_DATE_LENGTH];
     gchar *locale = g_strdup (setlocale (LC_TIME, NULL));
     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0
-#ifdef HAVE_STRUCT_TM_GMTOFF
                      , 0, 0
-#endif
     };
 
     qof_date_format_set (QOF_DATE_FORMAT_UK);
@@ -1381,9 +1323,7 @@ test_qof_scan_date (void)
     gint year = g_date_time_get_year (gdt);
     gint month = g_date_time_get_month (gdt);
     struct tm tm = { 0, 0, 0, 0, 0, 0, 0, 0, 0
-#ifndef G_OS_WIN32
                      , 0, 0
-#endif
     };
     gchar buff[MAX_DATE_LENGTH];
     g_date_time_unref (gdt);
@@ -1601,13 +1541,7 @@ test_gnc_iso8601_to_timespec_gmt (void)
 
     t = gnc_iso8601_to_timespec_gmt ("1989-03-27 13:43:27.345678");
     g_assert_cmpint (t.tv_sec, ==, g_date_time_to_unix (gdt1));
-    /* MinGW has some precision issues in the last microsecond digit */
-#ifdef G_OS_WIN32
-    g_assert_cmpint (t.tv_nsec - 2000, <=, get_nanoseconds (gdt1));
-    g_assert_cmpint (t.tv_nsec + 2000, >=, get_nanoseconds (gdt1));
-#else
     g_assert_cmpint (t.tv_nsec, ==, get_nanoseconds (gdt1));
-#endif
     t = gnc_iso8601_to_timespec_gmt ("2020-11-7 06:21:19 -05");
     g_assert_cmpint (t.tv_sec, ==, g_date_time_to_unix (gdt2));
     g_assert_cmpint (t.tv_nsec, ==, get_nanoseconds (gdt2));
@@ -1653,11 +1587,7 @@ format_timestring (GDateTime *gdt)
     gchar *fmt = "%Y-%m-%d %H:%M";
     GDateTime *ngdt = gncdt.to_local (gdt);
     gchar *date_base = g_date_time_format (ngdt, fmt);
-#ifdef G_OS_WIN32
-    gchar *tz = g_date_time_format (ngdt, "%Z");
-#else
     gchar *tz = g_date_time_format (ngdt, "%z");
-#endif
     gchar *retval = g_strdup_printf ("%s:%02d.%06d %s", date_base,
 			      g_date_time_get_second (ngdt),
 			      g_date_time_get_microsecond (ngdt), tz);

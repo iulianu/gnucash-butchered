@@ -29,23 +29,13 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#else
-# ifdef __GNUC__
-#  warning "<unistd.h> required."
-# endif
-#endif
+#include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "qof.log"
-
-#ifndef HAVE_LOCALTIME_R
-#include "localtime_r.h"
-#endif
 
 #include "qof.h"
 #include "qoflog.h"
@@ -106,11 +96,7 @@ log4glib_handler(const gchar     *log_domain,
         time64 now;
         struct tm now_tm;
         const char *format_24hour =
-#ifdef G_OS_WIN32
-            "%H:%M:%S"
-#else
             "%T"
-#endif
             ;
         gchar *level_str = qof_log_level_to_string(log_level);
         now = gnc_time (NULL);

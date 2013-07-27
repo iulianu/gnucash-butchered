@@ -34,10 +34,7 @@ if GNUCASH_SEPARATE_BUILDDIR
 	done
 endif
 	( cd gnucash; for A in $(SCM_FILES) ; do $(LN_S) -f ../$$A . ; done )
-if ! OS_WIN32
-# Windows knows no "ln -s" but uses "cp": must copy every time (see bug #566567).
 	touch .scm-links
-endif
 
 clean-local:
 	$(RM) -rf gnucash

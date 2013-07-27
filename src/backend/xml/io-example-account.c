@@ -26,14 +26,10 @@
 
 #include <sys/types.h>
 #include <ctype.h>
-#ifdef HAVE_DIRENT_H
-# include <dirent.h>
-#endif
+#include <dirent.h>
 #include <string.h>
 #include <sys/stat.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>

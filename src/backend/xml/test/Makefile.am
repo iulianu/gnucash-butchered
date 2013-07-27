@@ -232,8 +232,7 @@ LDADD = \
         ${top_builddir}/src/core-utils/libgnc-core-utils.la \
         ./libgnc-test-file-stuff.la \
         ${LIBXML2_LIBS} \
-        ${ZLIB_LIBS} \
-        ${top_builddir}/lib/libc/libc-missing.la
+        ${ZLIB_LIBS}
 
 AM_CPPFLAGS = \
   -I${top_srcdir}/lib/libc \

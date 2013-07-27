@@ -25,9 +25,7 @@
 #include <glib/gstdio.h>
 #include <fcntl.h>
 #include <string.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 #include <zlib.h>
 #include <errno.h>
 
@@ -1487,13 +1485,8 @@ try_gz_open (const char *filename, const char *perms, gboolean use_gzip,
         params->perms = g_strdup(perms);
         params->compress = compress;
 
-#ifndef HAVE_GLIB_2_32
-        thread = g_thread_create((GThreadFunc) gz_thread_func, params,
-				 TRUE, &error);
-#else
         thread = g_thread_new("xml_thread", (GThreadFunc) gz_thread_func,
 			      params);
-#endif
         if (!thread)
         {
             g_warning("Could not create thread for (de)compression: %s",

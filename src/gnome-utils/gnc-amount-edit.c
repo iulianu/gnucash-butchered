@@ -43,10 +43,6 @@
 #include "gnc-ui-util.h"
 #include "qof.h"
 
-#ifdef G_OS_WIN32
-# include <gdk/gdkwin32.h>
-#endif
-
 /* Signal codes */
 enum
 {
@@ -157,11 +153,6 @@ gnc_amount_edit_key_press(GtkWidget *widget, GdkEventKey *event)
     GNCAmountEdit *gae = GNC_AMOUNT_EDIT(widget);
     gint result;
 
-#ifdef G_OS_WIN32
-    /* gdk never sends GDK_KP_Decimal on win32. See #486658 */
-    if (event->hardware_keycode == VK_DECIMAL)
-        event->keyval = GDK_KP_Decimal;
-#endif
     if (event->keyval == GDK_KP_Decimal)
     {
         if (gae->print_info.monetary)

@@ -3,14 +3,6 @@ SUBDIRS = examples
 doc_DATA = \
   README.francais \
   README.german \
-  README-de.win32-bin.txt \
-  README-fr.win32-bin.txt \
-  README-it.win32-bin.txt \
-  README-lv.win32-bin.txt \
-  README-nl.win32-bin.txt \
-  README-zh_CN.win32-bin.txt \
-  README-zh_TW.win32-bin.txt \
-  README.win32-bin.txt \
   guile-hackers.txt \
   projects.html 
 
@@ -54,10 +46,6 @@ tip_of_the_day.list: tip_of_the_day.list.in Makefile
 	                       -e 's/"* *[|] */|/' \
                            -e 's:@-GNUCASH_LATEST_STABLE_SERIES-@:${GNUCASH_LATEST_STABLE_SERIES}:g' > $@
 	rm -f $@.tmp
-if PLATFORM_WIN32
-	perl -pi.bak -e 's/" *$$//' $@
-else
 	perl -pi.bak -e 's/" *$$/\n/' $@
-endif
 
 DISTCLEANFILES = gnucash.1 tip_of_the_day.list

@@ -37,25 +37,7 @@ gnc_lconv_set_utf8 (char **p_value, char *default_value)
     if ((value == NULL) || (value[0] == 0))
         value = default_value;
 
-#ifdef G_OS_WIN32
-    {
-        /* get number of resulting wide characters */
-        size_t count = mbstowcs (NULL, value, 0);
-        if (count > 0)
-        {
-            /* malloc and convert */
-            wchar_t *wvalue = g_malloc ((count + 1) * sizeof(wchar_t));
-            count = mbstowcs (wvalue, value, count + 1);
-            if (count > 0)
-            {
-                *p_value = g_utf16_to_utf8 (wvalue, -1, NULL, NULL, NULL);
-            }
-            g_free (wvalue);
-        }
-    }
-#else /* !G_OS_WIN32 */
     *p_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
-#endif
 
     if (*p_value == NULL)
     {
@@ -161,14 +143,9 @@ gnc_push_locale (int category, const char *locale)
 
     g_return_if_fail (locale != NULL);
 
-# ifdef G_OS_WIN32
-    /* On win32, setlocale() doesn't say anything useful. Use
-       glib's function instead. */
-    saved_locale = g_win32_getlocale();
-# else
     saved_locale = g_strdup(setlocale(category, NULL) ?
                             setlocale(category, NULL) : "C");
-#endif
+
     locale_stack = g_list_prepend (locale_stack, saved_locale);
     setlocale (category, locale);
 }

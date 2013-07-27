@@ -10,9 +10,7 @@
 #include <string.h>
 #include <gmodule.h>
 #include <sys/types.h>
-#ifdef HAVE_DIRENT_H
-# include <dirent.h>
-#endif
+#include <dirent.h>
 
 #include "gnc-module.h"
 #include "libqof/qof/qof.h"
@@ -67,7 +65,6 @@ gnc_module_system_search_dirs(void)
     {
         switch (*cpos)
         {
-#ifndef G_OS_WIN32
             /* On windows, with '\' as the directory separator character,
                this additional de-quoting will make every path processing
                fail miserably. Anyway this should probably be thrown out
@@ -85,7 +82,6 @@ gnc_module_system_search_dirs(void)
                 escchar = FALSE;
             }
             break;
-#endif
 
             /* This is ':' on UNIX machines and ';' under Windows. */
         case G_SEARCHPATH_SEPARATOR:

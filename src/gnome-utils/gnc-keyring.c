@@ -29,11 +29,6 @@
 #ifdef HAVE_GNOME_KEYRING
 #include <gnome-keyring.h>
 #endif
-#ifdef HAVE_OSX_KEYCHAIN
-#include <Security/Security.h>
-#include <CoreFoundation/CoreFoundation.h>
-#include <Carbon/Carbon.h>
-#endif
 
 /* This static indicates the debugging module that this .o belongs to. */
 G_GNUC_UNUSED static QofLogModule log_module = GNC_MOD_GUI;
@@ -61,38 +56,6 @@ void gnc_keyring_set_password (const gchar *access_method,
         PWARN ("The user will be prompted for a password again next time.");
     }
 #endif /* HAVE_GNOME_KEYRING */
-#ifdef HAVE_OSX_KEYCHAIN
-    OSStatus status;
-    SecKeychainItemRef *itemRef = NULL;
-
-    /* mysql and postgres aren't valid protocols on Mac OS X.
-     * So we use the security domain parameter to allow us to
-     * distinguish between these two.
-     */
-    // FIXME I'm not sure this works if a password was already in the keychain
-    //       I may have to do a lookup first and if it exists, run some update
-    //       update function instead
-    status = SecKeychainAddInternetPassword ( NULL, /* keychain */
-             strlen(server), server,                /* servername */
-             strlen(access_method), access_method,  /* securitydomain */
-             strlen(user), user,                    /* acountname */
-             strlen(service), service,              /* path */
-             port,                                  /* port */
-             kSecProtocolTypeAny,                   /* protocol */
-             kSecAuthenticationTypeDefault,         /* auth type */
-             strlen(password), password,            /* passworddata */
-             itemRef );
-
-    if ( status != noErr )
-    {
-        CFStringRef osx_resultstring = SecCopyErrorMessageString( status, NULL );
-        const gchar *resultstring = CFStringGetCStringPtr(osx_resultstring,
-                                    GetApplicationTextEncoding());
-        PWARN ( "OS X keychain error: %s", resultstring );
-        PWARN ( "The user will be prompted for a password again next time." );
-        CFRelease ( osx_resultstring );
-    }
-#endif /* HAVE_OSX_KEYCHAIN */
 }
 
 
@@ -109,11 +72,6 @@ gboolean gnc_keyring_get_password ( GtkWidget *parent,
     GnomeKeyringResult  gkr_result;
     GList *found_list = NULL;
     GnomeKeyringNetworkPasswordData *found;
-#endif
-#ifdef HAVE_OSX_KEYCHAIN
-    void *password_data;
-    UInt32 password_length;
-    OSStatus status;
 #endif
 
     g_return_val_if_fail (user != NULL, FALSE);
@@ -140,40 +98,6 @@ gboolean gnc_keyring_get_password ( GtkWidget *parent,
     gnome_keyring_network_password_list_free(found_list);
 #endif /* HAVE_GNOME_KEYRING */
 
-#ifdef HAVE_OSX_KEYCHAIN
-    /* mysql and postgres aren't valid protocols on Mac OS X.
-     * So we use the security domain parameter to allow us to
-     * distinguish between these two.
-     */
-    if (*user != NULL)
-    {
-        status = SecKeychainFindInternetPassword( NULL,
-                 strlen(server), server,
-                 strlen(access_method), access_method,
-                 strlen(*user), *user,
-                 strlen(service), service,
-                 port,
-                 kSecProtocolTypeAny,
-                 kSecAuthenticationTypeDefault,
-                 &password_length, &password_data,
-                 NULL);
-
-        if ( status == noErr )
-        {
-            *password = g_strndup(password_data, password_length);
-            password_found = TRUE;
-            SecKeychainItemFreeContent(NULL, password_data);
-        }
-        else
-        {
-            CFStringRef osx_resultstring = SecCopyErrorMessageString( status, NULL );
-            const gchar *resultstring = CFStringGetCStringPtr(osx_resultstring,
-                                        GetApplicationTextEncoding());
-            PWARN ( "OS X keychain error: %s", resultstring );
-            CFRelease ( osx_resultstring );
-        }
-    }
-#endif /* HAVE_OSX_KEYCHAIN */
 
     if ( !password_found )
     {

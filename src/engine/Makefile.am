@@ -130,8 +130,7 @@ libgncmod_engine_la_LIBADD = \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
   ${GUILE_LIBS} \
   ${REGEX_LIBS} \
-  ${GLIB_LIBS} \
-  ${top_builddir}/lib/libc/libc-missing.la
+  ${GLIB_LIBS}
 
 gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
 gncmod_DATA = engine.scm \
@@ -173,10 +172,7 @@ if GNUCASH_SEPARATE_BUILDDIR
 	done
 endif
 	( cd gnucash; for A in $(gncmod_DATA) ; do $(LN_S) -f ../$$A . ; done )
-if ! OS_WIN32
-# Windows knows no "ln -s" but uses "cp": must copy every time (see bug #566567).
 	touch .scm-links
-endif
 
 noinst_DATA = .scm-links
 

@@ -1,8 +1,6 @@
 @-NOTE If you make any changes here, you should probably -@
 @-NOTE also change the equivalent sections in:           -@
 @-NOTE - src/bin/gnucash-launcher.in                     -@
-@-NOTE - packaging/win32/gnucash.iss.in                  -@
-@-NOTE - packaging/win32/install.sh                      -@
 # environment
 #
 # This configuration file can be used to change/add environment variables
@@ -54,8 +52,6 @@ GUILE_LOAD_PATH={GNC_DATA}/guile-modules;{GNC_DATA}/scm;{GUILE_LIBS};{GUILE_LOAD
 # Tell Guile where to find GnuCash specific shared libraries
 GNC_LIBRARY_PATH={SYS_LIB}
 LD_LIBRARY_PATH={GNC_LIBRARY_PATH};{LD_LIBRARY_PATH}
-# The same, but for GnuCash on OS X
-DYLD_LIBRARY_PATH={GNC_LIBRARY_PATH};{DYLD_LIBRARY_PATH}
 
 # If you wish GnuCash to use a different language, uncomment the two parameters
 # below and set LANG to your preferred locale

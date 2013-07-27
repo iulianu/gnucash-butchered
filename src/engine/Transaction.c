@@ -30,21 +30,9 @@
 #include <glib/gi18n.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
-#else
-/* We simply define the struct timeval on our own here. */
-struct timeval
-{
-    long    tv_sec;         /* seconds */
-    long    tv_usec;        /* and microseconds */
-};
-/* include <Winsock2.h> */
-#endif
+#include <sys/time.h>
 #include <time.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 
 #include "AccountP.h"
 #include "Scrub.h"
@@ -1531,12 +1519,7 @@ xaccTransCommitEdit (Transaction *trans)
     if (0 == trans->date_entered.tv_sec)
     {
         struct timeval tv;
-#ifdef HAVE_GETTIMEOFDAY
         gettimeofday (&tv, NULL);
-#else
-        time (&(tv.tv_sec));
-        tv.tv_usec = 0;
-#endif
         trans->date_entered.tv_sec = tv.tv_sec;
 //        trans->date_entered.tv_nsec = 1000 * tv.tv_usec;
         qof_instance_set_dirty(QOF_INSTANCE(trans));

@@ -13,18 +13,14 @@ TEST_PROGS =
 
 # test: run all tests in cwd and subdirs
 test: test-nonrecursive
-if !PLATFORM_WIN32
-	@ for subdir in $(SUBDIRS) . ; do \
-	    test "$$subdir" = "." -o "$$subdir" = "po" || \
-	    ( cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $@ ) || exit $? ; \
-	  done
-endif
+    @ for subdir in $(SUBDIRS) . ; do \
+        test "$$subdir" = "." -o "$$subdir" = "po" || \
+        ( cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $@ ) || exit $? ; \
+      done
 
 # test-nonrecursive: run tests only in cwd
 test-nonrecursive: ${TEST_PROGS}
-if !PLATFORM_WIN32
-	@test -z "${TEST_PROGS}" || MALLOC_CHECK_=2 MALLOC_PERTURB_=$$(($${RANDOM:-256} % 256)) ${GTESTER} --verbose ${TEST_PROGS}
-endif
+@test -z "${TEST_PROGS}" || MALLOC_CHECK_=2 MALLOC_PERTURB_=$$(($${RANDOM:-256} % 256)) ${GTESTER} --verbose ${TEST_PROGS}
 
 # test-report: run tests in subdirs and generate report
 # perf-report: run tests in subdirs with -m perf and generate report

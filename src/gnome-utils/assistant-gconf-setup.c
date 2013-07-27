@@ -626,29 +626,6 @@ assistant_gconf_install_check_schemas (void)
         return;
     }
 
-#ifdef G_OS_WIN32
-    {
-        /* automatically update the search path on windows */
-        GError *error = NULL;
-        if (!assistant_gconf_update_path (&error))
-        {
-            gnc_error_dialog (NULL, error->message);
-            g_error_free (error);
-            exit(42);
-        }
-        else
-        {
-            if (!g_spawn_command_line_sync("gconftool-2 --shutdown", NULL, NULL,
-                                           NULL, &error))
-            {
-                gnc_warning_dialog(NULL, error->message);
-                g_error_free(error);
-            }
-            return;
-        }
-    }
-#endif /* G_OS_WIN32 */
-
     builder = gtk_builder_new();
     gnc_builder_add_from_file (builder, "assistant-gconf-setup.glade", "GConf Query");
 

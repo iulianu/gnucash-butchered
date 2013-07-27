@@ -44,7 +44,6 @@ libgncmod_html_la_LIBADD = \
   ${top_builddir}/src/engine/libgncmod-engine.la \
   ${top_builddir}/src/gnome-utils/libgncmod-gnome-utils.la \
   ${top_builddir}/src/app-utils/libgncmod-app-utils.la \
-  $(top_builddir)/lib/libc/libc-missing.la \
   ${WEBKIT_LIBS} \
   ${GTK_LIBS} \
   ${GLIB_LIBS} \
@@ -60,9 +59,6 @@ EXTRA_DIST =
 CLEANFILES = $(BUILT_SOURCES) gnucash
 MAINTAINERCLEANFILES = swig-gnc-html.c
 
-# FIXME: Symlinking directories only works on non-win32.
-if !PLATFORM_WIN32
-#
 # I hate inconsistent standards. Autotools puts help files into
 # ${datadir}/gnome/help/${program} while the gnome2 libraries expect
 # them in ${pkgdatadir}/gnome/help/${program}.
@@ -72,6 +68,5 @@ install-data-hook:
 
 uninstall-hook:
 	rm -f ${DESTDIR}${pkgdatadir}/gnome
-endif
 
 AM_CPPFLAGS += -DG_LOG_DOMAIN=\"gnc.html\"

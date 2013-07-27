@@ -28,14 +28,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#else
-# include <io.h>
-# define close _close
-# define lseek _lseek
-# define read _read
-#endif
+#include <unistd.h>
 
 #include "file-utils.h"
 #include "gnc-engine.h"

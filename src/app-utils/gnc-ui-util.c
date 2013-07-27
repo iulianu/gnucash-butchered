@@ -31,9 +31,6 @@
 #include <limits.h>
 #include <locale.h>
 #include <math.h>
-#if defined(G_OS_WIN32) && !defined(_MSC_VER)
-# include <pow.h>
-#endif
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -173,11 +170,7 @@ gnc_get_default_directory (const gchar *gconf_section)
 
     dir = gnc_gconf_get_string (gconf_section, KEY_LAST_PATH, NULL);
     if (!dir)
-#ifdef G_OS_WIN32
-        dir = g_strdup (g_get_user_data_dir ()); /* equivalent of "My Documents" */
-#else
         dir = g_strdup (g_get_home_dir ());
-#endif
 
     return dir;
 }
@@ -577,51 +570,6 @@ gnc_account_create_opening_balance (Account *account,
     return TRUE;
 }
 
-#if 0 /* Not Used */
-static void
-gnc_lconv_set_utf8 (char **p_value, char *default_value)
-{
-    char *value = *p_value;
-    *p_value = NULL;
-
-    if ((value == NULL) || (value[0] == 0))
-        value = default_value;
-
-#ifdef G_OS_WIN32
-    {
-        /* get number of resulting wide characters */
-        size_t count = mbstowcs (NULL, value, 0);
-        if (count > 0)
-        {
-            /* malloc and convert */
-            wchar_t *wvalue = g_malloc ((count + 1) * sizeof(wchar_t));
-            count = mbstowcs (wvalue, value, count + 1);
-            if (count > 0)
-            {
-                *p_value = g_utf16_to_utf8 (wvalue, -1, NULL, NULL, NULL);
-            }
-            g_free (wvalue);
-        }
-    }
-#else /* !G_OS_WIN32 */
-    *p_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
-#endif
-
-    if (*p_value == NULL)
-    {
-        // The g_locale_to_utf8 conversion failed. FIXME: Should we rather
-        // use an empty string instead of the default_value? Not sure.
-        *p_value = default_value;
-    }
-}
-
-static void
-gnc_lconv_set_char (char *p_value, char default_value)
-{
-    if ((p_value != NULL) && (*p_value == CHAR_MAX))
-        *p_value = default_value;
-}
-#endif /* Not Used */
 
 gnc_commodity *
 gnc_locale_default_currency_nodefault (void)
@@ -1430,14 +1378,6 @@ integer_to_words(gint64 val)
     result = g_string_truncate(result, result->len - 1);
     return g_string_free(result, FALSE);
 }
-
-#ifdef _MSC_VER
-static double round(double x)
-{
-    // A simple round() implementation because MSVC doesn't seem to have that
-    return floor(x + 0.5);
-}
-#endif
 
 gchar *
 number_to_words(gdouble val, gint64 denom)

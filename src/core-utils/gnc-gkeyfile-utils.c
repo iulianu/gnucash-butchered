@@ -42,18 +42,7 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#else
-# ifdef _MSC_VER
-/* MSVC compatibility code */
-#  include <io.h>
-#  define g_open _open
-#  define close _close
-#  define write _write
-#  define ssize_t int
-# endif
-#endif
+#include <unistd.h>
 
 #include "gnc-gkeyfile-utils.h"
 

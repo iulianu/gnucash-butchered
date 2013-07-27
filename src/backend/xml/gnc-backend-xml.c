@@ -40,18 +40,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <regex.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#else
-# ifdef _MSC_VER
-typedef int ssize_t;
-# endif
-#endif
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#ifdef HAVE_DIRENT_H
-# include <dirent.h>
-#endif
+#include <dirent.h>
 #include <time.h>
 #ifdef G_OS_WIN32
 # include <io.h>
@@ -88,10 +80,6 @@ typedef int ssize_t;
 #include "gnc-owner-xml-v2.h"
 #include "gnc-tax-table-xml-v2.h"
 #include "gnc-vendor-xml-v2.h"
-
-#ifndef HAVE_STRPTIME
-# include "strptime.h"
-#endif
 
 #define KEY_FILE_COMPRESSION  "file_compression"
 #define KEY_RETAIN_TYPE "retain_type"
@@ -519,15 +507,9 @@ gnc_int_link_or_make_backup(FileBackend *be, const char *orig, const char *bkup)
     {
 #ifdef HAVE_LINK
         if (errno == EPERM || errno == ENOSYS
-# ifdef EOPNOTSUPP
                 || errno == EOPNOTSUPP
-# endif
-# ifdef ENOTSUP
                 || errno == ENOTSUP
-# endif
-# ifdef ENOSYS
                 || errno == ENOSYS
-# endif
            )
 #endif
         {

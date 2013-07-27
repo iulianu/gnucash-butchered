@@ -7,8 +7,7 @@ lib_LTLIBRARIES = libgnc-qof.la
 libgnc_qof_la_LDFLAGS= -version-info $(LIBQOF_LIBRARY_VERSION)
 libgnc_qof_la_LIBADD= \
   $(GLIB_LIBS) \
-  $(REGEX_LIBS) \
-  $(top_builddir)/lib/libc/libc-missing.la
+  $(REGEX_LIBS)
 
 AM_CPPFLAGS = \
   -I$(top_srcdir)/lib/libc \
@@ -84,11 +83,6 @@ noinst_HEADERS = \
 EXTRA_DIST += \
   qofmath128.c
 
-if OS_WIN32
-libgnc_qof_la_SOURCES += qof-win32.c
-else
-EXTRA_DIST += qof-win32.c
-endif
 
 ## For testing the qofmath128 routines
 # run "make check" (to build the test program) and then run test-qofmath

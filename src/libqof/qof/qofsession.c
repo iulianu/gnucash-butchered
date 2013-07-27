@@ -37,13 +37,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#else
-# ifdef __GNUC__
-#  warning "<unistd.h> required."
-# endif
-#endif
+#include <unistd.h>
 
 #include <glib.h>
 #include "qof.h"

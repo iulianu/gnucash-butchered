@@ -29,9 +29,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <glib/gi18n.h>
 #include <gmodule.h>
-#ifdef HAVE_DLFCN_H
-# include <dlfcn.h>
-#endif
+#include <dlfcn.h>
 
 #include "dialog-utils.h"
 #include "gnc-commodity.h"

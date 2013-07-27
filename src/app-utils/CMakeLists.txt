@@ -73,10 +73,6 @@ SET (app_utils_SOURCES
   ${SWIG_APP_UTILS_C}
 )
 
-IF (WIN32)
-  SET (app_utils_SOURCES ${app_utils_SOURCES} gnc-help-utils.c)
-ENDIF (WIN32)
-
 ADD_LIBRARY	(app-utils
   ${app_utils_SOURCES}
   ${app_utils_HEADERS}

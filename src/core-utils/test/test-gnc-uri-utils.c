@@ -49,7 +49,6 @@ typedef struct test_strings_struct test_strings;
 
 test_strings strs[] =
 {
-#ifndef G_OS_WIN32
     /* basic file tests in posix like environment */
     {
         "/test/path/file.gnucash", FALSE,
@@ -75,33 +74,8 @@ test_strings strs[] =
         "sqlite3:///test/path/file.gnucash",
         "sqlite3:///test/path/file.gnucash", TRUE
     },
-#else
-    /* basic file tests in windows environment */
-    {
-        "c:\\test\\path\\file.gnucash", FALSE,
-        "file", NULL, NULL, NULL, "c:\\test\\path\\file.gnucash", 0,
-        "file://c:\\test\\path\\file.gnucash",
-        "file://c:\\test\\path\\file.gnucash", TRUE
-    },
-    {
-        "file://c:\\test\\path\\file.gnucash", FALSE,
-        "file", NULL, NULL, NULL, "c:\\test\\path\\file.gnucash", 0,
-        "file://c:\\test\\path\\file.gnucash",
-        "file://c:\\test\\path\\file.gnucash", TRUE
-    },
-    {
-        "xml://c:\\test\\path\\file.gnucash", FALSE,
-        "xml", NULL, NULL, NULL, "c:\\test\\path\\file.gnucash", 0,
-        "xml://c:\\test\\path\\file.gnucash",
-        "xml://c:\\test\\path\\file.gnucash", TRUE
-    },
-    {
-        "sqlite3://c:\\test\\path\\file.gnucash", FALSE,
-        "sqlite3", NULL, NULL, NULL, "c:\\test\\path\\file.gnucash", 0,
-        "sqlite3://c:\\test\\path\\file.gnucash",
-        "sqlite3://c:\\test\\path\\file.gnucash", TRUE
-    },
-#endif
+
+    
     /* basic database tests */
     {
         "mysql://www.gnucash.org/gnucash", FALSE,

@@ -33,8 +33,8 @@ LDADD = ${top_builddir}/src/test-core/libtest-core.la \
         ${top_builddir}/src/engine/libgncmod-engine.la \
         ${top_builddir}/src/engine/test-core/libgncmod-test-engine.la \
         ${top_builddir}/src/core-utils/libgnc-core-utils.la \
-        ${top_builddir}/src/libqof/qof/libgnc-qof.la \
-        ${top_builddir}/lib/libc/libc-missing.la
+        ${top_builddir}/src/libqof/qof/libgnc-qof.la
+
 
 AM_CPPFLAGS = \
   -I${top_srcdir}/lib/libc \

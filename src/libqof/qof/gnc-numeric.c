@@ -26,11 +26,6 @@
 
 #include <glib.h>
 #include <math.h>
-#if defined(G_OS_WIN32) && !defined(_MSC_VER)
-# ifdef HAVE_POW_H
-#   include <pow.h>
-# endif
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

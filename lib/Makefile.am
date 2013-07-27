@@ -1,4 +1,0 @@
-SUBDIRS = libc
-
-EXTRA_DIST = README
-

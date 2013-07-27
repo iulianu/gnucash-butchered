@@ -38,19 +38,12 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 #include <errno.h>
 
 #include "gnc-path.h"
 #include "gnc-filepath-utils.h"
 #include "libqof/qof/qof.h"
-
-#ifdef _MSC_VER
-#include <glib/gwin32.h>
-#define PATH_MAX MAXPATHLEN
-#endif
 
 /* This static indicates the debugging module that this .o belongs to.  */
 static QofLogModule log_module = G_LOG_DOMAIN;
@@ -312,11 +305,7 @@ gnc_validate_directory (const gchar *dirname)
         {
         case ENOENT:
             rc = g_mkdir (dirname,
-#ifdef G_OS_WIN32
-                          0          /* The mode argument is ignored on windows */
-#else
                           S_IRWXU    /* perms = S_IRWXU = 0700 */
-#endif
                          );
             if (rc)
             {
@@ -372,7 +361,7 @@ gnc_validate_directory (const gchar *dirname)
                   dirname);
         exit(1);
     }
-#ifndef G_OS_WIN32
+
     /* The mode argument is ignored on windows anyway */
     if ((statbuf.st_mode & S_IRWXU) != S_IRWXU)
     {
@@ -383,7 +372,7 @@ gnc_validate_directory (const gchar *dirname)
                   dirname);
         exit(1);
     }
-#endif
+
 }
 
 /** @fn const gchar * gnc_dotgnucash_dir ()

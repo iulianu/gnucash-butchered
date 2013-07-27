@@ -1,5 +1,5 @@
 
-SUBDIRS = . doc lib src intl-scm packaging po accounts checks
+SUBDIRS = . doc src intl-scm packaging po accounts checks
 
 GNC_CTAGS_FILE = @GNC_CTAGS_FILE@
 GNC_ETAGS_FILE = @GNC_ETAGS_FILE@
@@ -98,7 +98,7 @@ DISTCLEANFILES = \
 cscope.files:
 	find src lib -name '*.[ch]' > cscope.files
 if GNUCASH_SEPARATE_BUILDDIR
-	find ${srcdir}/src ${srcdir}/lib -name '*.[ch]' >> cscope.files
+	find ${srcdir}/src -name '*.[ch]' >> cscope.files
 endif
 
 ${srcdir}/cscope.out: cscope.files

@@ -44,7 +44,7 @@
 
 
 /** Attempt to store a password in some trusted keystore. At this point
- *  that can be Gnome's keyring or Mac OS X' keychain. If no
+ *  that can be Gnome's keyring. If no
  *  such keystore is available, this function does nothing.
  *
  *  All the parameters passed (except for the password) will be

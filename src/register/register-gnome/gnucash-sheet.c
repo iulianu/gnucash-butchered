@@ -48,10 +48,6 @@
 #include "split-register.h"
 #include "gnc-engine.h"		// For debugging, e.g. ENTER(), LEAVE()
 
-#ifdef G_OS_WIN32
-# include <gdk/gdkwin32.h>
-#endif
-
 #define DEFAULT_REGISTER_HEIGHT 400
 #define DEFAULT_REGISTER_WIDTH  400
 /* Used to calculate the minimum preferred height of the register window: */
@@ -1159,10 +1155,6 @@ gnucash_sheet_focus_in_event (GtkWidget *widget, GdkEventFocus *event)
     gnc_item_edit_focus_in (GNC_ITEM_EDIT(sheet->item_editor));
     gtk_im_context_focus_in(sheet->im_context);
 
-#ifdef G_OS_WIN32
-    gnucash_sheet_im_context_reset(sheet);
-#endif /* G_OS_WIN32 */
-
     return FALSE;
 }
 
@@ -1174,10 +1166,6 @@ gnucash_sheet_focus_out_event (GtkWidget *widget, GdkEventFocus *event)
     if (GTK_WIDGET_CLASS(sheet_parent_class)->focus_out_event)
         (*GTK_WIDGET_CLASS (sheet_parent_class)->focus_out_event)
         (widget, event);
-
-#ifdef G_OS_WIN32
-    gnucash_sheet_im_context_reset(sheet);
-#endif /* G_OS_WIN32 */
 
     gtk_im_context_focus_out (sheet->im_context);
     gnc_item_edit_focus_out (GNC_ITEM_EDIT(sheet->item_editor));
@@ -1877,16 +1865,6 @@ gnucash_sheet_key_press_event (GtkWidget *widget, GdkEventKey *event)
 
     sheet = GNUCASH_SHEET (widget);
 
-    /* bug#60582 comment#27 2
-           save shift state to enable <shift minus> and <shift equal>
-       bug#618434
-           save keyval to handle GDK_KP_Decimal event
-     */
-#ifdef G_OS_WIN32
-    /* gdk never sends GDK_KP_Decimal on win32. See #486658 */
-    if (event->hardware_keycode == VK_DECIMAL)
-        event->keyval = GDK_KP_Decimal;
-#endif
     if (sheet->preedit_length)
     {
         sheet->shift_state = 0;
@@ -2049,15 +2027,6 @@ gnucash_sheet_preedit_changed_cb (GtkIMContext *context, GnucashSheet *sheet)
                 gtk_editable_get_position (editable);
         }
     }
-#ifdef G_OS_WIN32
-    else  /* sheet->preedit_length != 0 */
-    {
-        /* On Windows, gtk_im_context_reset() in gnucash_sheet_key_press_event()
-         * always returns FALSE because Windows IME handles key press at the
-         * top level window. So sheet->need_im_reset = TRUE here. */
-        sheet->need_im_reset = TRUE;
-    }
-#endif /* G_OS_WIN32 */
 
     if (sheet->preedit_attrs)
         pango_attr_list_unref (sheet->preedit_attrs);

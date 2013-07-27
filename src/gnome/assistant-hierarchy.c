@@ -189,23 +189,12 @@ gnc_get_ea_locale_dir(const char *top_dir)
 #ifdef HAVE_LC_MESSAGES
     locale = g_strdup(setlocale(LC_MESSAGES, NULL));
 #else
-# ifdef G_OS_WIN32
-    /* On win32, setlocale() doesn't say anything useful. Use
-       glib's function instead. */
-    locale = g_win32_getlocale();
-    if (!locale)
-    {
-        PWARN ("Couldn't retrieve locale. Falling back to default one.");
-        locale = g_strdup ("C");
-    }
-# else
     /*
      * Mac OS X 10.1 and earlier, not only doesn't have LC_MESSAGES
      * setlocale can sometimes return NULL instead of "C"
      */
     locale = g_strdup(setlocale(LC_ALL, NULL) ?
                       setlocale(LC_ALL, NULL) : "C");
-# endif
 #endif
 
     i = strlen(locale);

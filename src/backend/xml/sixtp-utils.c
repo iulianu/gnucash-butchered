@@ -37,9 +37,6 @@
 #include <errno.h>
 
 #ifdef GNUCASH_MAJOR_VERSION
-#ifndef HAVE_STRPTIME
-#include "strptime.h"
-#endif
 #include <gnc-date.h>
 #endif
 

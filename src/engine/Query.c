@@ -30,9 +30,7 @@
 #include <sys/types.h>
 
 #include <regex.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 
 #include "gnc-lot.h"
 #include "Account.h"

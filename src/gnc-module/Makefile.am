@@ -14,7 +14,6 @@ libgnc_module_la_SOURCES = gnc-module.c
 
 libgnc_module_la_LIBADD = \
   ../core-utils/libgnc-core-utils.la \
-  ${top_builddir}/lib/libc/libc-missing.la \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
   ${GLIB_LIBS} \
   ${GUILE_LIBS}
@@ -47,10 +46,7 @@ if GNUCASH_SEPARATE_BUILDDIR
 	done
 endif
 	( cd gnucash; for A in $(gncmod_DATA) ; do $(LN_S) -f ../$$A . ; done )
-if ! OS_WIN32
-# Windows knows no "ln -s" but uses "cp": must copy every time (see bug #566567).
 	touch .scm-links
-endif
 
 clean-local:
 	rm -rf gnucash

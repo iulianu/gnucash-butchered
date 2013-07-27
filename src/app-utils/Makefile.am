@@ -116,12 +116,7 @@ EXTRA_DIST = \
   ${gncmod_DATA} \
   ${gncscm_DATA}
 
-if OS_WIN32
-libgncmod_app_utils_la_SOURCES += gnc-help-utils.c
-libgncmod_app_utils_la_LIBADD += $(HTMLHELP_LIBS)
-else
 EXTRA_DIST += gnc-help-utils.c
-endif
 
 if GNUCASH_SEPARATE_BUILDDIR
 #For executing test cases
@@ -139,10 +134,7 @@ if GNUCASH_SEPARATE_BUILDDIR
 	done
 endif
 	( cd gnucash; for A in $(gncmod_DATA) ; do $(LN_S) -f ../$$A . ; done )
-if ! OS_WIN32
-# Windows knows no "ln -s" but uses "cp": must copy every time (see bug #566567).
 	touch .scm-links
-endif
 
 clean-local:
 	rm -rf gnucash

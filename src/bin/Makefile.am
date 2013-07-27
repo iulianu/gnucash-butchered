@@ -1,9 +1,5 @@
 # Order is important here.
-if !PLATFORM_WIN32
 SUBDIRS = . overrides test
-else
-SUBDIRS = . test
-endif
 
 AM_CPPFLAGS = -I${top_builddir} ${GLIB_CFLAGS} ${GCONF_CFLAGS} ${GNOME_CFLAGS} ${GTK_CFLAGS} \
   -DPKGSYSCONFDIR=\"${GNC_CONFIGDIR}\" \
@@ -23,34 +19,11 @@ AM_CPPFLAGS = -I${top_builddir} ${GLIB_CFLAGS} ${GCONF_CFLAGS} ${GNOME_CFLAGS} $
 
 SUFFIXES = .rc .res
 
-# Some settings are platform dependent. Let's define them per platform.
-if PLATFORM_WIN32
-# Windows specific settings go here:
-GNUCASH_RESOURCE_FILE = gnucash.rc
-dist_noinst_DATA = gnucash.rc
-
-.rc.res:
-	$(AM_V_GEN)$(RC) -i '$<' --input-format=rc -o '$@' -O coff
-
-configdir = ${GNC_CONFIGDIR}
-config_DATA = environment
-
-else !PLATFORM_WIN32
-if PLATFORM_OSX_QUARTZ
-# OSX/Quartz specific settings go here:
-PLATFORM_FILES = gnucash-setup-env \
-	gnucash-launcher \
-	gnucash-gdb \
-	gnucash-valgrind
-
-else !PLATFORM_OSX_QUARTZ
 # All other platforms use these settings:
 PLATFORM_FILES = gnucash-valgrind
 configdir = ${GNC_CONFIGDIR}
 config_DATA = environment
 
-endif !PLATFORM_OSX_QUARTZ
-endif !PLATFORM_WIN32
 
 BIN_NAME = gnucash
 bin_PROGRAMS = ${BIN_NAME}
@@ -92,7 +65,7 @@ gnucash-valgrind: gnucash-valgrind.in ${top_builddir}/config.status Makefile
 	mv $@.tmp $@
 	chmod u+x $@
 
-gnucash-setup-env: gnucash-setup-env-osx.in ${top_builddir}/config.status Makefile
+gnucash-setup-env: ${top_builddir}/config.status Makefile
 	rm -f $@.tmp
 	sed < $< > $@.tmp \
 	    -e 's#@-BIN_DIR-@#${bindir}#g' \
@@ -115,9 +88,6 @@ environment: environment.in ${top_builddir}/config.status Makefile
 
 CLEANFILES = $(BUILT_SOURCES) ${config_DATA} ${PLATFORM_FILES}
 
-if !PLATFORM_WIN32
-# The gnucash scripts don't make sense on Windows, so will only be
-# generated and included on the other platforms.
 # We handle gnucash scripts in a somewhat unexpected way, but we do
 # this so that a user who doesn't necessarily have the right
 # directories in their path can still invoke these commands via their
@@ -161,15 +131,12 @@ update-gnucash-gconf: update-gnucash-gconf.in \
 	mv $@.tmp $@
 	chmod +x $@
 
-endif
-
 EXTRA_DIST = \
     generate-gnc-script \
 	update-gnucash-gconf.in \
 	gnucash-launcher.in \
 	gnucash-valgrind.in \
 	gnucash-gdb.in \
-	environment.in \
-	gnucash-setup-env-osx.in
+	environment.in
 
 AM_CPPFLAGS += -DG_LOG_DOMAIN=\"gnc.bin\"

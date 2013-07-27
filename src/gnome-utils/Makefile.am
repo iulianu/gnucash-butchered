@@ -195,7 +195,6 @@ libgncmod_gnome_utils_la_LIBADD = \
   ${top_builddir}/src/engine/libgncmod-engine.la \
   ${top_builddir}/src/backend/xml/libgnc-backend-xml-utils.la \
   ${top_builddir}/src/app-utils/libgncmod-app-utils.la \
-  $(top_builddir)/lib/libc/libc-missing.la \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
   ${GTK_LIBS} \
   ${GCONF_LIBS} \
@@ -207,9 +206,7 @@ libgncmod_gnome_utils_la_LIBADD = \
   ${LIBXML2_LIBS} \
   ${GTK_MAC_LIBS}
 
-if HAVE_X11_XLIB_H
-  libgncmod_gnome_utils_la_LIBADD += -lX11
-endif
+libgncmod_gnome_utils_la_LIBADD += -lX11
 
 gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
 gncmod_DATA = gnome-utils.scm 
@@ -239,10 +236,7 @@ if GNUCASH_SEPARATE_BUILDDIR
 	done
 endif
 	( cd gnucash; for A in $(gncmod_DATA) ; do $(LN_S) -f ../$$A . ; done )
-if ! OS_WIN32
-# Windows knows no "ln -s" but uses "cp": must copy every time (see bug #566567).
 	touch .scm-links
-endif
 
 noinst_DATA = .scm-links
 clean-local:
@@ -251,9 +245,6 @@ clean-local:
 CLEANFILES = $(BUILT_SOURCES) .scm-links ${SCM_FILE_LINKS}
 MAINTAINERCLEANFILES = swig-gnome-utils.c
 
-# FIXME: Symlinking directories only works on non-win32.
-if !PLATFORM_WIN32
-#
 # I hate inconsistent standards. Autotools puts help files into
 # ${datadir}/gnome/help/${program} while the gnome2 libraries expect
 # them in ${pkgdatadir}/gnome/help/${program}.
@@ -263,6 +254,5 @@ install-data-hook:
 
 uninstall-hook:
 	rm -f ${DESTDIR}${pkgdatadir}/gnome
-endif
 
 AM_CPPFLAGS += -DG_LOG_DOMAIN=\"gnc.gui\"

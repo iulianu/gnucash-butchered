@@ -40,28 +40,10 @@
 
 /* Compiler */
 
-/* COMPILER(MSVC) */
-#if defined(_MSC_VER)
-#define GNC_COMPILER_MSVC 1
-#if _MSC_VER < 1400
-#define GNC_COMPILER_MSVC7 1
-#endif
-#endif
-
-/* COMPILER(RVCT) */
-#if defined(__CC_ARM) || defined(__ARMCC__)
-#define GNC_COMPILER_RVCT 1
-#endif
-
 /* COMPILER(GCC) */
 /* --gnu option of the RVCT compiler also defines __GNUC__ */
 #if defined(__GNUC__) && !COMPILER(RVCT)
 #define GNC_COMPILER_GCC 1
-#endif
-
-/* COMPILER(MINGW) */
-#if defined(MINGW) || defined(__MINGW32__)
-#define GNC_COMPILER_MINGW 1
 #endif
 
 /* ENABLE macro defaults */

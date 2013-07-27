@@ -47,26 +47,13 @@
 #include "gnc-date-p.h"
 #include "qof.h"
 
-#ifndef HAVE_STRPTIME
-#include "strptime.h"
-#endif
-#ifndef HAVE_LOCALTIME_R
-#include "localtime_r.h"
-#endif
 #include "platform.h"
 
-#ifdef G_OS_WIN32
-#  include <windows.h>
-#endif
 
 #ifdef HAVE_LANGINFO_D_FMT
 #  define GNC_D_FMT (nl_langinfo (D_FMT))
 #  define GNC_D_T_FMT (nl_langinfo (D_T_FMT))
 #  define GNC_T_FMT (nl_langinfo (T_FMT))
-#elif defined(G_OS_WIN32)
-#  define GNC_D_FMT (qof_win32_get_time_format(QOF_WIN32_PICTURE_DATE))
-#  define GNC_T_FMT (qof_win32_get_time_format(QOF_WIN32_PICTURE_TIME))
-#  define GNC_D_T_FMT (qof_win32_get_time_format(QOF_WIN32_PICTURE_DATETIME))
 #else
 #  define GNC_D_FMT "%Y-%m-%d"
 #  define GNC_D_T_FMT "%Y-%m-%d %r"
@@ -74,14 +61,9 @@
 #endif
 
 const char *gnc_default_strftime_date_format =
-#ifdef G_OS_WIN32
-    /* The default date format for use with strftime in Win32. */
-    N_("%B %#d, %Y")
-#else
     /* The default date format for use with strftime in other OS. */
     /* Translators: call "man strftime" for possible values. */
     N_("%B %e, %Y")
-#endif
     ;
 
 /* This is now user configured through the gnome options system() */
@@ -103,76 +85,19 @@ static QofLogModule log_module = QOF_MOD_ENGINE;
 static GTimeZone*
 gnc_g_time_zone_new_local (void)
 {
-#ifndef G_OS_WIN32
     return g_time_zone_new_local();
-#else
-    TIME_ZONE_INFORMATION tzinfo;
-    gint64 dst = GetTimeZoneInformation (&tzinfo);
-    gint bias = tzinfo.Bias + tzinfo.StandardBias;
-    gint hours = -bias / 60; // 60 minutes per hour
-    gint minutes = (bias < 0 ? -bias : bias) % 60;
-    gchar *tzstr = g_strdup_printf ("%+03d%02d", hours, minutes);
-    GTimeZone *tz = g_time_zone_new(tzstr);
-    g_free (tzstr);
-    return tz;
-#endif
 }
 
 static GTimeZone*
 gnc_g_time_zone_adjust_for_dst (GTimeZone* tz, GDateTime *date)
 {
-#ifdef G_OS_WIN32
-    TIME_ZONE_INFORMATION tzinfo;
-    gint64 dst = GetTimeZoneInformation (&tzinfo);
-    guint year = g_date_time_get_year (date);
-    guint month = g_date_time_get_month (date);
-    guint day = g_date_time_get_day_of_month (date);
-    gint bias, hours, minutes;
-    gchar *tzstr;
-    g_return_val_if_fail (date != NULL, NULL);
-    if (dst > 0 && tzinfo.StandardDate.wMonth > 0
-	&& ((month > tzinfo.DaylightDate.wMonth
-	     && month < tzinfo.StandardDate.wMonth)
-	    || (month == tzinfo.DaylightDate.wMonth
-		&& day >= tzinfo.DaylightDate.wDay)
-	    || (month == tzinfo.StandardDate.wMonth
-		&& day < tzinfo.StandardDate.wDay)))
-    {
-	g_time_zone_unref (tz);
-	bias = tzinfo.Bias + tzinfo.DaylightBias;
-	hours = -bias / 60; // 60 minutes per hour
-	minutes = (bias < 0 ? -bias : bias) % 60;
-	tzstr = g_strdup_printf ("%+03d%02d", hours, minutes);
-	tz = g_time_zone_new(tzstr);
-    }
-#endif
     return tz;
 }
 
 static GDateTime*
 gnc_g_date_time_new_local (gint year, gint month, gint day, gint hour, gint minute, gdouble seconds)
 {
-#ifndef G_OS_WIN32
     return g_date_time_new_local (year, month, day, hour, minute, seconds);
-#else
-    GTimeZone *tz = gnc_g_time_zone_new_local();
-    GDateTime *gdt = g_date_time_new (tz, year, month, day,
-				      hour, minute, seconds);
-    if (!gdt)
-	return gdt;
-    tz = gnc_g_time_zone_adjust_for_dst (tz, gdt);
-    g_date_time_unref (gdt);
-/* g_date_time_new truncates nanoseconds to microseconds. Sometimes in
- * converting (particularly when parsing from a string) the
- * nanoseconds will have lost 1/2 a femtosecond or so. Adding 1/2 a
- * nano second ensures that the truncation doesn't lose a micorsecond
- * in translation.
- */
-    seconds += 5e-10;
-    gdt =  g_date_time_new (tz, year, month, day, hour, minute, seconds);
-    g_time_zone_unref (tz);
-    return gdt;
-#endif
 }
 
 static GDateTime*
@@ -192,54 +117,25 @@ gnc_g_date_time_adjust_for_dst (GDateTime *gdt, GTimeZone *tz)
 static GDateTime*
 gnc_g_date_time_new_from_unix_local (time64 time)
 {
-#ifndef G_OS_WIN32
     return g_date_time_new_from_unix_local (time);
-#else
-    GTimeZone *tz = gnc_g_time_zone_new_local ();
-    GDateTime *gdt = g_date_time_new_from_unix_utc (time);
-    if (!gdt)
-      return gdt;
-    return gnc_g_date_time_adjust_for_dst (gdt, tz);
-#endif
 }
 
 static GDateTime*
 gnc_g_date_time_new_from_timeval_local (const GTimeVal* tv)
 {
-#ifndef G_OS_WIN32
     return g_date_time_new_from_timeval_local (tv);
-#else
-    GTimeZone *tz = gnc_g_time_zone_new_local ();
-    GDateTime *gdt = g_date_time_new_from_timeval_utc (tv);
-    if (!gdt)
-	return gdt;
-    return gnc_g_date_time_adjust_for_dst (gdt, tz);
-#endif
 }
 
 static GDateTime*
 gnc_g_date_time_new_now_local (void)
 {
-#ifndef G_OS_WIN32
     return g_date_time_new_now_local ();
-#else
-    GTimeZone *tz = gnc_g_time_zone_new_local ();
-    GDateTime *gdt = g_date_time_new_now_local ();
-    if (!gdt)
-	return gdt;
-    return gnc_g_date_time_adjust_for_dst (gdt, tz);
-#endif
 }
 
 static GDateTime*
 gnc_g_date_time_to_local (GDateTime* gdt)
 {
-#ifndef G_OS_WIN32
     return g_date_time_to_local (gdt);
-#else
-    GTimeZone *tz = gnc_g_time_zone_new_local ();
-    return gnc_g_date_time_adjust_for_dst (g_date_time_to_utc (gdt), tz);
-#endif
 }
 
 typedef struct
@@ -314,9 +210,7 @@ gnc_localtime_r (const time64 *secs, struct tm* time)
           time->tm_isdst = 1;
      }
 
-#ifdef HAVE_STRUCT_TM_GMTOFF
      time->tm_gmtoff = - timezone;
-#endif
 
      g_date_time_unref (gdt);
      return time;
@@ -400,9 +294,7 @@ gnc_mktime (struct tm* time)
      time->tm_yday = g_date_time_get_day_of_year (gdt);
      time->tm_isdst = g_date_time_is_daylight_savings (gdt);
 
-#ifdef HAVE_STRUCT_TM_GMTOFF
      time->tm_gmtoff = g_date_time_get_utc_offset (gdt) / G_TIME_SPAN_SECOND;
-#endif
 
      secs = g_date_time_to_unix (gdt);
      g_date_time_unref (gdt);
@@ -1268,8 +1160,6 @@ char dateSeparator (void)
     return '\0';
 }
 
-/* The following functions have Win32 forms in qof-win32.c */
-#ifndef G_OS_WIN32
 gchar *
 qof_time_format_from_utf8(const gchar *utf8_format)
 {
@@ -1303,7 +1193,6 @@ qof_formatted_time_to_utf8(const gchar *locale_string)
     }
     return retval;
 }
-#endif /* G_OS_WIN32 */
 
 static gchar *
 qof_format_time(const gchar *format, const struct tm *tm)
@@ -1473,11 +1362,7 @@ gnc_timespec_to_iso8601_buff (Timespec ts, char * buff)
     gdt = gnc_g_date_time_new_from_timespec_local (ts);
     g_return_val_if_fail (gdt != NULL, NULL);
     time_base = g_date_time_format (gdt, fmt1);
-#ifdef G_OS_WIN32
-    tz = g_date_time_format (gdt, "%Z");
-#else
     tz = g_date_time_format (gdt, "%z");
-#endif
     snprintf (buff, MAX_DATE_LENGTH, fmt2, time_base,
 	      g_date_time_get_second (gdt), g_date_time_get_microsecond (gdt),
 	      tz);
@@ -1549,24 +1434,9 @@ gnc_timezone (const struct tm *tm)
 {
     g_return_val_if_fail (tm != NULL, 0);
 
-#ifdef HAVE_STRUCT_TM_GMTOFF
     /* tm_gmtoff is seconds *east* of UTC and is
      * already adjusted for daylight savings time. */
     return -(tm->tm_gmtoff);
-#else
-    {
-        long tz_seconds;
-        /* timezone is seconds *west* of UTC and is
-         * not adjusted for daylight savings time.
-         * In Spring, we spring forward, wheee! */
-# if COMPILER(MSVC)
-        _get_timezone(&tz_seconds);
-# else
-        tz_seconds = timezone;
-# endif
-        return (long int)(tz_seconds - (tm->tm_isdst > 0 ? 3600 : 0));
-    }
-#endif
 }
 
 

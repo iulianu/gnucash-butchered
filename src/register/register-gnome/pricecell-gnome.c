@@ -37,10 +37,6 @@
 #include "pricecell.h"
 #include "pricecell-gnome.h"
 
-#ifdef G_OS_WIN32
-# include <gdk/gdkwin32.h>
-#endif
-
 static gboolean
 gnc_price_cell_direct_update (BasicCell *bcell,
                               int *cursor_position,
@@ -60,11 +56,6 @@ gnc_price_cell_direct_update (BasicCell *bcell,
 
     is_return = FALSE;
 
-#ifdef G_OS_WIN32
-    /* gdk never sends GDK_KP_Decimal on win32. See #486658 */
-    if (event->hardware_keycode == VK_DECIMAL)
-        event->keyval = GDK_KP_Decimal;
-#endif
     switch (event->keyval)
     {
     case GDK_KEY_Return:

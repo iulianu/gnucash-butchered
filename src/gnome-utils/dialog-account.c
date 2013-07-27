@@ -27,9 +27,6 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <math.h>
-#ifdef G_OS_WIN32
-#include <pow.h>
-#endif
 #include <string.h>
 
 #include "Transaction.h"

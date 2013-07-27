@@ -112,7 +112,6 @@ PKG_PROG_PKG_CONFIG
 
 
 AC_LIBTOOL_DLOPEN
-AC_LIBTOOL_WIN32_DLL
 AM_DISABLE_STATIC
 AM_PROG_LIBTOOL
 
@@ -227,96 +226,13 @@ AC_SUBST(SED)
 REGEX_LIBS=""
 
 AC_MSG_CHECKING(operating system)
-case $host_os in
-  rhapsody* | darwin[1567].*)
-    AC_MSG_RESULT([darwin, but too old])
-    AC_MSG_ERROR([This platform is not supported, please
-update to latest  darwin])
-    ;;
-  darwin*)
-    platform=darwin
-    AC_MSG_RESULT($platform)
-    AC_MSG_CHECKING(For GDK-Quartz)
-    platform=osx
-    _gdk_tgt=`$PKG_CONFIG --variable=target gdk-2.0`
-    if test "x$_gdk_tgt" = xquartz; then
-      platform=darwin/quartz
-      AC_MSG_RESULT(yes)
-      AC_DEFINE(GDK_QUARTZ,,[Using GDK Quartz (not X11)])
-      PKG_CHECK_MODULES([GTK_MAC], gtk-mac-integration,
-                        [_gtk_mac=yes], [_gtk_mac=no])
-      if test "x$_gtk_mac" = xyes; then
-        GTK_MAC_LIBS="${GTK_MAC_LIBS} -lobjc"
-        GTK_MAC_CFLAGS="${GTK_MAC_CFLAGS} -xobjective-c"
-      fi
-      AC_MSG_RESULT(${_gtk_mac})
-      AC_SUBST(GTK_MAC_LIBS)
-      AC_SUBST(GTK_MAC_CFLAGS)
-    else
-      AC_MSG_RESULT(no)
-    fi
-    ;;
-  mingw*|cygwin*)
-    platform=win32
-    AC_MSG_RESULT($platform)
-    LT_PROG_RC
-
-    AC_MSG_CHECKING(for native win32)
-    case $host_os in
-      mingw*)
-        native_win32=yes
-        AC_MSG_RESULT(yes)
-
-        HTMLHELP_LIBS=
-        AC_MSG_CHECKING(for HtmlHelpW)
-        saved_LIBS="${LIBS}"
-        LIBS="${LIBS} -lhtmlhelp"
-        AC_LINK_IFELSE(
-          [AC_LANG_PROGRAM(
-             [[#include <windows.h>
-               #include <htmlhelp.h>]],
-             [HtmlHelpW(0, (wchar_t*)"", HH_HELP_CONTEXT, 0);])],
-          [AC_MSG_RESULT(yes)
-           HTMLHELP_LIBS=-lhtmlhelp
-           AC_DEFINE(HAVE_HTMLHELPW,1,[System has HtmlHelpW])
-          ], [AC_MSG_RESULT(no)])
-        LIBS="${saved_LIBS}"
-        AC_SUBST(HTMLHELP_LIBS)
-        ;;
-      *)
-        AC_MSG_RESULT(no)
-        ;;
-    esac
-
-    REGEX_LIBS="-lregex"
-
-    # Adjust CFLAGS and LDFLAGS on Windows
-    CFLAGS="${CFLAGS} -mms-bitfields"
-    LDFLAGS="${LDFLAGS} -no-undefined -mwindows"
-    ;;
-
-  *)
-    platform=linux/other
-    AC_MSG_RESULT($platform)
-    ;;
-esac
+platform=linux/other
+AC_MSG_RESULT($platform)
 AC_SUBST(REGEX_LIBS)
 
 AM_CONDITIONAL(PLATFORM_LINUX, test "x$platform" = "xlinux/other")
-AM_CONDITIONAL(PLATFORM_OSX, test "x$platform" = "xdarwin")
-AM_CONDITIONAL(PLATFORM_OSX_QUARTZ, test "x$platform" = "xdarwin/quartz")
-AM_CONDITIONAL(PLATFORM_WIN32, test "x$platform" = "xwin32")
-AM_CONDITIONAL(OS_WIN32, test "x$native_win32" = "xyes")
 
-# These are unavailable on windows/mingw32 and X11 isn't desired or
-# required for MacOSX Quartz
-if test "x$_gdk_tgt" = xquartz;
-then
-    AC_CHECK_HEADERS(glob.h)
-else
-    AC_CHECK_HEADERS(X11/Xlib.h glob.h)
-fi
-AM_CONDITIONAL(HAVE_X11_XLIB_H, test "x$ac_cv_header_X11_Xlib_h" = "xyes")
+AC_CHECK_HEADERS(X11/Xlib.h glob.h)
 AC_CHECK_FUNCS(chown gethostname getppid getuid gettimeofday gmtime_r)
 AC_CHECK_FUNCS(gethostid link)
 ##################################################
@@ -648,11 +564,6 @@ then
     webkit)
       PKG_CHECK_MODULES(WEBKIT, webkit-1.0 >= "1.0")
       case "$platform" in
-        win32)
-          # 1.1.90 has both functions
-          AC_DEFINE(HAVE_WEBKIT_WEB_VIEW_LOAD_URI,1,[webkit_web_view_load_uri exists])
-          AC_DEFINE(HAVE_WEBKIT_WEB_FRAME_PRINT_FULL,1,[webkit_web_frame_print_full exists])
-          ;;
         *)
           # Unsure - check functions exist
           oLIBS="$LIBS"
@@ -683,16 +594,10 @@ then
   AC_SUBST(WEBKIT_CFLAGS)
   AC_SUBST(WEBKIT_LIBS)
 
-  dnl if Mac OSX, also scrub /sw/include
-  dnl GIVEN_CFLAGS=$(echo $GIVEN_CFLAGS | sed -e "s;-I/sw/include ;;" | sed -e "s;-I/sw/include$;;")
-
   ###-----------------------------------------------------------------------
   ## Find a suitable password store
 
   case $host_os in
-    darwin*)
-      AC_DEFINE(HAVE_OSX_KEYCHAIN,1,[System has an OS X Key chain])
-      ;;
     *)
       PKG_CHECK_MODULES(GNOME_KEYRING, gnome-keyring-1 >= "0.6",
           [AC_DEFINE(HAVE_GNOME_KEYRING,1,[System has gnome-keyring 0.6 or better])],
@@ -782,21 +687,6 @@ then
   # FIXME: This define is unused; this block can be removed
   AC_DEFINE(GNOME_DISABLE_DEPRECATED,1, [Don't use deprecated gnome functions])
 fi
-
-###-------------------------------------------------------------------------
-### Stuff from Mac OS X Port
-###-------------------------------------------------------------------------
-
-AC_CHECK_FUNCS(pthread_mutex_init)
-case $host_os in
-  darwin*)
-    AC_REPLACE_FUNCS(localtime_r gmtime_r)
-    AC_LIBOBJ(strptime)
-    ;;
-  *)
-    AC_REPLACE_FUNCS(strptime localtime_r gmtime_r)
-    ;;
-esac
 
 if test x$am_cv_val_LC_MESSAGES = "xno"; then
   LC_MESSAGES_ENUM="LC_ALL"
@@ -921,11 +811,7 @@ AC_CONFIG_FILES(
   doc/Makefile
   doc/examples/Makefile
   intl-scm/Makefile
-  lib/Makefile
-  lib/libc/Makefile
   packaging/Makefile
-  packaging/win32/Makefile
-  packaging/win32/gnucash.iss
   src/Makefile
   src/app-utils/Makefile
   src/app-utils/test/Makefile
