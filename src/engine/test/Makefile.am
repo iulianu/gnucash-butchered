@@ -33,7 +33,6 @@ TESTS = \
   test-date \
   test-object \
   test-commodities \
-  test-create-account \
   test-account-object \
   test-group-vs-book \
   test-lots \
@@ -43,7 +42,6 @@ TESTS = \
   test-transaction-reversal \
   test-transaction-voiding \
   test-recurrence \
-  test-scm-query \
   test-business \
   test-address \
   test-customer \
@@ -81,7 +79,6 @@ check_PROGRAMS = \
   test-object \
   test-query \
   test-querynew \
-  test-scm-query \
   test-split-vs-account \
   test-transaction-reversal \
   test-transaction-voiding \
@@ -98,11 +95,8 @@ test_link_LDADD = ../libgncmod-engine.la \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
   ${top_builddir}/src/core-utils/libgnc-core-utils.la
 
-EXTRA_DIST += \
-  test-create-account \
-  test-create-account.scm \
-  test-scm-query-import \
-  test-scm-query-import.scm
+#EXTRA_DIST += 
+
 
 TEST_PROGS += test-engine
 
