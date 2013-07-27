@@ -87,7 +87,6 @@
 
 void gnc_invoice_window_ok_cb (GtkWidget *widget, gpointer data);
 void gnc_invoice_window_cancel_cb (GtkWidget *widget, gpointer data);
-void gnc_invoice_window_help_cb (GtkWidget *widget, gpointer data);
 void gnc_invoice_type_toggled_cb (GtkWidget *widget, gpointer data);
 void gnc_invoice_id_changed_cb (GtkWidget *widget, gpointer data);
 void gnc_invoice_terms_changed_cb (GtkWidget *widget, gpointer data);
@@ -440,12 +439,6 @@ gnc_invoice_window_cancel_cb (GtkWidget *widget, gpointer data)
     InvoiceWindow *iw = data;
 
     gnc_close_gui_component (iw->component_id);
-}
-
-void
-gnc_invoice_window_help_cb (GtkWidget *widget, gpointer data)
-{
-    gnc_gnome_help(HF_HELP, HL_USAGE);
 }
 
 void

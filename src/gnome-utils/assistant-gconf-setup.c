@@ -660,7 +660,6 @@ assistant_gconf_install_check_schemas (void)
             break;
 
         case GTK_RESPONSE_HELP:
-            gnc_gnome_help(HF_HELP, HL_GCONF);
             break;
         }
     }

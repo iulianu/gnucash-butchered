@@ -141,8 +141,6 @@ static void gnc_main_window_cmd_actions_rename_page (GtkAction *action, GncMainW
 static void gnc_main_window_cmd_window_new (GtkAction *action, GncMainWindow *window);
 static void gnc_main_window_cmd_window_move_page (GtkAction *action, GncMainWindow *window);
 static void gnc_main_window_cmd_window_raise (GtkAction *action, GtkRadioAction *current, GncMainWindow *window);
-static void gnc_main_window_cmd_help_tutorial (GtkAction *action, GncMainWindow *window);
-static void gnc_main_window_cmd_help_contents (GtkAction *action, GncMainWindow *window);
 static void gnc_main_window_cmd_help_about (GtkAction *action, GncMainWindow *window);
 
 static void do_popup_menu(GncPluginPage *page, GdkEventButton *event);
@@ -321,16 +319,6 @@ static GtkActionEntry gnc_menu_actions [] =
 
     /* Help menu */
 
-    {
-        "HelpTutorialAction", GTK_STOCK_HELP, N_("Tutorial and Concepts _Guide"), NULL,
-        N_("Open the GnuCash Tutorial"),
-        G_CALLBACK (gnc_main_window_cmd_help_tutorial)
-    },
-    {
-        "HelpContentsAction", GTK_STOCK_HELP, N_("_Contents"), "F1",
-        N_("Open the GnuCash Help"),
-        G_CALLBACK (gnc_main_window_cmd_help_contents)
-    },
     {
         "HelpAboutAction", GTK_STOCK_ABOUT, N_("_About"), NULL,
         N_("About GnuCash"),
@@ -3941,18 +3929,6 @@ gnc_main_window_cmd_window_raise (GtkAction *action,
      * impossible while handling "changed" (G_SIGNAL_NO_RECURSE) */
     g_idle_add((GSourceFunc)gnc_main_window_update_radio_button, old_window);
     LEAVE(" ");
-}
-
-static void
-gnc_main_window_cmd_help_tutorial (GtkAction *action, GncMainWindow *window)
-{
-    gnc_gnome_help (HF_GUIDE, NULL);
-}
-
-static void
-gnc_main_window_cmd_help_contents (GtkAction *action, GncMainWindow *window)
-{
-    gnc_gnome_help (HF_HELP, NULL);
 }
 
 /** This is a helper function to find a data file and suck it into

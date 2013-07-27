@@ -120,7 +120,7 @@ gnc_ui_new_user_dialog (void)
         }
         else if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (tutorial_button)))
         {
-            gnc_gnome_help (HF_GUIDE, NULL);
+            // gnc_gnome_help (HF_GUIDE, NULL); /* Help is removed in this build of Gnucash */
             gncp_new_user_finish ();
         }
         break;

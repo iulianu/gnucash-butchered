@@ -43,25 +43,7 @@
  */
 void gnc_gtk_add_rc_file (void);
 
-/** Launch the default gnome help browser and open to a given link
- *  within a given file.  This routine will display an error message
- *  if it can't find the help file or can't open the help browser.
- *
- *  @param file_name The name of the help file.
- *
- *  @param anchor The anchor the help browser should scroll to..
- *
- *  @return the full path name of the file, or NULL of the file can't
- *  be found.
- */
-void gnc_gnome_help (const char *file_name,
-                     const char *anchor);
 
-/** Set the help callback to 'gnc_book_options_help_cb' to open a help browser
- *  and point it to the Book Options link in the Help file.
- */
-void gnc_options_dialog_set_book_options_help_cb (GNCOptionWin *win);
- 
 /** Set the intial values of new book options to values specified in user
  *  preferences.
  */

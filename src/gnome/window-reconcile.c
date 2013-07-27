@@ -1171,13 +1171,6 @@ gnc_reconcile_window_get_current_split(RecnWindow *recnData)
 
 
 static void
-gnc_ui_reconcile_window_help_cb(GtkWidget *widget, gpointer data)
-{
-    gnc_gnome_help(HF_HELP, HL_RECNWIN);
-}
-
-
-static void
 gnc_ui_reconcile_window_change_cb(GtkAction *action, gpointer data)
 {
     RecnWindow *recnData = data;
@@ -2278,13 +2271,6 @@ static GtkActionEntry recnWindow_actions [] =
         G_CALLBACK(gnc_ui_reconcile_window_unrec_cb)
     },
 
-    /* Help menu */
-
-    {
-        "HelpHelpAction", NULL, N_("_Help"), NULL,
-        N_("Open the GnuCash help window"),
-        G_CALLBACK(gnc_ui_reconcile_window_help_cb)
-    },
 };
 
 /** The number of actions provided by the main window. */

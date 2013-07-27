@@ -56,7 +56,6 @@
 
 void gnc_order_window_ok_cb (GtkWidget *widget, gpointer data);
 void gnc_order_window_cancel_cb (GtkWidget *widget, gpointer data);
-void gnc_order_window_help_cb (GtkWidget *widget, gpointer data);
 void gnc_order_window_invoice_cb (GtkWidget *widget, gpointer data);
 void gnc_order_window_close_order_cb (GtkWidget *widget, gpointer data);
 void gnc_order_window_destroy_cb (GtkWidget *widget, gpointer data);
@@ -227,12 +226,6 @@ gnc_order_window_cancel_cb (GtkWidget *widget, gpointer data)
     OrderWindow *ow = data;
 
     gnc_close_gui_component (ow->component_id);
-}
-
-void
-gnc_order_window_help_cb (GtkWidget *widget, gpointer data)
-{
-    gnc_gnome_help(HF_HELP, HL_USAGE);
 }
 
 void

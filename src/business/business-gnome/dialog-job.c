@@ -50,7 +50,6 @@
 
 void gnc_job_window_ok_cb (GtkWidget *widget, gpointer data);
 void gnc_job_window_cancel_cb (GtkWidget *widget, gpointer data);
-void gnc_job_window_help_cb (GtkWidget *widget, gpointer data);
 void gnc_job_window_destroy_cb (GtkWidget *widget, gpointer data);
 void gnc_job_name_changed_cb (GtkWidget *widget, gpointer data);
 
@@ -193,12 +192,6 @@ gnc_job_window_cancel_cb (GtkWidget *widget, gpointer data)
     JobWindow *jw = data;
 
     gnc_close_gui_component (jw->component_id);
-}
-
-void
-gnc_job_window_help_cb (GtkWidget *widget, gpointer data)
-{
-    gnc_gnome_help(HF_HELP, HL_USAGE);
 }
 
 

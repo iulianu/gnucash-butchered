@@ -57,27 +57,6 @@ static int gnome_is_initialized = FALSE;
 
 #define ACCEL_MAP_NAME "accelerator-map"
 
-static void gnc_book_options_help_cb (GNCOptionWin *win, gpointer dat);
-
-static void
-gnc_global_options_help_cb (GNCOptionWin *win, gpointer dat)
-{
-    gnc_gnome_help (HF_HELP, HL_GLOBPREFS);
-}
-
-static void
-gnc_book_options_help_cb (GNCOptionWin *win, gpointer dat)
-{
-    gnc_gnome_help (HF_HELP, HL_BOOK_OPTIONS);
-}
-
-void
-gnc_options_dialog_set_book_options_help_cb (GNCOptionWin *win)
-{
-    gnc_options_dialog_set_help_cb(win,
-                                (GNCOptionWinCallback)gnc_book_options_help_cb,
-                                NULL);
-}
 
 void
 gnc_options_dialog_set_new_book_option_values (GNCOptionDB *odb)
@@ -101,12 +80,6 @@ gnc_options_dialog_set_new_book_option_values (GNCOptionDB *odb)
 //                    (GTK_TOGGLE_BUTTON (num_source_is_split_action_button),
 //                        num_source_is_split_action);
     }
-}
-
-static void
-gnc_commodity_help_cb (void)
-{
-    gnc_gnome_help (HF_HELP, HL_COMMODITY);
 }
 
 /* gnc_configure_date_format
@@ -212,35 +185,6 @@ gnc_gtk_add_rc_file (void)
     }
 }
 
-
-void
-gnc_gnome_help (const char *file_name, const char *anchor)
-{
-    GError *error = NULL;
-    gchar *uri = NULL;
-    gboolean success;
-
-    if (anchor)
-        uri = g_strconcat ("ghelp:", file_name, "?", anchor, NULL);
-    else
-        uri = g_strconcat ("ghelp:", file_name, NULL);
-
-    DEBUG ("Attempting to opening help uri %s", uri);
-    success = gtk_show_uri (NULL, uri, gtk_get_current_event_time (), &error);
-    g_free (uri);
-    if (success)
-        return;
-
-    g_assert(error != NULL);
-    {
-        const gchar *message =
-            _("GnuCash could not find the files for the help documentation.  "
-              "This is likely because the 'gnucash-docs' package is not installed.");
-        gnc_error_dialog(NULL, "%s", message);
-    }
-    PERR ("%s", error->message);
-    g_error_free(error);
-}
 
 
 /********************************************************************\
@@ -451,10 +395,7 @@ gnc_gui_init(void)
     gnc_gconf_general_register_any_cb(
         (GncGconfGeneralAnyCb)gnc_gui_refresh_all, NULL);
 
-    gnc_ui_commodity_set_help_callback (gnc_commodity_help_cb);
     gnc_file_set_shutdown_callback (gnc_shutdown);
-
-    gnc_options_dialog_set_global_help_cb (gnc_global_options_help_cb, NULL);
 
     main_window = gnc_main_window_new ();
     // Bug#350993:

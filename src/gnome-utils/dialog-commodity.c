@@ -103,8 +103,6 @@ struct commodity_window
 typedef struct select_commodity_window SelectCommodityWindow;
 typedef struct commodity_window CommodityWindow;
 
-static gnc_commodity_help_callback help_callback = NULL;
-
 
 /* The commodity selection window */
 static SelectCommodityWindow *
@@ -125,16 +123,6 @@ gboolean gnc_ui_commodity_dialog_to_object(CommodityWindow * w);
 #if 0
 static void gnc_ui_select_commodity_response_cb (GtkDialog * dialog, gint response, gpointer data);
 #endif
-
-
-/********************************************************************
- * gnc_ui_commodity_set_help_callback
- ********************************************************************/
-void
-gnc_ui_commodity_set_help_callback (gnc_commodity_help_callback cb)
-{
-    help_callback = cb;
-}
 
 
 /********************************************************************
@@ -954,8 +942,7 @@ gnc_ui_build_commodity_dialog(const char * selected_namespace,
     retval->edit_commodity = NULL;
 
     help_button = GTK_WIDGET(gtk_builder_get_object (builder, "help_button"));
-    if (!help_callback)
-        gtk_widget_hide (help_button);
+    gtk_widget_hide (help_button); /* Help is removed from this build of Gnucash */
 
     /* Determine the commodity section of the dialog */
     retval->table = GTK_WIDGET(gtk_builder_get_object (builder, "edit_table"));
@@ -1182,8 +1169,6 @@ gnc_ui_common_commodity_modal(gnc_commodity *commodity,
             break;
         case GTK_RESPONSE_HELP:
             DEBUG("case HELP");
-            if (help_callback)
-                help_callback ();
             break;
         default:	/* Cancel, Escape, Close, etc. */
             DEBUG("default: %d", value);

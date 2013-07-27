@@ -640,13 +640,6 @@ search_cancel_cb (GtkButton *button, GNCSearchWindow *sw)
 
 
 static void
-search_help_cb (GtkButton *button, GNCSearchWindow *sw)
-{
-    gnc_gnome_help (HF_HELP, HL_FIND_TRANSACTIONS);
-}
-
-
-static void
 remove_element (GtkWidget *button, GNCSearchWindow *sw)
 {
     GtkWidget *element;
@@ -1165,11 +1158,6 @@ gnc_search_dialog_init_widgets (GNCSearchWindow *sw, const gchar *title)
                           type_label_to_new_button(type_label));
     g_signal_connect (new_item_button, "clicked",
                       G_CALLBACK (search_new_item_cb), sw);
-
-    /* Deal with the help button */
-    widget = GTK_WIDGET(gtk_builder_get_object (builder, "help_button"));
-    g_signal_connect (widget, "clicked",
-                      G_CALLBACK (search_help_cb), sw);
 
     /* add the first criterion */
     gnc_search_dialog_add_criterion (sw);

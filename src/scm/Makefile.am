@@ -55,8 +55,7 @@ EXTRA_DIST = \
 build-config.scm: ${srcdir}/build-config.scm.in Makefile
 	rm -f $@.tmp
 	sed < $< > $@.tmp \
-            -e 's#@-VERSION-@#${VERSION}#' \
-            -e 's#@-GNC_HELPDIR-@#${GNC_HELPDIR}#'
+            -e 's#@-VERSION-@#${VERSION}#'
 	mv $@.tmp $@
 
 CLEANFILES = .scm-links

@@ -229,13 +229,6 @@ editor_cancel_button_clicked_cb( GtkButton *b, GncSxEditorDialog *sxed )
 
 
 static void
-editor_help_button_clicked_cb(GtkButton *b, GncSxEditorDialog *sxed)
-{
-    gnc_gnome_help(HF_HELP, HL_SXEDITOR);
-}
-
-
-static void
 editor_ok_button_clicked_cb( GtkButton *b, GncSxEditorDialog *sxed )
 {
     QofBook *book;
@@ -1134,7 +1127,6 @@ gnc_ui_scheduled_xaction_editor_dialog_create (SchedXaction *sx,
     {
         { "ok_button",      "clicked",       editor_ok_button_clicked_cb,     NULL },
         { "cancel_button",  "clicked",       editor_cancel_button_clicked_cb, NULL },
-        { "help_button",    "clicked",       editor_help_button_clicked_cb,   NULL },
         { "rb_noend",       "toggled",       endgroup_rb_toggled_cb,          GINT_TO_POINTER(END_NEVER_OPTION) },
         { "rb_enddate",     "toggled",       endgroup_rb_toggled_cb,          GINT_TO_POINTER(END_DATE_OPTION) },
         { "rb_num_occur",   "toggled",       endgroup_rb_toggled_cb,          GINT_TO_POINTER(NUM_OCCUR_OPTION) },

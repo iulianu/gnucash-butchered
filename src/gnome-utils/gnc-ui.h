@@ -38,24 +38,6 @@
 #include <gtk/gtk.h>
 
 
-/** Help Files ******************************************************/
-#define HF_GUIDE         "gnucash-guide"
-#define HF_HELP          "gnucash-help"
-
-/** Links in the Help Files *****************************************/
-#define HL_USAGE             "usage"
-#define HL_ACC               "acct-create"
-#define HL_ACCEDIT           "acct-edit"
-#define HL_COMMODITY         "tool-commodity"
-#define HL_FIND_TRANSACTIONS "tool-find"
-#define HL_GLOBPREFS         "set-prefs"
-#define HL_PRINTCHECK        "print-check"
-#define HL_RECNWIN           "acct-reconcile"
-#define HL_SXEDITOR          "tool-sched"
-#define HL_GCONF             "gconf"
-#define HL_BOOK_OPTIONS      "book-options"
-#define HL_CLOSE_BOOK        "tool-close-book"
-
 /* GTK Windows - Common Response Codes */
 
 #define GNC_RESPONSE_NEW    1
@@ -86,9 +68,6 @@ extern void
 gnc_error_dialog(GtkWidget *parent,
                  const char *format, ...) G_GNUC_PRINTF (2, 3);
 
-
-extern void
-gnc_gnome_help (const char *file_name, const char *target_link);
 
 int      gnc_choose_radio_option_dialog (GtkWidget *parent,
         const char *title,

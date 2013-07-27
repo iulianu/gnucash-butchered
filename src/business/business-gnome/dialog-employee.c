@@ -54,7 +54,6 @@
 
 void gnc_employee_window_ok_cb (GtkWidget *widget, gpointer data);
 void gnc_employee_window_cancel_cb (GtkWidget *widget, gpointer data);
-void gnc_employee_window_help_cb (GtkWidget *widget, gpointer data);
 void gnc_employee_window_destroy_cb (GtkWidget *widget, gpointer data);
 void gnc_employee_name_changed_cb (GtkWidget *widget, gpointer data);
 void gnc_employee_ccard_acct_toggled_cb (GtkToggleButton *button, gpointer data);
@@ -271,11 +270,6 @@ gnc_employee_window_cancel_cb (GtkWidget *widget, gpointer data)
     gnc_close_gui_component (ew->component_id);
 }
 
-void
-gnc_employee_window_help_cb (GtkWidget *widget, gpointer data)
-{
-    gnc_gnome_help(HF_HELP, HL_USAGE);
-}
 
 void
 gnc_employee_window_destroy_cb (GtkWidget *widget, gpointer data)

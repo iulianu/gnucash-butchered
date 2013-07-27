@@ -57,7 +57,6 @@ struct _customer_import_gui
 // callback routines
 void gnc_customer_import_gui_ok_cb (GtkWidget *widget, gpointer data);
 void gnc_customer_import_gui_cancel_cb (GtkWidget *widget, gpointer data);
-void gnc_customer_import_gui_help_cb (GtkWidget *widget, gpointer data);
 void gnc_customer_import_gui_destroy_cb (GtkWidget *widget, gpointer data);
 static void gnc_customer_import_gui_close_handler (gpointer user_data);
 void gnc_customer_import_gui_buttonOpen_cb (GtkWidget *widget, gpointer data);
@@ -217,12 +216,6 @@ gnc_customer_import_gui_cancel_cb (GtkWidget *widget, gpointer data)
     CustomerImportGui *gui = data;
 
     gnc_close_gui_component (gui->component_id);
-}
-
-void
-gnc_customer_import_gui_help_cb (GtkWidget *widget, gpointer data)
-{
-    gnc_gnome_help(HF_HELP, HL_USAGE);
 }
 
 static void

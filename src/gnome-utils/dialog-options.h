@@ -38,7 +38,6 @@ GNCOptionWin * gnc_options_dialog_new_modal(gboolean modal, gchar *title);
 GNCOptionWin * gnc_options_dialog_new(gchar *title);
 GNCOptionWin * gnc_options_dialog_new_w_dialog(gchar *title, GtkWidget *dialog);
 void gnc_options_dialog_destroy(GNCOptionWin * win);
-void gnc_options_register_stocks (void);
 
 GtkWidget * gnc_options_dialog_widget(GNCOptionWin * win);
 GtkWidget * gnc_options_page_list(GNCOptionWin * win);
@@ -52,15 +51,9 @@ void gnc_option_changed_option_cb(GtkWidget *dummy, GNCOption *option);
 void gnc_options_dialog_set_apply_cb(GNCOptionWin * win,
                                      GNCOptionWinCallback thunk,
                                      gpointer cb_data);
-void gnc_options_dialog_set_help_cb(GNCOptionWin * win,
-                                    GNCOptionWinCallback thunk,
-                                    gpointer cb_data);
 void gnc_options_dialog_set_close_cb(GNCOptionWin * win,
                                      GNCOptionWinCallback thunk,
                                      gpointer cb_data);
-
-void gnc_options_dialog_set_global_help_cb(GNCOptionWinCallback thunk,
-        gpointer cb_data);
 
 void gnc_options_dialog_build_contents(GNCOptionWin *win,
                                        GNCOptionDB  *odb);

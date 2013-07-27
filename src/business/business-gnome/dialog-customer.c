@@ -62,7 +62,6 @@ void gnc_customer_taxtable_check_cb (GtkToggleButton *togglebutton,
 
 void gnc_customer_window_ok_cb (GtkWidget *widget, gpointer data);
 void gnc_customer_window_cancel_cb (GtkWidget *widget, gpointer data);
-void gnc_customer_window_help_cb (GtkWidget *widget, gpointer data);
 void gnc_customer_window_destroy_cb (GtkWidget *widget, gpointer data);
 void gnc_customer_name_changed_cb (GtkWidget *widget, gpointer data);
 void gnc_customer_terms_changed_cb (GtkWidget *widget, gpointer data);
@@ -387,11 +386,6 @@ gnc_customer_window_cancel_cb (GtkWidget *widget, gpointer data)
     gnc_close_gui_component (cw->component_id);
 }
 
-void
-gnc_customer_window_help_cb (GtkWidget *widget, gpointer data)
-{
-    gnc_gnome_help(HF_HELP, HL_USAGE);
-}
 
 void
 gnc_customer_window_destroy_cb (GtkWidget *widget, gpointer data)

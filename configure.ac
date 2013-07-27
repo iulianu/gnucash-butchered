@@ -382,16 +382,6 @@ TEST_PGSQL_URL=$with_test_pgsql_url
 AC_SUBST(TEST_PGSQL_URL)
 
 ### --------------------------------------------------------------------------
-### help files
-
-# Used to initialize doc-path.
-AC_ARG_WITH( help-prefix,
-  [AS_HELP_STRING([--with-help-prefix=PATH],[specify where to store the help files])],
-  GNC_HELPDIR="$with_help_prefix",
-  GNC_HELPDIR="\${datadir}")
-AC_SUBST(GNC_HELPDIR)
-
-### --------------------------------------------------------------------------
 ### Check for etags
 
 AC_ARG_ENABLE( etags,

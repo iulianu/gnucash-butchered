@@ -87,9 +87,6 @@ struct gnc_option_win
     GNCOptionWinCallback apply_cb;
     gpointer             apply_cb_data;
 
-    GNCOptionWinCallback help_cb;
-    gpointer             help_cb_data;
-
     GNCOptionWinCallback close_cb;
     gpointer             close_cb_data;
 
@@ -111,9 +108,6 @@ enum page_tree
     PAGE_NAME,
     NUM_COLUMNS
 };
-
-static GNCOptionWinCallback global_help_cb = NULL;
-gpointer global_help_cb_data = NULL;
 
 void gnc_options_dialog_response_cb(GtkDialog *dialog, gint response,
                                     GNCOptionWin *window);
@@ -1203,8 +1197,6 @@ gnc_options_dialog_response_cb(GtkDialog *dialog, gint response, GNCOptionWin *w
     switch (response)
     {
     case GTK_RESPONSE_HELP:
-        if (window->help_cb)
-            (window->help_cb)(window, window->help_cb_data);
         break;
 
     case GTK_RESPONSE_OK:
@@ -1266,29 +1258,6 @@ gnc_options_dialog_list_select_cb (GtkTreeSelection *selection,
     gtk_notebook_set_current_page(GTK_NOTEBOOK(win->notebook), index);
 }
 
-void
-gnc_options_register_stocks (void)
-{
-#if 0
-    static gboolean done = FALSE;
-
-    GtkStockItem items[] =
-    {
-        { GTK_STOCK_APPLY		, "gnc_option_apply_button",	0, 0, NULL },
-        { GTK_STOCK_HELP		, "gnc_options_dialog_help",	0, 0, NULL },
-        { GTK_STOCK_OK			, "gnc_options_dialog_ok",	0, 0, NULL },
-        { GTK_STOCK_CANCEL		, "gnc_options_dialog_cancel",	0, 0, NULL },
-    };
-
-    if (done)
-    {
-        return;
-    }
-    done = TRUE;
-
-    gtk_stock_add (items, G_N_ELEMENTS (items));
-#endif
-}
 
 static void
 component_close_handler (gpointer data)
@@ -1414,14 +1383,6 @@ gnc_options_dialog_set_apply_cb(GNCOptionWin * win, GNCOptionWinCallback cb,
 }
 
 void
-gnc_options_dialog_set_help_cb(GNCOptionWin * win, GNCOptionWinCallback cb,
-                               gpointer data)
-{
-    win->help_cb = cb;
-    win->help_cb_data = data;
-}
-
-void
 gnc_options_dialog_set_close_cb(GNCOptionWin * win, GNCOptionWinCallback cb,
                                 gpointer data)
 {
@@ -1429,13 +1390,6 @@ gnc_options_dialog_set_close_cb(GNCOptionWin * win, GNCOptionWinCallback cb,
     win->close_cb_data = data;
 }
 
-void
-gnc_options_dialog_set_global_help_cb(GNCOptionWinCallback thunk,
-                                      gpointer cb_data)
-{
-    global_help_cb = thunk;
-    global_help_cb_data = cb_data;
-}
 
 /* This is for global program preferences. */
 void
@@ -1450,7 +1404,6 @@ gnc_options_dialog_destroy(GNCOptionWin * win)
     win->dialog = NULL;
     win->notebook = NULL;
     win->apply_cb = NULL;
-    win->help_cb = NULL;
 
     g_free(win);
 }

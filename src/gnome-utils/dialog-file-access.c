@@ -123,7 +123,6 @@ gnc_ui_file_access_response_cb(GtkDialog *dialog, gint response, GtkDialog *unus
     switch ( response )
     {
     case GTK_RESPONSE_HELP:
-        gnc_gnome_help( HF_HELP, HL_GLOBPREFS );
         break;
 
     case GTK_RESPONSE_OK:

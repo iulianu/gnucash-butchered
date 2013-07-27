@@ -55,7 +55,6 @@
 void gnc_vendor_taxtable_check_cb (GtkToggleButton *togglebutton, gpointer user_data);
 void gnc_vendor_window_ok_cb (GtkWidget *widget, gpointer data);
 void gnc_vendor_window_cancel_cb (GtkWidget *widget, gpointer data);
-void gnc_vendor_window_help_cb (GtkWidget *widget, gpointer data);
 void gnc_vendor_window_destroy_cb (GtkWidget *widget, gpointer data);
 void gnc_vendor_name_changed_cb (GtkWidget *widget, gpointer data);
 void gnc_vendor_terms_changed_cb (GtkWidget *widget, gpointer data);
@@ -256,12 +255,6 @@ gnc_vendor_window_cancel_cb (GtkWidget *widget, gpointer data)
     VendorWindow *vw = data;
 
     gnc_close_gui_component (vw->component_id);
-}
-
-void
-gnc_vendor_window_help_cb (GtkWidget *widget, gpointer data)
-{
-    gnc_gnome_help(HF_HELP, HL_USAGE);
 }
 
 void
