@@ -25,7 +25,6 @@
 
 #include "config.h"
 #include <glib.h>
-#include <libguile.h>
 
 #include "qof.h"
 #include "gnc-module.h"
@@ -119,21 +118,14 @@ test_printable (const char *name, gpointer obj)
     res = gncBusinessPrintable (name, obj);
     do_test (res != NULL, "business: Printable: mod_name, object");
 }
-
-static void
-main_helper (void *closure, int argc, char **argv)
-{
-    gnc_module_load("gnucash/engine", 0);
-    test_business();
-    print_test_results();
-    exit(get_rv());
-}
 #endif
 
 int
 main (int argc, char **argv)
 {
     g_setenv ("GNC_UNINSTALLED", "1", TRUE);
-    //  scm_boot_guile (argc, argv, main_helper, NULL);
-    return get_rv();
+    gnc_module_load("gnucash/engine", 0);
+//    test_business();
+//    print_test_results();
+    exit(get_rv());
 }

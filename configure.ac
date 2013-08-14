@@ -349,11 +349,6 @@ fi
 dnl check for nl_langinfo(D_FMT) which is missing on FreeBSD
 LANGINFO_D_FMT_CHECK
 
-dnl Enable locale-specific tax-related information in the accounts
-AC_ARG_ENABLE( locale-specific-tax,
-  [AS_HELP_STRING([--enable-locale-specific-tax],[enable localized tax categories (experimental, but used by the german SKR04 account chart)])],
-  AC_DEFINE(LOCALE_SPECIFIC_TAX,1,Enable the experimental locale-specific tax categories) )
-
 dnl Make sure we have a proper gettext installed
 AC_MSG_CHECKING(for a valid gettext/gmsgfmt installation)
 if test "$gt_cv_have_gettext" != "yes" || test "x$GMSGFMT" = "x"; then
@@ -827,9 +822,6 @@ AC_CONFIG_FILES(
   src/engine/test-core/Makefile
   src/gnc-module/Makefile
   src/gnc-module/test/Makefile
-  src/gnc-module/test/mod-foo/Makefile
-  src/gnc-module/test/mod-bar/Makefile
-  src/gnc-module/test/mod-baz/Makefile
   src/gnc-module/test/misc-mods/Makefile
   src/gnome/Makefile
   src/gnome/gnucash.desktop.in
@@ -861,9 +853,6 @@ AC_CONFIG_FILES(
   src/register/register-gnome/test/Makefile
   src/scm/Makefile
   src/scm/gnumeric/Makefile
-  src/tax/Makefile
-  src/tax/us/Makefile
-  src/tax/us/test/Makefile
   src/test-core/Makefile
   src/business/Makefile
   src/business/business-gnome/Makefile

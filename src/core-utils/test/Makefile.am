@@ -5,7 +5,6 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/test-core \
   -I${top_srcdir}/src/libqof/qof \
   -I${top_srcdir}/src/core-utils \
-  ${GUILE_INCS} \
   ${GLIB_CFLAGS}
 
 LDADD = \

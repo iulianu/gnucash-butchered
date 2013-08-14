@@ -19,11 +19,7 @@
  *                                                                  *
 \********************************************************************/
 
-#ifndef SWIG             /* swig doesn't see N_() as a string constant */
 #include <glib/gi18n.h>
-#else
-#define N_(string) string
-#endif
 
 /** @name Book parameter names
 

@@ -2,14 +2,12 @@ gncoverridesdir = ${GNC_LIBEXECDIR}/overrides
 # When you add a file here, please modify ../test/Makefile.am's overrides.stamp
 gncoverrides_SCRIPTS = \
   gnucash-env \
-  gnucash-make-guids \
-  guile
+  gnucash-make-guids 
 
 EXTRA_DIST = \
   gnucash-env.in \
   gnucash-build-env.in \
-  gnucash-make-guids \
-  guile.in 
+  gnucash-make-guids
 
 noinst_DATA = gnucash-build-env
 
@@ -20,19 +18,11 @@ PWD := $(shell pwd)
 ## from substituting the values directly into the left-hand sides of
 ## the sed substitutions.  *sigh*
 
-guile: guile.in ${top_builddir}/config.status Makefile
-	rm -f $@.tmp
-	sed < $< > $@.tmp \
-	    -e 's#@-GUILE-@#${GUILE}#'
-	mv $@.tmp $@
-	chmod u+x $@
-CLEANFILES = guile
+CLEANFILES = 
 
 gnucash-env: gnucash-env.in ${top_builddir}/config.status Makefile
 	rm -f $@.tmp
 	sed < $< > $@.tmp \
-	    -e 's#@-GNC_GUILE_MODULE_DIR-@#${GNC_SHAREDIR}/guile-modules#g' \
-	    -e 's#@-GNC_SCM_INSTALL_DIR-@#${GNC_SCM_INSTALL_DIR}#g' \
             -e 's#@-GNC_LIB_INSTALLDIR-@#${libdir}#' \
             -e 's#@-GNC_PKGLIB_INSTALLDIR-@#${pkglibdir}#g' \
             -e 's#@-GNC_SCRIPT_OVERRIDE_DIR-@#${gncoverridedir}#g' \

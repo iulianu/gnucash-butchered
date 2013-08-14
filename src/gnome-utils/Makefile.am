@@ -18,11 +18,9 @@ AM_CPPFLAGS = \
   ${GTK_CFLAGS} \
   ${GCONF_CFLAGS} \
   ${GNOME_KEYRING_CFLAGS} \
-  ${GUILE_INCS} \
   ${QOF_CFLAGS} \
   ${LIBGDA_CFLAGS} \
-  ${LIBXML2_CFLAGS} \
-  ${GTK_MAC_CFLAGS}
+  ${LIBXML2_CFLAGS} 
 
 libgncmod_gnome_utils_la_SOURCES = \
   account-quickfill.c \
@@ -199,20 +197,18 @@ libgncmod_gnome_utils_la_LIBADD = \
   ${GTK_LIBS} \
   ${GCONF_LIBS} \
   ${GNOME_KEYRING_LIBS} \
-  ${GUILE_LIBS} \
   ${GLIB_LIBS} \
   ${DB_LIBS} \
   ${REGEX_LIBS} \
-  ${LIBXML2_LIBS} \
-  ${GTK_MAC_LIBS}
+  ${LIBXML2_LIBS} 
 
 libgncmod_gnome_utils_la_LIBADD += -lX11
 
-gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
-gncmod_DATA = gnome-utils.scm 
+gncmoddir = 
+gncmod_DATA =  
 
-gncscmdir = ${GNC_SHAREDIR}/scm
-gncscm_DATA = gnc-menu-extensions.scm
+gncscmdir =  
+gncscm_DATA =  
 
 EXTRA_DIST = \
   gnome-utils.i \
@@ -243,7 +239,7 @@ clean-local:
 	rm -rf gnucash
 
 CLEANFILES = $(BUILT_SOURCES) .scm-links ${SCM_FILE_LINKS}
-MAINTAINERCLEANFILES = swig-gnome-utils.c
+MAINTAINERCLEANFILES = 
 
 # I hate inconsistent standards. Autotools puts help files into
 # ${datadir}/gnome/help/${program} while the gnome2 libraries expect

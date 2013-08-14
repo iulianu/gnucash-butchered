@@ -72,19 +72,11 @@ GType gnc_billterm_get_type(void);
  * ??? huh?
  * NOTE: This enum /depends/ on starting at value 1
  */
-#ifndef SWIG
 #define ENUM_TERMS_TYPE(_)  \
  _(GNC_TERM_TYPE_DAYS,=1) \
  _(GNC_TERM_TYPE_PROXIMO,)
 
 DEFINE_ENUM(GncBillTermType, ENUM_TERMS_TYPE)
-#else
-typedef enum
-{
-    GNC_TERM_TYPE_DAYS = 1,
-    GNC_TERM_TYPE_PROXIMO,
-} GncBillTermType;
-#endif
 
 /** @name Create/Destroy Functions
  @{ */

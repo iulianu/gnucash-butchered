@@ -9,8 +9,7 @@ AM_CPPFLAGS = \
 	-I${top_builddir}/src \
 	-I${top_srcdir}/src/gnc-module \
 	-I${top_srcdir}/src/libqof/qof \
-	${GLIB_CFLAGS} \
-	${GUILE_INCS}
+	${GLIB_CFLAGS}  
 
 libgncmod_engine_la_SOURCES = \
   Account.c \
@@ -128,20 +127,14 @@ libgncmod_engine_la_LIBADD = \
   ../gnc-module/libgnc-module.la \
   ../core-utils/libgnc-core-utils.la \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
-  ${GUILE_LIBS} \
   ${REGEX_LIBS} \
   ${GLIB_LIBS}
 
-gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
-gncmod_DATA = engine.scm \
-  business-core.scm
+gncmoddir =
+gncmod_DATA =
 
-gncscmdir = ${GNC_SHAREDIR}/scm
-gncscm_DATA = \
-  commodity-table.scm \
-  engine-interface.scm \
-  engine-utilities.scm \
-  gnc-numeric.scm
+gncscmdir =  
+gncscm_DATA =  
 
 EXTRA_DIST = \
   README.query-api \
@@ -192,7 +185,7 @@ BUILT_SOURCES = iso-4217-currencies.c
 
 CLEANFILES = $(BUILT_SOURCES) .scm-links \
 	${SCM_FILE_LINKS}
-MAINTAINERCLEANFILES = swig-engine.c
+MAINTAINERCLEANFILES = 
 
 clean-local:
 	rm -rf gnucash

@@ -20,9 +20,9 @@ libtest_core_la_CPPFLAGS = \
 libtest_core_la_LDFLAGS = \
   -rpath ${exec-prefix}/lib
 
-SCM_FILES = unittest-support.scm
+SCM_FILES = 
 
-gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
+gncmoddir = 
 gncmod_DATA = $(SCM_FILES)
 
 .scm-links:
@@ -45,6 +45,4 @@ CLEANFILES = .scm-links
 EXTRA_DIST = \
   $(SCM_FILES)
 
-MAINTAINERCLEANFILES = \
-	swig-unittest-support-guile.c \
-	swig-unittest-support-python.c
+MAINTAINERCLEANFILES = 

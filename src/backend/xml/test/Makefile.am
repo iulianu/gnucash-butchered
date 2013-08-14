@@ -183,8 +183,6 @@ TESTS = \
 GNC_TEST_DEPS = \
   --gnc-module-dir ${top_builddir}/src/gnc-module \
   --gnc-module-dir ${top_builddir}/src/engine \
-  --guile-load-dir ${top_builddir}/src/gnc-module \
-  --guile-load-dir ${top_builddir}/src/engine \
   --library-dir    ${top_builddir}/src/libqof/qof \
   --library-dir    ${top_builddir}/src/core-utils \
   --library-dir    ${top_builddir}/src/gnc-module \
@@ -193,7 +191,6 @@ GNC_TEST_DEPS = \
   --library-dir    ${top_builddir}/src/backend/xml
 
 TESTS_ENVIRONMENT = \
-  GUILE_WARN_DEPRECATED=no \
   GNC_ACCOUNT_PATH=${top_srcdir}/accounts/C \
   GNC_TEST_FILES=${srcdir}/test-files/xml2 \
   SRCDIR=${srcdir} \
@@ -246,7 +243,6 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/libqof/qof \
   ${LIBXML2_CFLAGS} \
   ${GLIB_CFLAGS} \
-  ${GUILE_INCS} \
   ${GCONF_CFLAGS}
 
 EXTRA_DIST = \

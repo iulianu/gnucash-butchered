@@ -17,10 +17,8 @@ libgnc_core_utils_la_SOURCES = \
   gnc-uri-utils.c
 
 libgnc_core_utils_la_LIBADD = \
-  ${GUILE_LIBS} \
   ${GLIB_LIBS} \
   ${BINRELOC_LIBS} \
-  ${GTK_MAC_LIBS} \
   ${GCONF_LIBS} \
   ${QOF_LIBS}
 
@@ -42,14 +40,13 @@ noinst_HEADERS = \
 AM_CPPFLAGS = \
   ${GLIB_CFLAGS} \
   ${GCONF_CFLAGS} \
-  ${GTK_MAC_CFLAGS} \
   ${QOF_CFLAGS} \
   -I${top_srcdir}/src/libqof/qof \
   -I${top_builddir}/src \
   -I${top_srcdir}/src
 
-gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
-gncmod_DATA = core-utils.scm
+gncmoddir = 
+gncmod_DATA = 
 
 if GNUCASH_SEPARATE_BUILDDIR
 #Only needed when srcdir and builddir are different
@@ -75,7 +72,7 @@ clean-local:
 	rm -rf gnucash
 
 CLEANFILES = $(BUILT_SOURCES) .scm-links
-MAINTAINERCLEANFILES = swig-core-utils-guile.c swig-core-utils-python.c
+MAINTAINERCLEANFILES = 
 
 AM_CPPFLAGS += -DG_LOG_DOMAIN=\"gnc.core-utils\"
 

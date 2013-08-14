@@ -11,7 +11,6 @@ TESTS = \
 
 GNC_TEST_DEPS = \
   --gnc-module-dir ${top_builddir}/src/engine \
-  --guile-load-dir ${top_builddir}/src/engine \
   --library-dir    ${top_builddir}/src/libqof/qof \
   --library-dir    ${top_builddir}/src/core-utils \
   --library-dir    ${top_builddir}/src/gnc-module \
@@ -47,7 +46,6 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/backend/sql \
   -I${top_srcdir}/src/libqof/qof \
   ${GLIB_CFLAGS} \
-  ${GUILE_INCS} \
   ${GCONF_CFLAGS}
 
 AM_CPPFLAGS += -DG_LOG_DOMAIN=\"gnc.backend.sql\"

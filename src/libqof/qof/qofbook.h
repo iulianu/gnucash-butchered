@@ -40,8 +40,6 @@
 #ifndef QOF_BOOK_H
 #define QOF_BOOK_H
 
-/* We only want a few things exported to Guile */
-#ifndef SWIG
 
 typedef struct _QofBookClass  QofBookClass;
 
@@ -243,8 +241,6 @@ gboolean qof_book_is_readonly(const QofBook *book);
 /** Mark the book as read only. */
 void qof_book_mark_readonly(QofBook *book);
 
-#endif /* SWIG */
-
 /** Returns flag indicating whether this book uses trading accounts */
 gboolean qof_book_use_trading_accounts (const QofBook *book);
 
@@ -282,9 +278,6 @@ gboolean qof_book_shutting_down (const QofBook *book);
  * an autosave timer.)
  */
 gboolean qof_book_session_not_saved (const QofBook *book);
-
-/* The following functions are not useful in scripting languages */
-#ifndef SWIG
 
 /** The qof_book_mark_saved() routine marks the book as having been
  *    saved (to a file, to a database). Used by backends to mark the
@@ -342,8 +335,6 @@ void qof_book_commit_edit(QofBook *book);
 
 /** deprecated */
 #define qof_book_get_guid(X) qof_entity_get_guid (QOF_INSTANCE(X))
-
-#endif /* SWIG */
 
 #endif /* QOF_BOOK_H */
 /** @} */

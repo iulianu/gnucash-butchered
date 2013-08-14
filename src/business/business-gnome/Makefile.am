@@ -21,8 +21,7 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/libqof/qof \
   ${GTK_CFLAGS} \
   ${GCONF_CFLAGS} \
-  ${GLIB_CFLAGS} \
-  ${GUILE_INCS}
+  ${GLIB_CFLAGS}
 
 libgncmod_business_gnome_la_SOURCES = \
   business-options-gnome.c \
@@ -80,25 +79,17 @@ libgncmod_business_gnome_la_LIBADD = \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
   ${GTK_LIBS} \
   ${GCONF_LIBS} \
-  ${GUILE_LIBS} \
   ${GLIB_LIBS} \
   ${EFENCE_LIBS}
 
 # For Business Reports
-gncscmmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash/report/
-gncscmmod_DATA =
 
-gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
-gncmod_DATA = business-gnome.scm
-
-EXTRA_DIST = \
-  ${gncmod_DATA} \
-  ${gncscmmod_DATA}
+EXTRA_DIST = 
 
 if GNUCASH_SEPARATE_BUILDDIR
 #Only needed when srcdir and builddir are different
 #for running
-SCM_FILE_LINKS = ${gncmod_DATA}
+SCM_FILE_LINKS = 
 endif
 
 .scm-links: 

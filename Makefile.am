@@ -1,5 +1,5 @@
 
-SUBDIRS = . doc src intl-scm packaging po accounts checks
+SUBDIRS = . doc src packaging po accounts checks
 
 GNC_CTAGS_FILE = @GNC_CTAGS_FILE@
 GNC_ETAGS_FILE = @GNC_ETAGS_FILE@
@@ -42,7 +42,6 @@ EXTRA_DIST = \
   macros/as-scrub-include.m4 \
   macros/binreloc.m4 \
   macros/compiler-flags.m4 \
-  macros/ac_pkg_swig.m4 \
   macros/legacy_macros.m4 \
   po/gnucash.pot \
   po/POTFILES.in \
@@ -164,7 +163,6 @@ libtool: $(LIBTOOL_DEPS)
 
 .PHONY: pot
 pot: Makefile po/POTFILES.in
-	rm -f intl-scm/guile-strings.c
 	rm -f po/$(PACKAGE).pot
 	${MAKE} -C po $(PACKAGE).pot
 

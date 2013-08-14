@@ -83,8 +83,6 @@ gncOwnerRegister(void);
 
 /** @} */
 
-#ifndef SWIG
-
 /** \struct GncOwner */
 struct _gncOwner
 {
@@ -99,8 +97,6 @@ struct _gncOwner
     } owner;                   /**< holds the pointer to the owner object. */
     gpointer         qof_temp; /**< Set type independently of the owner. */
 };
-
-#endif /* SWIG */
 
 /** \name Setup routines
 @{

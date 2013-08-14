@@ -23,7 +23,6 @@
 
 #include "config.h"
 #include <glib.h>
-#include <libguile.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -63,12 +62,14 @@ test_load_file(const char *filename)
     }
 }
 
-static void
-guile_main (void *closure, int argc, char **argv)
+int
+main (int argc, char ** argv)
 {
     const char *location = g_getenv("GNC_ACCOUNT_PATH");
     GSList *list = NULL;
     GDir *ea_dir;
+
+    g_setenv ("GNC_UNINSTALLED", "1", TRUE);
 
     if (!location)
     {
@@ -111,13 +112,5 @@ guile_main (void *closure, int argc, char **argv)
 
 
     print_test_results();
-    exit(get_rv());
-}
-
-int
-main (int argc, char ** argv)
-{
-    g_setenv ("GNC_UNINSTALLED", "1", TRUE);
-    scm_boot_guile (argc, argv, guile_main, NULL);
     exit(get_rv());
 }

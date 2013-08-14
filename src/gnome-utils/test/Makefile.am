@@ -1,5 +1,5 @@
 TESTS =  \
-  test-link-module test-load-module
+  test-link-module
 
 # The following tests are nice, but have absolutely no place in an
 # automated testing system.
@@ -11,12 +11,6 @@ TESTS_GUI = test-gnc-recurrence
 GNC_TEST_DEPS = --gnc-module-dir ${top_builddir}/src/engine \
   --gnc-module-dir ${top_builddir}/src/app-utils \
   --gnc-module-dir ${top_builddir}/src/gnome-utils \
-  --guile-load-dir ${top_builddir}/src/gnc-module \
-  --guile-load-dir ${top_builddir}/src/scm \
-  --guile-load-dir ${top_builddir}/src/engine \
-  --guile-load-dir ${top_builddir}/src/core-utils \
-  --guile-load-dir ${top_builddir}/src/app-utils \
-  --guile-load-dir ${top_builddir}/src/gnome-utils \
   --library-dir    ${top_builddir}/src/libqof/qof \
   --library-dir    ${top_builddir}/src/core-utils \
   --library-dir    ${top_builddir}/src/gnc-module \
@@ -27,7 +21,6 @@ GNC_TEST_DEPS = --gnc-module-dir ${top_builddir}/src/engine \
 
 
 TESTS_ENVIRONMENT = \
-  GUILE_WARN_DEPRECATED=no \
   SRCDIR=${srcdir} \
   GNC_BUILDDIR=`\cd ${top_builddir} && pwd` \
   $(shell ${top_srcdir}/src/gnc-test-env --no-exports ${GNC_TEST_DEPS})
@@ -45,8 +38,7 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/test-core \
   -I${top_srcdir}/src/libqof/qof \
   ${GLIB_CFLAGS} \
-  ${GTK_CFLAGS} \
-  ${GUILE_INCS}
+  ${GTK_CFLAGS}
 
 LDADD = \
   ${GNOME_LIBS} \
@@ -60,11 +52,9 @@ test_gnc_recurrence_SOURCES=test-gnc-recurrence.c
 
 test_link_module_SOURCES=test-link-module.c
 test_link_module_LDADD = \
-  ${GUILE_LIBS} \
   ${top_builddir}/src/gnc-module/libgnc-module.la
 
-EXTRA_DIST = \
-  test-load-module
+EXTRA_DIST = 
 
 testit:
 	libtool --mode execute gdb test-link-module

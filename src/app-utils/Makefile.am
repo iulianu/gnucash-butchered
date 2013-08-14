@@ -86,23 +86,10 @@ libgncmod_app_utils_la_LIBADD = \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
   ${GCONF_LIBS} \
   ${GTK_LIBS} \
-  ${GUILE_LIBS} \
   ${GLIB_LIBS}
 
-gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
-gncmod_DATA = app-utils.scm 
-
-gncscmdir = ${GNC_SHAREDIR}/scm
-gncscm_DATA = \
-  business-options.scm \
-  business-prefs.scm \
-  c-interface.scm \
-  config-var.scm \
-  date-utilities.scm \
-  hooks.scm \
-  options.scm \
-  prefs.scm \
-  simple-obj.scm
+gncmoddir = 
+gncmod_DATA =  
 
 noinst_DATA = .scm-links
 
@@ -113,16 +100,14 @@ noinst_HEADERS = \
   calculation/fin_static_proto.h
 
 EXTRA_DIST = \
-  ${gncmod_DATA} \
-  ${gncscm_DATA}
+  ${gncmod_DATA}
 
 EXTRA_DIST += gnc-help-utils.c
 
 if GNUCASH_SEPARATE_BUILDDIR
 #For executing test cases
 SCM_FILE_LINKS = \
-  ${gncmod_DATA} \
-  ${gncscm_DATA}
+  ${gncmod_DATA} 
 endif
 
 .scm-links: 
@@ -140,6 +125,6 @@ clean-local:
 	rm -rf gnucash
 
 CLEANFILES = ${SCM_FILE_LINKS}  .scm-links
-MAINTAINERCLEANFILES = swig-app-utils-guile.c swig-app-utils-python.c
+MAINTAINERCLEANFILES = 
 
 AM_CPPFLAGS += -DG_LOG_DOMAIN=\"gnc.app-utils\"

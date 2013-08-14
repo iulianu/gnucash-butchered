@@ -13,9 +13,7 @@ AM_CPPFLAGS = -I${top_builddir} ${GLIB_CFLAGS} ${GCONF_CFLAGS} ${GNOME_CFLAGS} $
   -I${top_srcdir}/src/gnome \
   -I${top_builddir}/src \
   -I${top_srcdir}/src/gnc-module \
-  -I${top_srcdir}/src/libqof/qof \
-  ${GUILE_INCS} \
-  ${GTK_MAC_CFLAGS}
+  -I${top_srcdir}/src/libqof/qof  
 
 SUFFIXES = .rc .res
 
@@ -36,7 +34,6 @@ gnucash_LDADD = \
   ${top_builddir}/src/gnc-module/libgnc-module.la \
   ${top_builddir}/src/core-utils/libgnc-core-utils.la \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
-  ${GUILE_LIBS} \
   ${GLIB_LIBS} \
   ${GCONF_LIBS} \
   ${GTK_LIBS}
@@ -70,8 +67,6 @@ gnucash-setup-env: ${top_builddir}/config.status Makefile
 	sed < $< > $@.tmp \
 	    -e 's#@-BIN_DIR-@#${bindir}#g' \
 	    -e 's#@-GNC_DBD_DIR-@#${GNC_DBD_DIR}#g' \
-	    -e 's#@-GNC_GUILE_MODULE_DIR-@#${GNC_SHAREDIR}/guile-modules#g' \
-	    -e 's#@-GNC_SCM_INSTALL_DIR-@#${GNC_SCM_INSTALL_DIR}#g' \
 	    -e 's#@-GNC_LIB_INSTALLDIR-@#${libdir}#' \
 	    -e 's#@-GNC_PKGLIB_INSTALLDIR-@#${pkglibdir}#g' \
 	    -e "s#@-TOP_SRC_DIR-@#`pwd`/${top_srcdir}#g" \

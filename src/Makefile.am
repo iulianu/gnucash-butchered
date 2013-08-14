@@ -9,9 +9,7 @@ NONGUI_SUBDIRS = \
   gnc-module \
   engine \
   backend \
-  scm \
-  quotes \
-  tax
+  quotes 
 
 # These directories should also not contain any gtk dependencies, but
 # currently there is only single very little dependency in
@@ -41,12 +39,12 @@ endif
 
 noinst_HEADERS =
 
-noinst_DATA = gnc-test-env
+noinst_DATA = 
+#gnc-test-env
 
-MAINTAINERCLEANFILES = swig-runtime.h
+MAINTAINERCLEANFILES = 
 
 EXTRA_DIST = \
-  base-typemaps.i \
   README.modules \
   gnc-test-env \
   platform.h

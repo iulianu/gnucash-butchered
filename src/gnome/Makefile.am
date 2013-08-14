@@ -15,7 +15,6 @@ libgnc_gnome_la_LIBADD = \
   ${top_builddir}/src/core-utils/libgnc-core-utils.la \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
   ${LIBXML2_LIBS} \
-  ${GUILE_LIBS} \
   ${GTK_LIBS} \
   ${GCONF_LIBS} \
   ${GLIB_LIBS} \
@@ -114,11 +113,9 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/lib/libc \
   -I${top_srcdir}/src/libqof/qof \
   ${LIBXML2_CFLAGS} \
-  ${GUILE_INCS} \
   ${GTK_CFLAGS} \
   ${GCONF_CFLAGS} \
-  $(GLIB_CFLAGS) \
-  ${GTK_MAC_CFLAGS}
+  $(GLIB_CFLAGS) 
 
 # We build this in an earlier directory.
 
@@ -126,6 +123,6 @@ AM_CPPFLAGS = \
 ##OMIT_DEPENDENCIES = gnc-dir.h
 
 CLEANFILES = gnucash.desktop
-MAINTAINERCLEANFILES = swig-gnome.c
+MAINTAINERCLEANFILES = 
 
 AM_CPPFLAGS += -DG_LOG_DOMAIN=\"gnc.gui\"

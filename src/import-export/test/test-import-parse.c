@@ -24,7 +24,6 @@
 
 #include "config.h"
 #include <glib.h>
-#include <libguile.h>
 
 #include "gnc-module.h"
 #include "import-parse.h"
@@ -173,20 +172,13 @@ test_import_parse(void)
     test_parse_date();
 }
 
-static void
-main_helper(void *closure, int argc, char **argv)
+int
+main(int argc, char **argv)
 {
+    g_setenv ("GNC_UNINSTALLED", "1", TRUE);
     gnc_module_system_init ();
     gnc_module_load("gnucash/import-export", 0);
     test_import_parse();
     print_test_results();
     exit(get_rv());
-}
-
-int
-main(int argc, char **argv)
-{
-    g_setenv ("GNC_UNINSTALLED", "1", TRUE);
-    scm_boot_guile(argc, argv, main_helper, NULL);
-    return 0;
 }

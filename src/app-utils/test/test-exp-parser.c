@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <libguile.h>
 #include "gnc-gconf-utils.h"
 #include "gnc-exp-parser.h"
 #include "gnc-numeric.h"
@@ -170,46 +169,6 @@ test_parser (void)
                    "- 42.72 + 13.32 + 15.48 + 23.4 + 115.4",
                    gnc_numeric_create(35897, 100) );
 
-    /* This must be defined for the function-parsing to work. */
-    scm_c_eval_string("(define (gnc:error->string tag args)   (define (write-error port)     (if (and (list? args) (not (null? args)))         (let ((func (car args)))           (if func               (begin                 (display \"Function: \" port)                 (display func port)                 (display \", \" port)                 (display tag port)                 (display \"\n\n\" port)))))     (false-if-exception      (apply display-error (fluid-ref the-last-stack) port args))     (display-backtrace (fluid-ref the-last-stack) port)     (force-output port))   (false-if-exception    (call-with-output-string write-error)))");
-
-    scm_c_eval_string( "(define (gnc:plus a b) (+ a b))" );
-    add_pass_test("plus(2 : 1)", NULL, gnc_numeric_create(3, 1));
-    add_fail_test("plus(1:2) plus(3:4)", NULL, 15);
-    add_pass_test( "plus( 1 : 2 ) + 3", NULL, gnc_numeric_create( 6, 1 ) );
-    add_pass_test( "plus( 1 : 2 ) * 3", NULL, gnc_numeric_create( 9, 1 ) );
-    add_pass_test( "plus( 1 + 2 : 3 ) * 5", NULL, gnc_numeric_create( 30, 1 ) );
-    add_pass_test( "plus( ( 1 + 2 ) * 3 : 4 ) + 5", NULL, gnc_numeric_create( 18, 1) );
-    add_pass_test( "5 + plus( ( 1 + 2 ) * 3 : 4 )", NULL, gnc_numeric_create( 18, 1) );
-    add_pass_test( "plus( plus( 1 : 2 ) : 3 )", NULL, gnc_numeric_create( 6, 1 ) );
-    add_pass_test( "plus( 4 : plus( plus( 1 : 2 ) : 3))", NULL, gnc_numeric_create( 10, 1 ) );
-
-    scm_c_eval_string( "(define (gnc:sub a b) (- a b))" );
-    add_pass_test( "sub( 1 : 2 ) + 4", NULL, gnc_numeric_create( 3, 1 ) );
-
-    add_pass_test( "sub( (1 + 2 * 3) : 4 ) + 5",
-                   NULL, gnc_numeric_create( 8, 1 ) );
-    add_pass_test( "sub( 1 : 2 ) + sub( 3 : 4 ) + 5",
-                   NULL, gnc_numeric_create( 3, 1 ) );
-    add_pass_test( "sub( a = 42 : sub( plus( 1 : 2 ) : 6 * 7 )) + a",
-                   NULL, gnc_numeric_create( 123, 1 ) );
-
-    scm_c_eval_string( "(define (gnc:test_str str b)"
-                       "  (+ b (cond ((equal? str \"one\") 1)"
-                       "             ((equal? str \"two\") 2)"
-                       "             ((equal? str \"three\") 3)"
-                       "             (0))))" );
-    add_pass_test( "test_str( \"one\" : 1 )",  NULL, gnc_numeric_create( 2, 1 ) );
-    add_pass_test( "test_str( \"two\" : 2 )",  NULL, gnc_numeric_create( 4, 1 ) );
-    add_fail_test( "test_str( 3 : \"three\" )", NULL, 23 );
-    add_pass_test( "test_str( \"asdf\" : 1 )", NULL, gnc_numeric_create( 1, 1 ) );
-    add_fail_test("\"asdf\" + 0", NULL, 8);
-
-    scm_c_eval_string( "(define (gnc:blindreturn val) val)" );
-    add_pass_test( "blindreturn( 123.1 )", NULL, gnc_numeric_create( 1231, 10 ) );
-    add_pass_test( "blindreturn( 123.01 )", NULL, gnc_numeric_create( 12301, 100 ) );
-    add_pass_test( "blindreturn( 123.001 )", NULL, gnc_numeric_create( 123001, 1000 ) );
-
     run_parser_tests ();
 
     gnc_exp_parser_shutdown ();
@@ -227,19 +186,11 @@ test_variable_expressions()
     success("variable found");
 }
 
-static void
-real_main (void *closure, int argc, char **argv)
+int main ( int argc, char **argv )
 {
     /* set_should_print_success (TRUE); */
     test_parser();
     test_variable_expressions();
     print_test_results();
     exit(get_rv());
-}
-
-int main ( int argc, char **argv )
-{
-    /* do things this way so we can test scheme function calls from expressions */
-    scm_boot_guile( argc, argv, real_main, NULL );
-    return 0;
 }

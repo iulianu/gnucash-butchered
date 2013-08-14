@@ -5,8 +5,7 @@ AM_CPPFLAGS = \
    -I${top_srcdir}/src \
    -I${top_srcdir}/src/core-utils \
   -I${top_srcdir}/src/libqof/qof \
-   ${GLIB_CFLAGS} \
-   ${GUILE_INCS}
+   ${GLIB_CFLAGS}
 
 lib_LTLIBRARIES = libgnc-module.la
 
@@ -15,11 +14,10 @@ libgnc_module_la_SOURCES = gnc-module.c
 libgnc_module_la_LIBADD = \
   ../core-utils/libgnc-core-utils.la \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \
-  ${GLIB_LIBS} \
-  ${GUILE_LIBS}
+  ${GLIB_LIBS}
 
-gncmoddir = ${GNC_SHAREDIR}/guile-modules/gnucash
-gncmod_DATA = gnc-module.scm
+gncmoddir = 
+gncmod_DATA = 
 
 gncincludedir = ${GNC_INCLUDE_DIR}
 gncinclude_HEADERS = \
@@ -28,9 +26,7 @@ gncinclude_HEADERS = \
 
 noinst_DATA = .scm-links
 
-EXTRA_DIST = \
-  ${gncmod_DATA} \
-  gnc-module.i
+EXTRA_DIST =  
 
 if GNUCASH_SEPARATE_BUILDDIR
 #For executing test cases
@@ -52,6 +48,6 @@ clean-local:
 	rm -rf gnucash
 
 CLEANFILES = .scm-links ${SCM_FILE_LINKS}
-MAINTAINERCLEANFILES = swig-gnc-module.c
+MAINTAINERCLEANFILES = 
 
 AM_CPPFLAGS += -DG_LOG_DOMAIN=\"gnc.module\"

@@ -285,13 +285,11 @@ gboolean gnc_date_string_to_monthformat(const gchar *format_string,
  * 9,223,372,036,854,775,807.
  */
 
-#ifndef SWIG   /* swig 1.1p5 can't hack the long long type */
 struct timespec64
 {
     time64 tv_sec;
     glong tv_nsec;
 };
-#endif /* SWIG */
 
 
 

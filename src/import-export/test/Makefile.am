@@ -6,7 +6,6 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/src/app-utils \
   -I${top_srcdir}/src/import-export \
   -I${top_srcdir}/src/libqof/qof \
-  ${GUILE_INCS} \
   ${GLIB_CFLAGS}
 
 LDADD = \
@@ -18,8 +17,8 @@ LDADD = \
   $(top_builddir)/src/app-utils/libgncmod-app-utils.la \
   ${top_builddir}/src/gnome-utils/libgncmod-gnome-utils.la \
   ${top_builddir}/src/engine/libgncmod-engine.la \
-  ${GLIB_LIBS} \
-  ${GUILE_LIBS}
+  ${GLIB_LIBS}
+
 
 TESTS = \
   test-link \
@@ -29,12 +28,6 @@ GNC_TEST_DEPS = --gnc-module-dir ${top_builddir}/src/engine \
   --gnc-module-dir ${top_builddir}/src/app-utils \
   --gnc-module-dir ${top_builddir}/src/gnome-utils \
   --gnc-module-dir ${top_builddir}/src/import-export \
-  --guile-load-dir ${top_builddir}/src/gnc-module \
-  --guile-load-dir ${top_builddir}/src/scm \
-  --guile-load-dir ${top_builddir}/src/engine \
-  --guile-load-dir ${top_builddir}/src/core-utils \
-  --guile-load-dir ${top_builddir}/src/app-utils \
-  --guile-load-dir ${top_builddir}/src/gnome-utils \
 \
   --library-dir    ${top_builddir}/src/libqof/qof \
   --library-dir    ${top_builddir}/src/core-utils \
@@ -46,7 +39,6 @@ GNC_TEST_DEPS = --gnc-module-dir ${top_builddir}/src/engine \
   --library-dir    ${top_builddir}/src/gnc-module
 
 TESTS_ENVIRONMENT = \
-  GUILE_WARN_DEPRECATED=no \
   GNC_BUILDDIR=`\cd ${top_builddir} && pwd` \
   $(shell ${top_srcdir}/src/gnc-test-env --no-exports ${GNC_TEST_DEPS})
 

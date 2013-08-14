@@ -14,7 +14,6 @@ AM_CPPFLAGS = \
   -I${top_srcdir}/lib/libc \
   ${QOF_CFLAGS} \
   ${GLIB_CFLAGS} \
-  ${GUILE_INCS} \
   ${GTK_CFLAGS} \
   ${GNOME_CFLAGS} \
   ${WEBKIT_CFLAGS}
@@ -49,7 +48,6 @@ libgncmod_html_la_LIBADD = \
   ${GLIB_LIBS} \
   ${DB_LIBS} \
   ${QOF_LIBS} \
-  ${GUILE_LIBS} \
   ${REGEX_LIBS}
 
 
@@ -57,7 +55,7 @@ EXTRA_DIST =
 
 
 CLEANFILES = $(BUILT_SOURCES) gnucash
-MAINTAINERCLEANFILES = swig-gnc-html.c
+MAINTAINERCLEANFILES = 
 
 # I hate inconsistent standards. Autotools puts help files into
 # ${datadir}/gnome/help/${program} while the gnome2 libraries expect

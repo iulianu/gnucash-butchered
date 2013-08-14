@@ -26,25 +26,3 @@
 
 #include "business-options.h"
 
-#define FUNC_NAME G_STRFUNC
-
-#define LOOKUP_OPTION(fcn) \
-  GNCOption *option; \
-  SCM getter; \
-  SCM value; \
-  \
-  option = gnc_option_db_get_option_by_name (odb, section, name); \
-  \
-  if (option == NULL) \
-    return default_value; \
-  \
-  getter = gnc_option_getter (option); \
-  if (getter == SCM_UNDEFINED) \
-    return default_value; \
-  \
-  value = scm_call_0 (getter); \
-  if (value == SCM_BOOL_F) \
-    return NULL; \
-  SWIG_GetModule(NULL); /* Work-around for SWIG bug. */       \
-  if (!SWIG_IsPointer(value))             \
-    scm_misc_error(fcn, "SCM is not a wrapped pointer.", value)
