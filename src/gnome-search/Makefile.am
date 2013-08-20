@@ -13,19 +13,19 @@ AM_CPPFLAGS = \
   ${GLIB_CFLAGS}
 
 libgncmod_gnome_search_la_SOURCES = \
-  gncmod-gnome-search.c \
-  gnc-general-search.c \
-  dialog-search.c \
-  search-account.c \
-  search-boolean.c \
-  search-core-type.c \
-  search-core-utils.c \
-  search-date.c \
-  search-double.c \
-  search-int64.c \
-  search-numeric.c \
-  search-reconciled.c \
-  search-string.c
+  gncmod-gnome-search.cpp \
+  gnc-general-search.cpp \
+  dialog-search.cpp \
+  search-account.cpp \
+  search-boolean.cpp \
+  search-core-type.cpp \
+  search-core-utils.cpp \
+  search-date.cpp \
+  search-double.cpp \
+  search-int64.cpp \
+  search-numeric.cpp \
+  search-reconciled.cpp \
+  search-string.cpp
 
 gncincludedir = ${GNC_INCLUDE_DIR}
 gncinclude_HEADERS = \

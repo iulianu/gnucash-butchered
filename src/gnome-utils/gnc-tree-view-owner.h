@@ -38,6 +38,7 @@
 #include "gncOwner.h"
 #include "gnc-tree-view.h"
 
+#include "gnc-gnome-utils.h"
 #include "gnc-ui-util.h"
 #include "gnc-plugin-page.h"
 
@@ -109,12 +110,14 @@ gboolean gnc_plugin_page_owner_tree_filter_owners (GncOwner *owner,
         gpointer user_data);
 
 /* "Filter By" dialog callbacks */
+GNC_SIGNALS_BEGIN
 void gppot_filter_show_inactive_toggled_cb (GtkToggleButton *togglebutton,
         OwnerFilterDialog *fd);
 void gppot_filter_show_zero_toggled_cb (GtkToggleButton *togglebutton,
                                         OwnerFilterDialog *fd);
 void gppot_filter_response_cb (GtkWidget *dialog, gint response,
                                OwnerFilterDialog *fd);
+GNC_SIGNALS_END
 
 /* Saving/Restoring */
 void gnc_tree_view_owner_save(GncTreeViewOwner *tree_view,

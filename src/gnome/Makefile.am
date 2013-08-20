@@ -21,39 +21,39 @@ libgnc_gnome_la_LIBADD = \
   ${QOF_LIBS}
 
 libgnc_gnome_la_SOURCES = \
-  assistant-acct-period.c \
-  assistant-hierarchy.c \
-  assistant-loan.c \
-  assistant-stock-split.c \
-  dialog-commodities.c \
-  dialog-fincalc.c \
-  dialog-find-transactions.c \
-  dialog-lot-viewer.c \
-  dialog-new-user.c \
-  dialog-price-editor.c \
-  dialog-price-edit-db.c \
-  dialog-progress.c \
-  dialog-sx-editor.c \
-  dialog-sx-from-trans.c \
-  dialog-sx-since-last-run.c \
-  dialog-tax-info.c \
-  gnc-budget-view.c \
-  gnc-plugin-account-tree.c \
-  gnc-plugin-basic-commands.c \
-  gnc-plugin-budget.c \
-  gnc-plugin-register.c \
-  gnc-plugin-register2.c \
-  gnc-plugin-page-account-tree.c \
-  gnc-plugin-page-budget.c \
-  gnc-plugin-page-sx-list.c \
-  gnc-plugin-page-register.c \
-  gnc-plugin-page-register2.c \
-  gnc-split-reg.c \
-  gnc-split-reg2.c \
-  reconcile-view.c \
-  top-level.c \
-  window-reconcile.c \
-  window-autoclear.c
+  assistant-acct-period.cpp \
+  assistant-hierarchy.cpp \
+  assistant-loan.cpp \
+  assistant-stock-split.cpp \
+  dialog-commodities.cpp \
+  dialog-fincalc.cpp \
+  dialog-find-transactions.cpp \
+  dialog-lot-viewer.cpp \
+  dialog-new-user.cpp \
+  dialog-price-editor.cpp \
+  dialog-price-edit-db.cpp \
+  dialog-progress.cpp \
+  dialog-sx-editor.cpp \
+  dialog-sx-from-trans.cpp \
+  dialog-sx-since-last-run.cpp \
+  dialog-tax-info.cpp \
+  gnc-budget-view.cpp \
+  gnc-plugin-account-tree.cpp \
+  gnc-plugin-basic-commands.cpp \
+  gnc-plugin-budget.cpp \
+  gnc-plugin-register.cpp \
+  gnc-plugin-register2.cpp \
+  gnc-plugin-page-account-tree.cpp \
+  gnc-plugin-page-budget.cpp \
+  gnc-plugin-page-sx-list.cpp \
+  gnc-plugin-page-register.cpp \
+  gnc-plugin-page-register2.cpp \
+  gnc-split-reg.cpp \
+  gnc-split-reg2.cpp \
+  reconcile-view.cpp \
+  top-level.cpp \
+  window-reconcile.cpp \
+  window-autoclear.cpp
 
 gnomeappdir = ${datadir}/applications
 

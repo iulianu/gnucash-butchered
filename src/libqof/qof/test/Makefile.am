@@ -9,15 +9,15 @@ include $(top_srcdir)/test-templates/Makefile.decl
 MODULEPATH = src/libqof/qof
 
 test_qof_SOURCES = \
-	test-gnc-date.c \
-	test-qof.c \
-	test-qofbook.c \
-	test-qofinstance.c \
-	test-kvp_frame.c \
-	test-qofobject.c \
-	test-qofsession.c \
-	test-qof-string-cache.c \
-	${top_srcdir}/src/test-core/unittest-support.c
+	test-gnc-date.cpp \
+	test-qof.cpp \
+	test-qofbook.cpp \
+	test-qofinstance.cpp \
+	test-kvp_frame.cpp \
+	test-qofobject.cpp \
+	test-qofsession.cpp \
+	test-qof-string-cache.cpp \
+	${top_srcdir}/src/test-core/unittest-support.cpp
 
 test_qof_HEADERS = \
 	$(top_srcdir)/${MODULEPATH}/qofbook.h \
@@ -38,7 +38,7 @@ test_qof_LDADD = \
 	${top_builddir}/${MODULEPATH}/libgnc-qof.la \
 	$(GLIB_LIBS)
 
-test_qof_CFLAGS = \
+test_qof_CPPFLAGS = \
 	${DEFAULT_INCLUDES} \
 	-I$(top_srcdir)/${MODULEPATH} \
 	-I$(top_srcdir)/src/test-core \

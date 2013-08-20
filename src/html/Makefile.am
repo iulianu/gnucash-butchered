@@ -19,11 +19,11 @@ AM_CPPFLAGS = \
   ${WEBKIT_CFLAGS}
 
 libgncmod_html_la_SOURCES = \
-  gncmod-html.c \
-  gnc-html.c \
-  gnc-html-history.c \
-  gnc-html-factory.c \
-  gnc-html-webkit.c 
+  gncmod-html.cpp \
+  gnc-html.cpp \
+  gnc-html-history.cpp \
+  gnc-html-factory.cpp \
+  gnc-html-webkit.cpp 
 
 gncincludedir = ${GNC_INCLUDE_DIR}
 gncinclude_HEADERS = \

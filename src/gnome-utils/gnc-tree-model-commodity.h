@@ -185,14 +185,14 @@ gnc_commodity *gnc_tree_model_commodity_get_commodity (GncTreeModelCommodity *mo
  *
  *  @param model A pointer to the commodity tree model.
  *
- *  @param namespace A pointer to the gnucash commodity namespace.
+ *  @param comm_namespace A pointer to the gnucash commodity namespace.
  *
  *  @param iter A pointer to a GtkTreeIter.  This iter will be filled
  *  in to point where the namespace appears in the commodity tree.
  *
  *  @return TRUE if the returned iter is valid, FALSE otherwise. */
 gboolean gnc_tree_model_commodity_get_iter_from_namespace (GncTreeModelCommodity *model,
-        gnc_commodity_namespace *namespace,
+        gnc_commodity_namespace *comm_namespace,
         GtkTreeIter *iter);
 
 /** Convert a commodity pointer into a GtkTreeIter.

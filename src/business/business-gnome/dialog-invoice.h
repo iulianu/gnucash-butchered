@@ -34,6 +34,7 @@ typedef struct _invoice_window InvoiceWindow;
 #include "gncOwner.h"
 #include "dialog-search.h"
 #include "dialog-query-view.h"
+#include "gnc-gnome-utils.h"
 
 typedef enum
 {
@@ -93,7 +94,9 @@ DialogQueryView *gnc_invoice_show_bills_due (QofBook *book, double days_in_advan
 GtkWidget *gnc_invoice_get_register(InvoiceWindow *iw);
 
 /* definitions for CB functions */
+GNC_SIGNALS_BEGIN
 void gnc_invoice_window_destroy_cb (GtkWidget *widget, gpointer data);
+GNC_SIGNALS_END
 
 void gnc_invoice_window_new_invoice_cb (GtkWidget *widget, gpointer data);
 void gnc_invoice_window_cut_cb (GtkWidget *widget, gpointer data);

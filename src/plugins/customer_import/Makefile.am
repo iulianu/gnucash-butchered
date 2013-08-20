@@ -3,10 +3,10 @@ SUBDIRS = ui gtkbuilder .
 pkglib_LTLIBRARIES = libgncmod-customer_import.la
 
 libgncmod_customer_import_la_SOURCES = \
-  gnc-plugin-customer_import.c \
-  libgncmod-customer_import.c \
-  dialog-customer-import-gui.c \
-  dialog-customer-import.c
+  gnc-plugin-customer_import.cpp \
+  libgncmod-customer_import.cpp \
+  dialog-customer-import-gui.cpp \
+  dialog-customer-import.cpp
 
 noinst_HEADERS = \
   gnc-plugin-customer_import.h \

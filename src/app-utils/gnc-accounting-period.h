@@ -32,9 +32,9 @@
     period and converting it to a value usable by the gnucash engine.
     The choice of src/app-utils is arbitrary as these utilities don't
     fit well anywhere else.  They are at a higher level than a GDate,
-    so they don't fit in src/core-utils/gnc-gdate-utils.c.  They don't
+    so they don't fit in src/core-utils/gnc-gdate-utils.cpp.  They don't
     operate on engine data structures, so they don't belong in
-    src/engine/Period.c.  Putting them into src/engine/gnc-date.c
+    src/engine/Period.cpp.  Putting them into src/engine/gnc-date.cpp
     would be the best place for them, but then that creates a new
     dependancy from the src/engine directory to the src/core-utils
     directory that doesn't currently exist.  Since that might be a

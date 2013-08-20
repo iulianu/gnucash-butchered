@@ -15,27 +15,27 @@ AM_CPPFLAGS = \
   $(GLIB_CFLAGS)
 
 libgnc_qof_la_SOURCES =  \
-   gnc-date.c        \
-   gnc-numeric.c     \
-   guid.c            \
-   kvp-util.c        \
-   kvp_frame.c       \
-   md5.c             \
-   qofbackend.c      \
-   qofbook.c         \
-   qofchoice.c       \
-   qofclass.c        \
-   qofevent.c        \
-   qofid.c           \
-   qofinstance.c     \
-   qoflog.c          \
-   qofobject.c       \
-   qofquery.c        \
-   qofquerycore.c    \
-   qofreference.c    \
-   qofsession.c      \
-   qof-string-cache.c  \
-   qofutil.c
+   gnc-date.cpp        \
+   gnc-numeric.cpp     \
+   guid.cpp            \
+   kvp-util.cpp        \
+   kvp_frame.cpp       \
+   md5.cpp             \
+   qofbackend.cpp      \
+   qofbook.cpp         \
+   qofchoice.cpp       \
+   qofclass.cpp        \
+   qofevent.cpp        \
+   qofid.cpp           \
+   qofinstance.cpp     \
+   qoflog.cpp          \
+   qofobject.cpp       \
+   qofquery.cpp        \
+   qofquerycore.cpp    \
+   qofreference.cpp    \
+   qofsession.cpp      \
+   qof-string-cache.cpp  \
+   qofutil.cpp
 
 qofincludedir = ${pkgincludedir}
 
@@ -87,7 +87,7 @@ EXTRA_DIST += \
 ## For testing the qofmath128 routines
 # run "make check" (to build the test program) and then run test-qofmath
 check_PROGRAMS = test-qofmath
-test_qofmath_SOURCES=gnc-numeric.c
+test_qofmath_SOURCES=gnc-numeric.cpp
 test_qofmath_CPPFLAGS=$(AM_CPPFLAGS) -DTEST_128_BIT_MULT
 test_qofmath_LDFLAGS=$(libgnc_qof_la_LDFLAGS)
 test_qofmath_LDADD=$(libgnc_qof_la_LIBADD)

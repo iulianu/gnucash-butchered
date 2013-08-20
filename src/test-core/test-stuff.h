@@ -37,6 +37,7 @@ Otherwise, only failures are printed out.
 #include <glib.h>
 #include <stdlib.h>
 
+
 /**
  * Use this to indicate the result of a test.
  * The result is TRUE for success, FALSE for failure.
@@ -127,6 +128,5 @@ gchar* get_random_string_without(const char *exclude_chars);
 gint64 get_random_gint64(void);
 double get_random_double(void);
 const char* get_random_string_in_array(const char* str_list[]);
-
 
 #endif /* TEST_STUFF_H */

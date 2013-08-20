@@ -65,7 +65,7 @@ Remove query terms of a particular type from q.  The "type" of a term
 is determined by the type of data that gets passed to the predicate
 function.  The currently-supported values of 'type' are PD_DATE,
 PD_AMOUNT, PD_ACCOUNT, PD_STRING, PD_CLEARED, PD_MISC.  This function
-is really only used in one place: in window-register.c, to modify
+is really only used in one place: in window-register.cpp, to modify
 in-place a query to remove any date tests prior to adding new ones.
 This should probably be removed from the API in favor of an extra
 argument to xaccQueryMerge specifying what to do with existing terms

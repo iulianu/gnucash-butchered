@@ -34,26 +34,26 @@ AM_CPPFLAGS = \
   ${GTK_CFLAGS}
 
 libgncmod_app_utils_la_SOURCES = \
-  calculation/expression_parser.c \
-  calculation/fin.c \
-  business-options.c \
-  QuickFill.c \
-  file-utils.c \
-  gfec.c \
-  gnc-account-merge.c \
-  gnc-accounting-period.c \
-  gnc-addr-quickfill.c \
-  gnc-component-manager.c \
-  gnc-entry-quickfill.c \
-  gnc-euro.c \
-  gnc-exp-parser.c \
-  gnc-gettext-util.c \
-  gnc-helpers.c \
-  gnc-sx-instance-model.c \
-  gncmod-app-utils.c \
-  gnc-ui-balances.c \
-  gnc-ui-util.c \
-  option-util.c
+  calculation/expression_parser.cpp \
+  calculation/fin.cpp \
+  business-options.cpp \
+  QuickFill.cpp \
+  file-utils.cpp \
+  gfec.cpp \
+  gnc-account-merge.cpp \
+  gnc-accounting-period.cpp \
+  gnc-addr-quickfill.cpp \
+  gnc-component-manager.cpp \
+  gnc-entry-quickfill.cpp \
+  gnc-euro.cpp \
+  gnc-exp-parser.cpp \
+  gnc-gettext-util.cpp \
+  gnc-helpers.cpp \
+  gnc-sx-instance-model.cpp \
+  gncmod-app-utils.cpp \
+  gnc-ui-balances.cpp \
+  gnc-ui-util.cpp \
+  option-util.cpp
 
 gncincludedir = ${GNC_INCLUDE_DIR}
 gncinclude_HEADERS = \

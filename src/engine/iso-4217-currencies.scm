@@ -1,7 +1,7 @@
 ;; currency descriptions for ISO4217 currencies.
 ;;
 ;; This file is not currently used at runtime.  It's used to generate
-;; the contents of iso-4217-currencies.c.
+;; the contents of iso-4217-currencies.cpp.
 ;;
 ;; You can find Currency Information from the following sites:
 ;;   http://www.evertype.com/standards/iso4217/iso4217-en.html

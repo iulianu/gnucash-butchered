@@ -5,10 +5,10 @@ TESTS = \
   test-sx
 
 test_exp_parser_SOURCES = \
-  test-exp-parser.c
+  test-exp-parser.cpp
 
 test_print_parse_amount_SOURCES = \
-  test-print-parse-amount.c
+  test-print-parse-amount.cpp
 
 GNC_TEST_DEPS = --gnc-module-dir ${top_builddir}/src/engine \
   --gnc-module-dir ${top_builddir}/src/app-utils \

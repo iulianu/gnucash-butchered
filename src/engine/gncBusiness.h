@@ -53,13 +53,9 @@
  * cashobjects_register() of <engine/cashobjects.h>. */
 
 #ifndef DI
-# ifdef _MSC_VER
-/* MSVC compiler doesn't have C99 "designated initializers"
- * so we wrap them in a macro that is empty on MSVC. */
+/* A C++ compiler doesn't have C99 "designated initializers"
+ * so we wrap them in a macro that is empty. */
 #  define DI(x) /* */
-# else
-#  define DI(x) x
-# endif
 #endif
 
 /** Returns a GList of all objects of the given type_name in the given

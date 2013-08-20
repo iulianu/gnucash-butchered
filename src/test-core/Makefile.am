@@ -1,8 +1,8 @@
 noinst_LTLIBRARIES = libtest-core.la
 
 libtest_core_la_SOURCES = \
-	test-stuff.c \
-	unittest-support.c
+	test-stuff.cpp \
+	unittest-support.cpp
 
 libtest_core_la_LIBADD = \
   ${top_builddir}/src/libqof/qof/libgnc-qof.la \

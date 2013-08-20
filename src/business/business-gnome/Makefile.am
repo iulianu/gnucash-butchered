@@ -24,24 +24,24 @@ AM_CPPFLAGS = \
   ${GLIB_CFLAGS}
 
 libgncmod_business_gnome_la_SOURCES = \
-  business-options-gnome.c \
-  business-urls.c \
-  business-gnome-utils.c \
-  dialog-billterms.c \
-  dialog-choose-owner.c \
-  dialog-customer.c \
-  dialog-date-close.c \
-  dialog-employee.c \
-  dialog-invoice.c \
-  dialog-job.c \
-  dialog-order.c \
-  dialog-payment.c \
-  dialog-vendor.c \
-  gnc-plugin-business.c \
-  gnc-plugin-page-invoice.c \
-  gnc-plugin-page-owner-tree.c \
-  gncmod-business-gnome.c \
-  search-owner.c
+  business-options-gnome.cpp \
+  business-urls.cpp \
+  business-gnome-utils.cpp \
+  dialog-billterms.cpp \
+  dialog-choose-owner.cpp \
+  dialog-customer.cpp \
+  dialog-date-close.cpp \
+  dialog-employee.cpp \
+  dialog-invoice.cpp \
+  dialog-job.cpp \
+  dialog-order.cpp \
+  dialog-payment.cpp \
+  dialog-vendor.cpp \
+  gnc-plugin-business.cpp \
+  gnc-plugin-page-invoice.cpp \
+  gnc-plugin-page-owner-tree.cpp \
+  gncmod-business-gnome.cpp \
+  search-owner.cpp
 
 noinst_HEADERS = \
   business-options-gnome.h \

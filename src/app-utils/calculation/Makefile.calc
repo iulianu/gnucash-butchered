@@ -36,14 +36,14 @@ fini:	$(OBJSI)
 
 fin.o:	fin.c $(HDRS)
 
-expression_parser.o:	expression_parser.c $(HDRS)
+expression_parser.o:	expression_parser.cpp $(HDRS)
 
-fin-interactive.o:	fin-interactive.c $(HDRS)
+fin-interactive.o:	fin-interactive.cpp $(HDRS)
 
-fin-main.o:	fin-main.c $(HDRS)
+fin-main.o:	fin-main.cpp $(HDRS)
 
-numeric_ops.o:	numeric_ops.c $(HDRS)
+numeric_ops.o:	numeric_ops.cpp $(HDRS)
 
-amort_prt.o:	amort_prt.c $(HDRS)
+amort_prt.o:	amort_prt.cpp $(HDRS)
 
-amort_opt.o:	amort_opt.c $(HDRS)
+amort_opt.o:	amort_opt.cpp $(HDRS)

@@ -142,7 +142,7 @@ src/doc/design/version.texi
 src/doc/html/
 src/engine/gncla-dir.h
 src/engine/gnucash
-src/engine/iso-4217-currencies.c
+src/engine/iso-4217-currencies.cpp
 src/engine/test/test-account-object
 src/engine/test/test-book-merge
 src/engine/test/test-commodities

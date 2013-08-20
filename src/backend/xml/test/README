@@ -3,16 +3,16 @@ These are tests of the file backend.
 TESTS:
 ------
 
-test-dom-converters1.c: test each simple dom converter
-test-dom-parser1.c: unused now
-test-kvp-frames.c: test the kvp frame dom generators and parsers
-test-load-xml2.c: test the larger xml loading
-test-save-in-lang.c: incomplete test to test saving in different LANGs
-test-string-converters.c: test some string converters
-test-xml-account.c: test xml v2 converters and parsers for Account's
-test-xml-commodity.c: ditto gnc_commodity's
-test-xml-transaction.c: ditto Transaction's
-test-xml2-is-file.c: test the is_file function
+test-dom-converters1.cpp: test each simple dom converter
+test-dom-parser1.cpp: unused now
+test-kvp-frames.cpp: test the kvp frame dom generators and parsers
+test-load-xml2.cpp: test the larger xml loading
+test-save-in-lang.cpp: incomplete test to test saving in different LANGs
+test-string-converters.cpp: test some string converters
+test-xml-account.cpp: test xml v2 converters and parsers for Account's
+test-xml-commodity.cpp: ditto gnc_commodity's
+test-xml-transaction.cpp: ditto Transaction's
+test-xml2-is-file.cpp: test the is_file function
 test-real-data.sh: run the test-xml-{account,commodity,transaction} programs
                    on real data rather than random data
 

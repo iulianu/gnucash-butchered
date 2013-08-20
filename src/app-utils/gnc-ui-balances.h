@@ -1,5 +1,5 @@
 /********************************************************************\
- * gnc-ui-balances.c -- utility functions for calculating           *
+ * gnc-ui-balances.h -- utility functions for calculating           *
  *                      account and owner balances used in the      *
  *                      the GnuCash UI                              *
  * Copyright (C) 2000 Dave Peticolas <dave@krondo.com>              *
@@ -73,7 +73,7 @@ gnc_numeric gnc_ui_account_get_reconciled_balance(const Account *account,
  * the resulting number to a character string.  The number is
  * formatted according to the specification of the account currency.
  *
- * @param fn        The underlying function in Account.c to call to retrieve
+ * @param fn        The underlying function in Account.cpp to call to retrieve
  *                  a specific balance from the account.
  * @param account   The account to retrieve data about.
  * @param recurse   Include all sub-accounts of this account.
@@ -93,7 +93,7 @@ gnc_ui_account_get_print_balance (xaccGetBalanceInCurrencyFn fn,
  * formatted according to the specification of the default reporting
  * currency.
  *
- * @param fn        The underlying function in Account.c to call to retrieve
+ * @param fn        The underlying function in Account.cpp to call to retrieve
  *                  a specific balance from the account.
  * @param account   The account to retrieve data about.
  * @param recurse   Include all sub-accounts of this account.

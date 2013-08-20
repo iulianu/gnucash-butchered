@@ -12,47 +12,46 @@ AM_CPPFLAGS = \
 	${GLIB_CFLAGS}  
 
 libgncmod_engine_la_SOURCES = \
-  Account.c \
-  Recurrence.c \
-  Query.c \
-  SchedXaction.c \
-  SX-book.c \
-  SX-ttinfo.c \
-  Scrub.c \
-  Scrub2.c \
-  Scrub3.c \
-  Split.c \
-  TransLog.c \
-  Transaction.c \
-  cap-gains.c \
-  cashobjects.c \
-  gnc-budget.c \
-  gnc-commodity.c \
-  gnc-engine.c \
-  gnc-event.c \
-  gnc-hooks.c \
-  gnc-lot.c \
-  gnc-pricedb.c \
-  gnc-session.c \
-  gncmod-engine.c \
-  engine-helpers.c \
-  glib-helpers.c  \
-  policy.c \
-  gncBusiness.c \
-  gncAddress.c \
-  gncBillTerm.c \
-  gncCustomer.c \
-  gncEmployee.c \
-  gncEntry.c \
-  gncInvoice.c \
-  gncJob.c \
-  gncOrder.c \
-  gncOwner.c \
-  gncTaxTable.c \
-  gncIDSearch.c \
-  gncVendor.c
+  Account.cpp \
+  Recurrence.cpp \
+  Query.cpp \
+  SchedXaction.cpp \
+  SX-book.cpp \
+  SX-ttinfo.cpp \
+  Scrub.cpp \
+  Scrub2.cpp \
+  Scrub3.cpp \
+  Split.cpp \
+  TransLog.cpp \
+  Transaction.cpp \
+  cap-gains.cpp \
+  cashobjects.cpp \
+  gnc-budget.cpp \
+  gnc-commodity.cpp \
+  gnc-engine.cpp \
+  gnc-event.cpp \
+  gnc-hooks.cpp \
+  gnc-lot.cpp \
+  gnc-pricedb.cpp \
+  gnc-session.cpp \
+  gncmod-engine.cpp \
+  engine-helpers.cpp \
+  policy.cpp \
+  gncBusiness.cpp \
+  gncAddress.cpp \
+  gncBillTerm.cpp \
+  gncCustomer.cpp \
+  gncEmployee.cpp \
+  gncEntry.cpp \
+  gncInvoice.cpp \
+  gncJob.cpp \
+  gncOrder.cpp \
+  gncOwner.cpp \
+  gncTaxTable.cpp \
+  gncIDSearch.cpp \
+  gncVendor.cpp
 
-EXTRA_libgncmod_engine_la_SOURCES = iso-4217-currencies.c
+EXTRA_libgncmod_engine_la_SOURCES = iso-4217-currencies.cpp
 
 gncincludedir = ${GNC_INCLUDE_DIR}
 gncinclude_HEADERS = \
@@ -73,7 +72,6 @@ gncinclude_HEADERS = \
   cap-gains.h \
   cashobjects.h \
   engine-helpers.h \
-  glib-helpers.h \
   gnc-budget.h \
   gnc-commodity.h \
   gnc-engine.h \
@@ -177,11 +175,11 @@ QOFHEADERS = \
   $(top_srcdir)/src/libqof/qof/qofbook.h \
   $(top_srcdir)/src/libqof/qof/qofbookslots.h
 
-iso-4217-currencies.c: iso-4217-currencies.scm iso-currencies-to-c
+iso-4217-currencies.cpp: iso-4217-currencies.scm iso-currencies-to-c
 	-chmod u+x ${srcdir}/iso-currencies-to-c
 	${srcdir}/iso-currencies-to-c "${srcdir}"
 
-BUILT_SOURCES = iso-4217-currencies.c
+BUILT_SOURCES = iso-4217-currencies.cpp
 
 CLEANFILES = $(BUILT_SOURCES) .scm-links \
 	${SCM_FILE_LINKS}

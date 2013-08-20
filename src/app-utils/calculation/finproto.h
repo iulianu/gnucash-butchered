@@ -27,7 +27,7 @@
 #include "finvar.h"
 
 /*==================================================*/
-/* fin.c */
+/* fin.cpp */
 
 unsigned fi_calc_num_payments (fi_ptr fi);
 
@@ -101,7 +101,7 @@ void Amortization_free (amort_sched_ptr amortsched);
 
 
 /*==================================================*/
-/* expression_parser.c */
+/* expression_parser.cpp */
 
 void exit_parser (parser_env_ptr pe);
 
@@ -116,12 +116,12 @@ char *parse_string (var_store_ptr value,
 
 
 /*==================================================*/
-/* amort_opt.c */
+/* amort_opt.cpp */
 amort_sched_ptr amort_opt (amort_sched_ptr amortsched, void *parse_env);
 
 
 /*==================================================*/
-/* amort_prt.c */
+/* amort_prt.cpp */
 void prt_amortization_schedule (amort_sched_ptr amortsched, FILE * ofile);
 
 #endif

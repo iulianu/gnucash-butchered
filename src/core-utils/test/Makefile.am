@@ -20,6 +20,9 @@ TESTS = \
   test-gnc-uri-utils \
   test-resolve-file-path
 
+test_gnc_uri_utils_SOURCES = test-gnc-uri-utils.cpp
+test_resolve_file_path_SOURCES = test-resolve-file-path.cpp
+
 GNC_TEST_DEPS = \
   --library-dir    ${top_builddir}/src/libqof/qof \
   --library-dir    ${top_builddir}/src/core-utils

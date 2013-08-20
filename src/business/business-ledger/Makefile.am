@@ -3,12 +3,12 @@ SUBDIRS = .
 lib_LTLIBRARIES = libgnc-business-ledger.la
 
 libgnc_business_ledger_la_SOURCES = \
-  gncEntryLedger.c \
-  gncEntryLedgerControl.c \
-  gncEntryLedgerDisplay.c \
-  gncEntryLedgerLayout.c \
-  gncEntryLedgerLoad.c \
-  gncEntryLedgerModel.c
+  gncEntryLedger.cpp \
+  gncEntryLedgerControl.cpp \
+  gncEntryLedgerDisplay.cpp \
+  gncEntryLedgerLayout.cpp \
+  gncEntryLedgerLoad.cpp \
+  gncEntryLedgerModel.cpp
 
 noinst_HEADERS = \
   gncEntryLedger.h \

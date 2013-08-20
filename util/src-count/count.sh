@@ -20,14 +20,14 @@ wc $(find app-utils core-utils calculation gnc-module tax \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort )
 wc $(find app-utils core-utils calculation gnc-module tax \
             \( -regex '.*test[^/]*' -prune \) -o \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort ) | wc
 
 echo
@@ -38,14 +38,14 @@ wc $(find import-export \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort )
 wc $(find import-export \
             \( -regex '.*test[^/]*' -prune \) -o \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort ) | wc
 
 echo
@@ -56,14 +56,14 @@ wc $(find report \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort )
 wc $(find report \
             \( -regex '.*test[^/]*' -prune \) -o \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort ) | wc
 
 echo
@@ -74,14 +74,14 @@ wc $(find scm \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort )
 wc $(find scm \
             \( -regex '.*test[^/]*' -prune \) -o \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort ) |wc
 
 echo
@@ -92,14 +92,14 @@ wc $(find business \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort )
 wc $(find business \
             \( -regex '.*test[^/]*' -prune \) -o \
             \( -path '*.svn' -prune \)        -o \
             \( \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort ) | wc
 
 echo
@@ -109,13 +109,13 @@ wc $(find . \( -path '*.svn' -prune \)        -o \
             \( -regex '.*/test.*/.*'      -a \
                \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort )
 wc $(find . \( -path '*.svn' -prune \)        -o \
             \( -regex '.*/test.*/.*'      -a \
                \( -name '*.c'         -o \
                   -name '*.h'         -o \
-                  -name '*.scm' \)        -a \
+                  -name '*.cpp' \)        -a \
                -print \) | sort ) | wc
 
 echo

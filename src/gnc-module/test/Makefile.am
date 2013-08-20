@@ -17,6 +17,10 @@ TESTS = \
   test-incompatdep \
   test-dynload 
 
+test_modsysver_SOURCES = test-modsysver.cpp
+test_incompatdep_SOURCES = test-incompatdep.cpp
+test_dynload_SOURCES = test-dynload.cpp
+
 GNC_TEST_DEPS = \
   --gnc-module-dir ${top_builddir}/src/gnc-module \
   --gnc-module-dir ${top_builddir}/src/gnc-module/test/misc-mods \

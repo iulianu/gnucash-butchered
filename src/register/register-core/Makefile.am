@@ -14,22 +14,22 @@ libgncmod_register_core_la_LIBADD = \
   ${GLIB_LIBS}
 
 libgncmod_register_core_la_SOURCES = \
-  gncmod-register-core.c \
-  basiccell.c \
-  cell-factory.c \
-  cellblock.c \
-  formulacell.c \
-  gtable.c \
-  numcell.c \
-  pricecell.c \
-  quickfillcell.c \
-  recncell.c \
-  checkboxcell.c \
-  register-common.c \
-  table-allgui.c \
-  table-control.c \
-  table-layout.c \
-  table-model.c
+  gncmod-register-core.cpp \
+  basiccell.cpp \
+  cell-factory.cpp \
+  cellblock.cpp \
+  formulacell.cpp \
+  gtable.cpp \
+  numcell.cpp \
+  pricecell.cpp \
+  quickfillcell.cpp \
+  recncell.cpp \
+  checkboxcell.cpp \
+  register-common.cpp \
+  table-allgui.cpp \
+  table-control.cpp \
+  table-layout.cpp \
+  table-model.cpp
 
 
 gncincludedir = ${GNC_INCLUDE_DIR}

@@ -206,4 +206,5 @@ void gnc_log_shutdown (void);
 void gnc_log_set_handler (guint logdomain, gchar *logdomain, GLogFunc * func, gpointer data);
 */
 
+
 #endif /*UNITTEST_SUPPORT_H*/

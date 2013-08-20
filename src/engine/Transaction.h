@@ -301,7 +301,7 @@ void	      xaccTransSetTxnType (Transaction *trans, char type);
 char	      xaccTransGetTxnType (const Transaction *trans);
 
 /** Sets the transaction Number (or ID) field; rather than use this function
- *  directly, see 'gnc_set_num_action' in engine/engine-helpers.c & .h which
+ *  directly, see 'gnc_set_num_action' in engine/engine-helpers.cpp & .h which
  *  takes a user-set book option for selecting the source for the num-cell (the
  *  transaction-number or the split-action field) in registers/reports into
  *  account automatically  */
@@ -317,7 +317,7 @@ void          xaccTransSetNotes (Transaction *trans, const char *notes);
 
 /** Gets the transaction Number (or ID) field; rather than use this function
  *  directly, see 'gnc_get_num_action' and 'gnc_get_action_num' in
- *  engine/engine-helpers.c & .h which takes a user-set book option for
+ *  engine/engine-helpers.cpp & .h which takes a user-set book option for
  *  selecting the source for the num-cell (the transaction-number or the
  *  split-action field) in registers/reports into account automatically  */
 const char *  xaccTransGetNum (const Transaction *trans);

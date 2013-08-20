@@ -561,7 +561,7 @@ void  gnc_commodity_set_quote_flag(gnc_commodity *cm, const gboolean flag);
 /** Set the automatic price quote source for the specified commodity.
  *  This should be a pointer to a null terminated string of the form
  *  "Yahoo (Asia)", etc.  Legal values can be found in the
- *  quote_sources array in the file gnc-ui-util.c.
+ *  quote_sources array in the file gnc-ui-util.cpp.
  *
  *  @param cm A pointer to a commodity data structure.
  *
@@ -572,7 +572,7 @@ void  gnc_commodity_set_quote_source(gnc_commodity *cm, gnc_quote_source *src);
 /** Set the automatic price quote timezone for the specified
  *  commodity.  This should be a pointer to a null terminated string
  *  of the form "America/New_York", etc.  Legal values can be found in
- *  the known_timezones array in the file src/gnome-utils/dialog-commodity.c.
+ *  the known_timezones array in the file src/gnome-utils/dialog-commodity.cpp.
  *
  *  @param cm A pointer to a commodity data structure.
  *

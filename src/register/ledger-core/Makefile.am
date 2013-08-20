@@ -3,16 +3,16 @@ SUBDIRS = . test
 pkglib_LTLIBRARIES = libgncmod-ledger-core.la
 
 libgncmod_ledger_core_la_SOURCES = \
-  gnc-ledger-display.c \
-  gnc-ledger-display2.c \
-  gncmod-ledger-core.c \
-  split-register.c \
-  split-register-control.c \
-  split-register-layout.c \
-  split-register-load.c \
-  split-register-model.c \
-  split-register-model-save.c \
-  split-register-util.c
+  gnc-ledger-display.cpp \
+  gnc-ledger-display2.cpp \
+  gncmod-ledger-core.cpp \
+  split-register.cpp \
+  split-register-control.cpp \
+  split-register-layout.cpp \
+  split-register-load.cpp \
+  split-register-model.cpp \
+  split-register-model-save.cpp \
+  split-register-util.cpp
 
 noinst_HEADERS = \
   gnc-ledger-display.h \

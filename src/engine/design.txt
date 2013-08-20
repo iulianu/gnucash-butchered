@@ -365,7 +365,7 @@ coordinate as needed.)
 
 \section enginelogs Journal Logs
 
-The following has been implemented; see TransLog.c for details.
+The following has been implemented; see TransLog.cpp for details.
 
 Transaction logs.  The idea was that every time a transaction 
 was called that would cause a data update, the information that 

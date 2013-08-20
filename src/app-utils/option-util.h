@@ -47,12 +47,12 @@ typedef void (*GNCOptionChangeCallback) (gpointer user_data);
 void gnc_option_set_changed (GNCOption *option, gboolean changed);
 
 /** Returns an opaque pointer to the widget of this option. The actual
- * GUI implementation in dialog-options.c will store a GtkWidget* in
+ * GUI implementation in dialog-options.cpp will store a GtkWidget* in
  * here. */
 gpointer gnc_option_get_widget (GNCOption *option);
 
 /** Store an opaque pointer to the widget of this option. The actual
- * GUI implementation in dialog-options.c will store a GtkWidget* in
+ * GUI implementation in dialog-options.cpp will store a GtkWidget* in
  * here. */
 void gnc_option_set_widget (GNCOption *option, gpointer widget);
 

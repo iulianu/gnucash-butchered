@@ -3,11 +3,11 @@ SUBDIRS = ui gtkbuilder .
 pkglib_LTLIBRARIES = libgncmod-bi_import.la
 
 libgncmod_bi_import_la_SOURCES = \
-  gnc-plugin-bi-import.c \
-  gncmod-bi-import.c \
-  dialog-bi-import-gui.c \
-  dialog-bi-import-helper.c \
-  dialog-bi-import.c
+  gnc-plugin-bi-import.cpp \
+  gncmod-bi-import.cpp \
+  dialog-bi-import-gui.cpp \
+  dialog-bi-import-helper.cpp \
+  dialog-bi-import.cpp
 
 noinst_HEADERS = \
   gnc-plugin-bi-import.h \

@@ -213,14 +213,14 @@ GNCPrice *gnc_tree_model_price_get_price (GncTreeModelPrice *model,
  *
  *  @param model A pointer to the price tree model.
  *
- *  @param namespace A pointer to the gnucash commodity namespace.
+ *  @param comm_namespace A pointer to the gnucash commodity namespace.
  *
  *  @param iter A pointer to a GtkTreeIter.  This iter will be filled
  *  in to point where the namespace appears in the price tree.
  *
  *  @return TRUE if the returned iter is valid, FALSE otherwise. */
 gboolean gnc_tree_model_price_get_iter_from_namespace (GncTreeModelPrice *model,
-        gnc_commodity_namespace *namespace,
+        gnc_commodity_namespace *comm_namespace,
         GtkTreeIter *iter);
 
 /** Convert a commodity pointer into a GtkTreeIter.

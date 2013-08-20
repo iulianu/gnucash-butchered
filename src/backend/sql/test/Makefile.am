@@ -56,8 +56,8 @@ test_sqlbedir = ${top_srcdir}/${MODULEPATH}/test
 noinst_PROGRAMS = $(TESTS) $(TEST_PROGS)
 
 test_sqlbe_SOURCES = \
-	test-sqlbe.c \
-	utest-gnc-backend-sql.c
+	test-sqlbe.cpp \
+	utest-gnc-backend-sql.cpp
 
 test_sqlbe_HEADERS = \
 	$(top_srcdir)/$(MODULEPATH)/gnc-backend-sql.h

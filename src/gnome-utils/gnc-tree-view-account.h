@@ -39,6 +39,7 @@
 
 #include "gnc-ui-util.h"
 #include "gnc-plugin-page.h"
+#include "gnc-gnome-utils.h"
 
 G_BEGIN_DECLS
 
@@ -93,6 +94,7 @@ gboolean gnc_plugin_page_account_tree_filter_accounts (Account *account,
         gpointer user_data);
 
 /* "Filter By" dialog callbacks */
+GNC_SIGNALS_BEGIN
 void gppat_filter_show_hidden_toggled_cb (GtkToggleButton *togglebutton,
         AccountFilterDialog *fd);
 void gppat_filter_show_zero_toggled_cb (GtkToggleButton *togglebutton,
@@ -103,6 +105,7 @@ void gppat_filter_select_default_cb (GtkWidget *button,
                                      AccountFilterDialog *fd);
 void gppat_filter_response_cb (GtkWidget *dialog, gint response,
                                AccountFilterDialog *fd);
+GNC_SIGNALS_END
 
 /* Saving/Restoring */
 void gnc_tree_view_account_save(GncTreeViewAccount *tree_view,

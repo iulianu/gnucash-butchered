@@ -86,6 +86,10 @@ GncMainWindow *gnc_gui_init (void);
 int gnc_ui_start_event_loop (void);
 gboolean gnucash_ui_is_running (void);
 
+/* GtkBuilder signals need extern "C" linkage */
+#define GNC_SIGNALS_BEGIN extern "C" {
+#define GNC_SIGNALS_END   }
+
 #endif
 /** @} */
 /** @} */

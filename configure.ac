@@ -54,6 +54,9 @@ done
 
 ##  Do this first, because the other tests depend on it:
 
+# The engine is C++
+LT_INIT  ##??
+LT_LANG([C++])
 # Check for gcc and intltool (somehow breaks the suggested content
 # order, doesn't it? Whatever.)
 AC_PROG_CC

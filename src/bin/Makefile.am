@@ -25,7 +25,7 @@ config_DATA = environment
 
 BIN_NAME = gnucash
 bin_PROGRAMS = ${BIN_NAME}
-gnucash_SOURCES = gnucash-bin.c ${GNUCASH_RESOURCE_FILE}
+gnucash_SOURCES = gnucash-bin.cpp ${GNUCASH_RESOURCE_FILE}
 gnucash_LDADD = \
   ${top_builddir}/src/gnome/libgnc-gnome.la \
   ${top_builddir}/src/gnome-utils/libgncmod-gnome-utils.la \

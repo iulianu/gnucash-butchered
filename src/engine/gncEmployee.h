@@ -133,7 +133,7 @@ static inline GncEmployee * gncEmployeeLookup (const QofBook *book, const GncGUI
 #define gncEmployeeRetGUID(E) (E ? *(qof_entity_get_guid(QOF_INSTANCE(E))) : *(guid_null()))
 #define gncEmployeeLookupDirect(G,B) gncEmployeeLookup((B),&(G))
 
-/** Test support function, used by test-dbi-business-stuff.c */
+/** Test support function, used by test-dbi-business-stuff.cpp */
 gboolean gncEmployeeEqual(const GncEmployee* e1, const GncEmployee* e2);
 gboolean gncEmployeeIsDirty (const GncEmployee *employee);
 

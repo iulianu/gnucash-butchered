@@ -277,7 +277,7 @@ QofBook *gncInvoiceGetBook(GncInvoice *x);
 #define gncInvoiceRetGUID(x) (x ? *(qof_instance_get_guid(QOF_INSTANCE(x))) : *(guid_null()))
 #define gncInvoiceLookupDirect(G,B) gncInvoiceLookup((B),&(G))
 
-/** Test support function used by test-dbi-business-stuff.c */
+/** Test support function used by test-dbi-business-stuff.cpp */
 gboolean gncInvoiceEqual(const GncInvoice *a, const GncInvoice *b);
 
 #endif /* GNC_INVOICE_H_ */

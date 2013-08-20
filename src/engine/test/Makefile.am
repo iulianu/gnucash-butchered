@@ -101,10 +101,10 @@ TEST_PROGS += test-engine
 noinst_PROGRAMS = ${TEST_PROGS} ${CHECK_PROGS}
 
 test_engine_SOURCES = \
-	test-engine.c \
-	utest-Account.c \
-    utest-Budget.c \
-	utest-Invoice.c
+	test-engine.cpp \
+	utest-Account.cpp \
+    utest-Budget.cpp \
+	utest-Invoice.cpp
 
 test_engine_LDADD = \
 	libutest-Split.la \
@@ -120,8 +120,8 @@ noinst_LTLIBRARIES = \
 	libutest-Split.la
 
 libutest_Split_la_SOURCES = \
-	utest-Split.c \
-	${top_srcdir}/src/libqof/qof/gnc-numeric.c
+	utest-Split.cpp \
+	${top_srcdir}/src/libqof/qof/gnc-numeric.cpp
 
 libutest_Split_la_LIBADD = $(LDADD)
 

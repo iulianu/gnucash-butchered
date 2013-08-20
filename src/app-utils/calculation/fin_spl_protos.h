@@ -23,7 +23,7 @@
 #define FIN_SPL_PROTOS_H
 
 /*==================================================*/
-/* expression_parser.c */
+/* expression_parser.cpp */
 /* Line Number:  344 */
 parser_env_ptr init_parser(
     var_store_ptr  predefined_vars,

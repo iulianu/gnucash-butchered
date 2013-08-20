@@ -48,9 +48,9 @@ LDADD = \
   ${top_builddir}/src/engine/test-core/libgncmod-test-engine.la \
   ${top_builddir}/src/test-core/libtest-core.la
 
-test_gnc_recurrence_SOURCES=test-gnc-recurrence.c
+test_gnc_recurrence_SOURCES=test-gnc-recurrence.cpp
 
-test_link_module_SOURCES=test-link-module.c
+test_link_module_SOURCES=test-link-module.cpp
 test_link_module_LDADD = \
   ${top_builddir}/src/gnc-module/libgnc-module.la
 

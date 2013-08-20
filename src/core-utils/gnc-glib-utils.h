@@ -1,5 +1,5 @@
 /********************************************************************\
- * gnc-glib-utils.c -- utility functions based on glib functions    *
+ * gnc-glib-utils.h -- utility functions based on glib functions    *
  * Copyright (C) 2006 David Hampton <hampton@employees.org>         *
  *                                                                  *
  * This program is free software; you can redistribute it and/or    *

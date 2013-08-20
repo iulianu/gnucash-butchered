@@ -47,7 +47,7 @@
  *
  *  This implements the gui-independent parts of the table
  *  infrastructure. Additional, GUI-dependent parts are implemented
- *  in table-gnome.c.
+ *  in table-gnome.cpp.
  *
  *  The following concepts apply to the rows in a table:
  *  - a cursor is always the same size as the virt row its on,

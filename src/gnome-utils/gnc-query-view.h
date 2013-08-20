@@ -28,10 +28,6 @@
 
 #include "Query.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif				/* __cplusplus */
-
 #define GNC_TYPE_QUERY_VIEW            (gnc_query_view_get_type ())
 #define GNC_QUERY_VIEW(obj)            G_TYPE_CHECK_INSTANCE_CAST ((obj), GNC_TYPE_QUERY_VIEW, GNCQueryView)
 #define GNC_QUERY_VIEW_CLASS(klass)    G_TYPE_CHECK_CLASS_CAST ((klass), GNC_TYPE_QUERY_VIEW, GNCQueryViewClass)
@@ -117,9 +113,5 @@ extern "C" {
     gboolean gnc_query_view_item_in_view (GNCQueryView *qview, gpointer item);
 
     void gnc_query_sort_order (GNCQueryView *qview, gint column, GtkSortType order);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
 
 #endif /* GNC_QUERY_VIEW_H */

@@ -4,17 +4,17 @@ SUBDIRS = . schemas \
 pkglib_LTLIBRARIES=libgncmod-generic-import.la
 
 libgncmod_generic_import_la_SOURCES = \
-	import-account-matcher.c \
-	import-commodity-matcher.c \
-	import-backend.c \
-	import-format-dialog.c \
-	import-match-picker.c \
-	import-parse.c \
-	import-utilities.c \
-	import-settings.c \
-	import-match-map.c \
-	import-main-matcher.c \
-	gncmod-generic-import.c
+	import-account-matcher.cpp \
+	import-commodity-matcher.cpp \
+	import-backend.cpp \
+	import-format-dialog.cpp \
+	import-match-picker.cpp \
+	import-parse.cpp \
+	import-utilities.cpp \
+	import-settings.cpp \
+	import-match-map.cpp \
+	import-main-matcher.cpp \
+	gncmod-generic-import.cpp
 
 gncincludedir = ${GNC_INCLUDE_DIR}
 gncinclude_HEADERS = \

@@ -24,6 +24,9 @@ TESTS = \
   test-link \
   test-import-parse
 
+test_link_SOURCES = test-link.cpp
+test_import_parse_SOURCES = test-import-parse.cpp
+
 GNC_TEST_DEPS = --gnc-module-dir ${top_builddir}/src/engine \
   --gnc-module-dir ${top_builddir}/src/app-utils \
   --gnc-module-dir ${top_builddir}/src/gnome-utils \

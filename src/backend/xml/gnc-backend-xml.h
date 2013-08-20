@@ -80,12 +80,14 @@ typedef struct FileBackend_struct FileBackend;
 void gnc_module_init_backend_xml(void);
 
 #ifndef GNC_NO_LOADABLE_MODULES
+extern "C" {
 /** This is the standarized initialization function of a qof_backend
  * GModule, but compiling this can be disabled by defining
  * GNC_NO_LOADABLE_MODULES. This one simply calls
  * gnc_module_init_backend_file(). */
 G_MODULE_EXPORT
 void qof_backend_module_init(void);
+}
 #endif
 
 #endif /* GNC_BACKEND_XML_H_ */

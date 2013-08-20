@@ -17,23 +17,23 @@ libgncmod_register_gnome_la_LIBADD = \
   ${GNOMECANVAS_LIBS}
 
 libgncmod_register_gnome_la_SOURCES = \
-  gncmod-register-gnome.c \
-  combocell-gnome.c \
-  datecell-gnome.c \
-  formulacell-gnome.c \
-  gnucash-color.c \
-  gnucash-cursor.c \
-  gnucash-date-picker.c \
-  gnucash-grid.c \
-  gnucash-header.c \
-  gnucash-item-edit.c \
-  gnucash-item-list.c \
-  gnucash-scrolled-window.c \
-  gnucash-sheet.c \
-  gnucash-style.c \
-  pricecell-gnome.c \
-  quickfillcell-gnome.c \
-  table-gnome.c 
+  gncmod-register-gnome.cpp \
+  combocell-gnome.cpp \
+  datecell-gnome.cpp \
+  formulacell-gnome.cpp \
+  gnucash-color.cpp \
+  gnucash-cursor.cpp \
+  gnucash-date-picker.cpp \
+  gnucash-grid.cpp \
+  gnucash-header.cpp \
+  gnucash-item-edit.cpp \
+  gnucash-item-list.cpp \
+  gnucash-scrolled-window.cpp \
+  gnucash-sheet.cpp \
+  gnucash-style.cpp \
+  pricecell-gnome.cpp \
+  quickfillcell-gnome.cpp \
+  table-gnome.cpp 
 
 noinst_HEADERS = \
   formulacell-gnome.h \

@@ -3,18 +3,18 @@ SUBDIRS = . test
 lib_LTLIBRARIES = libgnc-core-utils.la
 
 libgnc_core_utils_la_SOURCES = \
-  binreloc.c \
-  gnc-features.c \
-  gnc-filepath-utils.c \
-  gnc-gconf-utils.c \
-  gnc-gdate-utils.c \
-  gnc-gkeyfile-utils.c \
-  gnc-glib-utils.c \
-  gnc-jalali.c \
-  gnc-locale-utils.c \
-  gnc-main.c \
-  gnc-path.c \
-  gnc-uri-utils.c
+  binreloc.cpp \
+  gnc-features.cpp \
+  gnc-filepath-utils.cpp \
+  gnc-gconf-utils.cpp \
+  gnc-gdate-utils.cpp \
+  gnc-gkeyfile-utils.cpp \
+  gnc-glib-utils.cpp \
+  gnc-jalali.cpp \
+  gnc-locale-utils.cpp \
+  gnc-main.cpp \
+  gnc-path.cpp \
+  gnc-uri-utils.cpp
 
 libgnc_core_utils_la_LIBADD = \
   ${GLIB_LIBS} \

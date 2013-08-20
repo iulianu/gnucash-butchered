@@ -31,8 +31,6 @@
 
 #include <glib-object.h>
 
-G_BEGIN_DECLS
-
 #define GNC_TYPE_HTML         (gnc_html_get_type())
 #define GNC_HTML(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_HTML, GncHtml))
 #define GNC_HTML_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_HTML, GncHtmlClass))

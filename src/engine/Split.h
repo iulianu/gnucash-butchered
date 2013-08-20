@@ -59,7 +59,7 @@ GType gnc_split_get_type(void);
 /** @name Split Reconciled field values
 
     If you change these
-    be sure to change gnc-ui-util.c:gnc_get_reconciled_str() and
+    be sure to change gnc-ui-util.cpp:gnc_get_reconciled_str() and
     associated functions
 
 @{
@@ -174,14 +174,14 @@ const char *  xaccSplitGetMemo (const Split *split);
  * Withdraw, Deposit, ATM, Check, etc. The idea is that this field
  * can be used to create custom reports or graphs of data. Rather than use
  * this function directly, see 'gnc_set_num_action' in
- * engine/engine-helpers.c & .h which takes a user-set book option for selecting
+ * engine/engine-helpers.cpp & .h which takes a user-set book option for selecting
  * the source for the num-cell (the transaction-number or the split-action field)
  * in registers/reports into account automatically */
 void          xaccSplitSetAction (Split *split, const char *action);
 
 /** Returns the action string. Rather than use this function directly, see
  * 'gnc_get_num_action' and 'gnc_get_action_num'in
- * engine/engine-helpers.c & .h which takes a user-set book option for selecting
+ * engine/engine-helpers.cpp & .h which takes a user-set book option for selecting
  * the source for the num-cell (the transaction-number or the split-action field)
  * in registers/reports into account automatically */
 const char *  xaccSplitGetAction (const Split *split);

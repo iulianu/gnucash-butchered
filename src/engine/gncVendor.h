@@ -131,7 +131,7 @@ static inline GncVendor * gncVendorLookup (const QofBook *book, const GncGUID *g
 #define gncVendorGetGUID(X) qof_instance_get_guid (QOF_INSTANCE(X))
 #define gncVendorRetGUID(X) (X ? *(qof_instance_get_guid (QOF_INSTANCE(X))) : *(guid_null()))
 #define gncVendorLookupDirect(G,B) gncVendorLookup((B),&(G))
-/** Test support function, used by test-dbi-business-stuff.c */
+/** Test support function, used by test-dbi-business-stuff.cpp */
 gboolean gncVendorEqual(const GncVendor *a, const GncVendor *b);
 gboolean gncVendorIsDirty (const GncVendor *vendor);
 #endif /* GNC_VENDOR_H_ */

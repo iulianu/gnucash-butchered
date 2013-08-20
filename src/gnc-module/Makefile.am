@@ -9,7 +9,7 @@ AM_CPPFLAGS = \
 
 lib_LTLIBRARIES = libgnc-module.la
 
-libgnc_module_la_SOURCES = gnc-module.c
+libgnc_module_la_SOURCES = gnc-module.cpp
 
 libgnc_module_la_LIBADD = \
   ../core-utils/libgnc-core-utils.la \

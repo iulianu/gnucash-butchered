@@ -18,7 +18,7 @@
 #
 #	shell script for creating function prototype files
 #
-qtgrep -DHhf cfuncs.exp fin.c expression_parser.c numeric_ops.c amort_opt.c amort_prt.c >protos.out
+qtgrep -DHhf cfuncs.exp fin.cpp expression_parser.cpp numeric_ops.cpp amort_opt.cpp amort_prt.cpp >protos.out
 echo Creating Global Prototype File: \"finproto.h\"
 qtawk -f        protos.exp protos.out >finproto.h
 echo Creating Static Prototype File: \"fin_static_proto.h\"

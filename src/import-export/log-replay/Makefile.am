@@ -3,9 +3,9 @@ SUBDIRS = .
 pkglib_LTLIBRARIES=libgncmod-log-replay.la
 
 libgncmod_log_replay_la_SOURCES = \
-  gnc-log-replay.c \
-  gnc-plugin-log-replay.c \
-  gncmod-log-replay.c
+  gnc-log-replay.cpp \
+  gnc-plugin-log-replay.cpp \
+  gncmod-log-replay.cpp
 
 noinst_HEADERS = \
   gnc-log-replay.h \

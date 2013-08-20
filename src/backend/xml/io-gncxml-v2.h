@@ -114,8 +114,8 @@ typedef struct
 /**
  * Struct used to pass the account group/accounts and trasnactions in
  * the <gnc:template-transactions> section between the parser in
- * gnc-schedxactions-xml-v2.c and the add-to-book callback in
- * io-gncxml-v2.c.
+ * gnc-schedxactions-xml-v2.cpp and the add-to-book callback in
+ * io-gncxml-v2.cpp.
  **/
 typedef struct
 {
@@ -147,7 +147,7 @@ QofBookFileType gnc_is_xml_data_file_v2(const gchar *name, gboolean *with_encodi
 /** Write a name-space declaration for the provided namespace data type
  * within the GNC XML namespace at http://www.gnucash.org/XML.
  */
-gboolean gnc_xml2_write_namespace_decl (FILE *out, const char *namespace);
+gboolean gnc_xml2_write_namespace_decl (FILE *out, const char *xml_namespace);
 
 
 typedef struct
