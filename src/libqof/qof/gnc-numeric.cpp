@@ -78,7 +78,7 @@ gnc_numeric_check(gnc_numeric in)
  *  Find the least common multiple of the denominators of a and b.
  */
 
-static inline gint64
+static inline int64_t
 gnc_numeric_lcd(gnc_numeric a, gnc_numeric b)
 {
     qofint128 lcm;
@@ -107,11 +107,11 @@ gnc_numeric_lcd(gnc_numeric a, gnc_numeric b)
 
 /* Return the ratio n/d reduced so that there are no common factors. */
 static inline gnc_numeric
-reduce128(qofint128 n, gint64 d)
+reduce128(qofint128 n, int64_t d)
 {
-    gint64   t;
-    gint64   num;
-    gint64   denom;
+    int64_t   t;
+    int64_t   num;
+    int64_t   denom;
     gnc_numeric out;
     qofint128 red;
 
@@ -143,22 +143,22 @@ reduce128(qofint128 n, gint64 d)
  *  gnc_numeric_zero_p
  ********************************************************************/
 
-gboolean
+bool
 gnc_numeric_zero_p(gnc_numeric a)
 {
     if (gnc_numeric_check(a))
     {
-        return 0;
+        return false;
     }
     else
     {
         if ((a.num == 0) && (a.denom != 0))
         {
-            return 1;
+            return true;
         }
         else
         {
-            return 0;
+            return false;
         }
     }
 }
@@ -167,22 +167,22 @@ gnc_numeric_zero_p(gnc_numeric a)
  *  gnc_numeric_negative_p
  ********************************************************************/
 
-gboolean
+bool
 gnc_numeric_negative_p(gnc_numeric a)
 {
     if (gnc_numeric_check(a))
     {
-        return 0;
+        return false;
     }
     else
     {
         if ((a.num < 0) && (a.denom != 0))
         {
-            return 1;
+            return true;
         }
         else
         {
-            return 0;
+            return false;
         }
     }
 }
@@ -191,22 +191,22 @@ gnc_numeric_negative_p(gnc_numeric a)
  *  gnc_numeric_positive_p
  ********************************************************************/
 
-gboolean
+bool
 gnc_numeric_positive_p(gnc_numeric a)
 {
     if (gnc_numeric_check(a))
     {
-        return 0;
+        return false;
     }
     else
     {
         if ((a.num > 0) && (a.denom != 0))
         {
-            return 1;
+            return true;
         }
         else
         {
-            return 0;
+            return false;
         }
     }
 }
@@ -219,7 +219,7 @@ gnc_numeric_positive_p(gnc_numeric a)
 int
 gnc_numeric_compare(gnc_numeric a, gnc_numeric b)
 {
-    gint64 aa, bb;
+    int64_t aa, bb;
     qofint128 l, r;
 
     if (gnc_numeric_check(a) || gnc_numeric_check(b))
@@ -263,7 +263,7 @@ gnc_numeric_compare(gnc_numeric a, gnc_numeric b)
  *  gnc_numeric_eq
  ********************************************************************/
 
-gboolean
+bool
 gnc_numeric_eq(gnc_numeric a, gnc_numeric b)
 {
     return ((a.num == b.num) && (a.denom == b.denom));
@@ -274,7 +274,7 @@ gnc_numeric_eq(gnc_numeric a, gnc_numeric b)
  *  gnc_numeric_equal
  ********************************************************************/
 
-gboolean
+bool
 gnc_numeric_equal(gnc_numeric a, gnc_numeric b)
 {
     qofint128 l, r;
@@ -331,8 +331,8 @@ gnc_numeric_equal(gnc_numeric a, gnc_numeric b)
  ********************************************************************/
 
 int
-gnc_numeric_same(gnc_numeric a, gnc_numeric b, gint64 denom,
-                 gint how)
+gnc_numeric_same(gnc_numeric a, gnc_numeric b, int64_t denom,
+                 int how)
 {
     gnc_numeric aconv, bconv;
 
@@ -350,7 +350,7 @@ gnc_numeric_same(gnc_numeric a, gnc_numeric b, gint64 denom,
 
 gnc_numeric
 gnc_numeric_add(gnc_numeric a, gnc_numeric b,
-                gint64 denom, gint how)
+                int64_t denom, int how)
 {
     gnc_numeric sum;
 
@@ -445,7 +445,7 @@ gnc_numeric_add(gnc_numeric a, gnc_numeric b,
 
 gnc_numeric
 gnc_numeric_sub(gnc_numeric a, gnc_numeric b,
-                gint64 denom, gint how)
+                int64_t denom, int how)
 {
     gnc_numeric nb;
     if (gnc_numeric_check(a) || gnc_numeric_check(b))
@@ -464,7 +464,7 @@ gnc_numeric_sub(gnc_numeric a, gnc_numeric b,
 
 gnc_numeric
 gnc_numeric_mul(gnc_numeric a, gnc_numeric b,
-                gint64 denom, gint how)
+                int64_t denom, int how)
 {
     gnc_numeric product, result;
     qofint128 bignume, bigdeno;
@@ -592,7 +592,7 @@ gnc_numeric_mul(gnc_numeric a, gnc_numeric b,
 
 gnc_numeric
 gnc_numeric_div(gnc_numeric a, gnc_numeric b,
-                gint64 denom, gint how)
+                int64_t denom, int how)
 {
     gnc_numeric quotient;
     qofint128 nume, deno;
@@ -639,7 +639,7 @@ gnc_numeric_div(gnc_numeric a, gnc_numeric b,
     }
     else
     {
-        gint64 sgn = 1;
+        int64_t sgn = 1;
         if (0 > a.num)
         {
             sgn = -sgn;
@@ -659,8 +659,8 @@ gnc_numeric_div(gnc_numeric a, gnc_numeric b,
             gnc_numeric ra = gnc_numeric_reduce (a);
             gnc_numeric rb = gnc_numeric_reduce (b);
 
-            gint64 gcf_nume = gcf64(ra.num, rb.num);
-            gint64 gcf_deno = gcf64(rb.denom, ra.denom);
+            int64_t gcf_nume = gcf64(ra.num, rb.num);
+            int64_t gcf_deno = gcf64(rb.denom, ra.denom);
             nume = mult128(ra.num / gcf_nume, rb.denom / gcf_deno);
             deno = mult128(rb.num / gcf_nume, ra.denom / gcf_deno);
         }
@@ -753,7 +753,7 @@ gnc_numeric_abs(gnc_numeric a)
  ********************************************************************/
 
 gnc_numeric
-gnc_numeric_convert(gnc_numeric in, gint64 denom, gint how)
+gnc_numeric_convert(gnc_numeric in, int64_t denom, int how)
 {
     gnc_numeric out;
     gnc_numeric temp;
@@ -1027,9 +1027,9 @@ gnc_numeric_convert(gnc_numeric in, gint64 denom, gint how)
 gnc_numeric
 gnc_numeric_reduce(gnc_numeric in)
 {
-    gint64   t;
-    gint64   num = (in.num < 0) ? (- in.num) : in.num ;
-    gint64   denom = in.denom;
+    int64_t   t;
+    int64_t   num = (in.num < 0) ? (- in.num) : in.num ;
+    int64_t   denom = in.denom;
     gnc_numeric out;
 
     if (gnc_numeric_check(in))
@@ -1063,28 +1063,28 @@ gnc_numeric_reduce(gnc_numeric in)
  * The 'max_decimal_places' parameter may be NULL.
  ********************************************************************/
 
-gboolean
-gnc_numeric_to_decimal(gnc_numeric *a, guint8 *max_decimal_places)
+bool
+gnc_numeric_to_decimal(gnc_numeric *a, uint8_t *max_decimal_places)
 {
     guint8 decimal_places = 0;
     gnc_numeric converted_val;
     gint64 fraction;
 
-    g_return_val_if_fail(a, FALSE);
+    g_return_val_if_fail(a, false);
 
     if (gnc_numeric_check(*a) != GNC_ERROR_OK)
-        return FALSE;
+        return false;
 
     converted_val = *a;
     if (converted_val.denom <= 0)
     {
         converted_val = gnc_numeric_convert(converted_val, 1, GNC_HOW_DENOM_EXACT);
         if (gnc_numeric_check(converted_val) != GNC_ERROR_OK)
-            return FALSE;
+            return false;
         *a = converted_val;
         if (max_decimal_places)
             *max_decimal_places = decimal_places;
-        return TRUE;
+        return true;
     }
 
     /* Zero is easily converted. */
@@ -1107,7 +1107,7 @@ gnc_numeric_to_decimal(gnc_numeric *a, guint8 *max_decimal_places)
                                             GNC_HOW_DENOM_EXACT |
                                             GNC_HOW_RND_NEVER);
             if (gnc_numeric_check(converted_val) != GNC_ERROR_OK)
-                return FALSE;
+                return false;
             fraction = fraction / 5;
             break;
 
@@ -1121,12 +1121,12 @@ gnc_numeric_to_decimal(gnc_numeric *a, guint8 *max_decimal_places)
                                             GNC_HOW_DENOM_EXACT |
                                             GNC_HOW_RND_NEVER);
             if (gnc_numeric_check(converted_val) != GNC_ERROR_OK)
-                return FALSE;
+                return false;
             fraction = fraction / 2;
             break;
 
         default:
-            return FALSE;
+            return false;
         }
 
         decimal_places += 1;
@@ -1137,7 +1137,7 @@ gnc_numeric_to_decimal(gnc_numeric *a, guint8 *max_decimal_places)
 
     *a = converted_val;
 
-    return TRUE;
+    return true;
 }
 
 
@@ -1150,12 +1150,12 @@ gnc_numeric_to_decimal(gnc_numeric *a, guint8 *max_decimal_places)
 #endif
 
 gnc_numeric
-double_to_gnc_numeric(double in, gint64 denom, gint how)
+double_to_gnc_numeric(double in, int64_t denom, int how)
 {
     gnc_numeric out;
-    gint64 int_part = 0;
+    int64_t int_part = 0;
     double frac_part;
-    gint64 frac_int = 0;
+    int64_t frac_int = 0;
     double logval;
     double sigfigs;
 
@@ -1257,7 +1257,7 @@ gnc_numeric_error(GNCNumericErrorCode error_code)
 
 gnc_numeric
 gnc_numeric_add_with_error(gnc_numeric a, gnc_numeric b,
-                           gint64 denom, gint how,
+                           int64_t denom, int how,
                            gnc_numeric * error)
 {
 
@@ -1280,7 +1280,7 @@ gnc_numeric_add_with_error(gnc_numeric a, gnc_numeric b,
 
 gnc_numeric
 gnc_numeric_sub_with_error(gnc_numeric a, gnc_numeric b,
-                           gint64 denom, gint how,
+                           int64_t denom, int how,
                            gnc_numeric * error)
 {
     gnc_numeric diff  = gnc_numeric_sub(a, b, denom, how);
@@ -1302,7 +1302,7 @@ gnc_numeric_sub_with_error(gnc_numeric a, gnc_numeric b,
 
 gnc_numeric
 gnc_numeric_mul_with_error(gnc_numeric a, gnc_numeric b,
-                           gint64 denom, gint how,
+                           int64_t denom, int how,
                            gnc_numeric * error)
 {
     gnc_numeric prod  = gnc_numeric_mul(a, b, denom, how);
@@ -1324,7 +1324,7 @@ gnc_numeric_mul_with_error(gnc_numeric a, gnc_numeric b,
 
 gnc_numeric
 gnc_numeric_div_with_error(gnc_numeric a, gnc_numeric b,
-                           gint64 denom, gint how,
+                           int64_t denom, int how,
                            gnc_numeric * error)
 {
     gnc_numeric quot  = gnc_numeric_div(a, b, denom, how);
@@ -1343,10 +1343,10 @@ gnc_numeric_div_with_error(gnc_numeric a, gnc_numeric b,
  *  gnc_numeric text IO
  ********************************************************************/
 
-gchar *
+char *
 gnc_numeric_to_string(gnc_numeric n)
 {
-    gchar *result;
+    char *result;
     gint64 tmpnum = n.num;
     gint64 tmpdenom = n.denom;
 
@@ -1355,13 +1355,13 @@ gnc_numeric_to_string(gnc_numeric n)
     return result;
 }
 
-gchar *
+char *
 gnc_num_dbg_to_string(gnc_numeric n)
 {
     static char buff[1000];
     static char *p = buff;
-    gint64 tmpnum = n.num;
-    gint64 tmpdenom = n.denom;
+    int64_t tmpnum = n.num;
+    int64_t tmpdenom = n.denom;
 
     p += 100;
     if (p - buff >= 1000) p = buff;
@@ -1371,30 +1371,30 @@ gnc_num_dbg_to_string(gnc_numeric n)
     return p;
 }
 
-gboolean
-string_to_gnc_numeric(const gchar* str, gnc_numeric *n)
+bool
+string_to_gnc_numeric(const char* str, gnc_numeric *n)
 {
     gint64 tmpnum;
     gint64 tmpdenom;
 
-    if (!str) return FALSE;
+    if (!str) return false;
 
     tmpnum = g_ascii_strtoll (str, NULL, 0);
     str = strchr (str, '/');
-    if (!str) return FALSE;
+    if (!str) return false;
     str ++;
     tmpdenom = g_ascii_strtoll (str, NULL, 0);
 
     n->num = tmpnum;
     n->denom = tmpdenom;
-    return TRUE;
+    return true;
 }
 
 /* *******************************************************************
  *  GValue handling
  ********************************************************************/
-static gpointer
-gnc_numeric_boxed_copy_func( gpointer in_gnc_numeric )
+static void*
+gnc_numeric_boxed_copy_func( void* in_gnc_numeric )
 {
     gnc_numeric* newvalue;
 
@@ -1405,7 +1405,7 @@ gnc_numeric_boxed_copy_func( gpointer in_gnc_numeric )
 }
 
 static void
-gnc_numeric_boxed_free_func( gpointer in_gnc_numeric )
+gnc_numeric_boxed_free_func( void* in_gnc_numeric )
 {
     g_free( in_gnc_numeric );
 }

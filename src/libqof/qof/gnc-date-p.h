@@ -35,7 +35,7 @@
  *
  *  @return A newly allocated string on success, or NULL otherwise.
  */
-gchar *qof_time_format_from_utf8(const gchar *utf8_format);
+char *qof_time_format_from_utf8(const char *utf8_format);
 
 /** Convert a result of a call to strftime back to UTF-8.
  *
@@ -43,7 +43,7 @@ gchar *qof_time_format_from_utf8(const gchar *utf8_format);
  *
  *  @return A newly allocated string on success, or NULL otherwise.
  */
-gchar *qof_formatted_time_to_utf8(const gchar *locale_string);
+char *qof_formatted_time_to_utf8(const char *locale_string);
 
 
 /* Test Access for static functions */

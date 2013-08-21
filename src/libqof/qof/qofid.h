@@ -77,11 +77,11 @@
 #include "guid.h"
 
 /** QofIdType declaration */
-typedef const gchar * QofIdType;
+typedef const char * QofIdType;
 /** QofIdTypeConst declaration */
-typedef const gchar * QofIdTypeConst;
+typedef const char * QofIdTypeConst;
 /** QofLogModule declaration */
-typedef const gchar* QofLogModule;
+typedef const char* QofLogModule;
 
 typedef struct QofCollection_s QofCollection;
 
@@ -148,7 +148,7 @@ print error message if its bad  */
  * instance is committed.  If a dirty instance is freed instead of
  * committed, the dirty state of collection (and therefore the book)
  * is never changed. */
-gboolean qof_get_alt_dirty_mode (void);
+bool qof_get_alt_dirty_mode (void);
 
 /** Set QOF into "alternate" dirty mode.  In normal mode, whenever an
  *  instance is dirtied, the collection (and therefore the book) is
@@ -156,7 +156,7 @@ gboolean qof_get_alt_dirty_mode (void);
  *  only marked dirty when a dirty instance is committed.  If a dirty
  *  instance is freed instead of committed, the dirty state of
  *  collection (and therefore the book) is never changed. */
-void qof_set_alt_dirty_mode (gboolean enabled);
+void qof_set_alt_dirty_mode (bool enabled);
 
 /** @name Collections of Entities
  @{ */
@@ -178,11 +178,11 @@ QofIdType qof_collection_get_type (const QofCollection *);
 QofInstance * qof_collection_lookup_entity (const QofCollection *, const GncGUID *);
 
 /** Callback type for qof_collection_foreach */
-typedef void (*QofInstanceForeachCB) (QofInstance *, gpointer user_data);
+typedef void (*QofInstanceForeachCB) (QofInstance *, void * user_data);
 
 /** Call the callback for each entity in the collection. */
 void qof_collection_foreach (const QofCollection *, QofInstanceForeachCB,
-                             gpointer user_data);
+                             void * user_data);
 
 /** Store and retreive arbitrary object-defined data
  *
@@ -190,11 +190,11 @@ void qof_collection_foreach (const QofCollection *, QofInstanceForeachCB,
  * destroyed, so that the user has a chance to clean up anything
  * that was put in the 'data' member here.
  */
-gpointer qof_collection_get_data (const QofCollection *col);
-void qof_collection_set_data (QofCollection *col, gpointer user_data);
+void * qof_collection_get_data (const QofCollection *col);
+void qof_collection_set_data (QofCollection *col, void * user_data);
 
 /** Return value of 'dirty' flag on collection */
-gboolean qof_collection_is_dirty (const QofCollection *col);
+bool qof_collection_is_dirty (const QofCollection *col);
 
 /** @name QOF_TYPE_COLLECT: Linking one entity to many of one type
 
@@ -216,7 +216,7 @@ will not be removed from the original collection as they would
 by using ::qof_instance_insert_entity or ::qof_instance_remove_entity.
 
 */
-gboolean
+bool
 qof_collection_add_entity (QofCollection *coll, QofInstance *ent);
 
 void qof_collection_remove_entity (QofInstance *ent);
@@ -232,7 +232,7 @@ GncGUID or if the types of the two collections do not match,
 or +1 if merge is NULL or if any entity exists in one collection but
 not in the other.
 */
-gint
+int
 qof_collection_compare (QofCollection *target, QofCollection *merge);
 
 /** \brief Create a secondary collection from a GList

@@ -54,7 +54,7 @@
 void qof_book_set_backend (QofBook *book, QofBackend *be);
 
 /* Register books with the engine */
-gboolean qof_book_register (void);
+bool qof_book_register (void);
 
 /** @deprecated use qof_instance_set_guid instead but only in
 backends (when reading the GncGUID from the data source). */
@@ -66,8 +66,8 @@ backends (when reading the GncGUID from the data source). */
  *    was invalid, or NULL if it is ok. The caller should free the
  *    error message with g_free.
  */
-gchar *qof_book_validate_counter_format_internal(const gchar *p,
-        const gchar* gint64_format);
+char *qof_book_validate_counter_format_internal(const char *p,
+        const char* gint64_format);
 
 /** This debugging function can be used to traverse the book structure
  *    and all subsidiary structures, printing out which structures

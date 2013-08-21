@@ -70,13 +70,14 @@
 
 #include <glib-object.h>
 #include <time.h>
+#include <stdint.h>
 
 /**
  * Many systems, including Microsoft Windows and BSD-derived Unixes
  * like Darwin, are retaining the int-32 typedef for time_t. Since
  * this stops working in 2038, we define our own:
  */
-typedef gint64 time64;
+typedef int64_t time64;
 
 /** The Timespec is just like the unix 'struct timespec'
  * except that we use a 64-bit unsigned int to
@@ -86,7 +87,7 @@ typedef gint64 time64;
  * Values of this type can range from -9,223,372,036,854,775,808 to
  * 9,223,372,036,854,775,807.
  */
-typedef struct timespec64 Timespec;
+struct Timespec;
 
 /** @name GValue
   @{
@@ -114,7 +115,7 @@ and include all specified fields. Remember to use gmtime() NOT localtime()!
 #define QOF_UTC_DATE_FORMAT     "%Y-%m-%dT%H:%M:%SZ"
 
 /** Enum for determining a date format */
-typedef enum
+enum QofDateFormat
 {
     QOF_DATE_FORMAT_US,       /**< United states: mm/dd/yyyy */
     QOF_DATE_FORMAT_UK,       /**< Britain: dd/mm/yyyy */
@@ -123,17 +124,17 @@ typedef enum
     QOF_DATE_FORMAT_UTC,      /**< UTC: 2004-12-12T23:39:11Z */
     QOF_DATE_FORMAT_LOCALE,   /**< Take from locale information */
     QOF_DATE_FORMAT_CUSTOM    /**< Used by the check printing code */
-} QofDateFormat;
+};
 
 #define DATE_FORMAT_FIRST QOF_DATE_FORMAT_US
 #define DATE_FORMAT_LAST  QOF_DATE_FORMAT_LOCALE
 
 /** Enum for date completion modes (for dates entered without year) */
-typedef enum
+enum QofDateCompletion
 {
     QOF_DATE_COMPLETION_THISYEAR, /**< use current year */
     QOF_DATE_COMPLETION_SLIDING,  /**< use sliding 12-month window */
-} QofDateCompletion;
+};
 
 /** \deprecated qof_date_format_get_format has been replaced
 by qof_date_text_format_get_string */
@@ -143,12 +144,12 @@ by qof_date_text_format_get_string */
  * This is how to format the month, as a number, an abbreviated string,
  * or the full name.
  */
-typedef enum
+enum GNCDateMonthFormat
 {
     GNCDATE_MONTH_NUMBER,
     GNCDATE_MONTH_ABBREV,
     GNCDATE_MONTH_NAME
-} GNCDateMonthFormat;
+};
 /* Replacements for POSIX functions which use time_t. Time_t is still
  * 32 bits in Microsoft Windows, Apple OSX, and some BSD versions even
  * when the rest of the system is 64-bits, as well as all 32-bit
@@ -251,24 +252,24 @@ GDateTime* gnc_g_date_time_new_from_timespec_local (Timespec tm);
 //@{
 
 /** \brief The string->value versions return FALSE on success and TRUE on failure */
-const gchar* gnc_date_dateformat_to_string(QofDateFormat format);
+const char* gnc_date_dateformat_to_string(QofDateFormat format);
 
 /** \brief Converts the date format to a printable string.
 
 Note the reversed return values!
-@return FALSE on success, TRUE on failure.
+@return false on success, true on failure.
 */
-gboolean gnc_date_string_to_dateformat(const gchar* format_string,
+bool gnc_date_string_to_dateformat(const char* format_string,
                                        QofDateFormat *format);
 
-const gchar* gnc_date_monthformat_to_string(GNCDateMonthFormat format);
+const char* gnc_date_monthformat_to_string(GNCDateMonthFormat format);
 
 /** \brief Converts the month format to a printable string.
 
 Note the reversed return values!
 @return FALSE on success, TRUE on failure.
 */
-gboolean gnc_date_string_to_monthformat(const gchar *format_string,
+bool gnc_date_string_to_monthformat(const char *format_string,
                                         GNCDateMonthFormat *format);
 // @}
 
@@ -276,7 +277,7 @@ gboolean gnc_date_string_to_monthformat(const gchar *format_string,
 
 /** \brief Use a 64-bit unsigned int timespec
  *
- * struct timespec64 is just like the unix 'struct timespec' except
+ * Timespec is just like the unix 'struct timespec' except
  * that we use a 64-bit
  * unsigned int to store the seconds.  This should adequately cover
  * dates in the distant future as well as the distant past, as long as
@@ -285,10 +286,10 @@ gboolean gnc_date_string_to_monthformat(const gchar *format_string,
  * 9,223,372,036,854,775,807.
  */
 
-struct timespec64
+struct Timespec
 {
     time64 tv_sec;
-    glong tv_nsec;
+    long tv_nsec;
 };
 
 
@@ -298,10 +299,10 @@ struct timespec64
 /** \name Timespec functions */
 // @{
 /** strict equality */
-gboolean timespec_equal(const Timespec *ta, const Timespec *tb);
+bool timespec_equal(const Timespec *ta, const Timespec *tb);
 
 /** comparison:  if (ta < tb) -1; else if (ta > tb) 1; else 0; */
-gint      timespec_cmp(const Timespec *ta, const Timespec *tb);
+int      timespec_cmp(const Timespec *ta, const Timespec *tb);
 
 /** difference between ta and tb, results are normalised
  * ie tv_sec and tv_nsec of the result have the same size
@@ -338,10 +339,10 @@ Timespec gdate_to_timespec (GDate d);
 
 
 /** Convert a day, month, and year to a Timespec, returning the first second of the day */
-Timespec gnc_dmy2timespec (gint day, gint month, gint year);
+Timespec gnc_dmy2timespec (int day, int month, int year);
 
 /** Same as gnc_dmy2timespec, but last second of the day */
-Timespec gnc_dmy2timespec_end (gint day, gint month, gint year);
+Timespec gnc_dmy2timespec_end (int day, int month, int year);
 
 /** The gnc_iso8601_to_timespec_gmt() routine converts an ISO-8601 style
  *    date/time string to Timespec.  Please note that ISO-8601 strings
@@ -359,7 +360,7 @@ Timespec gnc_dmy2timespec_end (gint day, gint month, gint year);
  * XXX Caution: this routine does not handle strings that specify
  * times before January 1 1970.
  */
-Timespec gnc_iso8601_to_timespec_gmt(const gchar *);
+Timespec gnc_iso8601_to_timespec_gmt(const char *);
 
 /** The gnc_timespec_to_iso8601_buff() routine takes the input
  *    UTC Timespec value and prints it as an ISO-8601 style string.
@@ -377,7 +378,7 @@ Timespec gnc_iso8601_to_timespec_gmt(const gchar *);
  *    The string generated by this routine uses the local timezone
  *    on the machine on which it is executing to create the timestring.
  */
-gchar * gnc_timespec_to_iso8601_buff (Timespec ts, gchar * buff);
+char * gnc_timespec_to_iso8601_buff (Timespec ts, char * buff);
 
 /** Set the proleptic Gregorian day, month, and year from a Timespec
  * \param ts: input timespec
@@ -385,7 +386,7 @@ gchar * gnc_timespec_to_iso8601_buff (Timespec ts, gchar * buff);
  * \param month: output month, 1 - 12
  * \param year: output year, 0001 - 9999 CE
  */
-void gnc_timespec2dmy (Timespec ts, gint *day, gint *month, gint *year);
+void gnc_timespec2dmy (Timespec ts, int *day, int *month, int *year);
 
 /** The gnc_timezone function returns the number of seconds *west*
  * of UTC represented by the tm argument, adjusted for daylight
@@ -399,7 +400,7 @@ void gnc_timespec2dmy (Timespec ts, gint *day, gint *month, gint *year);
  * daylight savings time! Timezone stuff under unix is not
  * standardized and is a big mess.
  */
-glong gnc_timezone (const struct tm *tm);
+long gnc_timezone (const struct tm *tm);
 // @}
 
 /* ------------------------------------------------------------------------ */
@@ -427,7 +428,7 @@ void qof_date_format_set(QofDateFormat df);
  *
  *  @return A formatting string that will print a date in the
  *  requested style  */
-const gchar *qof_date_format_get_string(QofDateFormat df);
+const char *qof_date_format_get_string(QofDateFormat df);
 
 /** This function returns a strftime formatting string for printing a
  *  date using words and numbers (e.g. 2005-September-14).  The string
@@ -437,7 +438,7 @@ const gchar *qof_date_format_get_string(QofDateFormat df);
  *
  *  @return A formatting string that will print a date in the
  *  requested style  */
-const gchar *qof_date_text_format_get_string(QofDateFormat df);
+const char *qof_date_text_format_get_string(QofDateFormat df);
 // @}
 
 /**
@@ -457,7 +458,7 @@ void qof_date_completion_set(QofDateCompletion dc, int backmonths);
  *
  * Globals: global dateFormat value
  */
-gchar dateSeparator(void);
+char dateSeparator(void);
 
 /** \name Date Printing/Scanning functions
  */
@@ -496,7 +497,7 @@ gchar dateSeparator(void);
  *  @return The number of characters written, not include the null byte, if the
  *  complete string, including the null byte, fits into the buffer.  Otherwise 0.
  */
-gsize qof_strftime(gchar *buf, gsize max, const gchar *format,
+size_t qof_strftime(char *buf, size_t max, const char *format,
                    const struct tm *tm);
 
 /** qof_print_date_dmy_buff
@@ -514,7 +515,7 @@ gsize qof_strftime(gchar *buf, gsize max, const gchar *format,
  *
  * Globals: global dateFormat value
  **/
-size_t qof_print_date_dmy_buff (gchar * buff, size_t buflen, int day, int month, int year);
+size_t qof_print_date_dmy_buff (char * buff, size_t buflen, int day, int month, int year);
 
 /** Convenience: calls through to qof_print_date_dmy_buff(). **/
 size_t qof_print_date_buff (char * buff, size_t buflen, time64 secs);
@@ -553,11 +554,11 @@ size_t qof_print_date_time_buff (char * buff, size_t len, time64 secs);
  *         month - will store month of the year as 1 ... 12
  *         year - will store the year (4-digit)
  *
- * Return: TRUE if the string seemed to be a valid date; else FALSE.
+ * Return: true if the string seemed to be a valid date; else false.
  *
  * Globals: uses global dateFormat value to assist in parsing.
  */
-gboolean qof_scan_date (const char *buff, int *day, int *month, int *year);
+bool qof_scan_date (const char *buff, int *day, int *month, int *year);
 
 // @}
 /** \name Date Start/End Adjustment routines

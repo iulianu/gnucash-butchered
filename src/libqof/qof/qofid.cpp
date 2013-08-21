@@ -31,27 +31,27 @@
 #include "qofid-p.h"
 
 static QofLogModule log_module = QOF_MOD_ENGINE;
-static gboolean qof_alt_dirty_mode = FALSE;
+static bool qof_alt_dirty_mode = false;
 
 struct QofCollection_s
 {
     QofIdType    e_type;
-    gboolean     is_dirty;
+    bool         is_dirty;
 
     GHashTable * hash_of_entities;
-    gpointer     data;       /* place where object class can hang arbitrary data */
+    void       * data;       /* place where object class can hang arbitrary data */
 };
 
 /* =============================================================== */
 
-gboolean
+bool
 qof_get_alt_dirty_mode (void)
 {
     return qof_alt_dirty_mode;
 }
 
 void
-qof_set_alt_dirty_mode (gboolean enabled)
+qof_set_alt_dirty_mode (bool enabled)
 {
     qof_alt_dirty_mode = enabled;
 }
@@ -123,7 +123,7 @@ qof_collection_insert_entity (QofCollection *col, QofInstance *ent)
     qof_instance_set_collection(ent, col);
 }
 
-gboolean
+bool
 qof_collection_add_entity (QofCollection *coll, QofInstance *ent)
 {
     QofInstance *e;
@@ -132,28 +132,28 @@ qof_collection_add_entity (QofCollection *coll, QofInstance *ent)
     e = NULL;
     if (!coll || !ent)
     {
-        return FALSE;
+        return false;
     }
     guid = qof_instance_get_guid(ent);
     if (guid_equal(guid, guid_null()))
     {
-        return FALSE;
+        return false;
     }
     g_return_val_if_fail (coll->e_type == ent->e_type, FALSE);
     e = qof_collection_lookup_entity(coll, guid);
     if ( e != NULL )
     {
-        return FALSE;
+        return false;
     }
     g_hash_table_insert (coll->hash_of_entities, (gpointer)guid, ent);
     if (!qof_alt_dirty_mode)
         qof_collection_mark_dirty(coll);
-    return TRUE;
+    return true;
 }
 
 
 static void
-collection_compare_cb (QofInstance *ent, gpointer user_data)
+collection_compare_cb (QofInstance *ent, void * user_data)
 {
     QofCollection *target;
     QofInstance *e;
@@ -190,10 +190,10 @@ collection_compare_cb (QofInstance *ent, gpointer user_data)
     qof_collection_set_data(target, &value);
 }
 
-gint
+int
 qof_collection_compare (QofCollection *target, QofCollection *merge)
 {
-    gint value;
+    int value;
 
     value = 0;
     if (!target && !merge)
@@ -257,7 +257,7 @@ qof_collection_from_glist (QofIdType type, const GList *glist)
     return coll;
 }
 
-guint
+unsigned int
 qof_collection_count (const QofCollection *col)
 {
     guint c;
@@ -268,10 +268,10 @@ qof_collection_count (const QofCollection *col)
 
 /* =============================================================== */
 
-gboolean
+bool
 qof_collection_is_dirty (const QofCollection *col)
 {
-    return col ? col->is_dirty : FALSE;
+    return col ? col->is_dirty : false;
 }
 
 void
@@ -279,7 +279,7 @@ qof_collection_mark_clean (QofCollection *col)
 {
     if (col)
     {
-        col->is_dirty = FALSE;
+        col->is_dirty = false;
     }
 }
 
@@ -288,12 +288,12 @@ qof_collection_mark_dirty (QofCollection *col)
 {
     if (col)
     {
-        col->is_dirty = TRUE;
+        col->is_dirty = true;
     }
 }
 
 void
-qof_collection_print_dirty (const QofCollection *col, gpointer dummy)
+qof_collection_print_dirty (const QofCollection *col, void * dummy)
 {
     if (col->is_dirty)
         printf("%s collection is dirty.\n", col->e_type);
@@ -302,14 +302,14 @@ qof_collection_print_dirty (const QofCollection *col, gpointer dummy)
 
 /* =============================================================== */
 
-gpointer
+void *
 qof_collection_get_data (const QofCollection *col)
 {
     return col ? col->data : NULL;
 }
 
 void
-qof_collection_set_data (QofCollection *col, gpointer user_data)
+qof_collection_set_data (QofCollection *col, void * user_data)
 {
     if (col)
     {
@@ -322,11 +322,11 @@ qof_collection_set_data (QofCollection *col, gpointer user_data)
 struct _iterate
 {
     QofInstanceForeachCB      fcn;
-    gpointer                data;
+    void *                   data;
 };
 
 static void
-foreach_cb (gpointer item, gpointer arg)
+foreach_cb (void * item, void * arg)
 {
     struct _iterate *iter = arg;
     QofInstance *ent = item;
@@ -336,7 +336,7 @@ foreach_cb (gpointer item, gpointer arg)
 
 void
 qof_collection_foreach (const QofCollection *col, QofInstanceForeachCB cb_func,
-                        gpointer user_data)
+                        void * user_data)
 {
     struct _iterate iter;
     GList *entries;

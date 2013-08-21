@@ -55,7 +55,7 @@ QOF_GOBJECT_IMPL(qof_book, QofBook, QOF_TYPE_INSTANCE);
 /* ====================================================================== */
 /* constructor / destructor */
 
-static void coll_destroy(gpointer col)
+static void coll_destroy(void * col)
 {
     qof_collection_destroy((QofCollection *) col);
 }
@@ -76,8 +76,8 @@ qof_book_init (QofBook *book)
     book->data_table_finalizers = g_hash_table_new (g_str_hash, g_str_equal);
 
     book->book_open = 'y';
-    book->read_only = FALSE;
-    book->session_dirty = FALSE;
+    book->read_only = false;
+    book->session_dirty = false;
     book->version = 0;
 }
 
@@ -96,7 +96,7 @@ qof_book_new (void)
 }
 
 static void
-book_final (gpointer key, gpointer value, gpointer booq)
+book_final (void * key, void * value, void * booq)
 {
     QofBookFinalCB cb = value;
     QofBook *book = booq;
@@ -123,7 +123,7 @@ qof_book_destroy (QofBook *book)
     if (!book) return;
     ENTER ("book=%p", book);
 
-    book->shutting_down = TRUE;
+    book->shutting_down = true;
     qof_event_force (&book->inst, QOF_EVENT_DESTROY, NULL);
 
     /* Call the list of finalizers, let them do their thing.
@@ -154,10 +154,10 @@ qof_book_destroy (QofBook *book)
 }
 /* ====================================================================== */
 
-gboolean
+bool
 qof_book_session_not_saved (const QofBook *book)
 {
-    if (!book) return FALSE;
+    if (!book) return false;
     return book->session_dirty;
 
 }
@@ -171,9 +171,9 @@ qof_book_mark_session_saved (QofBook *book)
     if (book->session_dirty)
     {
         /* Set the session clean upfront, because the callback will check. */
-        book->session_dirty = FALSE;
+        book->session_dirty = false;
         if (book->dirty_cb)
-            book->dirty_cb(book, FALSE, book->dirty_data);
+            book->dirty_cb(book, false, book->dirty_data);
     }
 }
 
@@ -183,10 +183,10 @@ void qof_book_mark_session_dirty (QofBook *book)
     if (!book->session_dirty)
     {
         /* Set the session dirty upfront, because the callback will check. */
-        book->session_dirty = TRUE;
+        book->session_dirty = true;
         book->dirty_time = gnc_time (NULL);
         if (book->dirty_cb)
-            book->dirty_cb(book, TRUE, book->dirty_data);
+            book->dirty_cb(book, true, book->dirty_data);
     }
 }
 
@@ -197,7 +197,7 @@ qof_book_get_session_dirty_time (const QofBook *book)
 }
 
 void
-qof_book_set_dirty_cb(QofBook *book, QofBookDirtyCB cb, gpointer user_data)
+qof_book_set_dirty_cb(QofBook *book, QofBookDirtyCB cb, void * user_data)
 {
     if (book->dirty_cb)
         g_warning("qof_book_set_dirty_cb: Already existing callback %p, will be overwritten by %p\n",
@@ -216,10 +216,10 @@ qof_book_get_backend (const QofBook *book)
     return book->backend;
 }
 
-gboolean
+bool
 qof_book_shutting_down (const QofBook *book)
 {
-    if (!book) return FALSE;
+    if (!book) return false;
     return book->shutting_down;
 }
 
@@ -253,14 +253,14 @@ KvpFrame *qof_book_get_slots(const QofBook *book)
 /* XXX if data is NULL, we should remove the key from the hash table!
  */
 void
-qof_book_set_data (QofBook *book, const char *key, gpointer data)
+qof_book_set_data (QofBook *book, const char *key, void * data)
 {
     if (!book || !key) return;
     g_hash_table_insert (book->data_tables, (gpointer)key, data);
 }
 
 void
-qof_book_set_data_fin (QofBook *book, const char *key, gpointer data, QofBookFinalCB cb)
+qof_book_set_data_fin (QofBook *book, const char *key, void * data, QofBookFinalCB cb)
 {
     if (!book || !key) return;
     g_hash_table_insert (book->data_tables, (gpointer)key, data);
@@ -269,7 +269,7 @@ qof_book_set_data_fin (QofBook *book, const char *key, gpointer data, QofBookFin
     g_hash_table_insert (book->data_table_finalizers, (gpointer)key, cb);
 }
 
-gpointer
+void *
 qof_book_get_data (const QofBook *book, const char *key)
 {
     if (!book || !key) return NULL;
@@ -277,10 +277,10 @@ qof_book_get_data (const QofBook *book, const char *key)
 }
 
 /* ====================================================================== */
-gboolean
+bool
 qof_book_is_readonly(const QofBook *book)
 {
-    g_return_val_if_fail( book != NULL, TRUE );
+    g_return_val_if_fail( book != NULL, true );
     return book->read_only;
 }
 
@@ -288,7 +288,7 @@ void
 qof_book_mark_readonly(QofBook *book)
 {
     g_return_if_fail( book != NULL );
-    book->read_only = TRUE;
+    book->read_only = true;
 }
 /* ====================================================================== */
 
@@ -313,11 +313,11 @@ qof_book_get_collection (const QofBook *book, QofIdType entity_type)
 struct _iterate
 {
     QofCollectionForeachCB  fn;
-    gpointer                data;
+    void *                  data;
 };
 
 static void
-foreach_cb (gpointer key, gpointer item, gpointer arg)
+foreach_cb (void * key, void * item, void * arg)
 {
     struct _iterate *iter = arg;
     QofCollection *col = item;
@@ -327,7 +327,7 @@ foreach_cb (gpointer key, gpointer item, gpointer arg)
 
 void
 qof_book_foreach_collection (const QofBook *book,
-                             QofCollectionForeachCB cb, gpointer user_data)
+                             QofCollectionForeachCB cb, void * user_data)
 {
     struct _iterate iter;
 
@@ -351,7 +351,7 @@ void qof_book_mark_closed (QofBook *book)
     book->book_open = 'n';
 }
 
-gint64
+int64_t
 qof_book_get_counter (QofBook *book, const char *counter_name)
 {
     KvpFrame *kvp;
@@ -391,12 +391,12 @@ qof_book_get_counter (QofBook *book, const char *counter_name)
     }
 }
 
-gchar *
+char *
 qof_book_increment_and_format_counter (QofBook *book, const char *counter_name)
 {
     KvpFrame *kvp;
     KvpValue *value;
-    gint64 counter;
+    int64_t counter;
     gchar* format;
 
     if (!book)
@@ -450,13 +450,13 @@ qof_book_increment_and_format_counter (QofBook *book, const char *counter_name)
     return g_strdup_printf(format, counter);
 }
 
-gchar *
+char *
 qof_book_get_counter_format(const QofBook *book, const char *counter_name)
 {
     KvpFrame *kvp;
-    gchar *format;
+    char *format;
     KvpValue *value;
-    gchar *error;
+    char *error;
 
     if (!book)
     {
@@ -506,17 +506,17 @@ qof_book_get_counter_format(const QofBook *book, const char *counter_name)
     return format;
 }
 
-gchar *
-qof_book_validate_counter_format(const gchar *p)
+char *
+qof_book_validate_counter_format(const char *p)
 {
     return qof_book_validate_counter_format_internal(p, G_GINT64_FORMAT);
 }
 
-gchar *
-qof_book_validate_counter_format_internal(const gchar *p,
-        const gchar *gint64_format)
+char *
+qof_book_validate_counter_format_internal(const char *p,
+        const char *gint64_format)
 {
-    const gchar *conv_start, *tmp = NULL;
+    const char *conv_start, *tmp = NULL;
 
     /* Validate a counter format. This is a very simple "parser" that
      * simply checks for a single gint64 conversion specification,
@@ -619,7 +619,7 @@ qof_book_validate_counter_format_internal(const gchar *p,
 }
 
 /* Determine whether this book uses trading accounts */
-gboolean
+bool
 qof_book_use_trading_accounts (const QofBook *book)
 {
     const char *opt;
@@ -642,7 +642,7 @@ qof_book_use_trading_accounts (const QofBook *book)
 
 /* Returns TRUE if this book uses split action field as the 'Num' field, FALSE
  * if it uses transaction number field */
-gboolean
+bool
 qof_book_use_split_action_for_num_field (const QofBook *book)
 {
     const char *opt;
@@ -655,22 +655,22 @@ qof_book_use_split_action_for_num_field (const QofBook *book)
                                        OPTION_NAME_NUM_FIELD_SOURCE,
                                        NULL);
     if (kvp_val == NULL)
-        return FALSE;
+        return false;
 
     opt = kvp_value_get_string (kvp_val);
 
     if (opt && opt[0] == 't' && opt[1] == 0)
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
-gboolean qof_book_uses_autoreadonly (const QofBook *book)
+bool qof_book_uses_autoreadonly (const QofBook *book)
 {
     g_assert(book);
     return (qof_book_get_num_days_autoreadonly(book) != 0);
 }
 
-gint qof_book_get_num_days_autoreadonly (const QofBook *book)
+int qof_book_get_num_days_autoreadonly (const QofBook *book)
 {
     kvp_value *kvp_val;
     double tmp;
@@ -693,7 +693,7 @@ gint qof_book_get_num_days_autoreadonly (const QofBook *book)
 
 GDate* qof_book_get_autoreadonly_gdate (const QofBook *book)
 {
-    gint num_days;
+    int num_days;
     GDate* result = NULL;
 
     g_assert(book);
@@ -743,7 +743,7 @@ qof_book_commit_edit(QofBook *book)
 }
 
 /* QofObject function implementation and registration */
-gboolean qof_book_register (void)
+bool qof_book_register (void)
 {
     static QofParam params[] =
     {
@@ -754,7 +754,7 @@ gboolean qof_book_register (void)
 
     qof_class_register (QOF_ID_BOOK, NULL, params);
 
-    return TRUE;
+    return true;
 }
 
 /* ========================== END OF FILE =============================== */

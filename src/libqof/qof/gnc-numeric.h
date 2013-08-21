@@ -51,17 +51,16 @@ See \ref gncnumericexample
 #define GNC_NUMERIC_H
 
 #include <glib-object.h>
-
-struct _gnc_numeric
-{
-    gint64  num;
-    gint64  denom;
-};
+#include <stdint.h>
 
 /** @brief An rational-number type
  *
  * This is a rational number, defined by numerator and denominator. */
-typedef struct _gnc_numeric gnc_numeric;
+struct gnc_numeric
+{
+    int64_t  num;
+    int64_t  denom;
+};
 
 /** @name Arguments Standard Arguments to most functions
 
@@ -215,7 +214,7 @@ enum
 #define GNC_HOW_GET_SIGFIGS( a ) ( (( a ) & 0xff00 ) >> 8)
 
 /** Error codes */
-typedef enum
+enum GNCNumericErrorCode
 {
     GNC_ERROR_OK         =  0,   /**< No error */
     GNC_ERROR_ARG        = -1,   /**< Argument is not a valid number */
@@ -227,7 +226,7 @@ typedef enum
     /** GNC_HOW_RND_NEVER  was specified, but the result could not be
      *  converted to the desired denominator without a remainder. */
     GNC_ERROR_REMAINDER  = -4
-} GNCNumericErrorCode;
+};
 
 
 /** Values that can be passed as the 'denom' argument.
@@ -252,7 +251,7 @@ typedef enum
 /** Returns a newly created gnc_numeric with the given numerator and
  * denominator, that is "num/denom". */
 static inline
-gnc_numeric gnc_numeric_create(gint64 num, gint64 denom)
+gnc_numeric gnc_numeric_create(int64_t num, int64_t denom)
 {
     gnc_numeric out;
     out.num = num;
@@ -291,13 +290,13 @@ gnc_numeric gnc_numeric_zero(void)
  *
  * \return The newly created gnc_numeric rational value.
  */
-gnc_numeric double_to_gnc_numeric(double n, gint64 denom,
-                                  gint how);
+gnc_numeric double_to_gnc_numeric(double n, int64_t denom,
+                                  int how);
 
 /** Read a gnc_numeric from str, skipping any leading whitespace.
  *  Return TRUE on success and store the resulting value in "n".
  *  Return NULL on error. */
-gboolean string_to_gnc_numeric(const gchar* str, gnc_numeric *n);
+bool string_to_gnc_numeric(const char* str, gnc_numeric *n);
 
 /** Create a gnc_numeric object that signals the error condition
  *  noted by error_code, rather than a number.
@@ -314,27 +313,27 @@ const char* gnc_numeric_errorCode_to_string(GNCNumericErrorCode error_code);
 */
 /** Returns the numerator of the given gnc_numeric value. */
 static inline
-gint64 gnc_numeric_num(gnc_numeric a)
+int64_t gnc_numeric_num(gnc_numeric a)
 {
     return a.num;
 }
 /** Returns the denominator of the given gnc_numeric value. */
 static inline
-gint64 gnc_numeric_denom(gnc_numeric a)
+int64_t gnc_numeric_denom(gnc_numeric a)
 {
     return a.denom;
 }
 
 /** Convert numeric to floating-point value. */
-gdouble      gnc_numeric_to_double(gnc_numeric n);
+double      gnc_numeric_to_double(gnc_numeric n);
 
 /** Convert to string. The returned buffer is to be g_free'd by the
  *  caller (it was allocated through g_strdup) */
-gchar *gnc_numeric_to_string(gnc_numeric n);
+char *gnc_numeric_to_string(gnc_numeric n);
 
 /** Convert to string. Uses a static, non-thread-safe buffer.
  *  For internal use only. */
-gchar * gnc_num_dbg_to_string(gnc_numeric n);
+char * gnc_num_dbg_to_string(gnc_numeric n);
 /** @}*/
 
 /** @name Comparisons and Predicates
@@ -347,27 +346,27 @@ gchar * gnc_num_dbg_to_string(gnc_numeric n);
 GNCNumericErrorCode  gnc_numeric_check(gnc_numeric a);
 
 /** Returns 1 if a>b, -1 if b>a, 0 if a == b  */
-gint gnc_numeric_compare(gnc_numeric a, gnc_numeric b);
+int gnc_numeric_compare(gnc_numeric a, gnc_numeric b);
 
 /** Returns 1 if the given gnc_numeric is 0 (zero), else returns 0. */
-gboolean gnc_numeric_zero_p(gnc_numeric a);
+bool gnc_numeric_zero_p(gnc_numeric a);
 
 /** Returns 1 if a < 0, otherwise returns 0. */
-gboolean gnc_numeric_negative_p(gnc_numeric a);
+bool gnc_numeric_negative_p(gnc_numeric a);
 
 /** Returns 1 if a > 0, otherwise returns 0. */
-gboolean gnc_numeric_positive_p(gnc_numeric a);
+bool gnc_numeric_positive_p(gnc_numeric a);
 
 /** Equivalence predicate: Returns TRUE (1) if a and b are
  *  exactly the same (have the same numerator and denominator)
  */
-gboolean gnc_numeric_eq(gnc_numeric a, gnc_numeric b);
+bool gnc_numeric_eq(gnc_numeric a, gnc_numeric b);
 
 /** Equivalence predicate: Returns TRUE (1) if a and b represent
  *  the same number.  That is, return TRUE if the ratios, when
  *  reduced by eliminating common factors, are identical.
  */
-gboolean gnc_numeric_equal(gnc_numeric a, gnc_numeric b);
+bool gnc_numeric_equal(gnc_numeric a, gnc_numeric b);
 
 /** Equivalence predicate:
  *  Convert both a and b to denom using the
@@ -381,8 +380,8 @@ gboolean gnc_numeric_equal(gnc_numeric a, gnc_numeric b);
   because 7/16 rounds to 1/2 under unbiased rounding but 3/4 rounds
   to 2/2.
  */
-gint gnc_numeric_same(gnc_numeric a, gnc_numeric b,
-                      gint64 denom, gint how);
+int gnc_numeric_same(gnc_numeric a, gnc_numeric b,
+                     int64_t denom, int how);
 /** @} */
 
 /** @name Arithmetic Operations
@@ -390,11 +389,11 @@ gint gnc_numeric_same(gnc_numeric a, gnc_numeric b,
 */
 /** Return a+b. */
 gnc_numeric gnc_numeric_add(gnc_numeric a, gnc_numeric b,
-                            gint64 denom, gint how);
+                            int64_t denom, int how);
 
 /** Return a-b. */
 gnc_numeric gnc_numeric_sub(gnc_numeric a, gnc_numeric b,
-                            gint64 denom, gint how);
+                            int64_t denom, int how);
 
 /** Multiply a times b, returning the product.  An overflow
  *  may occur if the result of the multiplication can't
@@ -402,7 +401,7 @@ gnc_numeric gnc_numeric_sub(gnc_numeric a, gnc_numeric b,
  *  common factors.
  */
 gnc_numeric gnc_numeric_mul(gnc_numeric a, gnc_numeric b,
-                            gint64 denom, gint how);
+                            int64_t denom, int how);
 
 /** Division.  Note that division can overflow, in the following
  *  sense: if we write x=a/b and y=c/d  then x/y = (a*d)/(b*c)
@@ -452,27 +451,27 @@ gnc_numeric gnc_numeric_sub_fixed(gnc_numeric a, gnc_numeric b)
 /** The same as gnc_numeric_add, but uses 'error' for accumulating
  *  conversion roundoff error. */
 gnc_numeric gnc_numeric_add_with_error(gnc_numeric a, gnc_numeric b,
-                                       gint64 denom, gint how,
+                                       int64_t denom, int how,
                                        gnc_numeric * error);
 
 /** The same as gnc_numeric_sub, but uses error for accumulating
  *  conversion roundoff error. */
 gnc_numeric gnc_numeric_sub_with_error(gnc_numeric a, gnc_numeric b,
-                                       gint64 denom, gint how,
+                                       int64_t denom, int how,
                                        gnc_numeric * error);
 
 /** The same as gnc_numeric_mul, but uses error for
  *  accumulating conversion roundoff error.
  */
 gnc_numeric gnc_numeric_mul_with_error(gnc_numeric a, gnc_numeric b,
-                                       gint64 denom, gint how,
+                                       int64_t denom, int how,
                                        gnc_numeric * error);
 
 /** The same as gnc_numeric_div, but uses error for
  *  accumulating conversion roundoff error.
  */
 gnc_numeric gnc_numeric_div_with_error(gnc_numeric a, gnc_numeric b,
-                                       gint64 denom, gint how,
+                                       int64_t denom, int how,
                                        gnc_numeric * error);
 /** @} */
 
@@ -483,16 +482,16 @@ gnc_numeric gnc_numeric_div_with_error(gnc_numeric a, gnc_numeric b,
  *  specified denominator under standard arguments
  *  'denom' and 'how'.
  */
-gnc_numeric gnc_numeric_convert(gnc_numeric n, gint64 denom,
-                                gint how);
+gnc_numeric gnc_numeric_convert(gnc_numeric n, int64_t denom,
+                                int how);
 
 #if 0
 /* Implementation missing! */
 /* Same as gnc_numeric_convert, but return a remainder
  *  value for accumulating conversion error.
 */
-gnc_numeric gnc_numeric_convert_with_error(gnc_numeric n, gint64 denom,
-        gint how,
+gnc_numeric gnc_numeric_convert_with_error(gnc_numeric n, int64_t denom,
+        int how,
         gnc_numeric * error);
 #endif
 
@@ -512,8 +511,8 @@ gnc_numeric gnc_numeric_reduce(gnc_numeric n);
  *  Otherwise, @c FALSE is returned and @a a and @a max_decimal_places
  *  remain unchanged.
  ********************************************************************/
-gboolean gnc_numeric_to_decimal(gnc_numeric * a,
-                                guint8 * max_decimal_places);
+bool gnc_numeric_to_decimal(gnc_numeric * a,
+                                uint8_t * max_decimal_places);
 /** @} */
 
 /** @name GValue

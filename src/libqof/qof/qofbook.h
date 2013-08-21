@@ -41,11 +41,12 @@
 #define QOF_BOOK_H
 
 
-typedef struct _QofBookClass  QofBookClass;
+struct QofBookClass;
 
 #include "qofid.h"
 #include "kvp_frame.h"
 #include "qofinstance.h"
+#include <stdint.h>
 
 /* --- type macros --- */
 #define QOF_TYPE_BOOK            (qof_book_get_type ())
@@ -60,10 +61,10 @@ typedef struct _QofBookClass  QofBookClass;
 #define QOF_BOOK_GET_CLASS(o)    \
      (G_TYPE_INSTANCE_GET_CLASS ((o), QOF_TYPE_BOOK, QofBookClass))
 
-typedef void (*QofBookDirtyCB) (QofBook *, gboolean dirty, gpointer user_data);
+typedef void (*QofBookDirtyCB) (QofBook *, bool dirty, void * user_data);
 
 /* Book structure */
-struct _QofBook
+struct QofBook
 {
     QofInstance   inst;     /* Unique guid for this book. */
 
@@ -75,7 +76,7 @@ struct _QofBook
      * committed. Some backends write data out as part of
      * commit_edit() and so don't use this flag.
      */
-    gboolean session_dirty;
+    bool session_dirty;
 
     /* The time when the book was first dirtied.  This is a secondary
      * indicator. It should only be used when session_saved is FALSE. */
@@ -88,7 +89,7 @@ struct _QofBook
 
     /* This is the user supplied data that is returned in the dirty
      * callback function.*/
-    gpointer dirty_data;
+    void * dirty_data;
 
     /* The entity table associates the GUIDs of all the objects
      * belonging to this book, with their pointers to the respective
@@ -108,7 +109,7 @@ struct _QofBook
      * that it isn't). The usual reason will be a database version
      * mismatch with the running instance of Gnucash.
      */
-    gboolean read_only;
+    bool read_only;
 
     /* state flag: 'y' means 'open for editing',
      * 'n' means 'book is closed'
@@ -121,10 +122,10 @@ struct _QofBook
      * internal consistency.
      * XXX shouldn't this be replaced by instance->do_free ???
      */
-    gboolean shutting_down;
+    bool shutting_down;
 
     /* version number, used for tracking multiuser updates */
-    gint32  version;
+    int32_t  version;
 
     /* To be technically correct, backends belong to sessions and
      * not books.  So the pointer below "really shouldn't be here",
@@ -133,7 +134,7 @@ struct _QofBook
     QofBackend *backend;
 };
 
-struct _QofBookClass
+struct QofBookClass
 {
     QofInstanceClass parent_class;
 };
@@ -164,10 +165,10 @@ GType qof_book_get_type(void);
 /** GList of QofBook */
 typedef GList                 QofBookList;
 
-typedef void (*QofBookFinalCB) (QofBook *, gpointer key, gpointer user_data);
+typedef void (*QofBookFinalCB) (QofBook *, void * key, void * user_data);
 
 /** Register the book object with the QOF object system. */
-gboolean qof_book_register (void);
+bool qof_book_register (void);
 
 /** Allocate, initialise and return a new QofBook.  Books contain references
  *  to all of the top-level object containers. */
@@ -201,8 +202,8 @@ void qof_book_mark_closed (QofBook *book);
 QofCollection  * qof_book_get_collection (const QofBook *, QofIdType);
 
 /** Invoke the indicated callback on each collection in the book. */
-typedef void (*QofCollectionForeachCB) (QofCollection *, gpointer user_data);
-void qof_book_foreach_collection (const QofBook *, QofCollectionForeachCB, gpointer);
+typedef void (*QofCollectionForeachCB) (QofCollection *, void * user_data);
+void qof_book_foreach_collection (const QofBook *, QofCollectionForeachCB, void *);
 
 /** Return The kvp data for the book.
  *  Note that the book KVP data is persistent, and is stored/retrieved
@@ -233,25 +234,25 @@ void qof_book_set_data_fin (QofBook *book, const gchar *key, gpointer data,
                             QofBookFinalCB);
 
 /** Retrieves arbitrary pointers to structs stored by qof_book_set_data. */
-gpointer qof_book_get_data (const QofBook *book, const gchar *key);
+void * qof_book_get_data (const QofBook *book, const char *key);
 
 /** Return whether the book is read only. */
-gboolean qof_book_is_readonly(const QofBook *book);
+bool qof_book_is_readonly(const QofBook *book);
 
 /** Mark the book as read only. */
 void qof_book_mark_readonly(QofBook *book);
 
 /** Returns flag indicating whether this book uses trading accounts */
-gboolean qof_book_use_trading_accounts (const QofBook *book);
+bool qof_book_use_trading_accounts (const QofBook *book);
 
 /** Returns TRUE if the auto-read-only feature should be used, otherwise
  * FALSE. This is just a wrapper on qof_book_get_num_days_autoreadonly() == 0. */
-gboolean qof_book_uses_autoreadonly (const QofBook *book);
+bool qof_book_uses_autoreadonly (const QofBook *book);
 
 /** Returns the number of days for auto-read-only transactions. If zero,
  * the auto-read-only feature should be disabled (and qof_book_uses_autoreadonly()
  * returns FALSE). */
-gint qof_book_get_num_days_autoreadonly (const QofBook *book);
+int qof_book_get_num_days_autoreadonly (const QofBook *book);
 
 /** Returns the GDate that is the threshold for auto-read-only. Any txn
  * with posted-date lesser than this date should be considered read-only.
@@ -265,10 +266,10 @@ GDate* qof_book_get_autoreadonly_gdate (const QofBook *book);
 
 /** Returns TRUE if this book uses split action field as the 'Num' field, FALSE
  *  if it uses transaction number field */
-gboolean qof_book_use_split_action_for_num_field (const QofBook *book);
+bool qof_book_use_split_action_for_num_field (const QofBook *book);
 
 /** Is the book shutting down? */
-gboolean qof_book_shutting_down (const QofBook *book);
+bool qof_book_shutting_down (const QofBook *book);
 
 /** qof_book_not_saved() returns the value of the session_dirty flag,
  * set when changes to any object in the book are committed
@@ -277,7 +278,7 @@ gboolean qof_book_shutting_down (const QofBook *book);
  * out immediately; file backends don't, and use the flag to control
  * an autosave timer.)
  */
-gboolean qof_book_session_not_saved (const QofBook *book);
+bool qof_book_session_not_saved (const QofBook *book);
 
 /** The qof_book_mark_saved() routine marks the book as having been
  *    saved (to a file, to a database). Used by backends to mark the
@@ -298,7 +299,7 @@ time64 qof_book_get_session_dirty_time(const QofBook *book);
 /** Set the function to call when a book transitions from clean to
  *    dirty, or vice versa.
  */
-void qof_book_set_dirty_cb(QofBook *book, QofBookDirtyCB cb, gpointer user_data);
+void qof_book_set_dirty_cb(QofBook *book, QofBookDirtyCB cb, void * user_data);
 
 /** Call this function when you change the book kvp, to make sure the book
  * is marked 'dirty'. */
@@ -307,25 +308,25 @@ void qof_book_kvp_changed (QofBook *book);
 /** This will get the named counter for this book. The return value is
  *    -1 on error or the current value of the counter.
  */
-gint64 qof_book_get_counter (QofBook *book, const char *counter_name);
+int64_t qof_book_get_counter (QofBook *book, const char *counter_name);
 
 /** This will increment the named counter for this book and format it.
  *    The return value is NULL on error or the formatted (new) value of
  *    the counter. The caller should free the result with g_gree.
  */
-gchar *qof_book_increment_and_format_counter (QofBook *book, const char *counter_name);
+char *qof_book_increment_and_format_counter (QofBook *book, const char *counter_name);
 
 /** Validate a counter format string. Returns an error message if the
  *    format string was invalid, or NULL if it is ok. The caller should
  *    free the error message with g_free.
  */
-gchar * qof_book_validate_counter_format(const gchar *format);
+char * qof_book_validate_counter_format(const char *format);
 
 /** Get the format string to use for the named counter.
  *    The return value is NULL on error or the format string of the
  *    counter. The string should not be freed.
  */
-gchar *qof_book_get_counter_format (const QofBook *book, const char *counter_name);
+char *qof_book_get_counter_format (const QofBook *book, const char *counter_name);
 
 const char* qof_book_get_string_option(const QofBook* book, const char* opt_name);
 void qof_book_set_string_option(QofBook* book, const char* opt_name, const char* opt_val);

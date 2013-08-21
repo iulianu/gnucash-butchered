@@ -24,8 +24,6 @@
 #include "config.h"
 #include "qofmath128-p.h"
 
-#include <glib.h>
-
 /* =============================================================== */
 /*
  *  Quick-n-dirty 128-bit integer math lib.   Things seem to mostly
@@ -38,16 +36,16 @@
  *  returning a signed 128-bit number.
  */
 qofint128
-mult128 (gint64 a, gint64 b)
+mult128 (int64_t a, int64_t b)
 {
     qofint128 prod;
-    guint64 a0, a1;
-    guint64 b0, b1;
-    guint64 d, d0, d1;
-    guint64 e, e0, e1;
-    guint64 f, f0, f1;
-    guint64 g, g0, g1;
-    guint64 sum, carry, roll, pmax;
+    uint64_t a0, a1;
+    uint64_t b0, b1;
+    uint64_t d, d0, d1;
+    uint64_t e, e0, e1;
+    uint64_t f, f0, f1;
+    uint64_t g, g0, g1;
+    uint64_t sum, carry, roll, pmax;
 
     prod.isneg = 0;
     if (0 > a)
@@ -109,7 +107,7 @@ mult128 (gint64 a, gint64 b)
 qofint128
 shift128 (qofint128 x)
 {
-    guint64 sbit = x.hi & 0x1;
+    uint64_t sbit = x.hi & 0x1;
     x.hi >>= 1;
     x.lo >>= 1;
     x.isbig = 0;
@@ -130,7 +128,7 @@ shift128 (qofint128 x)
 qofint128
 shiftleft128 (qofint128 x)
 {
-    guint64 sbit;
+    uint64_t sbit;
     sbit = x.lo & HIBIT;
     x.hi <<= 1;
     x.lo <<= 1;
@@ -177,11 +175,11 @@ inc128 (qofint128 a)
  *  returning a signed 128-bit number.
  */
 qofint128
-div128 (qofint128 n, gint64 d)
+div128 (qofint128 n, int64_t d)
 {
     qofint128 quotient;
     int i;
-    guint64 remainder = 0;
+    uint64_t remainder = 0;
 
     quotient = n;
     if (0 > d)
@@ -215,26 +213,26 @@ div128 (qofint128 n, gint64 d)
  *  I beleive that ths algo is overflow-free, but should be
  *  audited some more ...
  */
-gint64
-rem128 (qofint128 n, gint64 d)
+int64_t
+rem128 (qofint128 n, int64_t d)
 {
     qofint128 quotient = div128 (n, d);
 
     qofint128 mu = mult128 (quotient.lo, d);
 
-    gint64 nn = 0x7fffffffffffffffULL & n.lo;
-    gint64 rr = 0x7fffffffffffffffULL & mu.lo;
+    int64_t nn = 0x7fffffffffffffffULL & n.lo;
+    int64_t rr = 0x7fffffffffffffffULL & mu.lo;
     return nn - rr;
 }
 
 /** Return true of two numbers are equal */
-gboolean
+bool
 equal128 (qofint128 a, qofint128 b)
 {
-    if (a.lo != b.lo) return 0;
-    if (a.hi != b.hi) return 0;
-    if (a.isneg != b.isneg) return 0;
-    return 1;
+    if (a.lo != b.lo) return false;
+    if (a.hi != b.hi) return false;
+    if (a.isneg != b.isneg) return false;
+    return true;
 }
 
 /** Return returns 1 if a>b, -1 if b>a, 0 if a == b */
@@ -260,10 +258,10 @@ cmp128 (qofint128 a, qofint128 b)
 }
 
 /** Return the greatest common factor of two 64-bit numbers */
-guint64
-gcf64(guint64 num, guint64 denom)
+uint64_t
+gcf64(uint64_t num, uint64_t denom)
 {
-    guint64   t;
+    uint64_t   t;
 
     t =  num % denom;
     num = denom;
@@ -282,9 +280,9 @@ gcf64(guint64 num, guint64 denom)
 
 /** Return the least common multiple of two 64-bit numbers. */
 qofint128
-lcm128 (guint64 a, guint64 b)
+lcm128 (uint64_t a, uint64_t b)
 {
-    guint64 gcf = gcf64 (a, b);
+    uint64_t gcf = gcf64 (a, b);
     b /= gcf;
     return mult128 (a, b);
 }
@@ -330,7 +328,7 @@ add128 (qofint128 a, qofint128 b)
 
 #ifdef TEST_128_BIT_MULT
 
-static void pr (gint64 a, gint64 b)
+static void pr (int64_t a, int64_t b)
 {
     qofint128 prod = mult128 (a, b);
     printf ("%" G_GINT64_FORMAT " * %" G_GINT64_FORMAT " = %"
@@ -339,11 +337,11 @@ static void pr (gint64 a, gint64 b)
             a, b, prod.hi, prod.lo, prod.hi, prod.lo, prod.isbig);
 }
 
-static void prd (gint64 a, gint64 b, gint64 c)
+static void prd (int64_t a, int64_t b, int64_t c)
 {
     qofint128 prod = mult128 (a, b);
     qofint128 quot = div128 (prod, c);
-    gint64 rem = rem128 (prod, c);
+    int64_t rem = rem128 (prod, c);
     printf ("%" G_GINT64_FORMAT " * %" G_GINT64_FORMAT " / %" G_GINT64_FORMAT
             " = %" G_GUINT64_FORMAT " %" G_GUINT64_FORMAT " + %"
             G_GINT64_FORMAT " (0x%" G_GINT64_MODIFIER "x %"
@@ -353,9 +351,9 @@ static void prd (gint64 a, gint64 b, gint64 c)
 
 int main ()
 {
-    gint64 x;
+    int64_t x;
     qofint128 n;
-    gint64 d;
+    int64_t d;
     qofint128 quot;
     int i;
 
