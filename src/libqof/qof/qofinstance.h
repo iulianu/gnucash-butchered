@@ -37,8 +37,8 @@
 #ifndef QOF_INSTANCE_H
 #define QOF_INSTANCE_H
 
-typedef struct _QofInstanceClass QofInstanceClass;
-typedef struct QofInstance_s QofInstance;
+struct QofInstanceClass;
+struct QofInstance;
 
 /** \brief QofBook reference */
 struct QofBook;
@@ -62,7 +62,7 @@ struct QofBook;
 #define QOF_INSTANCE_GET_CLASS(o)    \
      (G_TYPE_INSTANCE_GET_CLASS ((o), QOF_TYPE_INSTANCE, QofInstanceClass))
 
-struct QofInstance_s
+struct QofInstance
 {
     GObject object;
 
@@ -75,15 +75,15 @@ struct QofInstance_s
     KvpFrame *kvp_data;
 };
 
-struct _QofInstanceClass
+struct QofInstanceClass
 {
     GObjectClass parent_class;
 
     /* Returns a displayable string to represent this object */
-    gchar* (*get_display_name)(const QofInstance*);
+    char* (*get_display_name)(const QofInstance*);
 
     /* Does this object refer to a specific object */
-    gboolean (*refers_to_object)(const QofInstance* inst, const QofInstance* ref);
+    bool (*refers_to_object)(const QofInstance* inst, const QofInstance* ref);
 
     /* Returns a list of my type of object which refers to an object */
     GList* (*get_typed_referring_object_list)(const QofInstance* inst, const QofInstance* ref);
@@ -97,42 +97,42 @@ void qof_instance_init_data (QofInstance *, QofIdType, QofBook *);
 
 /** Return the book pointer */
 /*@ dependent @*/
-QofBook *qof_instance_get_book (gconstpointer);
+QofBook *qof_instance_get_book (const void *);
 
 /** Set the book pointer */
-void qof_instance_set_book (gconstpointer inst, QofBook *book);
+void qof_instance_set_book (const void * inst, QofBook *book);
 
 /** Copy the book from one QofInstances to another.  */
-void qof_instance_copy_book (gpointer ptr1, gconstpointer ptr2);
+void qof_instance_copy_book (void * ptr1, const void * ptr2);
 
 /** See if two QofInstances share the same book.  */
-gboolean qof_instance_books_equal (gconstpointer ptr1, gconstpointer ptr2);
+bool qof_instance_books_equal (const void * ptr1, const void * ptr2);
 
 /** Return the GncGUID of this instance */
 /*@ dependent @*/
-const GncGUID * qof_instance_get_guid (gconstpointer);
+const GncGUID * qof_instance_get_guid (const void *);
 
 /** \deprecated Use qof_instance_get_guid instead.
  *  Works like qof_instance_get_guid, but returns NULL on NULL */
 /*@ dependent @*/
-const GncGUID * qof_entity_get_guid (gconstpointer);
+const GncGUID * qof_entity_get_guid (const void *);
 
 /** Return the collection this instance belongs to */
 /*@ dependent @*/
-QofCollection* qof_instance_get_collection (gconstpointer inst);
+QofCollection* qof_instance_get_collection (const void * inst);
 
 /** Set the GncGUID of this instance */
-void qof_instance_set_guid (gpointer inst, const GncGUID *guid);
+void qof_instance_set_guid (void * inst, const GncGUID *guid);
 
 /** Copy the GncGUID from one instance to another.  This routine should
  *  be used with extreme caution, since GncGUID values are everywhere
  *  assumed to be unique. */
-void qof_instance_copy_guid (gpointer to, gconstpointer from);
+void qof_instance_copy_guid (void * to, const void * from);
 
 /** Compare the GncGUID values of two instances.  This routine returns 0
  *  if the two values are equal, <0 if the first is smaller than the
  *  second, or >0 if the second is smaller tan the first. */
-gint qof_instance_guid_compare(const gconstpointer ptr1, const gconstpointer ptr2);
+int qof_instance_guid_compare(const void * const ptr1, const void * const ptr2);
 
 //QofIdType qof_instance_get_e_type (const QofInstance *inst);
 //void qof_instance_set_e_type (QofInstance *ent, QofIdType e_type);
@@ -140,11 +140,11 @@ gint qof_instance_guid_compare(const gconstpointer ptr1, const gconstpointer ptr
 /** Return the pointer to the kvp_data */
 /*@ dependent @*/
 KvpFrame* qof_instance_get_slots (const QofInstance *);
-void qof_instance_set_editlevel(gpointer inst, gint level);
-gint qof_instance_get_editlevel (gconstpointer ptr);
-void qof_instance_increase_editlevel (gpointer ptr);
-void qof_instance_decrease_editlevel (gpointer ptr);
-void qof_instance_reset_editlevel (gpointer ptr);
+void qof_instance_set_editlevel(void * inst, int level);
+int  qof_instance_get_editlevel (const void * ptr);
+void qof_instance_increase_editlevel (void * ptr);
+void qof_instance_decrease_editlevel (void * ptr);
+void qof_instance_reset_editlevel (void * ptr);
 
 /** Compare two instances, based on thier last update times.
  *  Returns a negative, zero or positive value, respectively,
@@ -159,10 +159,10 @@ int qof_instance_version_cmp (const QofInstance *left, const QofInstance *right)
  *
  *  @param ptr The object whose flag should be retrieved.
  *
- *  @return TRUE if the object has been marked for destruction. FALSE
+ *  @return true if the object has been marked for destruction. false
  *  if the object is not marked for destruction, or if a bad parameter
  *  is passed to the function. */
-gboolean qof_instance_get_destroying (gconstpointer ptr);
+bool qof_instance_get_destroying (const void * ptr);
 
 /** Set the flag that indicates whether or not this object is about to
  *  be destroyed.
@@ -170,7 +170,7 @@ gboolean qof_instance_get_destroying (gconstpointer ptr);
  *  @param ptr The object whose flag should be set.
  *
  *  @param value The new value to be set for this object. */
-void qof_instance_set_destroying (gpointer ptr, gboolean value);
+void qof_instance_set_destroying (void * ptr, bool value);
 
 /** Retrieve the flag that indicates whether or not this object has
  *  been modified.  This is specifically the flag on the object. It
@@ -183,13 +183,13 @@ void qof_instance_set_destroying (gpointer ptr, gboolean value);
  *  @return TRUE if the object has been modified and not saved. FALSE
  *  if the object has not been modified, or if a bad parameter is
  *  passed to the function. */
-gboolean qof_instance_get_dirty_flag (gconstpointer ptr);
+bool qof_instance_get_dirty_flag (const void * ptr);
 
-void qof_instance_print_dirty (const QofInstance *entity, gpointer dummy);
+void qof_instance_print_dirty (const QofInstance *entity, void * dummy);
 
 /** Return value of is_dirty flag */
 #define qof_instance_is_dirty qof_instance_get_dirty
-gboolean qof_instance_get_dirty (QofInstance *);
+bool qof_instance_get_dirty (QofInstance *);
 
 /** \brief Set the dirty flag
 
@@ -200,35 +200,35 @@ void qof_instance_set_dirty(QofInstance* inst);
 /* reset the dirty flag */
 void qof_instance_mark_clean (QofInstance *);
 
-gboolean qof_instance_get_infant(const QofInstance *inst);
+bool qof_instance_get_infant(const QofInstance *inst);
 
 /** Get the version number on this instance.  The version number is
  *  used to manage multi-user updates. */
-gint32 qof_instance_get_version (gconstpointer inst);
+int32_t qof_instance_get_version (const void * inst);
 
 /** Set the version number on this instance.  The version number is
  *  used to manage multi-user updates. */
-void qof_instance_set_version (gpointer inst, gint32 value);
+void qof_instance_set_version (void * inst, int32_t value);
 /** Copy the version number on this instance.  The version number is
  *  used to manage multi-user updates. */
-void qof_instance_copy_version (gpointer to, gconstpointer from);
+void qof_instance_copy_version (void * to, const void * from);
 
 /** Get the instance version_check number */
-guint32 qof_instance_get_version_check (gconstpointer inst);
+uint32_t qof_instance_get_version_check (const void * inst);
 /** Set the instance version_check number */
-void qof_instance_set_version_check (gpointer inst, guint32 value);
+void qof_instance_set_version_check (void * inst, uint32_t value);
 /** copy the instance version_check number */
-void qof_instance_copy_version_check (gpointer to, gconstpointer from);
+void qof_instance_copy_version_check (void * to, const void * from);
 
 /** get the instance tag number
     used for kvp management in sql backends. */
-guint32 qof_instance_get_idata (gconstpointer inst);
-void qof_instance_set_idata(gpointer inst, guint32 idata);
+uint32_t qof_instance_get_idata (const void * inst);
+void qof_instance_set_idata(void * inst, uint32_t idata);
 
 /**
  * Returns a displayable name for this object.  The returned string must be freed by the caller.
  */
-gchar* qof_instance_get_display_name(const QofInstance* inst);
+char* qof_instance_get_display_name(const QofInstance* inst);
 
 /**
  * Returns a list of objects which refer to a specific object.  The list must be freed by the caller,
@@ -237,7 +237,7 @@ gchar* qof_instance_get_display_name(const QofInstance* inst);
 GList* qof_instance_get_referring_object_list(const QofInstance* inst);
 
 /** Does this object refer to a specific object */
-gboolean qof_instance_refers_to_object(const QofInstance* inst, const QofInstance* ref);
+bool qof_instance_refers_to_object(const QofInstance* inst, const QofInstance* ref);
 
 /** Returns a list of my type of object which refers to an object.  For example, when called as
         qof_instance_get_typed_referring_object_list(taxtable, account);

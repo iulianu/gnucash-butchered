@@ -58,7 +58,7 @@
 
 
 /* Static global variables *****************************************/
-static gboolean guid_initialized = FALSE;
+static bool guid_initialized = false;
 static struct md5_ctx guid_context;
 
 /* This static indicates the debugging module that this .o belongs to.  */
@@ -603,14 +603,14 @@ encode_md5_data(const unsigned char *data, char *buffer)
 /* returns true if the first 32 bytes of buffer encode
  * a hex number. returns false otherwise. Decoded number
  * is packed into data in little endian order. */
-static gboolean
+static bool
 decode_md5_string(const gchar *string, unsigned char *data)
 {
     unsigned char n1, n2;
     size_t count = -1;
     unsigned char c1, c2;
 
-    if (NULL == data) return FALSE;
+    if (NULL == data) return false;
     if (NULL == string) goto badstring;
 
     for (count = 0; count < GUID_DATA_SIZE; count++)
@@ -636,14 +636,14 @@ decode_md5_string(const gchar *string, unsigned char *data)
 
         data[count] = (n1 << 4) | n2;
     }
-    return TRUE;
+    return true;
 
 badstring:
     for (count = 0; count < GUID_DATA_SIZE; count++)
     {
         data[count] = 0;
     }
-    return FALSE;
+    return false;
 }
 
 /* Allocate the key */
@@ -694,22 +694,22 @@ guid_to_string_buff(const GncGUID * guid, char *string)
     return &string[GUID_ENCODING_LENGTH];
 }
 
-gboolean
+bool
 string_to_guid(const char * string, GncGUID * guid)
 {
     return decode_md5_string(string, (guid != NULL) ? guid->data : NULL);
 }
 
-gboolean
+bool
 guid_equal(const GncGUID *guid_1, const GncGUID *guid_2)
 {
     if (guid_1 && guid_2)
         return (memcmp(guid_1, guid_2, GUID_DATA_SIZE) == 0);
     else
-        return FALSE;
+        return false;
 }
 
-gint
+int
 guid_compare(const GncGUID *guid_1, const GncGUID *guid_2)
 {
     if (guid_1 == guid_2)
@@ -725,8 +725,8 @@ guid_compare(const GncGUID *guid_1, const GncGUID *guid_2)
     return memcmp (guid_1, guid_2, GUID_DATA_SIZE);
 }
 
-guint
-guid_hash_to_guint (gconstpointer ptr)
+unsigned int
+guid_hash_to_guint (const void * ptr)
 {
     const GncGUID *guid = ptr;
 
@@ -758,8 +758,8 @@ guid_hash_to_guint (gconstpointer ptr)
     }
 }
 
-gint
-guid_g_hash_table_equal (gconstpointer guid_a, gconstpointer guid_b)
+int
+guid_g_hash_table_equal (const void * guid_a, const void * guid_b)
 {
     return guid_equal (guid_a, guid_b);
 }

@@ -28,22 +28,22 @@
 #include "qofevent-p.h"
 
 /* Static Variables ************************************************/
-static guint   suspend_counter   = 0;
-static gint    next_handler_id   = 1;
-static guint   handler_run_level = 0;
-static guint   pending_deletes   = 0;
-static GList   *handlers  =   NULL;
+static unsigned int suspend_counter   = 0;
+static int          next_handler_id   = 1;
+static unsigned int handler_run_level = 0;
+static unsigned int pending_deletes   = 0;
+static GList       *handlers  =   NULL;
 
 /* This static indicates the debugging module that this .o belongs to.  */
 static QofLogModule log_module = QOF_MOD_ENGINE;
 
 /* Implementations *************************************************/
 
-static gint
+static int
 find_next_handler_id(void)
 {
     HandlerInfo *hi;
-    gint handler_id;
+    int handler_id;
     GList *node;
 
     /* look for a free handler id */
@@ -68,11 +68,11 @@ find_next_handler_id(void)
     return handler_id;
 }
 
-gint
-qof_event_register_handler (QofEventHandler handler, gpointer user_data)
+int
+qof_event_register_handler (QofEventHandler handler, void * user_data)
 {
     HandlerInfo *hi;
-    gint handler_id;
+    int handler_id;
 
     ENTER ("(handler=%p, data=%p)", handler, user_data);
 
@@ -99,7 +99,7 @@ qof_event_register_handler (QofEventHandler handler, gpointer user_data)
 }
 
 void
-qof_event_unregister_handler (gint handler_id)
+qof_event_unregister_handler (int handler_id)
 {
     GList *node;
 
@@ -165,7 +165,7 @@ qof_event_resume (void)
 
 static void
 qof_event_generate_internal (QofInstance *entity, QofEventId event_id,
-                             gpointer event_data)
+                             void * event_data)
 {
     GList *node;
     GList *next_node = NULL;
@@ -218,7 +218,7 @@ qof_event_generate_internal (QofInstance *entity, QofEventId event_id,
 }
 
 void
-qof_event_force (QofInstance *entity, QofEventId event_id, gpointer event_data)
+qof_event_force (QofInstance *entity, QofEventId event_id, void * event_data)
 {
     if (!entity)
         return;
@@ -227,7 +227,7 @@ qof_event_force (QofInstance *entity, QofEventId event_id, gpointer event_data)
 }
 
 void
-qof_event_gen (QofInstance *entity, QofEventId event_id, gpointer event_data)
+qof_event_gen (QofInstance *entity, QofEventId event_id, void * event_data)
 {
     if (!entity)
         return;

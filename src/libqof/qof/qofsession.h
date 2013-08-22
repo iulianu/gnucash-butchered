@@ -107,7 +107,7 @@
 
 /* PROTOTYPES ******************************************************/
 
-typedef struct _QofSession    QofSession;
+struct QofSession;
 
 QofSession * qof_session_new (void);
 void         qof_session_destroy (QofSession *session);
@@ -125,9 +125,9 @@ void qof_session_swap_data (QofSession *session_1, QofSession *session_2);
  *    then the current working directory is assumed. Customized backends can
  *    choose to search other, application-specific, directories as well.
  *
- *    The 'ignore_lock' argument, if set to TRUE, will cause this routine
+ *    The 'ignore_lock' argument, if set to true, will cause this routine
  *    to ignore any global-datastore locks (e.g. file locks) that it finds.
- *    If set to FALSE, then file/database-global locks will be tested and
+ *    If set to false, then file/database-global locks will be tested and
  *    obeyed.
  *
  *    If the datastore exists, can be reached (e.g over the net),
@@ -139,7 +139,7 @@ void qof_session_swap_data (QofSession *session_1, QofSession *session_2);
  *    to handle multiple users writing data, so we lock the database
  *    anyway.
  *
- *    If qof_session_begin is called with create == TRUE, then it will
+ *    If qof_session_begin is called with create == true, then it will
  *    check for the existence of the file or database and return after
  *    posting a QOF_BACKEND_STORE_EXISTS error if it exists, unless
  *    force is also set to true.
@@ -148,8 +148,8 @@ void qof_session_swap_data (QofSession *session_1, QofSession *session_2);
  *    stack, and that is where it should be examined.
  */
 void qof_session_begin (QofSession *session, const char * book_id,
-                        gboolean ignore_lock, gboolean create,
-                        gboolean force);
+                        bool ignore_lock, bool create,
+                        bool force);
 
 
 /**
@@ -216,8 +216,8 @@ const char * qof_session_get_url (const QofSession *session);
  * The qof_session_not_saved() subroutine will return TRUE
  *    if any data in the session hasn't been saved to long-term storage.
  */
-/* gboolean qof_session_not_saved(const QofSession *session); <- unimplemented */
-gboolean qof_session_save_in_progress(const QofSession *session);
+/* bool qof_session_not_saved(const QofSession *session); <- unimplemented */
+bool qof_session_save_in_progress(const QofSession *session);
 
 /** The qof_session_save() method will commit all changes that have been
  *    made to the session. For the file backend, this is nothing
@@ -271,17 +271,17 @@ backends may return a ::QofBackendError.
 /** @name Event Handling
 
   @{ */
-/** The qof_session_events_pending() method will return TRUE if the
+/** The qof_session_events_pending() method will return true if the
  *  backend has pending events which must be processed to bring
  *  the engine up to date with the backend.
  */
-gboolean qof_session_events_pending (const QofSession *session);
+bool qof_session_events_pending (const QofSession *session);
 
 /**  The qof_session_process_events() method will process any events
  *   indicated by the qof_session_events_pending() method. It returns
- *   TRUE if the engine was modified while engine events were suspended.
+ *   true if the engine was modified while engine events were suspended.
  */
-gboolean qof_session_process_events (QofSession *session);
+bool qof_session_process_events (QofSession *session);
 /** @} */
 
 /** Register a function to be called just before a session is closed.
@@ -298,7 +298,7 @@ void qof_session_add_close_hook (GFunc fn, gpointer data);
  *  @param session A pointer to the session being closed. */
 void qof_session_call_close_hooks (QofSession *session);
 
-gboolean qof_session_export (QofSession *tmp_session,
+bool qof_session_export (QofSession *tmp_session,
                              QofSession *real_session,
                              QofPercentageFunc percentage_func);
 

@@ -207,7 +207,7 @@ gnc_kvp_bag_merge (KvpFrame *kvp_into, const char *intopath,
  */
 
 static void
-kv_pair_helper(gpointer key, gpointer val, gpointer user_data)
+kv_pair_helper(void * key, void * val, void * user_data)
 {
     GSList **result = (GSList **) user_data;
     GHashTableKVPair *kvp = g_new(GHashTableKVPair, 1);
@@ -226,7 +226,7 @@ g_hash_table_key_value_pairs(GHashTable *table)
 }
 
 void
-g_hash_table_kv_pair_free_gfunc(gpointer data, gpointer user_data)
+g_hash_table_kv_pair_free_gfunc(void * data, void * user_data)
 {
     GHashTableKVPair *kvp = (GHashTableKVPair *) data;
     g_free(kvp);

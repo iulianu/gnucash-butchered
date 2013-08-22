@@ -64,7 +64,7 @@ enum
     PROP_IDATA,
 };
 
-typedef struct QofInstancePrivate
+struct QofInstancePrivate
 {
 //    QofIdType        e_type;    /**<	Entity type */
     GncGUID guid;                  /**< GncGUID for the entity */
@@ -91,24 +91,24 @@ typedef struct QofInstancePrivate
     int editlevel;
 
     /*  In process of being destroyed */
-    gboolean do_free;
+    bool do_free;
 
     /*  dirty/clean flag. If dirty, then this instance has been modified,
      *  but has not yet been written out to storage (file/database)
      */
-    gboolean dirty;
+    bool dirty;
 
     /* True iff this instance has never been committed. */
-    gboolean infant;
+    bool infant;
 
     /* version number, used for tracking multiuser updates */
-    gint32 version;
-    guint32 version_check;  /* data aging timestamp */
+    int32_t version;
+    uint32_t version_check;  /* data aging timestamp */
 
     /* -------------------------------------------------------------- */
     /* Backend private expansion data */
-    guint32  idata;   /* used by the sql backend for kvp management */
-}  QofInstancePrivate;
+    uint32_t  idata;   /* used by the sql backend for kvp management */
+};
 
 #define GET_PRIVATE(o)  \
    (G_TYPE_INSTANCE_GET_PRIVATE ((o), QOF_TYPE_INSTANCE,  QofInstancePrivate))
@@ -117,11 +117,11 @@ QOF_GOBJECT_GET_TYPE(QofInstance, qof_instance, G_TYPE_OBJECT, {});
 QOF_GOBJECT_FINALIZE(qof_instance);
 
 static void qof_instance_get_property (GObject         *object,
-                                       guint            prop_id,
+                                       unsigned int     prop_id,
                                        GValue          *value,
                                        GParamSpec      *pspec);
 static void qof_instance_set_property (GObject         *object,
-                                       guint            prop_id,
+                                       unsigned int     prop_id,
                                        const GValue    *value,
                                        GParamSpec      *pspec);
 static void qof_instance_dispose(GObject*);
@@ -355,7 +355,7 @@ qof_instance_finalize_real (GObject *instp)
 
 static void
 qof_instance_get_property (GObject         *object,
-                           guint            prop_id,
+                           unsigned int     prop_id,
                            GValue          *value,
                            GParamSpec      *pspec)
 {
@@ -413,7 +413,7 @@ qof_instance_get_property (GObject         *object,
 
 static void
 qof_instance_set_property (GObject         *object,
-                           guint            prop_id,
+                           unsigned int     prop_id,
                            const GValue    *value,
                            GParamSpec      *pspec)
 {
@@ -464,7 +464,7 @@ qof_instance_set_property (GObject         *object,
 }
 
 const GncGUID *
-qof_instance_get_guid (gconstpointer inst)
+qof_instance_get_guid (const void * inst)
 {
     QofInstancePrivate *priv;
 
@@ -475,13 +475,13 @@ qof_instance_get_guid (gconstpointer inst)
 }
 
 const GncGUID *
-qof_entity_get_guid (gconstpointer ent)
+qof_entity_get_guid (const void * ent)
 {
     return ent ? qof_instance_get_guid(ent) : guid_null();
 }
 
 void
-qof_instance_set_guid (gpointer ptr, const GncGUID *guid)
+qof_instance_set_guid (void * ptr, const GncGUID *guid)
 {
     QofInstancePrivate *priv;
     QofInstance *inst;
@@ -501,7 +501,7 @@ qof_instance_set_guid (gpointer ptr, const GncGUID *guid)
 }
 
 void
-qof_instance_copy_guid (gpointer to, gconstpointer from)
+qof_instance_copy_guid (void * to, const void * from)
 {
     g_return_if_fail(QOF_IS_INSTANCE(to));
     g_return_if_fail(QOF_IS_INSTANCE(from));
@@ -509,8 +509,8 @@ qof_instance_copy_guid (gpointer to, gconstpointer from)
     GET_PRIVATE(to)->guid = GET_PRIVATE(from)->guid;
 }
 
-gint
-qof_instance_guid_compare(gconstpointer ptr1, gconstpointer ptr2)
+int
+qof_instance_guid_compare(const void * ptr1, const void * ptr2)
 {
     const QofInstancePrivate *priv1, *priv2;
 
@@ -524,7 +524,7 @@ qof_instance_guid_compare(gconstpointer ptr1, gconstpointer ptr2)
 }
 
 QofCollection *
-qof_instance_get_collection (gconstpointer ptr)
+qof_instance_get_collection (const void * ptr)
 {
 
     g_return_val_if_fail(QOF_IS_INSTANCE(ptr), NULL);
@@ -532,14 +532,14 @@ qof_instance_get_collection (gconstpointer ptr)
 }
 
 void
-qof_instance_set_collection (gconstpointer ptr, QofCollection *col)
+qof_instance_set_collection (const void * ptr, QofCollection *col)
 {
     g_return_if_fail(QOF_IS_INSTANCE(ptr));
     GET_PRIVATE(ptr)->collection = col;
 }
 
 QofBook *
-qof_instance_get_book (gconstpointer inst)
+qof_instance_get_book (const void * inst)
 {
     if (!inst) return NULL;
     g_return_val_if_fail(QOF_IS_INSTANCE(inst), NULL);
@@ -547,14 +547,14 @@ qof_instance_get_book (gconstpointer inst)
 }
 
 void
-qof_instance_set_book (gconstpointer inst, QofBook *book)
+qof_instance_set_book (const void * inst, QofBook *book)
 {
     g_return_if_fail(QOF_IS_INSTANCE(inst));
     GET_PRIVATE(inst)->book = book;
 }
 
 void
-qof_instance_copy_book (gpointer ptr1, gconstpointer ptr2)
+qof_instance_copy_book (void * ptr1, const void * ptr2)
 {
     g_return_if_fail(QOF_IS_INSTANCE(ptr1));
     g_return_if_fail(QOF_IS_INSTANCE(ptr2));
@@ -562,13 +562,13 @@ qof_instance_copy_book (gpointer ptr1, gconstpointer ptr2)
     GET_PRIVATE(ptr1)->book = GET_PRIVATE(ptr2)->book;
 }
 
-gboolean
-qof_instance_books_equal (gconstpointer ptr1, gconstpointer ptr2)
+bool
+qof_instance_books_equal (const void * ptr1, const void * ptr2)
 {
     const QofInstancePrivate *priv1, *priv2;
 
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr1), FALSE);
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr2), FALSE);
+    g_return_val_if_fail(QOF_IS_INSTANCE(ptr1), false);
+    g_return_val_if_fail(QOF_IS_INSTANCE(ptr2), false);
 
     priv1 = GET_PRIVATE(ptr1);
     priv2 = GET_PRIVATE(ptr2);
@@ -607,26 +607,26 @@ qof_instance_set_last_update (QofInstance *inst, Timespec ts)
     GET_PRIVATE(inst)->last_update = ts;
 }
 
-gint
-qof_instance_get_editlevel (gconstpointer ptr)
+int
+qof_instance_get_editlevel (const void * ptr)
 {
     g_return_val_if_fail(QOF_IS_INSTANCE(ptr), 0);
     return GET_PRIVATE(ptr)->editlevel;
 }
 
-void qof_instance_increase_editlevel (gpointer ptr)
+void qof_instance_increase_editlevel (void * ptr)
 {
     g_return_if_fail(QOF_IS_INSTANCE(ptr));
     GET_PRIVATE(ptr)->editlevel++;
 }
 
-void qof_instance_decrease_editlevel (gpointer ptr)
+void qof_instance_decrease_editlevel (void * ptr)
 {
     g_return_if_fail(QOF_IS_INSTANCE(ptr));
     GET_PRIVATE(ptr)->editlevel--;
 }
 
-void qof_instance_reset_editlevel (gpointer ptr)
+void qof_instance_reset_editlevel (void * ptr)
 {
     g_return_if_fail(QOF_IS_INSTANCE(ptr));
     GET_PRIVATE(ptr)->editlevel = 0;
@@ -650,29 +650,29 @@ qof_instance_version_cmp (const QofInstance *left, const QofInstance *right)
     return 0;
 }
 
-gboolean
-qof_instance_get_destroying (gconstpointer ptr)
+bool
+qof_instance_get_destroying (const void * ptr)
 {
     g_return_val_if_fail(QOF_IS_INSTANCE(ptr), FALSE);
     return GET_PRIVATE(ptr)->do_free;
 }
 
 void
-qof_instance_set_destroying (gpointer ptr, gboolean value)
+qof_instance_set_destroying (void * ptr, bool value)
 {
     g_return_if_fail(QOF_IS_INSTANCE(ptr));
     GET_PRIVATE(ptr)->do_free = value;
 }
 
-gboolean
-qof_instance_get_dirty_flag (gconstpointer ptr)
+bool
+qof_instance_get_dirty_flag (const void * ptr)
 {
     g_return_val_if_fail(QOF_IS_INSTANCE(ptr), FALSE);
     return GET_PRIVATE(ptr)->dirty;
 }
 
 void
-qof_instance_set_dirty_flag (gconstpointer inst, gboolean flag)
+qof_instance_set_dirty_flag (const void * inst, bool flag)
 {
     g_return_if_fail(QOF_IS_INSTANCE(inst));
     GET_PRIVATE(inst)->dirty = flag;
@@ -686,7 +686,7 @@ qof_instance_mark_clean (QofInstance *inst)
 }
 
 void
-qof_instance_print_dirty (const QofInstance *inst, gpointer dummy)
+qof_instance_print_dirty (const QofInstance *inst, void * dummy)
 {
     QofInstancePrivate *priv;
 
@@ -698,7 +698,7 @@ qof_instance_print_dirty (const QofInstance *inst, gpointer dummy)
     }
 }
 
-gboolean
+bool
 qof_instance_get_dirty (QofInstance *inst)
 {
     QofInstancePrivate *priv;
@@ -736,58 +736,58 @@ qof_instance_set_dirty(QofInstance* inst)
     }
 }
 
-gboolean
+bool
 qof_instance_get_infant(const QofInstance *inst)
 {
     g_return_val_if_fail(QOF_IS_INSTANCE(inst), FALSE);
     return GET_PRIVATE(inst)->infant;
 }
 
-gint32
-qof_instance_get_version (gconstpointer inst)
+int32_t
+qof_instance_get_version (const void * inst)
 {
     g_return_val_if_fail(QOF_IS_INSTANCE(inst), 0);
     return GET_PRIVATE(inst)->version;
 }
 
 void
-qof_instance_set_version (gpointer inst, gint32 vers)
+qof_instance_set_version (void * inst, int32_t vers)
 {
     g_return_if_fail(QOF_IS_INSTANCE(inst));
     GET_PRIVATE(inst)->version = vers;
 }
 
 void
-qof_instance_copy_version (gpointer to, gconstpointer from)
+qof_instance_copy_version (void * to, const void * from)
 {
     g_return_if_fail(QOF_IS_INSTANCE(to));
     g_return_if_fail(QOF_IS_INSTANCE(from));
     GET_PRIVATE(to)->version = GET_PRIVATE(from)->version;
 }
 
-guint32
-qof_instance_get_version_check (gconstpointer inst)
+uint32_t
+qof_instance_get_version_check (const void * inst)
 {
     g_return_val_if_fail(QOF_IS_INSTANCE(inst), 0);
     return GET_PRIVATE(inst)->version_check;
 }
 
 void
-qof_instance_set_version_check (gpointer inst, guint32 value)
+qof_instance_set_version_check (void * inst, uint32_t value)
 {
     g_return_if_fail(QOF_IS_INSTANCE(inst));
     GET_PRIVATE(inst)->version_check = value;
 }
 
 void
-qof_instance_copy_version_check (gpointer to, gconstpointer from)
+qof_instance_copy_version_check (void * to, const void * from)
 {
     g_return_if_fail(QOF_IS_INSTANCE(to));
     g_return_if_fail(QOF_IS_INSTANCE(from));
     GET_PRIVATE(to)->version_check = GET_PRIVATE(from)->version_check;
 }
 
-guint32 qof_instance_get_idata (gconstpointer inst)
+uint32_t qof_instance_get_idata (const void * inst)
 {
     if (!inst)
     {
@@ -797,7 +797,7 @@ guint32 qof_instance_get_idata (gconstpointer inst)
     return GET_PRIVATE(inst)->idata;
 }
 
-void qof_instance_set_idata(gpointer inst, guint32 idata)
+void qof_instance_set_idata(void * inst, uint32_t idata)
 {
     if (!inst)
     {
@@ -814,7 +814,7 @@ void qof_instance_set_idata(gpointer inst, guint32 idata)
 /* ========================================================== */
 
 /* Returns a displayable name to represent this object */
-gchar* qof_instance_get_display_name(const QofInstance* inst)
+char* qof_instance_get_display_name(const QofInstance* inst)
 {
     g_return_val_if_fail( inst != NULL, NULL );
 
@@ -831,14 +831,14 @@ gchar* qof_instance_get_display_name(const QofInstance* inst)
     }
 }
 
-typedef struct
+struct GetReferringObjectHelperData
 {
     const QofInstance* inst;
     GList* list;
-} GetReferringObjectHelperData;
+};
 
 static void
-get_referring_object_instance_helper(QofInstance* inst, gpointer user_data)
+get_referring_object_instance_helper(QofInstance* inst, void * user_data)
 {
     QofInstance** pInst = (QofInstance**)user_data;
 
@@ -849,7 +849,7 @@ get_referring_object_instance_helper(QofInstance* inst, gpointer user_data)
 }
 
 static void
-get_referring_object_helper(QofCollection* coll, gpointer user_data)
+get_referring_object_helper(QofCollection* coll, void * user_data)
 {
     QofInstance* first_instance = NULL;
     GetReferringObjectHelperData* data = (GetReferringObjectHelperData*)user_data;
@@ -881,7 +881,7 @@ GList* qof_instance_get_referring_object_list(const QofInstance* inst)
 }
 
 static void
-get_typed_referring_object_instance_helper(QofInstance* inst, gpointer user_data)
+get_typed_referring_object_instance_helper(QofInstance* inst, void * user_data)
 {
     GetReferringObjectHelperData* data = (GetReferringObjectHelperData*)user_data;
 
@@ -928,10 +928,10 @@ qof_instance_get_typed_referring_object_list(const QofInstance* inst, const QofI
 }
 
 /* Check if this object refers to a specific object */
-gboolean qof_instance_refers_to_object(const QofInstance* inst, const QofInstance* ref)
+bool qof_instance_refers_to_object(const QofInstance* inst, const QofInstance* ref)
 {
-    g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( ref != NULL, FALSE );
+    g_return_val_if_fail( inst != NULL, false );
+    g_return_val_if_fail( ref != NULL, false );
 
     if ( QOF_INSTANCE_GET_CLASS(inst)->refers_to_object != NULL )
     {
@@ -940,7 +940,7 @@ gboolean qof_instance_refers_to_object(const QofInstance* inst, const QofInstanc
     else
     {
         /* Not implemented - default = NO */
-        return FALSE;
+        return false;
     }
 }
 
@@ -948,17 +948,17 @@ gboolean qof_instance_refers_to_object(const QofInstance* inst, const QofInstanc
 /* Entity edit and commit utilities */
 /* =================================================================== */
 
-gboolean
+bool
 qof_begin_edit (QofInstance *inst)
 {
     QofInstancePrivate *priv;
     QofBackend * be;
 
-    if (!inst) return FALSE;
+    if (!inst) return false;
 
     priv = GET_PRIVATE(inst);
     priv->editlevel++;
-    if (1 < priv->editlevel) return FALSE;
+    if (1 < priv->editlevel) return false;
     if (0 >= priv->editlevel)
         priv->editlevel = 1;
 
@@ -966,20 +966,20 @@ qof_begin_edit (QofInstance *inst)
     if (be && qof_backend_begin_exists(be))
         qof_backend_run_begin(be, inst);
     else
-        priv->dirty = TRUE;
+        priv->dirty = true;
 
-    return TRUE;
+    return true;
 }
 
-gboolean qof_commit_edit (QofInstance *inst)
+bool qof_commit_edit (QofInstance *inst)
 {
     QofInstancePrivate *priv;
 
-    if (!inst) return FALSE;
+    if (!inst) return false;
 
     priv = GET_PRIVATE(inst);
     priv->editlevel--;
-    if (0 < priv->editlevel) return FALSE;
+    if (0 < priv->editlevel) return false;
 
 #if 0
     if ((0 == priv->editlevel) && priv->dirty)
@@ -996,10 +996,10 @@ gboolean qof_commit_edit (QofInstance *inst)
         PERR ("unbalanced call - resetting (was %d)", priv->editlevel);
         priv->editlevel = 0;
     }
-    return TRUE;
+    return true;
 }
 
-gboolean
+bool
 qof_commit_edit_part2(QofInstance *inst,
                       void (*on_error)(QofInstance *, QofBackendError),
                       void (*on_done)(QofInstance *),
@@ -1028,34 +1028,34 @@ qof_commit_edit_part2(QofInstance *inst,
         if (ERR_BACKEND_NO_ERR != errcode)
         {
             /* XXX Should perform a rollback here */
-            priv->do_free = FALSE;
+            priv->do_free = false;
 
             /* Push error back onto the stack */
             qof_backend_set_error (be, errcode);
             if (on_error)
                 on_error(inst, errcode);
-            return FALSE;
+            return false;
         }
         /* XXX the backend commit code should clear dirty!! */
-        priv->dirty = FALSE;
+        priv->dirty = false;
     }
 //    if (dirty && qof_get_alt_dirty_mode() &&
 //        !(priv->infant && priv->do_free)) {
 //      qof_collection_mark_dirty(priv->collection);
 //      qof_book_mark_dirty(priv->book);
 //    }
-    priv->infant = FALSE;
+    priv->infant = false;
 
     if (priv->do_free)
     {
         if (on_free)
             on_free(inst);
-        return TRUE;
+        return true;
     }
 
     if (on_done)
         on_done(inst);
-    return TRUE;
+    return true;
 }
 
 /* ========================== END OF FILE ======================= */

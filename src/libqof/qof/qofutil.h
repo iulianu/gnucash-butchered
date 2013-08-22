@@ -57,26 +57,26 @@
         return name;  }
 
 #define DEFINE_ENUM(name, list)          \
-    typedef enum {                       \
+    enum name {                       \
         list(ENUM_BODY)                  \
-    }name;
+    };
 
 #define AS_STRING_DEC(name, list)        \
-    const gchar* name##asString(name n);
+    const char* name##asString(name n);
 
 #define AS_STRING_FUNC(name, list)        \
-    const gchar* name##asString(name n) { \
+    const char* name##asString(name n) { \
         switch (n) {                      \
             list(AS_STRING_CASE)          \
             default: return "";  } }
 
 #define FROM_STRING_DEC(name, list)      \
     name name##fromString                \
-    (const gchar* str);
+    (const char* str);
 
 #define FROM_STRING_FUNC(name, list)     \
     name name##fromString                \
-    (const gchar* str) {                 \
+    (const char* str) {                 \
     if(str == NULL) { return 0; }        \
         list(FROM_STRING_CASE)           \
         return 0;  }
@@ -103,22 +103,22 @@
 
 #define FROM_STRING_DEC_NON_TYPEDEF(name, list)   \
    void name##fromString                          \
-   (const gchar* str, enum name *type);
+   (const char* str, name *type);
 
 #define FROM_STRING_CASE_NON_TYPEDEF(name, value) \
    if (strcmp(str, #name) == 0) { *type = name; }
 
 #define FROM_STRING_FUNC_NON_TYPEDEF(name, list)  \
    void name##fromString                          \
-   (const gchar* str, enum name *type) {          \
+   (const char* str, name *type) {          \
    if(str == NULL) { return; }                    \
     list(FROM_STRING_CASE_NON_TYPEDEF) }
 
 #define AS_STRING_DEC_NON_TYPEDEF(name, list)     \
-   const gchar* name##asString(enum name n);
+   const char* name##asString(name n);
 
 #define AS_STRING_FUNC_NON_TYPEDEF(name, list)    \
-   const gchar* name##asString(enum name n) {     \
+   const char* name##asString(name n) {     \
        switch (n) {                               \
            list(AS_STRING_CASE_NON_TYPEDEF)       \
            default: return ""; } }
@@ -155,12 +155,12 @@ void qof_close (void);
  *  GHashTable in an order determined by the GCompareFunc applied to
  *  the keys. The function is passed the key and value of each pair,
  *  and the given user_data parameter. */
-void g_hash_table_foreach_sorted(GHashTable *hash_table, GHFunc func, gpointer user_data, GCompareFunc compare_func);
+void g_hash_table_foreach_sorted(GHashTable *hash_table, GHFunc func, void * user_data, GCompareFunc compare_func);
 
 /** Search for an occurence of the substring needle in the string
  * haystack, ignoring case. Return TRUE if one is found or FALSE
  * otherwise. */
-gboolean qof_utf8_substr_nocase (const gchar *haystack, const gchar *needle);
+bool qof_utf8_substr_nocase (const char *haystack, const char *needle);
 
 /** case sensitive comparison of strings da and db - either
 may be NULL. A non-NULL string is greater than a NULL string.
@@ -174,22 +174,22 @@ may be NULL. A non-NULL string is greater than a NULL string.
                    strcmp(da, db).
          If da == NULL && db == NULL, returns 0.
 */
-gint safe_strcasecmp (const gchar * da, const gchar * db);
+int safe_strcasecmp (const char * da, const char * db);
 
 /** The null_strcmp compares strings a and b the same way that strcmp()
  * does, except that either may be null.  This routine assumes that
  * a null string is equal to the empty string.
  */
-gint null_strcmp (const gchar * da, const gchar * db);
+int null_strcmp (const char * da, const char * db);
 
 /** The ultostr() subroutine is the inverse of strtoul(). It accepts a
  * number and prints it in the indicated base.  The returned string
  * should be g_freed when done.  */
-gchar * ultostr (gulong val, gint base);
+char * ultostr (unsigned long val, int base);
 
 /** Returns true if string s is a number, possibly surrounded by
  * whitespace. */
-gboolean gnc_strisnum(const gchar *s);
+bool gnc_strisnum(const char *s);
 
 /** begin_edit
  *
@@ -197,7 +197,7 @@ gboolean gnc_strisnum(const gchar *s);
  *
  * The caller should use this macro first and then perform any other operations.
  */
-gboolean qof_begin_edit(QofInstance *inst);
+bool qof_begin_edit(QofInstance *inst);
 
 /**
  * commit_edit helpers
@@ -212,7 +212,7 @@ gboolean qof_begin_edit(QofInstance *inst);
  *
  * @param inst: an instance of QofInstance
  */
-gboolean qof_commit_edit(QofInstance *inst);
+bool qof_commit_edit(QofInstance *inst);
 
 /**
  * part2 -- deal with the backend
@@ -231,9 +231,9 @@ gboolean qof_commit_edit(QofInstance *inst);
  * callback is NULL).  In particular, 'on_done' will not be called for
  * an object which is to be freed.
  *
- * Returns TRUE, if the commit succeeded, FALSE otherwise.
+ * Returns true, if the commit succeeded, false otherwise.
  */
-gboolean
+bool
 qof_commit_edit_part2(QofInstance *inst,
                       void (*on_error)(QofInstance *, QofBackendError),
                       void (*on_done)(QofInstance *),

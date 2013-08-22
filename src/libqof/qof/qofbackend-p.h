@@ -235,7 +235,7 @@
  *    This should be done in the function called from backend_new.
  */
 
-struct QofBackendProvider_s
+struct QofBackendProvider
 {
     /** Some arbitrary name given for this particular backend provider */
     /*@ observer @*/
@@ -249,11 +249,11 @@ struct QofBackendProvider_s
 
     /** \brief Partial QofBook handler
 
-      TRUE if the backend handles external references
+      true if the backend handles external references
       to entities outside this book and can save a QofBook that
       does not contain any specific QOF objects.
       */
-    gboolean partial_book_supported;
+    bool partial_book_supported;
 
     /** Return a new, fully initialized backend.
      *
@@ -277,26 +277,26 @@ struct QofBackendProvider_s
       returning TRUE will mean that the data will naturally follow.
       */
     /*@ null @*/
-    gboolean (*check_data_type) (const char*);
+    bool (*check_data_type) (const char*);
 
     /** Free this structure, unregister this backend handler. */
     void (*provider_free) (/*@ only @*/ QofBackendProvider *);
 };
 
-typedef enum
+enum QofBackendLoadType
 {
     LOAD_TYPE_INITIAL_LOAD,
     LOAD_TYPE_LOAD_ALL
-} QofBackendLoadType;
+};
 
-struct QofBackend_s
+struct QofBackend
 {
     void (*session_begin) (QofBackend *be,
                            QofSession *session,
                            const char *book_id,
-                           gboolean ignore_lock,
-                           gboolean create,
-                           gboolean force);
+                           bool ignore_lock,
+                           bool create,
+                           bool force);
     void (*session_end) (QofBackend *);
     void (*destroy_backend) (/*@ only @*/ QofBackend *);
 
@@ -306,9 +306,9 @@ struct QofBackend_s
     void (*commit) (QofBackend *, QofInstance *);
     void (*rollback) (QofBackend *, QofInstance *);
 
-    gpointer (*compile_query) (QofBackend *, QofQuery *);
-    void (*free_query) (QofBackend *, gpointer);
-    void (*run_query) (QofBackend *, gpointer);
+    void * (*compile_query) (QofBackend *, QofQuery *);
+    void (*free_query) (QofBackend *, void *);
+    void (*run_query) (QofBackend *, void *);
 
     void (*sync) (QofBackend *, /*@ dependent @*/ QofBook *);
     void (*safe_sync) (QofBackend *, /*@ dependent @*/ QofBook *);
@@ -316,8 +316,8 @@ struct QofBackend_s
     /*@ observer @*/
     KvpFrame* (*get_config) (QofBackend *);
 
-    gboolean (*events_pending) (QofBackend *);
-    gboolean (*process_events) (QofBackend *);
+    bool (*events_pending) (QofBackend *);
+    bool (*process_events) (QofBackend *);
 
     QofBePercentageFunc percentage;
 
@@ -327,7 +327,7 @@ struct QofBackend_s
     char * error_msg;
 
     KvpFrame* backend_configuration;
-    gint config_count;
+    int config_count;
     /** Each backend resolves a fully-qualified file path.
      * This holds the filepath and communicates it to the frontends.
      */
@@ -377,7 +377,7 @@ void qof_backend_destroy(QofBackend *be);
 
 @return 'y' if book is open, otherwise 'n'.
 */
-gchar qof_book_get_open_marker(const QofBook *book);
+char qof_book_get_open_marker(const QofBook *book);
 
 /** get the book version
 
@@ -386,9 +386,9 @@ used for tracking multiuser updates in backends.
 @return -1 if no book exists, 0 if the book is
 new, otherwise the book version number.
 */
-gint32 qof_book_get_version (const QofBook *book);
+int32_t qof_book_get_version (const QofBook *book);
 
-void qof_book_set_version (QofBook *book, gint32 version);
+void qof_book_set_version (QofBook *book, int32_t version);
 
 /* @} */
 /* @} */

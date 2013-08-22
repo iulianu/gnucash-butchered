@@ -26,7 +26,7 @@
 #include "qofreference.h"
 
 static void
-entity_set_reference_cb(QofInstance *ent, gpointer user_data)
+entity_set_reference_cb(QofInstance *ent, void * user_data)
 {
     void (*reference_setter) (QofInstance*, QofInstance*);
     void (*choice_setter) (QofInstance*, QofInstance*);
@@ -115,7 +115,7 @@ entity_set_reference_cb(QofInstance *ent, gpointer user_data)
 }
 
 static void
-set_each_type(QofObject *obj, gpointer user_data)
+set_each_type(QofObject *obj, void * user_data)
 {
     QofBook *book;
 
@@ -170,10 +170,8 @@ qof_instance_get_reference_from(QofInstance *ent, const QofParam *param)
 
 void qof_book_set_references(QofBook *book)
 {
-    gboolean partial;
-
-    partial =
-        (gboolean)GPOINTER_TO_INT(qof_book_get_data(book, PARTIAL_QOFBOOK));
+    bool partial =
+        (bool)GPOINTER_TO_INT(qof_book_get_data(book, PARTIAL_QOFBOOK));
     g_return_if_fail(partial);
     qof_object_foreach_type(set_each_type, book);
 }

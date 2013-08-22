@@ -52,7 +52,7 @@
  *  \warning (GnuCash) If you modify QofBackendError, please update
  *   src/engine/gw-engine-spec.scm
 */
-typedef enum
+enum QofBackendError
 {
     ERR_BACKEND_NO_ERR = 0,
     ERR_BACKEND_NO_HANDLER,   /**< no backend handler found for this access method (ENOSYS) */
@@ -122,7 +122,7 @@ typedef enum
     ERR_RPC_BAD_VERSION,          /**< RPC Version Mismatch */
     ERR_RPC_FAILED,               /**< Operation failed */
     ERR_RPC_NOT_ADDED,            /**< object not added */
-} QofBackendError;
+};
 
 /**
  * A structure that declares backend services that can be gotten.
@@ -130,7 +130,7 @@ typedef enum
  * function to create a backend that can handle that URL access
  * function.
  */
-typedef struct QofBackendProvider_s QofBackendProvider;
+struct QofBackendProvider;
 
 /** \brief Pseudo-object providing an interface between the
  * engine and a persistant data store (e.g. a server, a database,
@@ -140,7 +140,7 @@ typedef struct QofBackendProvider_s QofBackendProvider;
  * engine.  The backend can, however, report errors to the GUI & other
  * front-end users.
  */
-typedef struct QofBackend_s QofBackend;
+struct QofBackend;
 
 /** \brief DOCUMENT ME! */
 typedef void (*QofBePercentageFunc) (/*@ null @*/ const char *message, double percent);
@@ -150,11 +150,11 @@ typedef void (*QofBePercentageFunc) (/*@ null @*/ const char *message, double pe
 
 void qof_backend_run_begin(QofBackend *be, QofInstance *inst);
 
-gboolean qof_backend_begin_exists(const QofBackend *be);
+bool qof_backend_begin_exists(const QofBackend *be);
 
 void qof_backend_run_commit(QofBackend *be, QofInstance *inst);
 
-gboolean qof_backend_commit_exists(const QofBackend *be);
+bool qof_backend_commit_exists(const QofBackend *be);
 //@}
 
 /** The qof_backend_set_error() routine pushes an error code onto the error
@@ -174,10 +174,10 @@ QofBackendError qof_backend_get_error (QofBackend *be);
 	shared library. This provides platform independence,
 	courtesy of libtool.
 
-\return FALSE in case or error, otherwise TRUE.
+\return false in case or error, otherwise true.
 */
-gboolean
-qof_load_backend_library(const gchar *directory, const gchar* module_name);
+bool
+qof_load_backend_library(const char *directory, const char* module_name);
 
 /** \brief Finalize all loaded backend sharable libraries. */
 void qof_finalize_backend_libraries(void);

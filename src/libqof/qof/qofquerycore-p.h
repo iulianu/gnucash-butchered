@@ -41,16 +41,16 @@ void qof_query_core_shutdown (void);
  * the Query internals), compare the object's parameter to the
  * predicate data.
  */
-typedef gint (*QofQueryPredicateFunc) (gpointer object,
+typedef int (*QofQueryPredicateFunc) (void * object,
                                        QofParam *getter,
                                        QofQueryPredData *pdata);
 
 /* Lookup functions */
-QofQueryPredicateFunc qof_query_core_get_predicate (gchar const *type);
-QofCompareFunc qof_query_core_get_compare (gchar const *type);
+QofQueryPredicateFunc qof_query_core_get_predicate (char const *type);
+QofCompareFunc qof_query_core_get_compare (char const *type);
 
 /* Compare two predicates */
-gboolean qof_query_core_predicate_equal (const QofQueryPredData *p1, const QofQueryPredData *p2);
+bool qof_query_core_predicate_equal (const QofQueryPredData *p1, const QofQueryPredData *p2);
 
 /* Predicate Data Structures:
  *
@@ -66,8 +66,8 @@ typedef struct
 {
     QofQueryPredData	pd;
     QofStringMatch	options;
-    gboolean		is_regex;
-    gchar *		matchstring;
+    bool		is_regex;
+    char *		matchstring;
     regex_t		compiled;
 } query_string_def, *query_string_t;
 
@@ -95,13 +95,13 @@ typedef struct
 typedef struct
 {
     QofQueryPredData	pd;
-    gint32	val;
+    int32_t	val;
 } query_int32_def, *query_int32_t;
 
 typedef struct
 {
     QofQueryPredData	pd;
-    gint64	val;
+    int64_t	val;
 } query_int64_def, *query_int64_t;
 
 typedef struct
@@ -113,14 +113,14 @@ typedef struct
 typedef struct
 {
     QofQueryPredData	pd;
-    gboolean	val;
+    bool	val;
 } query_boolean_def, *query_boolean_t;
 
 typedef struct
 {
     QofQueryPredData	pd;
     QofCharMatch	options;
-    gchar *	char_list;
+    char *	char_list;
 } query_char_def, *query_char_t;
 
 typedef struct

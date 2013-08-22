@@ -51,13 +51,13 @@
 
 /** The type used to store guids */
 #define GUID_DATA_SIZE	16
-typedef union GNC_INTERNAL_GUID
+union GncGUID
 {
-    guchar data[GUID_DATA_SIZE];
+    unsigned char data[GUID_DATA_SIZE];
 
-    gint __align_me; /* this just ensures that GUIDs are 32-bit
+    int __align_me; /* this just ensures that GUIDs are 32-bit
                    * aligned on systems that need them to be. */
-} GncGUID;
+};
 
 
 #define GNC_TYPE_GUID (gnc_guid_get_type())
@@ -137,7 +137,7 @@ GncGUID *guid_copy (const GncGUID *guid);
  *  returned memory is owned by this routine and may not be freed by
  *  the caller.
  */
-const gchar * guid_to_string (const GncGUID * guid);
+const char * guid_to_string (const GncGUID * guid);
 
 /** The guid_to_string_buff() routine puts a null-terminated string
  *  encoding of the id into the memory pointed at by buff.  The
@@ -152,7 +152,7 @@ const gchar * guid_to_string (const GncGUID * guid);
  *
  *  @return A pointer to the terminating null character of the string.
  */
-gchar * guid_to_string_buff (const GncGUID * guid, /*@ out @*/ gchar *buff);
+char * guid_to_string_buff (const GncGUID * guid, /*@ out @*/ char *buff);
 
 
 /** Given a string, decode the id into the guid if guid is non-NULL.
@@ -160,19 +160,19 @@ gchar * guid_to_string_buff (const GncGUID * guid, /*@ out @*/ gchar *buff);
  * hexadecimal number. This function accepts both upper and lower case
  * hex digits. If the return value is FALSE, the effect on guid is
  * undefined. */
-gboolean string_to_guid(const gchar * string, /*@ out @*/ GncGUID * guid);
+bool string_to_guid(const char * string, /*@ out @*/ GncGUID * guid);
 
 
 /** Given two GUIDs, return TRUE if they are non-NULL and equal.
  * Return FALSE, otherwise. */
-gboolean guid_equal(const GncGUID *guid_1, const GncGUID *guid_2);
-gint     guid_compare(const GncGUID *g1, const GncGUID *g2);
+bool guid_equal(const GncGUID *guid_1, const GncGUID *guid_2);
+int  guid_compare(const GncGUID *g1, const GncGUID *g2);
 
 /** Hash function for a GUID. Given a GncGUID *, hash it to a guint */
-guint guid_hash_to_guint(gconstpointer ptr);
+unsigned int guid_hash_to_guint(const void * ptr);
 
 /** Equality function for two GUIDs in a GHashTable. */
-gint guid_g_hash_table_equal (gconstpointer guid_a, gconstpointer guid_b);
+int guid_g_hash_table_equal (const void * guid_a, const void * guid_b);
 
 /** Returns a GHashTable with <GUID*> as key and a <gpointer> as
  * value and no destructor functions for key or value set. */

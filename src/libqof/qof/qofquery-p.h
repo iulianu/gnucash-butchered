@@ -26,8 +26,8 @@
 
 #include "qofquery.h"
 
-typedef struct _QofQueryTerm QofQueryTerm;
-typedef struct _QofQuerySort QofQuerySort;
+struct QofQueryTerm;
+struct QofQuerySort;
 
 /* Functions to get Query information */
 int qof_query_get_max_results (const QofQuery *q);
@@ -50,7 +50,7 @@ GList * qof_query_get_terms (const QofQuery *q);
 QofQueryParamList * qof_query_term_get_param_path (const QofQueryTerm *queryterm);
 /*@ dependent @*/
 QofQueryPredData *qof_query_term_get_pred_data (const QofQueryTerm *queryterm);
-gboolean qof_query_term_is_inverted (const QofQueryTerm *queryterm);
+bool qof_query_term_is_inverted (const QofQueryTerm *queryterm);
 
 
 /* Functions to get and look at QuerySorts */
@@ -63,7 +63,7 @@ void qof_query_get_sorts (QofQuery *q, QofQuerySort **primary,
 
 /*@ dependent @*/
 QofQueryParamList * qof_query_sort_get_param_path (const QofQuerySort *querysort);
-gint qof_query_sort_get_sort_options (const QofQuerySort *querysort);
-gboolean qof_query_sort_get_increasing (const QofQuerySort *querysort);
+int  qof_query_sort_get_sort_options (const QofQuerySort *querysort);
+bool qof_query_sort_get_increasing (const QofQuerySort *querysort);
 
 #endif /* QOF_QUERY_P_H */

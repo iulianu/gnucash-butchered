@@ -79,7 +79,7 @@ qof_string_cache_destroy (void)
 /* If the key exists in the cache, check the refcount.  If 1, just
  * remove the key.  Otherwise, decrement the refcount */
 void
-qof_string_cache_remove(gconstpointer key)
+qof_string_cache_remove(const void * key)
 {
     if (key)
     {
@@ -104,7 +104,7 @@ qof_string_cache_remove(gconstpointer key)
 /* If the key exists in the cache, increment the refcount.  Otherwise,
  * add it with a refcount of 1. */
 gpointer
-qof_string_cache_insert(gconstpointer key)
+qof_string_cache_insert(const void * key)
 {
     if (key)
     {

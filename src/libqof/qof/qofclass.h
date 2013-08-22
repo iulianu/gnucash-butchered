@@ -125,7 +125,7 @@ links: one object linked to many entities of many types.
                 /** Type of Paramters (String, Date, Numeric, GncGUID, etc.) */
                 typedef const char * QofType;
 
-typedef struct _QofParam QofParam;
+struct QofParam;
 
 /** The QofAccessFunc defines an arbitrary function pointer
  *  for access functions.  This is needed because C doesn't have
@@ -142,21 +142,21 @@ typedef struct _QofParam QofParam;
  * also provides a place for the user to hang additional user-defined
  * data.
  */
-typedef gpointer (*QofAccessFunc)(gpointer object, /*@ null @*/ const QofParam *param);
+typedef void * (*QofAccessFunc)(void * object, /*@ null @*/ const QofParam *param);
 
 /** The QofSetterFunc defines an function pointer for parameter
  *  setters. Real functions must be of the form:
  *
  * void setter_func (object_type *self, param_type *param);
  */
-typedef void (*QofSetterFunc) (gpointer, /*@ null @*/ gpointer);
+typedef void (*QofSetterFunc) (void *, /*@ null @*/ void *);
 
 /* A callback for how to compare two (same-type) objects based on a
  * common getter (parameter member), using the provided comparison
  * options (which are the type-specific options).
  */
-typedef gint (*QofCompareFunc) (gpointer a, gpointer b,
-                                gint compare_options,
+typedef int (*QofCompareFunc) (void * a, void * b,
+                                int compare_options,
                                 QofParam *getter);
 
 /** This structure is for each queriable parameter in an object
@@ -176,18 +176,18 @@ typedef gint (*QofCompareFunc) (gpointer a, gpointer b,
  * the param memory is freed, the callback can be used to release the
  * user-defined data.
  */
-struct _QofParam
+struct QofParam
 {
     const char       * param_name;
     QofType            param_type;
     QofAccessFunc      param_getfcn;
     QofSetterFunc      param_setfcn;
     QofCompareFunc     param_compfcn;
-    gpointer           param_userdata;
+    void *             param_userdata;
 };
 
 /** This function is the default sort function for a particular object type */
-typedef int (*QofSortFunc)(gconstpointer, gconstpointer);
+typedef int (*QofSortFunc)(const void *, const void *);
 
 /** This function registers a new object class with the Qof subsystem.
  *  In particular, it registers the set of setters and getters for
@@ -226,9 +226,9 @@ void qof_class_register (QofIdTypeConst obj_name,
  */
 
 /** Return true if the the indicated type is registered,
- *  else return FALSE.
+ *  else return false.
  */
-gboolean qof_class_is_registered (QofIdTypeConst obj_name);
+bool qof_class_is_registered (QofIdTypeConst obj_name);
 
 /** Return the core datatype of the specified object's parameter */
 QofType qof_class_get_parameter_type (QofIdTypeConst obj_name,
@@ -247,21 +247,21 @@ QofSetterFunc qof_class_get_parameter_setter (QofIdTypeConst obj_name,
         const char *parameter);
 
 /** Type definition for the class callback function. */
-typedef void (*QofClassForeachCB) (QofIdTypeConst, gpointer);
+typedef void (*QofClassForeachCB) (QofIdTypeConst, void *);
 
 /** Call the callback once for each object class that is registered
  *  with the system.  The 'user_data' is passed back to the callback.
  */
-void qof_class_foreach (QofClassForeachCB, gpointer user_data);
+void qof_class_foreach (QofClassForeachCB, void * user_data);
 
 /** Type definition for the paramter callback function. */
-typedef void (*QofParamForeachCB) (QofParam *, gpointer user_data);
+typedef void (*QofParamForeachCB) (QofParam *, void * user_data);
 
 /** Call the callback once for each parameter on the indicated
  *  object class.  The 'user_data' is passed back to the callback.
  */
 void qof_class_param_foreach (QofIdTypeConst obj_name,
-                              QofParamForeachCB, gpointer user_data);
+                              QofParamForeachCB, void * user_data);
 
 /** \brief List of the parameters that could be references.
 

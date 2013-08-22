@@ -102,7 +102,7 @@ It is used by the entity copy functions and by the QSF backend.
 Creates a GList stored in the Book hashtable to contain
 repeated references for a single entity.
 */
-typedef struct qof_instance_reference
+struct QofInstanceReference
 {
     QofIdType       choice_type;/**< Used when the reference is a QOF_TYPE_CHOICE type
 	- stores the actual type of the reference from the list of available choices. */
@@ -113,7 +113,7 @@ typedef struct qof_instance_reference
     const QofParam  *param;      /**< The parameter of the original entity to use
 	to get or set the reference. */
     const GncGUID      *ent_guid;   /**< The GncGUID of the original entity. */
-} QofInstanceReference;
+};
 
 /** Used as the key value for the QofBook data hash.
  *

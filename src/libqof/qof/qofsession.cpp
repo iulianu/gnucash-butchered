@@ -49,7 +49,7 @@
 static GHookList * session_closed_hooks = NULL;
 static QofLogModule log_module = QOF_MOD_SESSION;
 static GSList *provider_list = NULL;
-static gboolean qof_providers_initialized = FALSE;
+static bool qof_providers_initialized = false;
 
 /*
  * These getters are used in tests to reach static vars from outside
@@ -58,7 +58,7 @@ static gboolean qof_providers_initialized = FALSE;
 
 GHookList* get_session_closed_hooks (void );
 GSList* get_provider_list (void );
-gboolean get_qof_providers_initialized (void );
+bool get_qof_providers_initialized (void );
 void unregister_all_providers (void );
 
 GHookList*
@@ -73,7 +73,7 @@ get_provider_list (void)
     return provider_list;
 }
 
-gboolean
+bool
 get_qof_providers_initialized (void)
 {
     return qof_providers_initialized;
@@ -118,7 +118,7 @@ qof_backend_get_registered_access_method_list(void)
 /* hook routines */
 
 void
-qof_session_add_close_hook (GFunc fn, gpointer data)
+qof_session_add_close_hook (GFunc fn, void * data)
 {
     GHook *hook;
 
@@ -320,10 +320,8 @@ qof_session_ensure_all_data_loaded (QofSession *session)
 static void
 qof_book_set_partial (QofBook *book)
 {
-    gboolean partial;
-
-    partial =
-        (gboolean)GPOINTER_TO_INT (qof_book_get_data (book, PARTIAL_QOFBOOK));
+    bool partial =
+        (bool)GPOINTER_TO_INT (qof_book_get_data (book, PARTIAL_QOFBOOK));
     if (!partial)
     {
         qof_book_set_data (book, PARTIAL_QOFBOOK, GINT_TO_POINTER (TRUE));
@@ -352,7 +350,7 @@ qof_session_update_reference_list (QofSession *session,
 }
 
 static void
-qof_instance_param_cb (QofParam *param, gpointer data)
+qof_instance_param_cb (QofParam *param, void * data)
 {
     QofInstanceCopyData *qecd;
 
@@ -372,7 +370,7 @@ qof_instance_param_cb (QofParam *param, gpointer data)
 }
 
 static void
-col_ref_cb (QofInstance* ref_ent, gpointer user_data)
+col_ref_cb (QofInstance* ref_ent, void * user_data)
 {
     QofInstanceReference *ref;
     QofInstanceCopyData  *qecd;
@@ -402,15 +400,15 @@ col_ref_cb (QofInstance* ref_ent, gpointer user_data)
 }
 
 static void
-qof_instance_foreach_copy (gpointer data, gpointer user_data)
+qof_instance_foreach_copy (void * data, void * user_data)
 {
     QofInstance          *importEnt, *targetEnt/*, *referenceEnt*/;
     QofInstanceCopyData 	*context;
     QofInstanceReference  *reference;
-    gboolean		registered_type;
+    bool		registered_type;
     /* cm_ prefix used for variables that hold the data to commit */
     QofParam 		*cm_param;
-    gchar 			*cm_string, *cm_char;
+    char 			*cm_string, *cm_char;
     const GncGUID 		*cm_guid;
     KvpFrame 		*cm_kvp;
     QofCollection *cm_col;
@@ -418,9 +416,9 @@ qof_instance_foreach_copy (gpointer data, gpointer user_data)
      * use pointers normally */
     gnc_numeric cm_numeric, (*numeric_getter) (QofInstance*, QofParam*);
     double cm_double, (*double_getter) (QofInstance*, QofParam*);
-    gboolean cm_boolean, (*boolean_getter) (QofInstance*, QofParam*);
-    gint32 cm_i32, (*int32_getter) (QofInstance*, QofParam*);
-    gint64 cm_i64, (*int64_getter) (QofInstance*, QofParam*);
+    bool cm_boolean, (*boolean_getter) (QofInstance*, QofParam*);
+    int32_T cm_i32, (*int32_getter) (QofInstance*, QofParam*);
+    int64_t cm_i64, (*int64_getter) (QofInstance*, QofParam*);
     Timespec cm_date, (*date_getter) (QofInstance*, QofParam*);
     /* function pointers to the parameter setters */
     void (*string_setter) (QofInstance*, const char*);
@@ -428,9 +426,9 @@ qof_instance_foreach_copy (gpointer data, gpointer user_data)
     void (*numeric_setter) (QofInstance*, gnc_numeric);
     void (*guid_setter) (QofInstance*, const GncGUID*);
     void (*double_setter) (QofInstance*, double);
-    void (*boolean_setter) (QofInstance*, gboolean);
-    void (*i32_setter) (QofInstance*, gint32);
-    void (*i64_setter) (QofInstance*, gint64);
+    void (*boolean_setter) (QofInstance*, bool);
+    void (*i32_setter) (QofInstance*, int32_t);
+    void (*i64_setter) (QofInstance*, int64_t);
     void (*char_setter) (QofInstance*, char*);
     void (*kvp_frame_setter) (QofInstance*, KvpFrame*);
 
@@ -585,7 +583,7 @@ qof_instance_foreach_copy (gpointer data, gpointer user_data)
     }
 }
 
-static gboolean
+static bool
 qof_instance_guid_match (QofSession *new_session, QofInstance *original)
 {
     QofInstance *copy;
@@ -604,13 +602,13 @@ qof_instance_guid_match (QofSession *new_session, QofInstance *original)
     copy = qof_collection_lookup_entity (coll, g);
     if (copy)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 static void
-qof_instance_list_foreach (gpointer data, gpointer user_data)
+qof_instance_list_foreach (void * data, void * user_data)
 {
     QofInstanceCopyData *qecd;
     QofInstance *original;
@@ -655,7 +653,7 @@ qof_instance_list_foreach (gpointer data, gpointer user_data)
 }
 
 static void
-qof_instance_coll_foreach (QofInstance *original, gpointer user_data)
+qof_instance_coll_foreach (QofInstance *original, void * user_data)
 {
     QofInstanceCopyData *qecd;
     const GncGUID *g;
@@ -678,7 +676,7 @@ qof_instance_coll_foreach (QofInstance *original, gpointer user_data)
 }
 
 static void
-qof_instance_coll_copy (QofInstance *original, gpointer user_data)
+qof_instance_coll_copy (QofInstance *original, void * user_data)
 {
     QofInstanceCopyData *qecd;
     QofBook *book;
@@ -703,7 +701,7 @@ qof_instance_coll_copy (QofInstance *original, gpointer user_data)
     qof_commit_edit (inst);
 }
 
-static gboolean
+static bool
 qof_instance_copy_to_session (QofSession* new_session, QofInstance* original)
 {
     QofInstanceCopyData qecd;
@@ -744,7 +742,7 @@ qof_instance_copy_to_session (QofSession* new_session, QofInstance* original)
     return TRUE;
 }
 
-static gboolean
+static bool
 qof_instance_copy_list (QofSession *new_session, GList *entity_list)
 {
     QofInstanceCopyData *qecd;
@@ -770,7 +768,7 @@ qof_instance_copy_list (QofSession *new_session, GList *entity_list)
     return TRUE;
 }
 
-static gboolean
+static bool
 qof_instance_copy_coll (QofSession *new_session, QofCollection *entity_coll)
 {
     QofInstanceCopyData qecd;
@@ -806,7 +804,7 @@ struct recurse_s
 #if 0 /* recurse_ent_cb, qof_instance_copy_coll_r, and qof_instance_copy_one_r aren't used */
 
 static void
-recurse_collection_cb (QofInstance *ent, gpointer user_data)
+recurse_collection_cb (QofInstance *ent, void * user_data)
 {
     struct recurse_s *store;
 
@@ -827,7 +825,7 @@ recurse_collection_cb (QofInstance *ent, gpointer user_data)
 }
 
 static void
-recurse_ent_cb (QofInstance *ent, gpointer user_data)
+recurse_ent_cb (QofInstance *ent, void * user_data)
 {
     GList      *ref_list, *i, *j, *ent_list, *child_list;
     QofParam   *ref_param;
@@ -944,7 +942,7 @@ recurse_ent_cb (QofInstance *ent, gpointer user_data)
     }
 }
 
-static gboolean
+static bool
 qof_instance_copy_coll_r (QofSession *new_session, QofCollection *coll)
 {
     struct recurse_s store;
@@ -967,7 +965,7 @@ qof_instance_copy_coll_r (QofSession *new_session, QofCollection *coll)
     return success;
 }
 
-static gboolean
+static bool
 qof_instance_copy_one_r (QofSession *new_session, QofInstance *ent)
 {
     struct recurse_s store;
@@ -1093,7 +1091,7 @@ qof_session_destroy_backend (QofSession *session)
 
 void
 qof_session_begin (QofSession *session, const char * book_id,
-                   gboolean ignore_lock, gboolean create, gboolean force)
+                   bool ignore_lock, bool create, bool force)
 {
     gchar *scheme = NULL, *filename = NULL;
 
@@ -1281,7 +1279,7 @@ qof_session_load (QofSession *session,
 
 /* ====================================================================== */
 
-static gboolean
+static bool
 save_error_handler(QofBackend *be, QofSession *session)
 {
     int err;
@@ -1473,7 +1471,7 @@ qof_session_safe_save(QofSession *session, QofPercentageFunc percentage_func)
 
 
 /* ====================================================================== */
-gboolean
+bool
 qof_session_save_in_progress(const QofSession *session)
 {
     return (session && g_atomic_int_get(&session->lock) != 1);
@@ -1557,7 +1555,7 @@ qof_session_swap_data (QofSession *session_1, QofSession *session_2)
 
 /* ====================================================================== */
 
-gboolean
+bool
 qof_session_events_pending (const QofSession *session)
 {
     if (!session) return FALSE;
@@ -1567,7 +1565,7 @@ qof_session_events_pending (const QofSession *session)
     return session->backend->events_pending (session->backend);
 }
 
-gboolean
+bool
 qof_session_process_events (QofSession *session)
 {
     if (!session) return FALSE;
@@ -1581,7 +1579,7 @@ qof_session_process_events (QofSession *session)
  * export any transactions.  It's a place-holder until full
  * book-closing is implemented.
  */
-gboolean
+bool
 qof_session_export (QofSession *tmp_session,
                     QofSession *real_session,
                     QofPercentageFunc percentage_func)

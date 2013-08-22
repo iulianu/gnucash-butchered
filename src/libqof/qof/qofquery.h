@@ -82,17 +82,17 @@ probably optimize.
 #define QOF_MOD_QUERY "qof.query"
 
 /** A Query */
-typedef struct _QofQuery QofQuery;
+struct QofQuery;
 
 /** Query Term Operators, for combining Query Terms */
-typedef enum
+enum QofQueryOp
 {
     QOF_QUERY_AND = 1,
     QOF_QUERY_OR,
     QOF_QUERY_NAND,
     QOF_QUERY_NOR,
     QOF_QUERY_XOR
-} QofQueryOp;
+};
 
 /** First/only term is same as 'and' */
 #define QOF_QUERY_FIRST_TERM QOF_QUERY_AND
@@ -201,7 +201,7 @@ void qof_query_add_guid_list_match (QofQuery *q, QofQueryParamList *param_list,
  * as well. */
 void qof_query_add_boolean_match (QofQuery *q,
                                   QofQueryParamList *param_list,
-                                  gboolean value,
+                                  bool value,
                                   QofQueryOp op);
 
 /** Perform the query, return the results.
@@ -256,7 +256,7 @@ int qof_query_has_terms (QofQuery *q);
 int qof_query_num_terms (QofQuery *q);
 
 /** DOCUMENT ME !! */
-gboolean qof_query_has_term_type (QofQuery *q, QofQueryParamList *term_param);
+bool  qof_query_has_term_type (QofQuery *q, QofQueryParamList *term_param);
 GSList * qof_query_get_term_type (QofQuery *q, QofQueryParamList *term_param);
 
 /** Make a copy of the indicated query */
@@ -325,22 +325,22 @@ void qof_query_set_sort_order (QofQuery *q,
                                QofQueryParamList *secondary_sort_params,
                                QofQueryParamList *tertiary_sort_params);
 
-void qof_query_set_sort_options (QofQuery *q, gint prim_op, gint sec_op,
-                                 gint tert_op);
+void qof_query_set_sort_options (QofQuery *q, int prim_op, int sec_op,
+                                 int tert_op);
 
 /**
  * When a query is run, the results are sorted before being returned.
  * This routine can be used to control the direction of the ordering.
- * A value of TRUE indicates the sort will be in increasing order,
- * a value of FALSE will order results in decreasing order.
+ * A value of true indicates the sort will be in increasing order,
+ * a value of false will order results in decreasing order.
  *
  * Note that if there are more results than the 'max-results' value,
  * then only the *last* max-results will be returned.  For example,
  * if the sort is set to be increasing date order, then only the
  * objects with the most recent dates will be returned.
  */
-void qof_query_set_sort_increasing (QofQuery *q, gboolean prim_inc,
-                                    gboolean sec_inc, gboolean tert_inc);
+void qof_query_set_sort_increasing (QofQuery *q, bool prim_inc,
+                                    bool sec_inc, bool tert_inc);
 
 
 /**
@@ -361,7 +361,7 @@ void qof_query_set_max_results (QofQuery *q, int n);
  * implementation -- logical equivalences between different
  * and/or trees are ignored.
  */
-gboolean qof_query_equal (const QofQuery *q1, const QofQuery *q2);
+bool qof_query_equal (const QofQuery *q1, const QofQuery *q2);
 
 /** Log the Query
  *

@@ -32,30 +32,30 @@ static QofLogModule log_module = QOF_MOD_CLASS;
 
 static GHashTable *classTable = NULL;
 static GHashTable *sortTable = NULL;
-static gboolean initialized = FALSE;
+static bool initialized = false;
 
-static gboolean clear_table (gpointer key, gpointer value, gpointer user_data)
+static bool clear_table (void * key, void * value, void * user_data)
 {
     g_hash_table_destroy (value);
-    return TRUE;
+    return true;
 }
 
 /* *******************************************************************/
 /* PRIVATE FUNCTIONS */
 
-static gboolean check_init (void)
+static bool check_init (void)
 {
-    if (initialized) return TRUE;
+    if (initialized) return true;
 
     PERR("You must call qof_class_init() before using qof_class.");
-    return FALSE;
+    return false;
 }
 
 void
 qof_class_init(void)
 {
     if (initialized) return;
-    initialized = TRUE;
+    initialized = true;
 
     classTable = g_hash_table_new (g_str_hash, g_str_equal);
     sortTable = g_hash_table_new (g_str_hash, g_str_equal);
@@ -65,7 +65,7 @@ void
 qof_class_shutdown (void)
 {
     if (!initialized) return;
-    initialized = FALSE;
+    initialized = false;
 
     g_hash_table_foreach_remove (classTable, clear_table, NULL);
     g_hash_table_destroy (classTable);
@@ -120,15 +120,15 @@ qof_class_register (QofIdTypeConst obj_name,
     }
 }
 
-gboolean
+bool
 qof_class_is_registered (QofIdTypeConst obj_name)
 {
-    if (!obj_name) return FALSE;
-    if (!check_init()) return FALSE;
+    if (!obj_name) return false;
+    if (!check_init()) return false;
 
-    if (g_hash_table_lookup (classTable, obj_name)) return TRUE;
+    if (g_hash_table_lookup (classTable, obj_name)) return true;
 
-    return FALSE;
+    return false;
 }
 
 const QofParam *
@@ -202,22 +202,22 @@ qof_class_get_parameter_type (QofIdTypeConst obj_name,
 struct class_iterate
 {
     QofClassForeachCB   fcn;
-    gpointer            data;
+    void *              data;
 };
 
 static void
-class_foreach_cb (gpointer key, gpointer item, gpointer arg)
+class_foreach_cb (void * key, void * item, void * arg)
 {
-    struct class_iterate *iter = arg;
+    class_iterate *iter = arg;
     QofIdTypeConst id = key;
 
     iter->fcn (id, iter->data);
 }
 
 void
-qof_class_foreach (QofClassForeachCB cb, gpointer user_data)
+qof_class_foreach (QofClassForeachCB cb, void * user_data)
 {
-    struct class_iterate iter;
+    class_iterate iter;
 
     if (!cb) return;
     if (!classTable) return;
@@ -237,9 +237,9 @@ struct parm_iterate
 };
 
 static void
-param_foreach_cb (gpointer key, gpointer item, gpointer arg)
+param_foreach_cb (void * key, void * item, void * arg)
 {
-    struct parm_iterate *iter = arg;
+    parm_iterate *iter = arg;
     QofParam *parm = item;
 
     iter->fcn (parm, iter->data);
@@ -247,9 +247,9 @@ param_foreach_cb (gpointer key, gpointer item, gpointer arg)
 
 void
 qof_class_param_foreach (QofIdTypeConst obj_name,
-                         QofParamForeachCB cb, gpointer user_data)
+                         QofParamForeachCB cb, void * user_data)
 {
-    struct parm_iterate iter;
+    parm_iterate iter;
     GHashTable *param_ht;
 
     if (!obj_name || !cb) return;
@@ -269,9 +269,9 @@ struct param_ref_list
 };
 
 static void
-find_reference_param_cb(QofParam *param, gpointer user_data)
+find_reference_param_cb(QofParam *param, void * user_data)
 {
-    struct param_ref_list *b;
+    param_ref_list *b;
 
     b = (struct param_ref_list*)user_data;
     if ((param->param_getfcn == NULL) || (param->param_setfcn == NULL))

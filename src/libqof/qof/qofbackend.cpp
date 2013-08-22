@@ -169,16 +169,16 @@ qof_backend_run_begin(QofBackend *be, QofInstance *inst)
     (be->begin) (be, inst);
 }
 
-gboolean
+bool
 qof_backend_begin_exists(const QofBackend *be)
 {
     if (be->begin)
     {
-        return TRUE;
+        return true;
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
@@ -197,29 +197,29 @@ qof_backend_run_commit(QofBackend *be, QofInstance *inst)
 }
 
 
-gboolean
+bool
 qof_backend_commit_exists(const QofBackend *be)
 {
     if (!be)
     {
-        return FALSE;
+        return false;
     }
     if (be->commit)
     {
-        return TRUE;
+        return true;
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
 static GSList* backend_module_list = NULL;
 
-gboolean
+bool
 qof_load_backend_library (const char *directory, const char* module_name)
 {
-    gchar *fullpath;
+    char *fullpath;
     GModule *backend;
     void (*module_init_func) (void);
 

@@ -37,7 +37,7 @@
 #include "qof.h"
 
 /** Define the type of events allowed. */
-typedef gint QofEventId;
+typedef int QofEventId;
 
 /** \brief Allow application-specific events to be created.
 
@@ -82,7 +82,7 @@ for future libqof1 or libqof2 usage.
  * @param event_data:   data to be supplied when handler is invoked.
  */
 typedef void (*QofEventHandler) (QofInstance *ent,  QofEventId event_type,
-                                 gpointer handler_data, gpointer event_data);
+                                 void * handler_data, void * event_data);
 
 /** \brief Register a handler for events.
  *
@@ -91,13 +91,13 @@ typedef void (*QofEventHandler) (QofInstance *ent,  QofEventId event_type,
  *
  * @return id identifying handler
  */
-gint qof_event_register_handler (QofEventHandler handler, gpointer handler_data);
+int qof_event_register_handler (QofEventHandler handler, void * handler_data);
 
 /** \brief Unregister an event handler.
  *
  * @param handler_id: the id of the handler to unregister
  */
-void qof_event_unregister_handler (gint handler_id);
+void qof_event_unregister_handler (int handler_id);
 
 /** \brief Invoke all registered event handlers using the given arguments.
 
@@ -121,7 +121,7 @@ void qof_event_unregister_handler (gint handler_id);
  this one event. Can be NULL.
 */
 void qof_event_gen (QofInstance *entity, QofEventId event_type,
-                    gpointer event_data);
+                    void * event_data);
 
 /** \brief  Suspend all engine events.
  *

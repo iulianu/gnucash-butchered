@@ -45,8 +45,8 @@
 #define NUM_CLOCKS 10
 
 static FILE *fout = NULL;
-static gchar* function_buffer = NULL;
-static gint qof_log_num_spaces = 0;
+static char* function_buffer = NULL;
+static int qof_log_num_spaces = 0;
 static GHashTable *log_table = NULL;
 static GLogFunc previous_handler = NULL;
 
@@ -88,7 +88,7 @@ qof_log_init(void)
 }
 
 static void
-log4glib_handler(const gchar     *log_domain,
+log4glib_handler(const char     *log_domain,
                  GLogLevelFlags  log_level,
                  const gchar     *message,
                  gpointer        user_data)
@@ -128,7 +128,7 @@ log4glib_handler(const gchar     *log_domain,
 }
 
 void
-qof_log_init_filename(const gchar* log_filename)
+qof_log_init_filename(const char* log_filename)
 {
     gboolean warn_about_missing_permission = FALSE;
     if (log_table == NULL)
@@ -344,7 +344,7 @@ qof_log_parse_log_config(const char *filename)
     g_key_file_free(conf);
 }
 
-gboolean
+bool
 qof_log_check(QofLogModule log_domain, QofLogLevel log_level)
 {
 //#define _QLC_DBG(x) x

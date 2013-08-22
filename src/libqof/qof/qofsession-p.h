@@ -32,7 +32,7 @@
 #include "qofbook.h"
 #include "qofsession.h"
 
-struct _QofSession
+struct QofSession
 {
     /* This is just a "fake" entry point to allow me to pass a Session as
      * an Entity.  NOTE:  THIS IS NOT AN ENTITY!  THE ONLY PART OF ENTITY
@@ -63,10 +63,10 @@ struct _QofSession
     /* Pointer to the backend that is actually used to move data
      * between the persistant store and the local engine.  */
     QofBackend *backend;
-    gint lock;
+    int lock;
 };
 
-typedef struct qof_instance_copy_data
+struct QofInstanceCopyData
 {
     QofInstance *from;
     QofInstance *to;
@@ -74,8 +74,8 @@ typedef struct qof_instance_copy_data
     GList  *referenceList;
     GSList *param_list;
     QofSession *new_session;
-    gboolean error;
-} QofInstanceCopyData;
+    bool error;
+};
 
 QofBackend * qof_session_get_backend (const QofSession *session);
 

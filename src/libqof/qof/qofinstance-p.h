@@ -35,7 +35,7 @@
 /** Set the collection this instance belongs to.  This function should never
  *  be called by user code. Instead call the qof_collection_insert_entity()
  *  function. */
-void qof_instance_set_collection (gconstpointer ptr, QofCollection *col);
+void qof_instance_set_collection (const void * ptr, QofCollection *col);
 
 void qof_instance_set_slots (QofInstance *, KvpFrame *);
 
@@ -47,6 +47,6 @@ void qof_instance_set_last_update (QofInstance *inst, Timespec ts);
 
 /** Set the dirty flag of just the instance. Don't modify the
  *  collection flag at all. */
-void qof_instance_set_dirty_flag (gconstpointer inst, gboolean flag);
+void qof_instance_set_dirty_flag (const void * inst, bool flag);
 
 #endif /* QOF_INSTANCE_P_H */

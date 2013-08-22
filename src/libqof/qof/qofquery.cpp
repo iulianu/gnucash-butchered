@@ -38,11 +38,11 @@
 
 static QofLogModule log_module = QOF_MOD_QUERY;
 
-struct _QofQueryTerm
+struct QofQueryTerm
 {
     QofQueryParamList *     param_list;
     QofQueryPredData        *pdata;
-    gboolean                invert;
+    bool                    invert;
 
     /* These values are filled in during "compilation" of the query
      * term, based upon the obj_name, param_name, and searched-for
@@ -53,25 +53,25 @@ struct _QofQueryTerm
     QofQueryPredicateFunc   pred_fcn;
 };
 
-struct _QofQuerySort
+struct QofQuerySort
 {
     QofQueryParamList * param_list;
-    gint                options;
-    gboolean            increasing;
+    int                 options;
+    bool                increasing;
 
     /* These values are filled in during "compilation" of the query
      * term, based upon the obj_name, param_name, and searched-for
      * object type.  If conv_fcn is NULL, then we don't know how to
      * convert types.
      */
-    gboolean            use_default;
+    bool                use_default;
     GSList *            param_fcns;     /* Chain of paramters to walk */
     QofSortFunc         obj_cmp;        /* In case you are comparing objects */
     QofCompareFunc      comp_fcn;       /* When you are comparing core types */
 };
 
 /* The QUERY structure */
-struct _QofQuery
+struct QofQuery
 {
     /* The object type that we're searching for */
     QofIdType         search_for;
@@ -88,7 +88,7 @@ struct _QofQuery
     QofSortFunc       defaultSort;        /* <- Computed from search_for */
 
     /* The maximum number of results to return */
-    gint              max_results;
+    int               max_results;
 
     /* list of books that will be participating in the query */
     GList *           books;
@@ -98,17 +98,17 @@ struct _QofQuery
 
     /* cache the results so we don't have to run the whole search
      * again until it's really necessary */
-    gint              changed;
+    int               changed;
 
     GList *           results;
 };
 
-typedef struct _QofQueryCB
+struct QofQueryCB
 {
     QofQuery *        query;
     GList *           list;
-    gint              count;
-} QofQueryCB;
+    int               count;
+};
 
 /* initial_term will be owned by the new Query */
 static void query_init (QofQuery *q, QofQueryTerm *initial_term)
@@ -272,7 +272,7 @@ static void free_members (QofQuery *q)
 }
 
 static int cmp_func (const QofQuerySort *sort, QofSortFunc default_sort,
-                     const gconstpointer a, const gconstpointer b)
+                     const void * a, const void * b)
 {
     QofParam *param = NULL;
     GSList *node;
@@ -320,7 +320,7 @@ static int cmp_func (const QofQuerySort *sort, QofSortFunc default_sort,
     return sort->obj_cmp (conva, convb);
 }
 
-static int sort_func (const gconstpointer a, const gconstpointer b, const gpointer q)
+static int sort_func (const void * a, const void * b, const void * q)
 {
     int retval;
     const QofQuery *sortQuery = q;
@@ -356,7 +356,7 @@ static int sort_func (const gconstpointer a, const gconstpointer b, const gpoint
  */
 
 static int
-check_object (const QofQuery *q, gpointer object)
+check_object (const QofQuery *q, void * object)
 {
     const GList     * and_ptr;
     const GList     * or_ptr;
@@ -555,7 +555,7 @@ static void compile_terms (QofQuery *q)
     LEAVE (" query=%p", q);
 }
 
-static void check_item_cb (gpointer object, gpointer user_data)
+static void check_item_cb (void * object, void * user_data)
 {
     QofQueryCB *ql = user_data;
 
@@ -607,8 +607,8 @@ static GList * merge_books (GList *l1, GList *l2)
     return res;
 }
 
-static gboolean
-query_free_compiled (gpointer key, gpointer value, gpointer not_used)
+static bool
+query_free_compiled (void * key, void * value, void * not_used)
 {
     QofBook* book = key;
     QofBackend* be = book->backend;
@@ -616,7 +616,7 @@ query_free_compiled (gpointer key, gpointer value, gpointer not_used)
     if (be && be->free_query)
         (be->free_query)(be, value);
 
-    return TRUE;
+    return true;
 }
 
 /* clear out any cached query_compilations */
@@ -709,8 +709,8 @@ void qof_query_purge_terms (QofQuery *q, QofQueryParamList *param_list)
 }
 
 static GList * qof_query_run_internal (QofQuery *q,
-                                       void(*run_cb)(QofQueryCB*, gpointer),
-                                       gpointer cb_arg)
+                                       void(*run_cb)(QofQueryCB*, void *),
+                                       void * cb_arg)
 {
     GList *matching_objects = NULL;
     int        object_count = 0;
@@ -800,7 +800,7 @@ static GList * qof_query_run_internal (QofQuery *q,
     return matching_objects;
 }
 
-static void qof_query_run_cb(QofQueryCB* qcb, gpointer cb_arg)
+static void qof_query_run_cb(QofQueryCB* qcb, void * cb_arg)
 {
     GList *node;
 
@@ -836,7 +836,7 @@ GList * qof_query_run (QofQuery *q)
     return qof_query_run_internal(q, qof_query_run_cb, NULL);
 }
 
-static void qof_query_run_subq_cb(QofQueryCB* qcb, gpointer cb_arg)
+static void qof_query_run_subq_cb(QofQueryCB* qcb, void * cb_arg)
 {
     QofQuery* pq = cb_arg;
 
@@ -929,13 +929,13 @@ int qof_query_num_terms (QofQuery *q)
     return n;
 }
 
-gboolean qof_query_has_term_type (QofQuery *q, QofQueryParamList *term_param)
+bool qof_query_has_term_type (QofQuery *q, QofQueryParamList *term_param)
 {
     GList *l_or;
     GList *l_and;
 
     if (!q || !term_param)
-        return FALSE;
+        return false;
 
     for (l_or = q->terms; l_or; l_or = l_or->next)
     {
@@ -943,11 +943,11 @@ gboolean qof_query_has_term_type (QofQuery *q, QofQueryParamList *term_param)
         {
             QofQueryTerm *qt = l_and->data;
             if (!param_list_cmp (term_param, qt->param_list))
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 GSList * qof_query_get_term_type (QofQuery *q, QofQueryParamList *term_param)
@@ -1233,8 +1233,8 @@ qof_query_set_sort_order (QofQuery *q,
     q->changed = 1;
 }
 
-void qof_query_set_sort_options (QofQuery *q, gint prim_op, gint sec_op,
-                                 gint tert_op)
+void qof_query_set_sort_options (QofQuery *q, int prim_op, int sec_op,
+                                 int tert_op)
 {
     if (!q) return;
     q->primary_sort.options = prim_op;
@@ -1242,8 +1242,8 @@ void qof_query_set_sort_options (QofQuery *q, gint prim_op, gint sec_op,
     q->tertiary_sort.options = tert_op;
 }
 
-void qof_query_set_sort_increasing (QofQuery *q, gboolean prim_inc,
-                                    gboolean sec_inc, gboolean tert_inc)
+void qof_query_set_sort_increasing (QofQuery *q, bool prim_inc,
+                                    bool sec_inc, bool tert_inc)
 {
     if (!q) return;
     q->primary_sort.increasing = prim_inc;
@@ -1309,7 +1309,7 @@ GList * qof_query_get_books (QofQuery *q)
     return q->books;
 }
 
-void qof_query_add_boolean_match (QofQuery *q, QofQueryParamList *param_list, gboolean value,
+void qof_query_add_boolean_match (QofQuery *q, QofQueryParamList *param_list, bool value,
                                   QofQueryOp op)
 {
     QofQueryPredData *pdata;
@@ -1368,10 +1368,10 @@ QofQueryPredData *qof_query_term_get_pred_data (const QofQueryTerm *qt)
     return qt->pdata;
 }
 
-gboolean qof_query_term_is_inverted (const QofQueryTerm *qt)
+bool qof_query_term_is_inverted (const QofQueryTerm *qt)
 {
     if (!qt)
-        return FALSE;
+        return false;
     return qt->invert;
 }
 
@@ -1395,54 +1395,54 @@ QofQueryParamList * qof_query_sort_get_param_path (const QofQuerySort *qs)
     return qs->param_list;
 }
 
-gint qof_query_sort_get_sort_options (const QofQuerySort *qs)
+int qof_query_sort_get_sort_options (const QofQuerySort *qs)
 {
     if (!qs)
         return 0;
     return qs->options;
 }
 
-gboolean qof_query_sort_get_increasing (const QofQuerySort *qs)
+bool qof_query_sort_get_increasing (const QofQuerySort *qs)
 {
     if (!qs)
-        return FALSE;
+        return false;
     return qs->increasing;
 }
 
-static gboolean
+static bool
 qof_query_term_equal (const QofQueryTerm *qt1, const QofQueryTerm *qt2)
 {
-    if (qt1 == qt2) return TRUE;
-    if (!qt1 || !qt2) return FALSE;
+    if (qt1 == qt2) return true;
+    if (!qt1 || !qt2) return false;
 
-    if (qt1->invert != qt2->invert) return FALSE;
-    if (param_list_cmp (qt1->param_list, qt2->param_list)) return FALSE;
+    if (qt1->invert != qt2->invert) return false;
+    if (param_list_cmp (qt1->param_list, qt2->param_list)) return false;
     return qof_query_core_predicate_equal (qt1->pdata, qt2->pdata);
 }
 
-static gboolean
+static bool
 qof_query_sort_equal (const QofQuerySort* qs1, const QofQuerySort* qs2)
 {
-    if (qs1 == qs2) return TRUE;
-    if (!qs1 || !qs2) return FALSE;
+    if (qs1 == qs2) return true;
+    if (!qs1 || !qs2) return false;
 
     /* "Empty" sorts are equivalent, regardless of the flags */
-    if (!qs1->param_list && !qs2->param_list) return TRUE;
+    if (!qs1->param_list && !qs2->param_list) return true;
 
-    if (qs1->options != qs2->options) return FALSE;
-    if (qs1->increasing != qs2->increasing) return FALSE;
+    if (qs1->options != qs2->options) return false;
+    if (qs1->increasing != qs2->increasing) return false;
     return (param_list_cmp (qs1->param_list, qs2->param_list) == 0);
 }
 
-gboolean qof_query_equal (const QofQuery *q1, const QofQuery *q2)
+bool qof_query_equal (const QofQuery *q1, const QofQuery *q2)
 {
     GList *or1, *or2;
 
-    if (q1 == q2) return TRUE;
-    if (!q1 || !q2) return FALSE;
+    if (q1 == q2) return true;
+    if (!q1 || !q2) return false;
 
-    if (g_list_length (q1->terms) != g_list_length (q2->terms)) return FALSE;
-    if (q1->max_results != q2->max_results) return FALSE;
+    if (g_list_length (q1->terms) != g_list_length (q2->terms)) return false;
+    if (q1->max_results != q2->max_results) return false;
 
     for (or1 = q1->terms, or2 = q2->terms; or1;
             or1 = or1->next, or2 = or2->next)
@@ -1456,17 +1456,17 @@ gboolean qof_query_equal (const QofQuery *q1, const QofQuery *q2)
 
         for ( ; and1; and1 = and1->next, and2 = and2->next)
             if (!qof_query_term_equal (and1->data, and2->data))
-                return FALSE;
+                return false;
     }
 
     if (!qof_query_sort_equal (&(q1->primary_sort), &(q2->primary_sort)))
-        return FALSE;
+        return false;
     if (!qof_query_sort_equal (&(q1->secondary_sort), &(q2->secondary_sort)))
-        return FALSE;
+        return false;
     if (!qof_query_sort_equal (&(q1->tertiary_sort), &(q2->tertiary_sort)))
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 /* **************************************************************************/
@@ -1476,7 +1476,7 @@ gboolean qof_query_equal (const QofQuery *q1, const QofQuery *q2)
 /* Static prototypes */
 static GList *qof_query_printSearchFor (QofQuery * query, GList * output);
 static GList *qof_query_printTerms (QofQuery * query, GList * output);
-static GList *qof_query_printSorts (QofQuerySort *s[], const gint numSorts,
+static GList *qof_query_printSorts (QofQuerySort *s[], const int numSorts,
                                     GList * output);
 static GList *qof_query_printAndTerms (GList * terms, GList * output);
 static gchar *qof_query_printStringForHow (QofQueryCompare how);
@@ -1606,7 +1606,7 @@ qof_query_printTerms (QofQuery * query, GList * output)
         not null.
 */
 static GList *
-qof_query_printSorts (QofQuerySort *s[], const gint numSorts, GList * output)
+qof_query_printSorts (QofQuerySort *s[], const int numSorts, GList * output)
 {
     QofQueryParamList *gsl, *n = NULL;
     gint curSort;

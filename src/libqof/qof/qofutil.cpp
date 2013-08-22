@@ -37,7 +37,7 @@
 G_GNUC_UNUSED static QofLogModule log_module = QOF_MOD_UTIL;
 
 void
-g_hash_table_foreach_sorted(GHashTable *hash_table, GHFunc func, gpointer user_data, GCompareFunc compare_func)
+g_hash_table_foreach_sorted(GHashTable *hash_table, GHFunc func, void * user_data, GCompareFunc compare_func)
 {
     GList *iter;
     GList *keys = g_list_sort(g_hash_table_get_keys(hash_table), compare_func);
@@ -50,8 +50,8 @@ g_hash_table_foreach_sorted(GHashTable *hash_table, GHFunc func, gpointer user_d
     g_list_free(keys);
 }
 
-gboolean
-qof_utf8_substr_nocase (const gchar *haystack, const gchar *needle)
+bool
+qof_utf8_substr_nocase (const char *haystack, const char *needle)
 {
     gchar *haystack_casefold, *haystack_normalized;
     gchar *needle_casefold, *needle_normalized;
@@ -78,8 +78,8 @@ qof_utf8_substr_nocase (const gchar *haystack, const gchar *needle)
 /** Use g_utf8_casefold and g_utf8_collate to compare two utf8 strings,
  * ignore case. Return < 0 if da compares before db, 0 if they compare
  * equal, > 0 if da compares after db. */
-static gint
-qof_utf8_strcasecmp (const gchar *da, const gchar *db)
+static int
+qof_utf8_strcasecmp (const char *da, const char *db)
 {
     gchar *da_casefold, *db_casefold;
     gint retval;
@@ -96,8 +96,8 @@ qof_utf8_strcasecmp (const gchar *da, const gchar *db)
     return retval;
 }
 
-gint
-safe_strcasecmp (const gchar * da, const gchar * db)
+int
+safe_strcasecmp (const char * da, const char * db)
 {
     if ((da) && (db))
     {
@@ -119,8 +119,8 @@ safe_strcasecmp (const gchar * da, const gchar * db)
     return 0;
 }
 
-gint
-null_strcmp (const gchar * da, const gchar * db)
+int
+null_strcmp (const char * da, const char * db)
 {
     if (da && db) return strcmp (da, db);
     if (!da && db && 0 == db[0]) return 0;
@@ -133,8 +133,8 @@ null_strcmp (const gchar * da, const gchar * db)
 #define MAX_DIGITS 50
 
 /* inverse of strtoul */
-gchar *
-ultostr (gulong val, gint base)
+char *
+ultostr (unsigned long val, int base)
 {
     gchar buf[MAX_DIGITS];
     gulong broke[MAX_DIGITS];
@@ -180,32 +180,32 @@ ultostr (gulong val, gint base)
 }
 
 /* =================================================================== */
-/* returns TRUE if the string is a number, possibly with whitespace */
+/* returns true if the string is a number, possibly with whitespace */
 /* =================================================================== */
 
-gboolean
-gnc_strisnum(const gchar *s)
+bool
+gnc_strisnum(const char *s)
 {
-    if (s == NULL) return FALSE;
-    if (*s == 0) return FALSE;
+    if (s == NULL) return false;
+    if (*s == 0) return false;
 
     while (*s && isspace(*s))
         s++;
 
-    if (*s == 0) return FALSE;
-    if (!isdigit(*s)) return FALSE;
+    if (*s == 0) return false;
+    if (!isdigit(*s)) return false;
 
     while (*s && isdigit(*s))
         s++;
 
-    if (*s == 0) return TRUE;
+    if (*s == 0) return true;
 
     while (*s && isspace(*s))
         s++;
 
-    if (*s == 0) return TRUE;
+    if (*s == 0) return true;
 
-    return FALSE;
+    return false;
 }
 
 /* =================================================================== */
@@ -213,8 +213,8 @@ gnc_strisnum(const gchar *s)
  * Else return pointer to first non-whitespace character. */
 /* =================================================================== */
 
-G_GNUC_UNUSED static const gchar *
-qof_util_whitespace_filter (const gchar * val)
+G_GNUC_UNUSED static const char *
+qof_util_whitespace_filter (const char * val)
 {
     size_t len;
     if (!val) return NULL;
@@ -225,33 +225,33 @@ qof_util_whitespace_filter (const gchar * val)
 }
 
 #ifdef THESE_CAN_BE_USEFUL_FOR_DEGUGGING
-static guint g_str_hash_KEY(gconstpointer v)
+static unsigned int g_str_hash_KEY(const void * v)
 {
     return g_str_hash(v);
 }
-static guint g_str_hash_VAL(gconstpointer v)
+static unsigned int g_str_hash_VAL(const void * v)
 {
     return g_str_hash(v);
 }
-static gpointer g_strdup_VAL(gpointer v)
+static void * g_strdup_VAL(void * v)
 {
     return g_strdup(v);
 }
-static gpointer g_strdup_KEY(gpointer v)
+static void * g_strdup_KEY(void * v)
 {
     return g_strdup(v);
 }
-static void g_free_VAL(gpointer v)
+static void g_free_VAL(void * v)
 {
     return g_free(v);
 }
-static void g_free_KEY(gpointer v)
+static void g_free_KEY(void * v)
 {
     return g_free(v);
 }
-static gboolean qof_util_str_equal(gconstpointer v, gconstpointer v2)
+static bool qof_util_str_equal(const void * v, const void * v2)
 {
-    return (v && v2) ? g_str_equal(v, v2) : FALSE;
+    return (v && v2) ? g_str_equal(v, v2) : false;
 }
 #endif
 

@@ -86,12 +86,11 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <glib.h>
 #include "qofutil.h"
 
 #define QOF_MOD_ENGINE "qof.engine"
 
-typedef enum 
+ enum QofLogLevel
 {
     QOF_LOG_FATAL   = G_LOG_LEVEL_ERROR,
     QOF_LOG_ERROR   = G_LOG_LEVEL_CRITICAL,
@@ -99,13 +98,13 @@ typedef enum
     QOF_LOG_MESSAGE = G_LOG_LEVEL_MESSAGE,
     QOF_LOG_INFO    = G_LOG_LEVEL_INFO,
     QOF_LOG_DEBUG   = G_LOG_LEVEL_DEBUG
-} QofLogLevel;
+};
         
 #warning de-GLibification
 inline QofLogLevel gLogLevelToQofLogLevel(GLogLevelFlags gll);
 
-gchar* qof_log_level_to_string(QofLogLevel lvl);
-QofLogLevel qof_log_level_from_string(const gchar *str);
+char* qof_log_level_to_string(QofLogLevel lvl);
+QofLogLevel qof_log_level_from_string(const char *str);
 
 /** Indents one level; see ENTER macro. **/
 void qof_log_indent(void);
@@ -128,7 +127,7 @@ void qof_log_set_level(QofLogModule module, QofLogLevel level);
 void qof_log_set_file (FILE *outfile);
 
 /** Specify a filename for log output. **/
-void qof_log_init_filename (const gchar* logfilename);
+void qof_log_init_filename (const char* logfilename);
 
 /**
  * If @a log_to_filename is "stderr" or "stdout" (exactly,
@@ -160,11 +159,11 @@ void qof_log_shutdown (void);
  * not names; clean this up. On other operating systems, truncate name to
  * QOF_LOG_MAX_CHARS chars.
  **/
-const gchar * qof_log_prettify (const gchar *name);
+const char * qof_log_prettify (const char *name);
 
 /** Check to see if the given @a log_module is configured to log at the given
  * @a log_level.  This implements the "log.path.hierarchy" logic. **/
-gboolean qof_log_check(QofLogModule log_module, QofLogLevel log_level);
+bool qof_log_check(QofLogModule log_module, QofLogLevel log_level);
 
 /** Set the default level for QOF-related log paths. **/
 void qof_log_set_default(QofLogLevel log_level);
