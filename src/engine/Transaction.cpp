@@ -177,16 +177,6 @@ const char *trans_is_closing_str = "book_closing";
 /* This static indicates the debugging module that this .o belongs to.  */
 static QofLogModule log_module = GNC_MOD_ENGINE;
 
-enum
-{
-    PROP_0,
-    PROP_NUM,
-    PROP_DESCRIPTION,
-    PROP_CURRENCY,
-    PROP_POST_DATE,
-    PROP_ENTER_DATE
-};
-
 void
 check_open (const Transaction *trans)
 {
@@ -231,7 +221,7 @@ void gen_event_trans (Transaction *trans)
         Account *account = s->acc;
         GNCLot *lot = s->lot;
         if (account)
-            qof_event_gen (&account->inst, GNC_EVENT_ITEM_CHANGED, s);
+            qof_event_gen (account, GNC_EVENT_ITEM_CHANGED, s);
 
         if (lot)
         {
@@ -242,173 +232,34 @@ void gen_event_trans (Transaction *trans)
 #endif
 }
 
-/* GObject Initialization */
-G_DEFINE_TYPE(Transaction, gnc_transaction, QOF_TYPE_INSTANCE)
+///* GObject Initialization */
+//G_DEFINE_TYPE(Transaction, gnc_transaction, QOF_TYPE_INSTANCE)
+//
 
-static void
-gnc_transaction_init(Transaction* trans)
+Transaction::Transaction()
 {
-    ENTER ("trans=%p", trans);
+    ENTER ("trans=%p", this);
     /* Fill in some sane defaults */
-    trans->num         = CACHE_INSERT("");
-    trans->description = CACHE_INSERT("");
+    this->num         = CACHE_INSERT("");
+    this->description = CACHE_INSERT("");
 
-    trans->common_currency = NULL;
-    trans->splits = NULL;
+    this->common_currency = NULL;
+    this->splits = NULL;
 
-    trans->date_entered.tv_sec  = 0;
-    trans->date_entered.tv_nsec = 0;
+    this->date_entered.tv_sec  = 0;
+    this->date_entered.tv_nsec = 0;
 
-    trans->date_posted.tv_sec  = 0;
-    trans->date_posted.tv_nsec = 0;
+    this->date_posted.tv_sec  = 0;
+    this->date_posted.tv_nsec = 0;
 
-    trans->marker = 0;
-    trans->orig = NULL;
+    this->marker = 0;
+    this->orig = NULL;
     LEAVE (" ");
 }
 
-static void
-gnc_transaction_dispose(GObject *txnp)
+Transaction::~Transaction()
 {
-    G_OBJECT_CLASS(gnc_transaction_parent_class)->dispose(txnp);
-}
-
-static void
-gnc_transaction_finalize(GObject* txnp)
-{
-    G_OBJECT_CLASS(gnc_transaction_parent_class)->finalize(txnp);
-}
-
-static void
-gnc_transaction_get_property(GObject* object,
-                             guint prop_id,
-                             GValue* value,
-                             GParamSpec* pspec)
-{
-    Transaction* tx;
-
-    g_return_if_fail(GNC_IS_TRANSACTION(object));
-
-    tx = GNC_TRANSACTION(object);
-    switch (prop_id)
-    {
-    case PROP_NUM:
-        g_value_set_string(value, tx->num);
-        break;
-    case PROP_DESCRIPTION:
-        g_value_set_string(value, tx->description);
-        break;
-    case PROP_CURRENCY:
-        g_value_set_object(value, tx->common_currency);
-        break;
-    case PROP_POST_DATE:
-        g_value_set_boxed(value, &tx->date_posted);
-        break;
-    case PROP_ENTER_DATE:
-        g_value_set_boxed(value, &tx->date_entered);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_transaction_set_property(GObject* object,
-                             guint prop_id,
-                             const GValue* value,
-                             GParamSpec* pspec)
-{
-    Transaction* tx;
-
-    g_return_if_fail(GNC_IS_TRANSACTION(object));
-
-    tx = GNC_TRANSACTION(object);
-    switch (prop_id)
-    {
-    case PROP_NUM:
-        xaccTransSetNum( tx, g_value_get_string(value));
-        break;
-    case PROP_DESCRIPTION:
-        xaccTransSetDescription(tx, g_value_get_string(value));
-        break;
-    case PROP_CURRENCY:
-        xaccTransSetCurrency(tx, g_value_get_object(value));
-        break;
-    case PROP_POST_DATE:
-        xaccTransSetDatePostedTS(tx, g_value_get_boxed(value));
-        break;
-    case PROP_ENTER_DATE:
-        xaccTransSetDateEnteredTS(tx, g_value_get_boxed(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_transaction_class_init(TransactionClass* klass)
-{
-    GObjectClass* gobject_class = G_OBJECT_CLASS(klass);
-
-    gobject_class->dispose = gnc_transaction_dispose;
-    gobject_class->finalize = gnc_transaction_finalize;
-    gobject_class->set_property = gnc_transaction_set_property;
-    gobject_class->get_property = gnc_transaction_get_property;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NUM,
-     g_param_spec_string("num",
-                         "Transaction Number",
-                         "The transactionNumber is an arbitrary string "
-                         "assigned by the user.  It is intended to be "
-                         "a short 1-6 character string that is displayed "
-                         "by the register.  For checks, it is usually the "
-                         "check number.  For other types of transactions, "
-                         "it can be any string.",
-                         NULL,
-                         G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_DESCRIPTION,
-     g_param_spec_string("description",
-                         "Transaction Description",
-                         "The transaction description is an arbitrary string "
-                         "assigned by the user.  It is usually the customer, "
-                         "vendor or other organization associated with the "
-                         "transaction.",
-                         NULL,
-                         G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_CURRENCY,
-     g_param_spec_object ("currency",
-                          "Currency",
-                          "The base currency for this transaction.",
-                          GNC_TYPE_COMMODITY,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_POST_DATE,
-     g_param_spec_boxed("post-date",
-                        "Post Date",
-                        "The date the transaction occurred.",
-                        GNC_TYPE_TIMESPEC,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ENTER_DATE,
-     g_param_spec_boxed("enter-date",
-                        "Enter Date",
-                        "The date the transaction was entered.",
-                        GNC_TYPE_TIMESPEC,
-                        G_PARAM_READWRITE));
+    // TODO
 }
 
 /********************************************************************\
@@ -420,7 +271,7 @@ static void
 xaccInitTransaction (Transaction * trans, QofBook *book)
 {
     ENTER ("trans=%p", trans);
-    qof_instance_init_data (&trans->inst, GNC_ID_TRANS, book);
+    qof_instance_init_data (trans, GNC_ID_TRANS, book);
     LEAVE (" ");
 }
 
@@ -434,9 +285,9 @@ xaccMallocTransaction (QofBook *book)
 
     g_return_val_if_fail (book, NULL);
 
-    trans = g_object_new(GNC_TYPE_TRANSACTION, NULL);
+    trans = new Transaction; //g_object_new(GNC_TYPE_TRANSACTION, NULL);
     xaccInitTransaction (trans, book);
-    qof_event_gen (&trans->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (trans, QOF_EVENT_CREATE, NULL);
 
     return trans;
 }
@@ -522,7 +373,7 @@ xaccDupeTransaction (const Transaction *from)
     Transaction *to;
     GList *node;
 
-    to = g_object_new (GNC_TYPE_TRANSACTION, NULL);
+    to = new Transaction; //g_object_new (GNC_TYPE_TRANSACTION, NULL);
 
     to->num         = CACHE_INSERT (from->num);
     to->description = CACHE_INSERT (from->description);
@@ -544,10 +395,10 @@ xaccDupeTransaction (const Transaction *from)
      * the cloned transaction as something official.  If we ever
      * use this transaction, we'll have to fix this up.
      */
-    to->inst.e_type = NULL;
+    to->e_type = NULL;
     qof_instance_set_guid(to, guid_null());
     qof_instance_copy_book(to, from);
-    to->inst.kvp_data = kvp_frame_copy (from->inst.kvp_data);
+    to->kvp_data = kvp_frame_copy (from->kvp_data);
 
     return to;
 }
@@ -564,7 +415,7 @@ xaccTransClone (const Transaction *from)
     GList *node;
 
     qof_event_suspend();
-    to = g_object_new (GNC_TYPE_TRANSACTION, NULL);
+    to = new Transaction; // g_object_new (GNC_TYPE_TRANSACTION, NULL);
 
     to->date_entered    = from->date_entered;
     to->date_posted     = from->date_posted;
@@ -576,9 +427,9 @@ xaccTransClone (const Transaction *from)
 
     to->orig            = NULL;
 
-    qof_instance_init_data (&to->inst, GNC_ID_TRANS, qof_instance_get_book(from));
-    kvp_frame_delete (to->inst.kvp_data);
-    to->inst.kvp_data    = kvp_frame_copy (from->inst.kvp_data);
+    qof_instance_init_data (to, GNC_ID_TRANS, qof_instance_get_book(from));
+    kvp_frame_delete (to->kvp_data);
+    to->kvp_data    = kvp_frame_copy (from->kvp_data);
 
     xaccTransBeginEdit(to);
     for (node = from->splits; node; node = node->next)
@@ -651,7 +502,7 @@ xaccTransCopyFromClipBoard(const Transaction *from_trans, Transaction *to_trans,
     if (!from_trans || !to_trans)
         return;
 
-    change_accounts = from_acc && GNC_IS_ACCOUNT(to_acc) && from_acc != to_acc;
+    change_accounts = from_acc && /* GNC_IS_ACCOUNT(to_acc) && */from_acc != to_acc;
     xaccTransBeginEdit(to_trans);
 
     FOR_EACH_SPLIT(to_trans, xaccSplitDestroy(s));
@@ -724,7 +575,8 @@ xaccFreeTransaction (Transaction *trans)
     }
 
     /* qof_instance_release (&trans->inst); */
-    g_object_unref(trans);
+    //g_object_unref(trans);
+    delete trans;
 
     LEAVE ("(addr=%p)", trans);
 }
@@ -828,13 +680,13 @@ xaccTransEqual(const Transaction *ta, const Transaction *tb,
         return FALSE;
     }
 
-    if (kvp_frame_compare(ta->inst.kvp_data, tb->inst.kvp_data) != 0)
+    if (kvp_frame_compare(ta->kvp_data, tb->kvp_data) != 0)
     {
         char *frame_a;
         char *frame_b;
 
-        frame_a = kvp_frame_to_string (ta->inst.kvp_data);
-        frame_b = kvp_frame_to_string (tb->inst.kvp_data);
+        frame_a = kvp_frame_to_string (ta->kvp_data);
+        frame_b = kvp_frame_to_string (tb->kvp_data);
 
         PWARN ("kvp frames differ:\n%s\n\nvs\n\n%s", frame_a, frame_b);
 
@@ -1271,7 +1123,7 @@ void
 xaccTransBeginEdit (Transaction *trans)
 {
     if (!trans) return;
-    if (!qof_begin_edit(&trans->inst)) return;
+    if (!qof_begin_edit(trans)) return;
 
     if (qof_book_shutting_down(qof_instance_get_book(trans))) return;
 
@@ -1339,7 +1191,7 @@ do_destroy (Transaction *trans)
     if (!shutting_down && !qof_book_is_readonly(qof_instance_get_book(trans)))
         xaccTransWriteLog (trans, 'D');
 
-    qof_event_gen (&trans->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (trans, QOF_EVENT_DESTROY, NULL);
 
     /* We only own the splits that still think they belong to us.   This is done
        in 2 steps.  In the first, the splits are marked as being destroyed, but they
@@ -1431,15 +1283,15 @@ static void trans_cleanup_commit(Transaction *trans)
             ed.node = trans;
             ed.idx = g_list_index(trans->splits, s);
             trans->splits = g_list_remove(trans->splits, s);
-            qof_event_gen(&s->inst, QOF_EVENT_REMOVE, &ed);
+            qof_event_gen(s, QOF_EVENT_REMOVE, &ed);
         }
 
         if (s->parent == trans)
         {
             /* Split was either added, destroyed or just changed */
             if (qof_instance_get_destroying(s))
-                qof_event_gen(&s->inst, QOF_EVENT_DESTROY, NULL);
-            else qof_event_gen(&s->inst, QOF_EVENT_MODIFY, NULL);
+                qof_event_gen(s, QOF_EVENT_DESTROY, NULL);
+            else qof_event_gen(s, QOF_EVENT_MODIFY, NULL);
             xaccSplitCommitEdit(s);
         }
     }
@@ -1463,7 +1315,7 @@ static void trans_cleanup_commit(Transaction *trans)
     g_assert(qof_instance_get_editlevel(trans) == 0);
 
     gen_event_trans (trans); //TODO: could be conditional
-    qof_event_gen (&trans->inst, QOF_EVENT_MODIFY, NULL);
+    qof_event_gen (trans, QOF_EVENT_MODIFY, NULL);
 }
 
 void
@@ -1562,7 +1414,7 @@ xaccTransRollbackEdit (Transaction *trans)
     trans->date_entered = orig->date_entered;
     trans->date_posted = orig->date_posted;
     SWAP(trans->common_currency, orig->common_currency);
-    SWAP(trans->inst.kvp_data, orig->inst.kvp_data);
+    SWAP(trans->kvp_data, orig->kvp_data);
 
     /* The splits at the front of trans->splits are exactly the same
        splits as in the original, but some of them may have changed, so
@@ -1584,7 +1436,7 @@ xaccTransRollbackEdit (Transaction *trans)
             xaccSplitRollbackEdit(s);
             SWAP(s->action, so->action);
             SWAP(s->memo, so->memo);
-            SWAP(s->inst.kvp_data, so->inst.kvp_data);
+            SWAP(s->kvp_data, so->kvp_data);
             s->reconciled = so->reconciled;
             s->amount = so->amount;
             s->value = so->value;
@@ -1639,7 +1491,7 @@ xaccTransRollbackEdit (Transaction *trans)
         }
         while (ERR_BACKEND_NO_ERR != errcode);
 
-        (be->rollback) (be, &(trans->inst));
+        (be->rollback) (be, trans);
 
         errcode = qof_backend_get_error (be);
         if (ERR_BACKEND_MOD_DESTROY == errcode)
@@ -1794,7 +1646,7 @@ xaccTransSetDatePostedGDate (Transaction *trans, GDate date)
      * the future a date which was set as *date* (without time) can
      * clearly be distinguished from the Timespec. */
     kvp_value = kvp_value_new_gdate(date);
-    frame = kvp_frame_set_value_nc(trans->inst.kvp_data, TRANS_DATE_POSTED, kvp_value);
+    frame = kvp_frame_set_value_nc(trans->kvp_data, TRANS_DATE_POSTED, kvp_value);
     if (!frame)
     {
         kvp_value_delete(kvp_value);
@@ -1818,10 +1670,10 @@ qofTransSetDatePosted (Transaction *trans, Timespec ts)
 {
     if (!trans) return;
     if ((ts.tv_nsec == 0) && (ts.tv_sec == 0)) return;
-    if (!qof_begin_edit(&trans->inst)) return;
+    if (!qof_begin_edit(trans)) return;
     xaccTransSetDateInternal(trans, &trans->date_posted, ts);
     set_gains_date_dirty(trans);
-    qof_commit_edit(&trans->inst);
+    qof_commit_edit(trans);
 }
 
 void
@@ -1837,9 +1689,9 @@ qofTransSetDateEntered (Transaction *trans, Timespec ts)
 {
     if (!trans) return;
     if ((ts.tv_nsec == 0) && (ts.tv_sec == 0)) return;
-    if (!qof_begin_edit(&trans->inst)) return;
+    if (!qof_begin_edit(trans)) return;
     xaccTransSetDateInternal(trans, &trans->date_entered, ts);
-    qof_commit_edit(&trans->inst);
+    qof_commit_edit(trans);
 }
 
 void
@@ -1865,7 +1717,7 @@ xaccTransSetDateDueTS (Transaction *trans, const Timespec *ts)
 {
     if (!trans || !ts) return;
     xaccTransBeginEdit(trans);
-    kvp_frame_set_timespec (trans->inst.kvp_data, TRANS_DATE_DUE_KVP, *ts);
+    kvp_frame_set_timespec (trans->kvp_data, TRANS_DATE_DUE_KVP, *ts);
     qof_instance_set_dirty(QOF_INSTANCE(trans));
     xaccTransCommitEdit(trans);
 }
@@ -1876,7 +1728,7 @@ xaccTransSetTxnType (Transaction *trans, char type)
     char s[2] = {type, '\0'};
     g_return_if_fail(trans);
     xaccTransBeginEdit(trans);
-    kvp_frame_set_str (trans->inst.kvp_data, TRANS_TXN_TYPE_KVP, s);
+    kvp_frame_set_str (trans->kvp_data, TRANS_TXN_TYPE_KVP, s);
     qof_instance_set_dirty(QOF_INSTANCE(trans));
     xaccTransCommitEdit(trans);
 }
@@ -1886,7 +1738,7 @@ void xaccTransClearReadOnly (Transaction *trans)
     if (trans)
     {
         xaccTransBeginEdit(trans);
-        kvp_frame_set_slot_path (trans->inst.kvp_data, NULL,
+        kvp_frame_set_slot_path (trans->kvp_data, NULL,
                                  TRANS_READ_ONLY_REASON, NULL);
         qof_instance_set_dirty(QOF_INSTANCE(trans));
         xaccTransCommitEdit(trans);
@@ -1899,7 +1751,7 @@ xaccTransSetReadOnly (Transaction *trans, const char *reason)
     if (trans && reason)
     {
         xaccTransBeginEdit(trans);
-        kvp_frame_set_str (trans->inst.kvp_data,
+        kvp_frame_set_str (trans->kvp_data,
                            TRANS_READ_ONLY_REASON, reason);
         qof_instance_set_dirty(QOF_INSTANCE(trans));
         xaccTransCommitEdit(trans);
@@ -1914,9 +1766,9 @@ but the call uses check_open so we cannot use the call directly. */
 static void
 qofTransSetNum (Transaction *trans, const char *xnum)
 {
-    if (!qof_begin_edit(&trans->inst)) return;
+    if (!qof_begin_edit(trans)) return;
     xaccTransSetNum(trans, xnum);
-    qof_commit_edit(&trans->inst);
+    qof_commit_edit(trans);
 }
 
 void
@@ -1934,9 +1786,9 @@ xaccTransSetNum (Transaction *trans, const char *xnum)
 static void
 qofTransSetDescription (Transaction *trans, const char *desc)
 {
-    if (!qof_begin_edit(&trans->inst)) return;
+    if (!qof_begin_edit(trans)) return;
     xaccTransSetDescription(trans, desc);
-    qof_commit_edit(&trans->inst);
+    qof_commit_edit(trans);
 }
 
 void
@@ -1953,9 +1805,9 @@ xaccTransSetDescription (Transaction *trans, const char *desc)
 static void
 qofTransSetNotes (Transaction *trans, const char *notes)
 {
-    if (!qof_begin_edit(&trans->inst)) return;
+    if (!qof_begin_edit(trans)) return;
     xaccTransSetNotes(trans, notes);
-    qof_commit_edit(&trans->inst);
+    qof_commit_edit(trans);
 }
 
 void
@@ -1964,7 +1816,7 @@ xaccTransSetNotes (Transaction *trans, const char *notes)
     if (!trans || !notes) return;
     xaccTransBeginEdit(trans);
 
-    kvp_frame_set_str (trans->inst.kvp_data, trans_notes_str, notes);
+    kvp_frame_set_str (trans->kvp_data, trans_notes_str, notes);
     qof_instance_set_dirty(QOF_INSTANCE(trans));
     xaccTransCommitEdit(trans);
 }
@@ -1976,9 +1828,9 @@ xaccTransSetIsClosingTxn (Transaction *trans, gboolean is_closing)
     xaccTransBeginEdit(trans);
 
     if (is_closing)
-        kvp_frame_set_gint64 (trans->inst.kvp_data, trans_is_closing_str, 1);
+        kvp_frame_set_gint64 (trans->kvp_data, trans_is_closing_str, 1);
     else
-        kvp_frame_replace_value_nc (trans->inst.kvp_data, trans_is_closing_str, NULL);
+        kvp_frame_replace_value_nc (trans->kvp_data, trans_is_closing_str, NULL);
     qof_instance_set_dirty(QOF_INSTANCE(trans));
     xaccTransCommitEdit(trans);
 }
@@ -2037,14 +1889,14 @@ const char *
 xaccTransGetNotes (const Transaction *trans)
 {
     return trans ?
-           kvp_frame_get_string (trans->inst.kvp_data, trans_notes_str) : NULL;
+           kvp_frame_get_string (trans->kvp_data, trans_notes_str) : NULL;
 }
 
 gboolean
 xaccTransGetIsClosingTxn (const Transaction *trans)
 {
     return trans ?
-           kvp_frame_get_gint64 (trans->inst.kvp_data, trans_is_closing_str)
+           kvp_frame_get_gint64 (trans->kvp_data, trans_is_closing_str)
            : FALSE;
 }
 
@@ -2096,7 +1948,7 @@ xaccTransGetDatePostedGDate (const Transaction *trans)
          * from there because it doesn't suffer from time zone
          * shifts. */
         const KvpValue* kvp_value =
-            kvp_frame_get_slot(trans->inst.kvp_data, TRANS_DATE_POSTED);
+            kvp_frame_get_slot(trans->kvp_data, TRANS_DATE_POSTED);
         if (kvp_value)
             result = kvp_value_get_gdate(kvp_value);
         else
@@ -2123,7 +1975,7 @@ xaccTransGetDateDueTS (const Transaction *trans, Timespec *ts)
 
     if (!trans || !ts) return;
 
-    value = kvp_frame_get_slot (trans->inst.kvp_data, TRANS_DATE_DUE_KVP);
+    value = kvp_frame_get_slot (trans->kvp_data, TRANS_DATE_DUE_KVP);
     if (value)
         *ts = kvp_value_get_timespec (value);
     else
@@ -2143,7 +1995,7 @@ xaccTransGetTxnType (const Transaction *trans)
 {
     const char *s;
     if (!trans) return TXN_TYPE_NONE;
-    s = kvp_frame_get_string (trans->inst.kvp_data, TRANS_TXN_TYPE_KVP);
+    s = kvp_frame_get_string (trans->kvp_data, TRANS_TXN_TYPE_KVP);
     if (s) return *s;
 
     return TXN_TYPE_NONE;
@@ -2156,7 +2008,7 @@ xaccTransGetReadOnly (const Transaction *trans)
      * for performance reasons, since its checked every trans commit.
      */
     return trans ? kvp_frame_get_string (
-               trans->inst.kvp_data, TRANS_READ_ONLY_REASON) : NULL;
+               trans->kvp_data, TRANS_READ_ONLY_REASON) : NULL;
 }
 
 gboolean xaccTransIsReadonlyByPostedDate(const Transaction *trans)
@@ -2319,7 +2171,7 @@ xaccTransVoid(Transaction *trans, const char *reason)
     g_return_if_fail(trans && reason);
 
     xaccTransBeginEdit(trans);
-    frame = trans->inst.kvp_data;
+    frame = trans->kvp_data;
 
     val = kvp_frame_get_slot(frame, trans_notes_str);
     kvp_frame_set_slot(frame, void_former_notes_str, val);
@@ -2343,14 +2195,14 @@ gboolean
 xaccTransGetVoidStatus(const Transaction *trans)
 {
     g_return_val_if_fail(trans, FALSE);
-    return (kvp_frame_get_slot(trans->inst.kvp_data, void_reason_str) != NULL);
+    return (kvp_frame_get_slot(trans->kvp_data, void_reason_str) != NULL);
 }
 
 const char *
 xaccTransGetVoidReason(const Transaction *trans)
 {
     g_return_val_if_fail(trans, NULL);
-    return kvp_frame_get_string(trans->inst.kvp_data, void_reason_str);
+    return kvp_frame_get_string(trans->kvp_data, void_reason_str);
 }
 
 Timespec
@@ -2361,7 +2213,7 @@ xaccTransGetVoidTime(const Transaction *tr)
 
     g_return_val_if_fail(tr, void_time);
 
-    val = kvp_frame_get_string(tr->inst.kvp_data, void_time_str);
+    val = kvp_frame_get_string(tr->kvp_data, void_time_str);
     return val ? gnc_iso8601_to_timespec_gmt(val) : void_time;
 }
 
@@ -2373,7 +2225,7 @@ xaccTransUnvoid (Transaction *trans)
 
     g_return_if_fail(trans);
 
-    frame = trans->inst.kvp_data;
+    frame = trans->kvp_data;
     val = kvp_frame_get_slot(frame, void_reason_str);
     if (!val) return; /* Transaction isn't voided. Bail. */
 
@@ -2413,7 +2265,7 @@ xaccTransReverse (Transaction *orig)
 
     /* Now update the original with a pointer to the new one */
     kvp_val = kvp_value_new_guid(xaccTransGetGUID(trans));
-    kvp_frame_set_slot_nc(orig->inst.kvp_data, TRANS_REVERSED_BY, kvp_val);
+    kvp_frame_set_slot_nc(orig->kvp_data, TRANS_REVERSED_BY, kvp_val);
 
     xaccTransCommitEdit(trans);
     return trans;
@@ -2425,7 +2277,7 @@ xaccTransGetReversedBy(const Transaction *trans)
     GncGUID *guid;
 
     g_return_val_if_fail(trans, NULL);
-    guid = kvp_frame_get_guid(trans->inst.kvp_data, TRANS_REVERSED_BY);
+    guid = kvp_frame_get_guid(trans->kvp_data, TRANS_REVERSED_BY);
     return xaccTransLookup(guid, qof_instance_get_book(trans));
 }
 
@@ -2548,7 +2400,7 @@ xaccTransFindSplitByAccount(const Transaction *trans, const Account *acc)
 static void
 destroy_tx_on_book_close(QofInstance *ent, gpointer data)
 {
-    Transaction* tx = GNC_TRANSACTION(ent);
+    Transaction* tx = dynamic_cast<Transaction*>(ent);
 
     xaccTransDestroy(tx);
 }

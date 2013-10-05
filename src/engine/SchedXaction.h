@@ -36,32 +36,11 @@
 #ifndef XACC_SCHEDXACTION_H
 #define XACC_SCHEDXACTION_H
 
-typedef struct _SchedXactionClass SchedXactionClass;
-
 #include <time.h>
 #include <glib.h>
 #include "qof.h"
 #include "Recurrence.h"
 #include "gnc-engine.h"
-
-/* --- type macros --- */
-#define GNC_TYPE_SCHEDXACTION            (gnc_schedxaction_get_type ())
-#define GNC_SCHEDXACTION(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_SCHEDXACTION, SchedXaction))
-#define GNC_SCHEDXACTION_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_SCHEDXACTION, SchedXactionClass))
-#define GNC_IS_SCHEDXACTION(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_SCHEDXACTION))
-#define GNC_IS_SCHEDXACTION_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_SCHEDXACTION))
-#define GNC_SCHEDXACTION_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_SCHEDXACTION, SchedXactionClass))
-GType gnc_schedxaction_get_type(void);
-
-#define GNC_IS_SX(obj)  GNC_IS_SCHEDXACTION(obj)
-#define GNC_SX(obj)     GNC_SCHEDXACTION(obj)
-
-typedef struct _SchedXaction SchedXaction;
 
 /**
  * A single scheduled transaction.
@@ -84,9 +63,9 @@ typedef struct _SchedXaction SchedXaction;
  * We should be able to use the GeneralLedger [or, yet-another-subtype
  * of the internal ledger] for this editing.
  **/
-struct _SchedXaction
+class SchedXaction : public QofInstance
 {
-    QofInstance     inst;
+public:
     gchar           *name;
 
     GList           *schedule;
@@ -116,11 +95,6 @@ struct _SchedXaction
     /** The list of deferred SX instances.  This list is of SXTmpStateData
      * instances.  */
     GList /* <SXTmpStateData*> */ *deferredList;
-};
-
-struct _SchedXactionClass
-{
-    QofInstanceClass parent_class;
 };
 
 /** Just the variable temporal bits from the SX structure. */

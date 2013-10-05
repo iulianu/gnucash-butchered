@@ -55,6 +55,7 @@
 #include "gnc-gnome-utils.h"
 
 #include "gnc-engine.h"
+#include "AccountP.h"
 static QofLogModule log_module = GNC_MOD_IMPORT;
 
 #define GCONF_SECTION "dialogs/new_hierarchy"

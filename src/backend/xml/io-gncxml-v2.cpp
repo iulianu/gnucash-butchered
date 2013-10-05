@@ -1187,7 +1187,7 @@ write_budget (QofInstance *ent, gpointer data)
     xmlNodePtr node;
     struct file_backend* be = data;
 
-    GncBudget *bgt = GNC_BUDGET(ent);
+    GncBudget *bgt = dynamic_cast<GncBudget*>(ent);
 
     if (ferror(be->out))
         return;

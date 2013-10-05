@@ -48,6 +48,14 @@ static gchar *weekend_adj_strings[NUM_WEEKEND_ADJS] =
     "none", "back", "forward",
 };
 
+Recurrence::Recurrence()
+{
+    start = * g_date_new();
+    ptype = 0;
+    mult = 0;
+    wadj = 0;
+}
+
 #define VALID_PERIOD_TYPE(pt)    ((0 <= (pt)) && ((pt) < NUM_PERIOD_TYPES))
 #define VALID_WEEKEND_ADJ(wadj)  ((0 <= (wadj)) && ((wadj) < NUM_WEEKEND_ADJS))
 

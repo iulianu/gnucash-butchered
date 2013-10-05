@@ -25,6 +25,8 @@
 #include "gnc-entry-quickfill.h"
 #include "engine/gnc-event.h"
 #include "engine/gncEntry.h"
+#include <typeinfo>
+#include "gncEntryP.h"
 
 /* This static indicates the debugging module that this .o belongs to. */
 G_GNUC_UNUSED static QofLogModule log_module = GNC_MOD_REGISTER;
@@ -47,8 +49,12 @@ listen_for_gncentry_events(QofInstance *entity,  QofEventId event_type,
     const char *desc;
 
     /* We only listen for GncEntry events */
-    if (!GNC_IS_ENTRY (entity))
+    if(!entity)
         return;
+    if(typeid(*entity) != typeid(GncEntry))
+        return;
+//    if (!GNC_IS_ENTRY (entity))
+//        return;
 
     /* We listen for MODIFY (if the description was changed into
      * something non-empty, so we add the string to the quickfill) and
@@ -59,7 +65,8 @@ listen_for_gncentry_events(QofInstance *entity,  QofEventId event_type,
     /*     g_warning("entity %p, entity type %s, event type %s, user data %p, ecent data %p", */
     /*               entity, entity->e_type, qofeventid_to_string(event_type), user_data, event_data); */
 
-    desc = gncEntryGetDescription(GNC_ENTRY(entity));
+    GncEntry * entry = dynamic_cast<GncEntry*>(entity);
+    desc = gncEntryGetDescription(entry);
     if (event_type & QOF_EVENT_MODIFY)
     {
         /* If the description was changed into something non-empty, so

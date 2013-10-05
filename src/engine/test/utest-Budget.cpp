@@ -365,7 +365,8 @@ teardown ( Fixture *fixture, gconstpointer pData)
     Account *child = fixture->acct;
     qof_book_destroy (gnc_account_get_book (child));
     /* No need to free the last account, qof_book_destroy did that */
-    g_free (fixture->func);
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 
 
@@ -526,7 +527,7 @@ gnc_account_init (Account* acc)// 1
 static void
 test_gnc_account_create_and_destroy (void)
 {
-    Account *acc = g_object_new (GNC_TYPE_ACCOUNT, NULL);
+    Account *acc = new Account;//g_object_new (GNC_TYPE_ACCOUNT, NULL);
     gchar *name, *fname, *code, *desc, *color, *notes, *tax_code, *tax_src;
     GNCAccountType type;
     gnc_commodity *commo;
@@ -605,11 +606,11 @@ test_gnc_account_create_and_destroy (void)
     g_free (tax_code);
     g_free (tax_src);
 
-    g_object_unref (acc);
-    /* There's no good way to test that the object has been properly
-     * destroyed; on the other hand, that's GObject's job.
-     */
-
+//    g_object_unref (acc);
+//    /* There's no good way to test that the object has been properly
+//     * destroyed; on the other hand, that's GObject's job.
+//     */
+    delete acc;
 }
 /* xaccInitAccount
 static void
@@ -678,8 +679,10 @@ test_gnc_book_set_get_root_account (Fixture *fixture, gconstpointer pData)
     /* acc1 gets freed by setting the root accout to acc2
         g_object_unref (acc1);
     */
-    g_object_unref (book1);
-    g_object_unref (acc2);
+//    g_object_unref (book1);
+//    g_object_unref (acc2);
+    delete book1;
+    delete acc2;
 }
 
 /* xaccMallocAccount
@@ -695,8 +698,10 @@ test_xaccMallocAccount (void)
     g_assert (acc != NULL);
     test_signal_assert_hits (signal, 1);
     test_signal_free (signal);
-    g_object_unref (book);
-    g_object_unref (acc);
+//    g_object_unref (book);
+//    g_object_unref (acc);
+    delete book;
+    delete acc;
 }
 
 /* gnc_account_create_root
@@ -718,9 +723,12 @@ test_gnc_account_create_root (void)
     g_object_get (acc, "name", &name, NULL);
     g_assert_cmpstr (name, == , "Root Account");
     g_assert (gnc_book_get_root_account (book) == acc);
-    g_object_unref (book);
-    g_object_unref (acc);
-    g_free (func);
+//    g_object_unref (book);
+//    g_object_unref (acc);
+    delete book;
+    delete acc;
+//    g_free (func);
+    delete func;
     g_free (name);
 }
 /* xaccCloneAccountCommon
@@ -763,7 +771,8 @@ test_xaccCloneAccount (Fixture *fixture, gconstpointer pData)
     g_assert (clone_p->commodity_scu == acct_p->commodity_scu);
     g_assert (clone_p->non_standard_scu == acct_p->non_standard_scu);
     /* Clean Up */
-    g_object_unref (clone);
+//    g_object_unref (clone);
+    delete clone;
 
 }
 /* xaccFreeOneChildAccount
@@ -787,7 +796,8 @@ test_xaccFreeAccountChildren (Fixture *fixture, gconstpointer pData)
     g_assert_cmpuint (g_list_length (priv->children), == , 0);
     qof_book_destroy (gnc_account_get_book (root));
     /* No need to unref the root account, qof_book_destroy did that. */
-    g_free (fixture->func);
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 /* xaccFreeAccount
 static void
@@ -878,7 +888,8 @@ test_xaccFreeAccount (Fixture *fixture, gconstpointer pData)
     g_log_remove_handler ("gnc.engine", hdlr2);
     test_clear_error_list ();
     qof_book_destroy (book);
-    g_free (fixture->func);
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 /* xaccAccountBeginEdit
 void
@@ -1006,7 +1017,8 @@ test_xaccAccountCommitEdit (Fixture *fixture, gconstpointer pData)
     g_log_remove_handler ("gnc.engine", hdlr2);
     test_clear_error_list ();
     qof_book_destroy (book);
-    g_free (fixture->func);
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 /* xaccAcctChildrenEqual
 static gboolean
@@ -1363,7 +1375,8 @@ test_xaccAccountOrder ( )
     xaccAccountDestroy (aa);
     xaccAccountBeginEdit (ab);
     xaccAccountDestroy (ab);
-    g_object_unref (book);
+//    g_object_unref (book);
+    delete book;
 }
 /* qof_xaccAccountOrder
 static int
@@ -1504,7 +1517,8 @@ test_gnc_account_append_remove_child (Fixture *fixture, gconstpointer pData)
     xaccAccountDestroy (account);
     xaccAccountBeginEdit (froot);
     xaccAccountDestroy (froot);
-    g_object_unref (fbook);
+//    g_object_unref (fbook);
+    delete fbook;
 
 }
 /* Simple Getters or passthroughs, no tests:
@@ -2080,7 +2094,7 @@ test_xaccAccountType_Stuff (void)
     TestErrorStruct check1 = { loglevel, logdomain, msg1, 0 };
     TestErrorStruct check2 = { loglevel, logdomain, msg2, 0 };
     TestErrorStruct check3 = { loglevel, logdomain, msg3, 0 };
-    Account *acc = g_object_new (GNC_TYPE_ACCOUNT, NULL);
+    Account *acc = new Account;//g_object_new (GNC_TYPE_ACCOUNT, NULL);
 
     for (type = ACCT_TYPE_NONE; type < ACCT_TYPE_LAST; type++)
     {
@@ -2125,7 +2139,8 @@ test_xaccAccountType_Stuff (void)
             g_assert (!xaccAccountIsPriced (acc));
 
     }
-    g_object_unref (acc);
+//    g_object_unref (acc);
+    delete acc;
 
     loghandler = g_log_set_handler (logdomain, loglevel,
                                     (GLogFunc)test_null_handler, &check1);

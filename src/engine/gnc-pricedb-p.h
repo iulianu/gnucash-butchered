@@ -30,11 +30,10 @@
 #include "gnc-engine.h"
 #include "gnc-pricedb.h"
 
-struct gnc_price_s
+class GNCPrice : public QofInstance
 {
+public:
     /* 'public' data fields */
-    QofInstance inst;              /* globally unique object identifier */
-
     GNCPriceDB *db;
     gnc_commodity *commodity;
     gnc_commodity *currency;
@@ -45,30 +44,27 @@ struct gnc_price_s
 
     /* 'private' object management fields */
     guint32  refcount;             /* garbage collection reference count */
+    
+    GNCPrice();
+    virtual ~GNCPrice();
 };
 
-struct _GncPriceClass
-{
-    QofInstanceClass parent_class;
-};
 
-struct gnc_price_db_s
+class GNCPriceDB : public QofInstance
 {
-    QofInstance inst;              /* globally unique object identifier */
+public:
     GHashTable *commodity_hash;
     gboolean bulk_update;		 /* TRUE while reading XML file, etc. */
-};
-
-struct _GncPriceDBClass
-{
-    QofInstanceClass parent_class;
+    
+    GNCPriceDB();
+    virtual ~GNCPriceDB();
 };
 
 /* These structs define the kind of price lookup being done
  * so that it can be passed to the backend.  This is a rather
  * cheesy, low-brow interface.  It could stand improvement.
  */
-typedef enum
+enum PriceLookupType
 {
     LOOKUP_LATEST = 1,
     LOOKUP_ALL,
@@ -76,10 +72,10 @@ typedef enum
     LOOKUP_NEAREST_IN_TIME,
     LOOKUP_LATEST_BEFORE,
     LOOKUP_EARLIEST_AFTER
-} PriceLookupType;
+};
 
 
-struct gnc_price_lookup_s
+struct GNCPriceLookup
 {
     PriceLookupType type;
     GNCPriceDB     *prdb;

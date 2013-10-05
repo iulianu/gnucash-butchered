@@ -60,12 +60,6 @@ union GncGUID
 };
 
 
-#define GNC_TYPE_GUID (gnc_guid_get_type())
-#define GNC_VALUE_HOLDS_GUID(value) G_VALUE_HOLDS(value, GNC_TYPE_GUID)
-
-GType gnc_guid_get_type (void);
-const GncGUID* gnc_value_get_guid (const GValue *value);
-
 /** number of characters needed to encode a guid as a string
  * not including the null terminator. */
 #define GUID_ENCODING_LENGTH 32

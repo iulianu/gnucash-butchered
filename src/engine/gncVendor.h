@@ -31,8 +31,7 @@
 #ifndef GNC_VENDOR_H_
 #define GNC_VENDOR_H_
 
-typedef struct _gncVendor GncVendor;
-typedef struct _gncVendorClass GncVendorClass;
+class GncVendor;
 
 #include "gncAddress.h"
 #include "gncBillTerm.h"
@@ -40,20 +39,6 @@ typedef struct _gncVendorClass GncVendorClass;
 #include "gncJob.h"
 
 #define GNC_ID_VENDOR       "gncVendor"
-
-/* --- type macros --- */
-#define GNC_TYPE_VENDOR            (gnc_vendor_get_type ())
-#define GNC_VENDOR(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_VENDOR, GncVendor))
-#define GNC_VENDOR_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_VENDOR, GncVendorClass))
-#define GNC_IS_VENDOR(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_VENDOR))
-#define GNC_IS_VENDOR_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_VENDOR))
-#define GNC_VENDOR_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_VENDOR, GncVendorClass))
-GType gnc_vendor_get_type(void);
 
 /* Create/Destroy Functions */
 

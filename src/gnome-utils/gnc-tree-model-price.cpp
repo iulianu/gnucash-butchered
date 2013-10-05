@@ -40,11 +40,13 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <string.h>
+#include <typeinfo>
 
 #include "gnc-component-manager.h"
 #include "gnc-engine.h"
 #include "gnc-gobject-utils.h"
 #include "gnc-pricedb.h"
+#include "gnc-pricedb-p.h"
 #include "gnc-tree-model-price.h"
 #include "gnc-ui-util.h"
 
@@ -1587,11 +1589,9 @@ gnc_tree_model_price_event_handler (QofInstance *entity,
     g_return_if_fail(GNC_IS_TREE_MODEL_PRICE(model));
 
     /* get type specific data */
-    if (GNC_IS_COMMODITY(entity))
+    if ((entity != NULL) && (typeid(*entity) == typeid(gnc_commodity)))
     {
-        gnc_commodity *commodity;
-
-        commodity = GNC_COMMODITY(entity);
+        gnc_commodity *commodity = dynamic_cast<gnc_commodity*>(entity);
         name = gnc_commodity_get_mnemonic(commodity);
         if (event_type != QOF_EVENT_DESTROY)
         {
@@ -1602,11 +1602,10 @@ gnc_tree_model_price_event_handler (QofInstance *entity,
             }
         }
     }
-    else if (GNC_IS_COMMODITY_NAMESPACE(entity))
+    else if ((entity != NULL) && (typeid(*entity) == typeid(gnc_commodity_namespace)))
     {
-        gnc_commodity_namespace *comm_namespace;
-
-        comm_namespace = GNC_COMMODITY_NAMESPACE(entity);
+        gnc_commodity_namespace *comm_namespace
+                = dynamic_cast<gnc_commodity_namespace*>(entity);
         name = gnc_commodity_namespace_get_name(comm_namespace);
         if (event_type != QOF_EVENT_DESTROY)
         {
@@ -1617,11 +1616,9 @@ gnc_tree_model_price_event_handler (QofInstance *entity,
             }
         }
     }
-    else if (GNC_IS_PRICE(entity))
+    else if ((entity != NULL) && (typeid(*entity) == typeid(GNCPrice)))
     {
-        GNCPrice *price;
-
-        price = GNC_PRICE(entity);
+        GNCPrice *price = dynamic_cast<GNCPrice*>(entity);
         name = "price";
         if (event_type != QOF_EVENT_DESTROY)
         {

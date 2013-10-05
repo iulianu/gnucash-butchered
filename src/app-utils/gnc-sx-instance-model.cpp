@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <stdlib.h>
+#include <typeinfo>
 
 #include "Account.h"
 #include "SX-book.h"
@@ -41,6 +42,7 @@
 #include "Scrub.h"
 #include "Split.h"
 #include "Transaction.h"
+#include "TransactionP.h"
 #include "gnc-commodity.h"
 #include "gnc-event.h"
 #include "gnc-exp-parser.h"
@@ -646,15 +648,19 @@ _gnc_sx_instance_event_handler(QofInstance *ent, QofEventId event_type, gpointer
     //   (gnc_collection_get_schedxaction_list(book), GNC_EVENT_ITEM_REMOVED)
     //   (GNC_IS_SX(ent), QOF_EVENT_MODIFIED)
     // } */
-    if (!(GNC_IS_SX(ent) || GNC_IS_SXES(ent)))
+//    if (!(GNC_IS_SX(ent) || GNC_IS_SXES(ent)))
+//        return;
+    if(!ent)
         return;
-
-    if (GNC_IS_SX(ent))
+    if((typeid(*ent) != typeid(SchedXaction)) && typeid(*ent) != typeid(SchedXactions))
+        return;
+    
+    if (typeid(*ent) == typeid(SchedXaction))
     {
         SchedXaction *sx;
         gboolean sx_is_in_model = FALSE;
 
-        sx = GNC_SX(ent);
+        sx = dynamic_cast<SchedXaction*>(ent);
         // only send `updated` if it's actually in the model
         sx_is_in_model = (g_list_find_custom(instances->sx_instance_list, sx, (GCompareFunc)_gnc_sx_instance_find_by_sx) != NULL);
         if (event_type & QOF_EVENT_MODIFY)
@@ -687,9 +693,9 @@ _gnc_sx_instance_event_handler(QofInstance *ent, QofEventId event_type, gpointer
         }
         /* else { unsupported event type; ignore } */
     }
-    else if (GNC_IS_SXES(ent))
+    else if (typeid(*ent) == typeid(SchedXactions))
     {
-        SchedXaction *sx = GNC_SX(evt_data);
+        SchedXaction *sx = (SchedXaction*)(evt_data);
 
         if (event_type & GNC_EVENT_ITEM_REMOVED)
         {

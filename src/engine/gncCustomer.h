@@ -54,8 +54,8 @@ taxincluded, active and jobs are identical to ::GncVendor.
 @param	GncAddress *    shipaddr;
 
 */
-typedef struct _gncCustomer GncCustomer;
-typedef struct _gncCustomerClass GncCustomerClass;
+class GncCustomer;
+//typedef struct _gncCustomerClass GncCustomerClass;
 
 #include "gncAddress.h"
 #include "gncBillTerm.h"
@@ -63,20 +63,6 @@ typedef struct _gncCustomerClass GncCustomerClass;
 #include "gncJob.h"
 
 #define GNC_ID_CUSTOMER       "gncCustomer"
-
-/* --- type macros --- */
-#define GNC_TYPE_CUSTOMER            (gnc_customer_get_type ())
-#define GNC_CUSTOMER(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_CUSTOMER, GncCustomer))
-#define GNC_CUSTOMER_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_CUSTOMER, GncCustomerClass))
-#define GNC_IS_CUSTOMER(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_CUSTOMER))
-#define GNC_IS_CUSTOMER_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_CUSTOMER))
-#define GNC_CUSTOMER_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_CUSTOMER, GncCustomerClass))
-GType gnc_customer_get_type(void);
 
 /** @name Create/Destroy Functions
  @{ */
@@ -94,7 +80,7 @@ void gncCustomerSetName (GncCustomer *customer, const char *name);
 void gncCustomerSetNotes (GncCustomer *customer, const char *notes);
 void gncCustomerSetTerms (GncCustomer *customer, GncBillTerm *term);
 void gncCustomerSetTaxIncluded (GncCustomer *customer, GncTaxIncluded taxincl);
-void gncCustomerSetActive (GncCustomer *customer, gboolean active);
+void gncCustomerSetActive (GncCustomer *customer, bool active);
 void gncCustomerSetDiscount (GncCustomer *customer, gnc_numeric discount);
 void gncCustomerSetCredit (GncCustomer *customer, gnc_numeric credit);
 void gncCustomerSetCurrency (GncCustomer *customer, gnc_commodity *currency);
@@ -127,7 +113,7 @@ GncAddress * gncCustomerGetShipAddr (const GncCustomer *customer);
 const char * gncCustomerGetNotes (const GncCustomer *customer);
 GncBillTerm * gncCustomerGetTerms (const GncCustomer *customer);
 GncTaxIncluded gncCustomerGetTaxIncluded (const GncCustomer *customer);
-gboolean gncCustomerGetActive (const GncCustomer *customer);
+bool gncCustomerGetActive (const GncCustomer *customer);
 gnc_numeric gncCustomerGetDiscount (const GncCustomer *customer);
 gnc_numeric gncCustomerGetCredit (const GncCustomer *customer);
 gnc_commodity * gncCustomerGetCurrency (const GncCustomer *customer);

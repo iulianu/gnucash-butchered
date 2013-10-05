@@ -30,6 +30,25 @@
 
 #include "gncVendor.h"
 
+class GncVendor : public QofInstance
+{
+public:
+    char *          id;
+    char *          name;
+    char *          notes;
+    GncBillTerm *   terms;
+    GncAddress *    addr;
+    gnc_commodity * currency;
+    GncTaxTable*    taxtable;
+    gboolean        taxtable_override;
+    GncTaxIncluded  taxincluded;
+    gboolean        active;
+    GList *         jobs;
+    
+    GncVendor();
+    virtual ~GncVendor();
+};
+
 gboolean gncVendorRegister (void);
 gchar *gncVendorNextID (QofBook *book);
 

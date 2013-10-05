@@ -65,7 +65,8 @@ gnc_ui_object_references_show( const gchar* explanation_text, GList* objlist )
         GtkTreeIter iter;
 
         gtk_list_store_append( store, &iter );
-        gtk_list_store_set( store, &iter, 0, qof_instance_get_display_name( inst ), -1 );
+        // BUG ! Should be uncommented after de-GLibification
+//        gtk_list_store_set( store, &iter, 0, qof_instance_get_display_name( inst ), -1 );
     }
 
     /* Set up the list view */

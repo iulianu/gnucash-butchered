@@ -40,34 +40,20 @@
 #ifndef QOF_BOOK_H
 #define QOF_BOOK_H
 
-
-struct QofBookClass;
-
 #include "qofid.h"
 #include "kvp_frame.h"
 #include "qofinstance.h"
 #include <stdint.h>
 
-/* --- type macros --- */
-#define QOF_TYPE_BOOK            (qof_book_get_type ())
-#define QOF_BOOK(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), QOF_TYPE_BOOK, QofBook))
-#define QOF_BOOK_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), QOF_TYPE_BOOK, QofBookClass))
-#define QOF_IS_BOOK(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), QOF_TYPE_BOOK))
-#define QOF_IS_BOOK_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), QOF_TYPE_BOOK))
-#define QOF_BOOK_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), QOF_TYPE_BOOK, QofBookClass))
-
 typedef void (*QofBookDirtyCB) (QofBook *, bool dirty, void * user_data);
 
 /* Book structure */
-struct QofBook
+class QofBook : public QofInstance
 {
-    QofInstance   inst;     /* Unique guid for this book. */
-
+public:
+    QofBook();
+    virtual ~QofBook();
+    
     /* Boolean indicates that the session is dirty -- that is, it has
      * not yet been written out to disk after the last time the
      * backend ran commit_edit(). This is distinct from the inherited
@@ -133,13 +119,6 @@ struct QofBook
      * from the session.  Better solutions welcome ... */
     QofBackend *backend;
 };
-
-struct QofBookClass
-{
-    QofInstanceClass parent_class;
-};
-
-GType qof_book_get_type(void);
 
 /** @brief Encapsulates all the information about a dataset
  * manipulated by QOF.  This is the top-most structure

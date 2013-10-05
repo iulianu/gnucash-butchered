@@ -62,88 +62,112 @@ bool qof_query_core_predicate_equal (const QofQueryPredData *p1, const QofQueryP
  * Query.
  */
 
-typedef struct
+struct query_string_def
 {
     QofQueryPredData	pd;
     QofStringMatch	options;
     bool		is_regex;
     char *		matchstring;
     regex_t		compiled;
-} query_string_def, *query_string_t;
+    query_string_def();
+};
+typedef query_string_def *query_string_t;
 
-typedef struct
+struct query_date_def
 {
     QofQueryPredData	pd;
     QofDateMatch	options;
     Timespec	date;
-} query_date_def, *query_date_t;
+    query_date_def();
+};
+typedef query_date_def *query_date_t;
 
-typedef struct
+struct query_numeric_def
 {
     QofQueryPredData	pd;
     QofNumericMatch	options;
     gnc_numeric		amount;
-} query_numeric_def, *query_numeric_t;
+    query_numeric_def();
+};
+typedef query_numeric_def *query_numeric_t;
 
-typedef struct
+struct query_guid_def
 {
     QofQueryPredData	pd;
     QofGuidMatch	options;
     GList *	guids;
-} query_guid_def, *query_guid_t;
+    query_guid_def();
+};
+typedef query_guid_def *query_guid_t;
 
-typedef struct
+struct query_int32_def
 {
     QofQueryPredData	pd;
     int32_t	val;
-} query_int32_def, *query_int32_t;
+    query_int32_def();
+};
+typedef query_int32_def *query_int32_t;
 
-typedef struct
+struct query_int64_def
 {
     QofQueryPredData	pd;
     int64_t	val;
-} query_int64_def, *query_int64_t;
+    query_int64_def();
+};
+typedef query_int64_def *query_int64_t;
 
-typedef struct
+struct query_double_def
 {
     QofQueryPredData	pd;
     double	val;
-} query_double_def, *query_double_t;
+    query_double_def();
+};
+typedef query_double_def *query_double_t;
 
-typedef struct
+struct query_boolean_def
 {
     QofQueryPredData	pd;
     bool	val;
-} query_boolean_def, *query_boolean_t;
+    query_boolean_def();
+};
+typedef query_boolean_def *query_boolean_t;
 
-typedef struct
+struct query_char_def
 {
     QofQueryPredData	pd;
     QofCharMatch	options;
     char *	char_list;
-} query_char_def, *query_char_t;
+    query_char_def();
+};
+typedef query_char_def *query_char_t;
 
-typedef struct
+struct query_kvp_def
 {
     QofQueryPredData	pd;
     GSList *	path;
     KvpValue *	value;
-} query_kvp_def, *query_kvp_t;
+    query_kvp_def();
+};
+typedef query_kvp_def *query_kvp_t;
 
-typedef struct
+struct query_coll_def
 {
     QofQueryPredData pd;
     QofGuidMatch  options;
     QofCollection *coll;
     GList *guids;
-} query_coll_def, *query_coll_t;
+    query_coll_def();
+};
+typedef query_coll_def *query_coll_t;
 
-typedef struct
+struct query_choice_def
 {
     QofQueryPredData pd;
     QofGuidMatch options;
     const GncGUID *guid;
     GList * guids;
-} query_choice_def, *query_choice_t;
+    query_choice_def();
+};
+typedef query_choice_def *query_choice_t;
 
 #endif /* QOF_QUERYCOREP_H */

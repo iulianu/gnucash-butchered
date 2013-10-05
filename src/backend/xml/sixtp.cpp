@@ -55,6 +55,7 @@ is_child_result_from_node_named(sixtp_child_result *cr, const char *tag)
 void
 sixtp_child_free_data(sixtp_child_result *result)
 {
+#warning g_free
     if (result->data) g_free(result->data);
 }
 

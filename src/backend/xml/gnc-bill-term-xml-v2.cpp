@@ -44,6 +44,9 @@
 #include "gncBillTermP.h"
 #include "gncInvoice.h"
 #include "gnc-bill-term-xml-v2.h"
+#include "gncVendorP.h"
+#include "gncInvoiceP.h"
+#include "gncCustomerP.h"
 #include "qof.h"
 
 #include "xml-helpers.h"
@@ -574,7 +577,7 @@ billterm_find_senior (GncBillTerm *term)
 static void
 billterm_scrub_cb (QofInstance *term_p, gpointer list_p)
 {
-    GncBillTerm *term = GNC_BILLTERM(term_p);
+    GncBillTerm *term = dynamic_cast<GncBillTerm*>(term_p);
     GList **list = list_p;
 
     if (billterm_is_grandchild(term))
@@ -615,7 +618,7 @@ static void
 billterm_scrub_invoices (QofInstance * invoice_p, gpointer ht_p)
 {
     GHashTable *ht = ht_p;
-    GncInvoice *invoice = GNC_INVOICE(invoice_p);
+    GncInvoice *invoice = dynamic_cast<GncInvoice*>(invoice_p);
     GncBillTerm *term, *new_bt;
     gint32 count;
 
@@ -645,7 +648,7 @@ static void
 billterm_scrub_cust (QofInstance * cust_p, gpointer ht_p)
 {
     GHashTable *ht = ht_p;
-    GncCustomer *cust = GNC_CUSTOMER(cust_p);
+    GncCustomer *cust = dynamic_cast<GncCustomer*>(cust_p);
     GncBillTerm *term;
     gint32 count;
 
@@ -666,7 +669,7 @@ static void
 billterm_scrub_vendor (QofInstance * vendor_p, gpointer ht_p)
 {
     GHashTable *ht = ht_p;
-    GncVendor *vendor = GNC_VENDOR(vendor_p);
+    GncVendor *vendor = dynamic_cast<GncVendor*>(vendor_p);
     GncBillTerm *term;
     gint32 count;
 

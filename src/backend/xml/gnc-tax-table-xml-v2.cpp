@@ -43,6 +43,9 @@
 
 #include "gncEntry.h"
 #include "gncTaxTableP.h"
+#include "gncCustomerP.h"
+#include "gncEntryP.h"
+#include "gncVendorP.h"
 #include "gnc-tax-table-xml-v2.h"
 
 #define _GNC_MOD_NAME	GNC_ID_TAXTABLE
@@ -470,7 +473,7 @@ static void
 xml_add_taxtable (QofInstance * table_p, gpointer out_p)
 {
     xmlNodePtr node;
-    GncTaxTable *table = (GncTaxTable *) table_p;
+    GncTaxTable *table = dynamic_cast<GncTaxTable *>(table_p);
     FILE *out = out_p;
 
     if (ferror(out))
@@ -536,7 +539,7 @@ taxtable_find_senior (GncTaxTable *table)
 static void
 taxtable_scrub_cb (QofInstance * table_p, gpointer list_p)
 {
-    GncTaxTable *table = GNC_TAXTABLE(table_p);
+    GncTaxTable *table = (GncTaxTable*)(table_p);
     GList **list = list_p;
 
     if (taxtable_is_grandchild(table) || gncTaxTableGetEntries(table) == NULL)
@@ -550,7 +553,7 @@ static void
 taxtable_scrub_entries (QofInstance * entry_p, gpointer ht_p)
 {
     GHashTable *ht = ht_p;
-    GncEntry *entry = GNC_ENTRY(entry_p);
+    GncEntry *entry = dynamic_cast<GncEntry*>(entry_p);
     GncTaxTable *table, *new_tt;
     gint32 count;
 
@@ -601,7 +604,7 @@ static void
 taxtable_scrub_cust (QofInstance * cust_p, gpointer ht_p)
 {
     GHashTable *ht = ht_p;
-    GncCustomer *cust = GNC_CUSTOMER(cust_p);
+    GncCustomer *cust = dynamic_cast<GncCustomer*>(cust_p);
     GncTaxTable *table;
     gint32 count;
 
@@ -618,7 +621,7 @@ static void
 taxtable_scrub_vendor (QofInstance * vendor_p, gpointer ht_p)
 {
     GHashTable *ht = ht_p;
-    GncVendor *vendor = GNC_VENDOR(vendor_p);
+    GncVendor *vendor = dynamic_cast<GncVendor*>(vendor_p);
     GncTaxTable *table;
     gint32 count;
 

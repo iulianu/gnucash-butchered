@@ -250,7 +250,7 @@ gnc_plugin_page_budget_new (GncBudget *budget)
     gchar* label;
     const GList *item;
 
-    g_return_val_if_fail(GNC_IS_BUDGET(budget), NULL);
+//    g_return_val_if_fail(GNC_IS_BUDGET(budget), NULL);
     ENTER(" ");
 
     /* Is there an existing page? */
@@ -733,7 +733,7 @@ gnc_plugin_page_budget_cmd_delete_budget (GtkAction *action,
 
     priv = GNC_PLUGIN_PAGE_BUDGET_GET_PRIVATE(page);
     budget = priv->budget;
-    g_return_if_fail (GNC_IS_BUDGET(budget));
+//    g_return_if_fail (GNC_IS_BUDGET(budget));
     priv->delete_budget = TRUE;
     gnc_budget_gui_delete_budget(budget);
 
@@ -837,7 +837,7 @@ gnc_budget_gui_delete_budget(GncBudget *budget)
 {
     const char *name;
 
-    g_return_if_fail(GNC_IS_BUDGET(budget));
+//    g_return_if_fail(GNC_IS_BUDGET(budget));
     name = gnc_budget_get_name (budget);
     if (!name)
         name = _("Unnamed Budget");

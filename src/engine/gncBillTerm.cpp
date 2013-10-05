@@ -33,34 +33,6 @@
 #include "gnc-engine.h"
 #include "gncBillTermP.h"
 
-struct _gncBillTerm
-{
-    QofInstance     inst;
-
-    /* 'visible' data fields directly manipulated by user */
-    char *          name;
-    char *          desc;
-    GncBillTermType type;
-    gint            due_days;
-    gint            disc_days;
-    gnc_numeric     discount;
-    gint            cutoff;
-
-    /* Internal management fields */
-    /* See src/doc/business.txt for an explanation of the following */
-    /* Code that handles this is *identical* to that in gncTaxTable */
-    gint64          refcount;
-    GncBillTerm *   parent;      /* if non-null, we are an immutable child */
-    GncBillTerm *   child;       /* if non-null, we have not changed */
-    gboolean        invisible;
-    GList *         children;    /* list of children for disconnection */
-};
-
-struct _gncBillTermClass
-{
-    QofInstanceClass parent_class;
-};
-
 struct _book_info
 {
     GList *         terms;        /* visible terms */
@@ -83,14 +55,36 @@ static QofLogModule log_module = GNC_MOD_BUSINESS;
 AS_STRING_DEC(GncBillTermType, ENUM_TERMS_TYPE)
 FROM_STRING_DEC(GncBillTermType, ENUM_TERMS_TYPE)
 
+
+GncBillTerm::GncBillTerm()
+{
+    name = NULL;
+    desc = NULL;
+    type = 0;
+    due_days = 0;
+    disc_days = 0;
+    discount = gnc_numeric_zero();
+    cutoff = 0;
+    refcount = 0;
+    parent = NULL;
+    child = NULL;
+    invisible = false;
+    children = NULL;
+}
+
+GncBillTerm::~GncBillTerm()
+{
+    
+}
+
 /* ============================================================== */
 /* Misc inline utilities */
 
 static inline void
 mark_term (GncBillTerm *term)
 {
-    qof_instance_set_dirty(&term->inst);
-    qof_event_gen (&term->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(term);
+    qof_event_gen (term, QOF_EVENT_MODIFY, NULL);
 }
 
 static inline void maybe_resort_list (GncBillTerm *term)
@@ -133,117 +127,18 @@ gncBillTermRemoveChild (GncBillTerm *table, GncBillTerm *child)
 
 /* ============================================================== */
 
-enum
-{
-    PROP_0,
-    PROP_NAME
-};
-
-/* GObject Initialization */
-G_DEFINE_TYPE(GncBillTerm, gnc_billterm, QOF_TYPE_INSTANCE);
-
-static void
-gnc_billterm_init(GncBillTerm* bt)
-{
-}
-
-static void
-gnc_billterm_dispose(GObject *btp)
-{
-    G_OBJECT_CLASS(gnc_billterm_parent_class)->dispose(btp);
-}
-
-static void
-gnc_billterm_finalize(GObject* btp)
-{
-    G_OBJECT_CLASS(gnc_billterm_parent_class)->finalize(btp);
-}
-
-static void
-gnc_billterm_get_property (GObject         *object,
-                           guint            prop_id,
-                           GValue          *value,
-                           GParamSpec      *pspec)
-{
-    GncBillTerm *bt;
-
-    g_return_if_fail(GNC_IS_BILLTERM(object));
-
-    bt = GNC_BILLTERM(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        g_value_set_string(value, bt->name);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_billterm_set_property (GObject         *object,
-                           guint            prop_id,
-                           const GValue          *value,
-                           GParamSpec      *pspec)
-{
-    GncBillTerm *bt;
-
-    g_return_if_fail(GNC_IS_BILLTERM(object));
-
-    bt = GNC_BILLTERM(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        gncBillTermSetName(bt, g_value_get_string(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    /* Bill term doesn't refer to anything except other billterms */
-    return NULL;
-}
-
-static void
-gnc_billterm_class_init (GncBillTermClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_billterm_dispose;
-    gobject_class->finalize = gnc_billterm_finalize;
-    gobject_class->set_property = gnc_billterm_set_property;
-    gobject_class->get_property = gnc_billterm_get_property;
-
-    qof_class->get_display_name = NULL;
-    qof_class->refers_to_object = NULL;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NAME,
-     g_param_spec_string ("name",
-                          "BillTerm Name",
-                          "The bill term name is an arbitrary string "
-                          "assigned by the user.  It is intended to "
-                          "a short, 10 to 30 character long string "
-                          "that is displayed by the GUI as the "
-                          "billterm mnemonic.",
-                          NULL,
-                          G_PARAM_READWRITE));
-}
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    /* Bill term doesn't refer to anything except other billterms */
+//    return NULL;
+//}
 
 /* Create/Destroy Functions */
 GncBillTerm * gncBillTermCreate (QofBook *book)
@@ -251,13 +146,13 @@ GncBillTerm * gncBillTermCreate (QofBook *book)
     GncBillTerm *term;
     if (!book) return NULL;
 
-    term = g_object_new (GNC_TYPE_BILLTERM, NULL);
-    qof_instance_init_data(&term->inst, _GNC_MOD_NAME, book);
+    term = new GncBillTerm; //g_object_new (GNC_TYPE_BILLTERM, NULL);
+    qof_instance_init_data(term, _GNC_MOD_NAME, book);
     term->name = CACHE_INSERT ("");
     term->desc = CACHE_INSERT ("");
     term->discount = gnc_numeric_zero ();
     addObj (term);
-    qof_event_gen (&term->inst,  QOF_EVENT_CREATE, NULL);
+    qof_event_gen (term,  QOF_EVENT_CREATE, NULL);
     return term;
 }
 
@@ -265,9 +160,9 @@ void gncBillTermDestroy (GncBillTerm *term)
 {
     if (!term) return;
     DEBUG("destroying bill term %s (%p)",
-          guid_to_string(qof_instance_get_guid(&term->inst)), term);
+          guid_to_string(qof_instance_get_guid(term)), term);
     qof_instance_set_destroying(term, TRUE);
-    qof_instance_set_dirty (&term->inst);
+    qof_instance_set_dirty (term);
     gncBillTermCommitEdit (term);
 }
 
@@ -278,7 +173,7 @@ static void gncBillTermFree (GncBillTerm *term)
 
     if (!term) return;
 
-    qof_event_gen (&term->inst,  QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (term,  QOF_EVENT_DESTROY, NULL);
     CACHE_REMOVE (term->name);
     CACHE_REMOVE (term->desc);
     remObj (term);
@@ -299,7 +194,8 @@ static void gncBillTermFree (GncBillTerm *term)
     g_list_free(term->children);
 
     /* qof_instance_release(&term->inst); */
-    g_object_unref (term);
+//    g_object_unref (term);
+    delete term;
 }
 
 /* ============================================================== */
@@ -457,7 +353,7 @@ void gncBillTermChanged (GncBillTerm *term)
 
 void gncBillTermBeginEdit (GncBillTerm *term)
 {
-    qof_begin_edit(&term->inst);
+    qof_begin_edit(term);
 }
 
 static void gncBillTermOnError (QofInstance *inst, QofBackendError errcode)
@@ -468,7 +364,7 @@ static void gncBillTermOnError (QofInstance *inst, QofBackendError errcode)
 
 static void bill_free (QofInstance *inst)
 {
-    GncBillTerm *term = (GncBillTerm *) inst;
+    GncBillTerm *term = dynamic_cast<GncBillTerm *>(inst);
     gncBillTermFree(term);
 }
 
@@ -477,7 +373,7 @@ static void on_done (QofInstance *inst) {}
 void gncBillTermCommitEdit (GncBillTerm *term)
 {
     if (!qof_commit_edit (QOF_INSTANCE(term))) return;
-    qof_commit_edit_part2 (&term->inst, gncBillTermOnError,
+    qof_commit_edit_part2 (term, gncBillTermOnError,
                            on_done, bill_free);
 }
 
@@ -636,8 +532,8 @@ gboolean gncBillTermEqual(const GncBillTerm *a, const GncBillTerm *b)
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
 
-    g_return_val_if_fail(GNC_IS_BILLTERM(a), FALSE);
-    g_return_val_if_fail(GNC_IS_BILLTERM(b), FALSE);
+//    g_return_val_if_fail(GNC_IS_BILLTERM(a), FALSE);
+//    g_return_val_if_fail(GNC_IS_BILLTERM(b), FALSE);
 
     if (g_strcmp0(a->name, b->name) != 0)
     {
@@ -823,7 +719,8 @@ static void _gncBillTermCreate (QofBook *book)
 
     if (!book) return;
 
-    bi = g_new0 (struct _book_info, 1);
+    bi = new struct _book_info;//g_new0 (struct _book_info, 1);
+    bi->terms = NULL;
     qof_book_set_data (book, _GNC_MOD_NAME, bi);
 }
 
@@ -836,7 +733,8 @@ static void _gncBillTermDestroy (QofBook *book)
     bi = qof_book_get_data (book, _GNC_MOD_NAME);
 
     g_list_free (bi->terms);
-    g_free (bi);
+//    g_free (bi);
+    delete bi;
 }
 
 static QofObject gncBillTermDesc =

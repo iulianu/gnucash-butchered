@@ -37,35 +37,24 @@
 #ifndef QOF_INSTANCE_H
 #define QOF_INSTANCE_H
 
-struct QofInstanceClass;
-struct QofInstance;
+class QofInstance;
+class QofInstancePrivate;
 
 /** \brief QofBook reference */
-struct QofBook;
+class QofBook;
 
 #include "qofid.h"
 #include "guid.h"
 #include "gnc-date.h"
 #include "kvp_frame.h"
-#include "qof-gobject.h"
 
-/* --- type macros --- */
-#define QOF_TYPE_INSTANCE            (qof_instance_get_type ())
-#define QOF_INSTANCE(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), QOF_TYPE_INSTANCE, QofInstance))
-#define QOF_INSTANCE_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), QOF_TYPE_INSTANCE, QofInstanceClass))
-#define QOF_IS_INSTANCE(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), QOF_TYPE_INSTANCE))
-#define QOF_IS_INSTANCE_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), QOF_TYPE_INSTANCE))
-#define QOF_INSTANCE_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), QOF_TYPE_INSTANCE, QofInstanceClass))
+#define QOF_INSTANCE(o) o
 
-struct QofInstance
+class QofInstance
 {
-    GObject object;
-
+public:
+    QofInstancePrivate * priv;
+    
     QofIdType        e_type;		   /**<	Entity type */
 
     /* kvp_data is a key-value pair database for storing arbirtary
@@ -73,24 +62,16 @@ struct QofInstance
      * See src/engine/kvp_doc.txt for a list and description of the
      * important keys. */
     KvpFrame *kvp_data;
+    
+    virtual const char* get_display_name() const;
+    
+    QofInstance();
+    QofInstance(const GncGUID* guid);
+    virtual ~QofInstance();
+    
+private:
+    void init_();
 };
-
-struct QofInstanceClass
-{
-    GObjectClass parent_class;
-
-    /* Returns a displayable string to represent this object */
-    char* (*get_display_name)(const QofInstance*);
-
-    /* Does this object refer to a specific object */
-    bool (*refers_to_object)(const QofInstance* inst, const QofInstance* ref);
-
-    /* Returns a list of my type of object which refers to an object */
-    GList* (*get_typed_referring_object_list)(const QofInstance* inst, const QofInstance* ref);
-};
-
-/** Return the GType of a QofInstance */
-GType qof_instance_get_type(void);
 
 /** Initialise the settings associated with an instance */
 void qof_instance_init_data (QofInstance *, QofIdType, QofBook *);
@@ -146,6 +127,8 @@ void qof_instance_increase_editlevel (void * ptr);
 void qof_instance_decrease_editlevel (void * ptr);
 void qof_instance_reset_editlevel (void * ptr);
 
+Timespec qof_instance_get_last_update(const QofInstance *inst);
+
 /** Compare two instances, based on thier last update times.
  *  Returns a negative, zero or positive value, respectively,
  *  if 'left' is earlier, same as or later than 'right'.
@@ -170,7 +153,7 @@ bool qof_instance_get_destroying (const void * ptr);
  *  @param ptr The object whose flag should be set.
  *
  *  @param value The new value to be set for this object. */
-void qof_instance_set_destroying (void * ptr, bool value);
+void qof_instance_set_destroying (QofInstance * ptr, bool value);
 
 /** Retrieve the flag that indicates whether or not this object has
  *  been modified.  This is specifically the flag on the object. It
@@ -225,32 +208,32 @@ void qof_instance_copy_version_check (void * to, const void * from);
 uint32_t qof_instance_get_idata (const void * inst);
 void qof_instance_set_idata(void * inst, uint32_t idata);
 
-/**
- * Returns a displayable name for this object.  The returned string must be freed by the caller.
- */
-char* qof_instance_get_display_name(const QofInstance* inst);
-
-/**
- * Returns a list of objects which refer to a specific object.  The list must be freed by the caller,
- * but the objects on the list must not.
- */
-GList* qof_instance_get_referring_object_list(const QofInstance* inst);
-
-/** Does this object refer to a specific object */
-bool qof_instance_refers_to_object(const QofInstance* inst, const QofInstance* ref);
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-GList* qof_instance_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref);
-
-/** Returns a list of objects from the collection which refer to the specific object.  The list must be
-    freed by the caller but the objects on the list must not.
- */
-GList* qof_instance_get_referring_object_list_from_collection(const QofCollection* coll, const QofInstance* ref);
+///**
+// * Returns a displayable name for this object.  The returned string must be freed by the caller.
+// */
+//char* qof_instance_get_display_name(const QofInstance* inst);
+//
+///**
+// * Returns a list of objects which refer to a specific object.  The list must be freed by the caller,
+// * but the objects on the list must not.
+// */
+//GList* qof_instance_get_referring_object_list(const QofInstance* inst);
+//
+///** Does this object refer to a specific object */
+//bool qof_instance_refers_to_object(const QofInstance* inst, const QofInstance* ref);
+//
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//GList* qof_instance_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref);
+//
+///** Returns a list of objects from the collection which refer to the specific object.  The list must be
+//    freed by the caller but the objects on the list must not.
+// */
+//GList* qof_instance_get_referring_object_list_from_collection(const QofCollection* coll, const QofInstance* ref);
 
 /* @} */
 /* @} */

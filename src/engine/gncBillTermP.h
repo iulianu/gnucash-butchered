@@ -31,6 +31,31 @@
 
 #include "gncBillTerm.h"
 
+class GncBillTerm : public QofInstance
+{
+public:
+    /* 'visible' data fields directly manipulated by user */
+    char *          name;
+    char *          desc;
+    GncBillTermType type;
+    gint            due_days;
+    gint            disc_days;
+    gnc_numeric     discount;
+    gint            cutoff;
+
+    /* Internal management fields */
+    /* See src/doc/business.txt for an explanation of the following */
+    /* Code that handles this is *identical* to that in gncTaxTable */
+    gint64          refcount;
+    GncBillTerm *   parent;      /* if non-null, we are an immutable child */
+    GncBillTerm *   child;       /* if non-null, we have not changed */
+    gboolean        invisible;
+    GList *         children;    /* list of children for disconnection */
+    
+    GncBillTerm();
+    virtual ~GncBillTerm();
+};
+
 gboolean gncBillTermRegister (void);
 
 void gncBillTermSetParent (GncBillTerm *term, GncBillTerm *parent);

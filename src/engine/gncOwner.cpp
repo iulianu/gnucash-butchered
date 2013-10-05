@@ -41,7 +41,7 @@
 #include "gncOwner.h"
 #include "gncOwnerP.h"
 #include "gncVendorP.h"
-#include "gncInvoice.h"
+#include "gncInvoiceP.h"
 #include "gnc-commodity.h"
 #include "Transaction.h"
 #include "Split.h"
@@ -53,11 +53,18 @@
 #define GNC_OWNER_TYPE  "owner-type"
 #define GNC_OWNER_GUID  "owner-guid"
 
+GncOwner::GncOwner()
+{
+    type = GNC_OWNER_NONE;
+    owner.undefined = NULL;
+    qof_temp = NULL;
+}
+
 GncOwner * gncOwnerNew (void)
 {
-    GncOwner *o;
+    GncOwner *o = new GncOwner;
 
-    o = g_new0 (GncOwner, 1);
+//    o = g_new0 (GncOwner, 1);
     o->type = GNC_OWNER_NONE;
     return o;
 }
@@ -65,7 +72,8 @@ GncOwner * gncOwnerNew (void)
 void gncOwnerFree (GncOwner *owner)
 {
     if (!owner) return;
-    g_free (owner);
+//    g_free (owner);
+    delete owner;
 }
 
 void gncOwnerBeginEdit (GncOwner *owner)
@@ -295,16 +303,16 @@ qofOwnerSetEntity (GncOwner *owner, QofInstance *ent)
     }
 }
 
-gboolean GNC_IS_OWNER (QofInstance *ent)
-{
-    if (!ent)
-        return FALSE;
-
-    return (GNC_IS_VENDOR(ent) ||
-            GNC_IS_CUSTOMER(ent) ||
-            GNC_IS_EMPLOYEE(ent) ||
-            GNC_IS_JOB(ent));
-}
+//gboolean GNC_IS_OWNER (QofInstance *ent)
+//{
+//    if (!ent)
+//        return FALSE;
+//
+//    return (GNC_IS_VENDOR(ent) ||
+//            GNC_IS_CUSTOMER(ent) ||
+//            GNC_IS_EMPLOYEE(ent) ||
+//            GNC_IS_JOB(ent));
+//}
 gpointer gncOwnerGetUndefined (const GncOwner *owner)
 {
     if (!owner) return NULL;

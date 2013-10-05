@@ -991,8 +991,8 @@ gnc_tree_model_owner_event_handler (QofInstance *entity,
 
     g_return_if_fail(model);         /* Required */
 
-    if (!GNC_IS_OWNER(entity))
-        return;
+//    if (!GNC_IS_OWNER(entity))
+//        return;
 
     ENTER("entity %p of type %d, model %p, event_data %p",
           entity, event_type, model, ed);

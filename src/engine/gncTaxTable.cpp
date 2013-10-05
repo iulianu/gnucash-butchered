@@ -29,36 +29,38 @@
 #include "config.h"
 
 #include <glib.h>
+#include <typeinfo>
 
 #include "gncTaxTableP.h"
 
-struct _gncTaxTable
+GncTaxTable::GncTaxTable()
 {
-    QofInstance     inst;
-    char *          name;
-    GncTaxTableEntryList*  entries;
-    Timespec        modtime;      /* internal date of last modtime */
+    name = NULL;
+    entries = NULL;
+    modtime = {0,0};
+    refcount = 0;
+    parent = NULL;
+    child = NULL;
+    invisible = false;
+    children = NULL;
+}
 
-    /* See src/doc/business.txt for an explanation of the following */
-    /* Code that handles this is *identical* to that in gncBillTerm */
-    gint64          refcount;
-    GncTaxTable *   parent;       /* if non-null, we are an immutable child */
-    GncTaxTable *   child;        /* if non-null, we have not changed */
-    gboolean        invisible;
-    GList *         children;     /* list of children for disconnection */
-};
 
-struct _gncTaxTableClass
+class GncTaxTableEntry
 {
-    QofInstanceClass parent_class;
-};
-
-struct _gncTaxTableEntry
-{
+public:
     GncTaxTable *   table;
     Account *       account;
     GncAmountType   type;
     gnc_numeric     amount;
+    
+    GncTaxTableEntry()
+    {
+        table = NULL;
+        account = NULL;
+        type = 0;
+        amount = gnc_numeric_zero();
+    }
 };
 
 struct _book_info
@@ -146,8 +148,8 @@ gncTaxIncludedStringToType (const char *str, GncTaxIncluded *type)
 static inline void
 mark_table (GncTaxTable *table)
 {
-    qof_instance_set_dirty(&table->inst);
-    qof_event_gen (&table->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(table);
+    qof_event_gen (table, QOF_EVENT_MODIFY, NULL);
 }
 
 static inline void
@@ -204,201 +206,69 @@ gncTaxTableRemoveChild (GncTaxTable *table, const GncTaxTable *child)
 
 /* =============================================================== */
 
-enum
-{
-    PROP_0,
-    PROP_NAME,
-    PROP_INVISIBLE,
-    PROP_REFCOUNT
-};
-
-/* GObject Initialization */
-G_DEFINE_TYPE(GncTaxTable, gnc_taxtable, QOF_TYPE_INSTANCE);
-
-static void
-gnc_taxtable_init(GncTaxTable* tt)
-{
-}
-
-static void
-gnc_taxtable_dispose(GObject *ttp)
-{
-    G_OBJECT_CLASS(gnc_taxtable_parent_class)->dispose(ttp);
-}
-
-static void
-gnc_taxtable_finalize(GObject* ttp)
-{
-    G_OBJECT_CLASS(gnc_taxtable_parent_class)->dispose(ttp);
-}
-
-static void
-gnc_taxtable_get_property (GObject         *object,
-                           guint            prop_id,
-                           GValue          *value,
-                           GParamSpec      *pspec)
-{
-    GncTaxTable *tt;
-
-    g_return_if_fail(GNC_IS_TAXTABLE(object));
-
-    tt = GNC_TAXTABLE(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        g_value_set_string(value, tt->name);
-        break;
-    case PROP_INVISIBLE:
-    	g_value_set_boolean(value, tt->invisible);
-    	break;
-    case PROP_REFCOUNT:
-    	g_value_set_uint64(value, tt->refcount);
-    	break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_taxtable_set_property (GObject         *object,
-                           guint            prop_id,
-                           const GValue          *value,
-                           GParamSpec      *pspec)
-{
-    GncTaxTable *tt;
-
-    g_return_if_fail(GNC_IS_TAXTABLE(object));
-
-    tt = GNC_TAXTABLE(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        gncTaxTableSetName(tt, g_value_get_string(value));
-        break;
-    case PROP_INVISIBLE:
-    	if (g_value_get_boolean(value))
-    	{
-            gncTaxTableMakeInvisible(tt);
-    	}
-    	break;
-    case PROP_REFCOUNT:
-    	gncTaxTableSetRefcount(tt, g_value_get_uint64(value));
-    	break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-/** Return displayable name */
-static gchar*
-impl_get_display_name(const QofInstance* inst)
-{
-    GncTaxTable* tt;
-
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_TAXTABLE(inst), FALSE);
-
-    tt = GNC_TAXTABLE(inst);
-    return g_strdup_printf("Tax table %s", tt->name);
-}
-
-/** Does this object refer to a specific object */
-static gboolean
-impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
-{
-    GncTaxTable* tt;
-
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_TAXTABLE(inst), FALSE);
-
-    tt = GNC_TAXTABLE(inst);
-
-    if (GNC_IS_ACCOUNT(ref))
-    {
-        GList* node;
-
-        for (node = tt->entries; node != NULL; node = node->next)
-        {
-            GncTaxTableEntry* tte = node->data;
-
-            if (tte->account == GNC_ACCOUNT(ref))
-            {
-                return TRUE;
-            }
-        }
-    }
-
-    return FALSE;
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    if (!GNC_IS_ACCOUNT(ref))
-    {
-        return NULL;
-    }
-
-    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
-}
-
-static void
-gnc_taxtable_class_init (GncTaxTableClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_taxtable_dispose;
-    gobject_class->finalize = gnc_taxtable_finalize;
-    gobject_class->set_property = gnc_taxtable_set_property;
-    gobject_class->get_property = gnc_taxtable_get_property;
-
-    qof_class->get_display_name = impl_get_display_name;
-    qof_class->refers_to_object = impl_refers_to_object;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NAME,
-     g_param_spec_string ("name",
-                          "TaxTable Name",
-                          "The accountName is an arbitrary string "
-                          "assigned by the user.  It is intended to "
-                          "a short, 10 to 30 character long string "
-                          "that is displayed by the GUI as the "
-                          "tax table mnemonic.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_INVISIBLE,
-     g_param_spec_boolean ("invisible",
-                           "Invisible",
-                           "TRUE if the tax table is invisible.  FALSE if visible.",
-                           FALSE,
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_REFCOUNT,
-     g_param_spec_uint64("ref-count",
-                         "Reference count",
-                         "The ref-count property contains number of times this tax table "
-                         "is referenced.",
-                         0,           /* min */
-                         G_MAXUINT64, /* max */
-                         0,           /* default */
-                         G_PARAM_READWRITE));
-}
+//
+///** Return displayable name */
+//static gchar*
+//impl_get_display_name(const QofInstance* inst)
+//{
+//    GncTaxTable* tt;
+//
+//    g_return_val_if_fail(inst != NULL, FALSE);
+////    g_return_val_if_fail(GNC_IS_TAXTABLE(inst), FALSE);
+//    if(!inst)
+//        return NULL;
+//    if(typeid(*inst) != typeid(GncTaxTable))
+//        return NULL;
+//
+//    tt = dynamic_cast<const GncTaxTable*>(inst);
+//    return g_strdup_printf("Tax table %s", tt->name);
+//}
+//
+///** Does this object refer to a specific object */
+//static gboolean
+//impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
+//{
+//    GncTaxTable* tt;
+//
+//    g_return_val_if_fail(inst != NULL, FALSE);
+//    g_return_val_if_fail(GNC_IS_TAXTABLE(inst), FALSE);
+//
+//    tt = GNC_TAXTABLE(inst);
+//
+//    if (GNC_IS_ACCOUNT(ref))
+//    {
+//        GList* node;
+//
+//        for (node = tt->entries; node != NULL; node = node->next)
+//        {
+//            GncTaxTableEntry* tte = node->data;
+//
+//            if (tte->account == GNC_ACCOUNT(ref))
+//            {
+//                return TRUE;
+//            }
+//        }
+//    }
+//
+//    return FALSE;
+//}
+//
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    if (!GNC_IS_ACCOUNT(ref))
+//    {
+//        return NULL;
+//    }
+//
+//    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
+//}
 
 /* Create/Destroy Functions */
 GncTaxTable *
@@ -407,11 +277,11 @@ gncTaxTableCreate (QofBook *book)
     GncTaxTable *table;
     if (!book) return NULL;
 
-    table = g_object_new (GNC_TYPE_TAXTABLE, NULL);
-    qof_instance_init_data (&table->inst, _GNC_MOD_NAME, book);
+    table = new GncTaxTable; //g_object_new (GNC_TYPE_TAXTABLE, NULL);
+    qof_instance_init_data (table, _GNC_MOD_NAME, book);
     table->name = CACHE_INSERT ("");
     addObj (table);
-    qof_event_gen (&table->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (table, QOF_EVENT_CREATE, NULL);
     return table;
 }
 
@@ -420,7 +290,7 @@ gncTaxTableDestroy (GncTaxTable *table)
 {
     if (!table) return;
     qof_instance_set_destroying(table, TRUE);
-    qof_instance_set_dirty (&table->inst);
+    qof_instance_set_dirty (table);
     gncTaxTableCommitEdit (table);
 }
 
@@ -432,7 +302,7 @@ gncTaxTableFree (GncTaxTable *table)
 
     if (!table) return;
 
-    qof_event_gen (&table->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (table, QOF_EVENT_DESTROY, NULL);
     CACHE_REMOVE (table->name);
     remObj (table);
 
@@ -457,7 +327,8 @@ gncTaxTableFree (GncTaxTable *table)
     g_list_free(table->children);
 
     /* qof_instance_release (&table->inst); */
-    g_object_unref (table);
+//    g_object_unref (table);
+    delete table;
 }
 
 /* =============================================================== */
@@ -465,7 +336,7 @@ gncTaxTableFree (GncTaxTable *table)
 GncTaxTableEntry * gncTaxTableEntryCreate (void)
 {
     GncTaxTableEntry *entry;
-    entry = g_new0 (GncTaxTableEntry, 1);
+    entry = new GncTaxTableEntry;//g_new0 (GncTaxTableEntry, 1);
     entry->amount = gnc_numeric_zero ();
     return entry;
 }
@@ -473,7 +344,8 @@ GncTaxTableEntry * gncTaxTableEntryCreate (void)
 void gncTaxTableEntryDestroy (GncTaxTableEntry *entry)
 {
     if (!entry) return;
-    g_free (entry);
+//    g_free (entry);
+    delete entry;
 }
 
 /* =============================================================== */
@@ -622,7 +494,7 @@ void gncTaxTableChanged (GncTaxTable *table)
 
 void gncTaxTableBeginEdit (GncTaxTable *table)
 {
-    qof_begin_edit(&table->inst);
+    qof_begin_edit(table);
 }
 
 static void gncTaxTableOnError (QofInstance *inst, QofBackendError errcode)
@@ -635,14 +507,14 @@ static void gncTaxTableOnDone (QofInstance *inst) {}
 
 static void table_free (QofInstance *inst)
 {
-    GncTaxTable *table = (GncTaxTable *) inst;
+    GncTaxTable *table = dynamic_cast<GncTaxTable *>(inst);
     gncTaxTableFree (table);
 }
 
 void gncTaxTableCommitEdit (GncTaxTable *table)
 {
     if (!qof_commit_edit (QOF_INSTANCE(table))) return;
-    qof_commit_edit_part2 (&table->inst, gncTaxTableOnError,
+    qof_commit_edit_part2 (table, gncTaxTableOnError,
                            gncTaxTableOnDone, table_free);
 }
 
@@ -842,8 +714,8 @@ gboolean gncTaxTableEqual(const GncTaxTable *a, const GncTaxTable *b)
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
 
-    g_return_val_if_fail(GNC_IS_TAXTABLE(a), FALSE);
-    g_return_val_if_fail(GNC_IS_TAXTABLE(b), FALSE);
+//    g_return_val_if_fail(GNC_IS_TAXTABLE(a), FALSE);
+//    g_return_val_if_fail(GNC_IS_TAXTABLE(b), FALSE);
 
     if (g_strcmp0(a->name, b->name) != 0)
     {
@@ -924,7 +796,7 @@ GList *gncAccountValueAdd (GList *list, Account *acc, gnc_numeric value)
     }
     /* Nope, didn't find it. */
 
-    res = g_new0 (GncAccountValue, 1);
+    res = new GncAccountValue;//g_new0 (GncAccountValue, 1);
     res->account = acc;
     res->value = value;
     return g_list_prepend (list, res);
@@ -962,8 +834,9 @@ void gncAccountValueDestroy (GList *list)
 {
     GList *node;
     for ( node = list; node ; node = node->next)
-        g_free (node->data);
-
+        delete (GncAccountValue*)(node->data);
+        //g_free ( (node->data);
+    
     g_list_free (list);
 }
 
@@ -975,7 +848,8 @@ static void _gncTaxTableCreate (QofBook *book)
 
     if (!book) return;
 
-    bi = g_new0 (struct _book_info, 1);
+    bi = new struct _book_info;//g_new0 (struct _book_info, 1);
+    bi->tables = NULL;
     qof_book_set_data (book, _GNC_MOD_NAME, bi);
 }
 
@@ -988,7 +862,8 @@ static void _gncTaxTableDestroy (QofBook *book)
     bi = qof_book_get_data (book, _GNC_MOD_NAME);
 
     g_list_free (bi->tables);
-    g_free (bi);
+//    g_free (bi);
+    delete bi;
 }
 
 static QofObject gncTaxTableDesc =

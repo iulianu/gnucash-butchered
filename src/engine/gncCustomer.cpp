@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <string.h>
+#include <typeinfo>
 
 #include "gnc-commodity.h"
 
@@ -49,34 +50,6 @@ static gint gs_address_event_handler_id = 0;
 static void listen_for_address_events(QofInstance *entity, QofEventId event_type,
                                       gpointer user_data, gpointer event_data);
 
-struct _gncCustomer
-{
-    QofInstance     inst;
-
-    /* The following fields are identical to 'vendor' */
-    char *          id;
-    char *          name;
-    char *          notes;
-    GncBillTerm *   terms;
-    GncAddress *    addr;
-    gnc_commodity * currency;
-    GncTaxTable*    taxtable;
-    gboolean        taxtable_override;
-    GncTaxIncluded  taxincluded;
-    gboolean        active;
-    GList *         jobs;
-
-    /* The following fields are unique to 'customer' */
-    gnc_numeric     credit;
-    gnc_numeric     discount;
-    GncAddress *    shipaddr;
-};
-
-struct _gncCustomerClass
-{
-    QofInstanceClass parent_class;
-};
-
 static QofLogModule log_module = GNC_MOD_BUSINESS;
 
 #define _GNC_MOD_NAME        GNC_ID_CUSTOMER
@@ -87,162 +60,92 @@ static QofLogModule log_module = GNC_MOD_BUSINESS;
 G_INLINE_FUNC void mark_customer (GncCustomer *customer);
 void mark_customer (GncCustomer *customer)
 {
-    qof_instance_set_dirty(&customer->inst);
-    qof_event_gen (&customer->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(customer);
+    qof_event_gen (customer, QOF_EVENT_MODIFY, NULL);
 }
 
 /* ============================================================== */
 
-enum
+//enum
+//{
+//    PROP_0,
+//    PROP_NAME
+//};
+//
+GncCustomer::GncCustomer()
 {
-    PROP_0,
-    PROP_NAME
-};
+    id = NULL;
+    name = NULL;
+    notes = NULL;
+    terms = NULL;
+    addr = NULL;
+    currency = NULL;
+    taxtable = NULL;
+    taxtable_override = false;
+    taxincluded = 0;
+    active = false;
+    jobs = NULL;
+    credit = gnc_numeric_zero();
+    discount = gnc_numeric_zero();
+    shipaddr = NULL;
+}
 
-/* GObject Initialization */
-G_DEFINE_TYPE(GncCustomer, gnc_customer, QOF_TYPE_INSTANCE);
-
-static void
-gnc_customer_init(GncCustomer* cust)
+GncCustomer::~GncCustomer()
 {
 }
 
-static void
-gnc_customer_dispose(GObject *custp)
-{
-    G_OBJECT_CLASS(gnc_customer_parent_class)->dispose(custp);
-}
+///** Return display name for this object */
+//static gchar*
+//impl_get_display_name(const QofInstance* inst)
+//{
+//    g_return_val_if_fail(inst != NULL, FALSE);
+//    g_return_val_if_fail(typeid(*inst) == typeid(GncCustomer), FALSE);
+//
+//    const GncCustomer *cust = dynamic_cast<const GncCustomer*>(inst);
+//    /* XXX internationalization of "Customer" */
+//    return g_strdup_printf("Customer %s", cust->name);
+//}
+//
+///** Does this object refer to a specific object */
+//static gboolean
+//impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
+//{
+//    GncCustomer* cust;
+//
+//    g_return_val_if_fail(inst != NULL, FALSE);
+//    g_return_val_if_fail(GNC_IS_CUSTOMER(inst), FALSE);
+//
+//    cust = GNC_CUSTOMER(inst);
+//
+//    if (GNC_IS_BILLTERM(ref))
+//    {
+//        return (cust->terms == GNC_BILLTERM(ref));
+//    }
+//    else if (GNC_IS_TAXTABLE(ref))
+//    {
+//        return (cust->taxtable == GNC_TAXTABLE(ref));
+//    }
+//
+//    return FALSE;
+//}
+//
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    if (!GNC_IS_BILLTERM(ref) && !GNC_IS_TAXTABLE(ref))
+//    {
+//        return NULL;
+//    }
+//
+//    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
+//}
 
-static void
-gnc_customer_finalize(GObject* custp)
-{
-    G_OBJECT_CLASS(gnc_customer_parent_class)->finalize(custp);
-}
-
-static void
-gnc_customer_get_property (GObject         *object,
-                           guint            prop_id,
-                           GValue          *value,
-                           GParamSpec      *pspec)
-{
-    GncCustomer *cust;
-
-    g_return_if_fail(GNC_IS_CUSTOMER(object));
-
-    cust = GNC_CUSTOMER(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        g_value_set_string(value, cust->name);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_customer_set_property (GObject         *object,
-                           guint            prop_id,
-                           const GValue          *value,
-                           GParamSpec      *pspec)
-{
-    GncCustomer *cust;
-
-    g_return_if_fail(GNC_IS_CUSTOMER(object));
-
-    cust = GNC_CUSTOMER(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        gncCustomerSetName(cust, g_value_get_string(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-/** Return display name for this object */
-static gchar*
-impl_get_display_name(const QofInstance* inst)
-{
-    GncCustomer* cust;
-
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_CUSTOMER(inst), FALSE);
-
-    cust = GNC_CUSTOMER(inst);
-    /* XXX internationalization of "Customer" */
-    return g_strdup_printf("Customer %s", cust->name);
-}
-
-/** Does this object refer to a specific object */
-static gboolean
-impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
-{
-    GncCustomer* cust;
-
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_CUSTOMER(inst), FALSE);
-
-    cust = GNC_CUSTOMER(inst);
-
-    if (GNC_IS_BILLTERM(ref))
-    {
-        return (cust->terms == GNC_BILLTERM(ref));
-    }
-    else if (GNC_IS_TAXTABLE(ref))
-    {
-        return (cust->taxtable == GNC_TAXTABLE(ref));
-    }
-
-    return FALSE;
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    if (!GNC_IS_BILLTERM(ref) && !GNC_IS_TAXTABLE(ref))
-    {
-        return NULL;
-    }
-
-    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
-}
-
-static void
-gnc_customer_class_init (GncCustomerClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_customer_dispose;
-    gobject_class->finalize = gnc_customer_finalize;
-    gobject_class->set_property = gnc_customer_set_property;
-    gobject_class->get_property = gnc_customer_get_property;
-
-    qof_class->get_display_name = impl_get_display_name;
-    qof_class->refers_to_object = impl_refers_to_object;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NAME,
-     g_param_spec_string ("name",
-                          "Customer Name",
-                          "The customer is an arbitrary string "
-                          "assigned by the user which provides the "
-                          "customer name.",
-                          NULL,
-                          G_PARAM_READWRITE));
-}
 
 /* Create/Destroy Functions */
 GncCustomer *gncCustomerCreate (QofBook *book)
@@ -251,27 +154,27 @@ GncCustomer *gncCustomerCreate (QofBook *book)
 
     if (!book) return NULL;
 
-    cust = g_object_new (GNC_TYPE_CUSTOMER, NULL);
-    qof_instance_init_data (&cust->inst, _GNC_MOD_NAME, book);
+    cust = new GncCustomer; //g_object_new (GNC_TYPE_CUSTOMER, NULL);
+    qof_instance_init_data (cust, _GNC_MOD_NAME, book);
 
     cust->id = CACHE_INSERT ("");
     cust->name = CACHE_INSERT ("");
     cust->notes = CACHE_INSERT ("");
-    cust->addr = gncAddressCreate (book, &cust->inst);
+    cust->addr = gncAddressCreate (book, cust);
     cust->taxincluded = GNC_TAXINCLUDED_USEGLOBAL;
     cust->active = TRUE;
     cust->jobs = NULL;
 
     cust->discount = gnc_numeric_zero();
     cust->credit = gnc_numeric_zero();
-    cust->shipaddr = gncAddressCreate (book, &cust->inst);
+    cust->shipaddr = gncAddressCreate (book, cust);
 
     if (gs_address_event_handler_id == 0)
     {
         gs_address_event_handler_id = qof_event_register_handler(listen_for_address_events, NULL);
     }
 
-    qof_event_gen (&cust->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (cust, QOF_EVENT_CREATE, NULL);
 
     return cust;
 }
@@ -279,8 +182,8 @@ GncCustomer *gncCustomerCreate (QofBook *book)
 void gncCustomerDestroy (GncCustomer *cust)
 {
     if (!cust) return;
-    qof_instance_set_destroying(cust, TRUE);
-    qof_instance_set_dirty (&cust->inst);
+    qof_instance_set_destroying(cust, true);
+    qof_instance_set_dirty (cust);
     gncCustomerCommitEdit (cust);
 }
 
@@ -288,7 +191,7 @@ static void gncCustomerFree (GncCustomer *cust)
 {
     if (!cust) return;
 
-    qof_event_gen (&cust->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (cust, QOF_EVENT_DESTROY, NULL);
 
     CACHE_REMOVE (cust->id);
     CACHE_REMOVE (cust->name);
@@ -307,7 +210,8 @@ static void gncCustomerFree (GncCustomer *cust)
     }
 
     /* qof_instance_release (&cust->inst); */
-    g_object_unref (cust);
+//    g_object_unref (cust);
+    delete cust;
 }
 
 /* ============================================================== */
@@ -375,7 +279,7 @@ void gncCustomerSetTaxIncluded (GncCustomer *cust, GncTaxIncluded taxincl)
     gncCustomerCommitEdit (cust);
 }
 
-void gncCustomerSetActive (GncCustomer *cust, gboolean active)
+void gncCustomerSetActive (GncCustomer *cust, bool active)
 {
     if (!cust) return;
     if (active == cust->active) return;
@@ -450,7 +354,7 @@ void gncCustomerAddJob (GncCustomer *cust, GncJob *job)
         cust->jobs = g_list_insert_sorted (cust->jobs, job,
                                            (GCompareFunc)gncJobCompare);
 
-    qof_event_gen (&cust->inst, QOF_EVENT_MODIFY, NULL);
+    qof_event_gen (cust, QOF_EVENT_MODIFY, NULL);
 }
 
 void gncCustomerRemoveJob (GncCustomer *cust, GncJob *job)
@@ -470,12 +374,12 @@ void gncCustomerRemoveJob (GncCustomer *cust, GncJob *job)
         cust->jobs = g_list_remove_link (cust->jobs, node);
         g_list_free_1 (node);
     }
-    qof_event_gen (&cust->inst, QOF_EVENT_MODIFY, NULL);
+    qof_event_gen (cust, QOF_EVENT_MODIFY, NULL);
 }
 
 void gncCustomerBeginEdit (GncCustomer *cust)
 {
-    qof_begin_edit (&cust->inst);
+    qof_begin_edit (cust);
 }
 
 static void gncCustomerOnError (QofInstance *inst, QofBackendError errcode)
@@ -486,21 +390,21 @@ static void gncCustomerOnError (QofInstance *inst, QofBackendError errcode)
 
 static void gncCustomerOnDone (QofInstance *inst)
 {
-    GncCustomer *cust = (GncCustomer *) inst;
+    GncCustomer *cust = dynamic_cast<GncCustomer *>(inst);
     gncAddressClearDirty (cust->addr);
     gncAddressClearDirty (cust->shipaddr);
 }
 
 static void cust_free (QofInstance *inst)
 {
-    GncCustomer *cust = (GncCustomer *) inst;
+    GncCustomer *cust = dynamic_cast<GncCustomer *>(inst);
     gncCustomerFree (cust);
 }
 
 void gncCustomerCommitEdit (GncCustomer *cust)
 {
     if (!qof_commit_edit (QOF_INSTANCE(cust))) return;
-    qof_commit_edit_part2 (&cust->inst, gncCustomerOnError,
+    qof_commit_edit_part2 (cust, gncCustomerOnError,
                            gncCustomerOnDone, cust_free);
 }
 
@@ -603,9 +507,9 @@ gnc_commodity * gncCustomerGetCurrency (const GncCustomer *cust)
     return cust->currency;
 }
 
-gboolean gncCustomerGetActive (const GncCustomer *cust)
+bool gncCustomerGetActive (const GncCustomer *cust)
 {
-    if (!cust) return FALSE;
+    if (!cust) return false;
     return cust->active;
 }
 
@@ -657,7 +561,7 @@ GList * gncCustomerGetJoblist (const GncCustomer *cust, gboolean show_all)
 gboolean gncCustomerIsDirty (GncCustomer *cust)
 {
     if (!cust) return FALSE;
-    return (qof_instance_is_dirty(&cust->inst) ||
+    return (qof_instance_is_dirty(cust) ||
             gncAddressIsDirty (cust->addr) ||
             gncAddressIsDirty (cust->shipaddr));
 }
@@ -679,8 +583,8 @@ gncCustomerEqual(const GncCustomer *a, const GncCustomer *b)
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
 
-    g_return_val_if_fail(GNC_IS_CUSTOMER(a), FALSE);
-    g_return_val_if_fail(GNC_IS_CUSTOMER(b), FALSE);
+//    g_return_val_if_fail(GNC_IS_CUSTOMER(a), FALSE);
+//    g_return_val_if_fail(GNC_IS_CUSTOMER(b), FALSE);
 
     if (g_strcmp0(a->id, b->id) != 0)
     {
@@ -785,15 +689,22 @@ listen_for_address_events(QofInstance *entity, QofEventId event_type,
     {
         return;
     }
-    if (!GNC_IS_ADDRESS(entity))
+//    //TODO DEBUG!
+//    return;
+    if(!entity)
+        return;
+    if (typeid(*entity) != typeid(GncAddress))
     {
         return;
     }
-    if (!GNC_IS_CUSTOMER(event_data))
-    {
+//    if (typeid(event_data) != typeid(GncCustomer*))
+//    {
+//        return;
+//    }
+    if(!event_data)
         return;
-    }
-    cust = GNC_CUSTOMER(event_data);
+    // TODO type-unsafe conversion
+    cust = reinterpret_cast<GncCustomer*>(event_data);
     gncCustomerBeginEdit(cust);
     mark_customer(cust);
     gncCustomerCommitEdit(cust);
@@ -810,8 +721,11 @@ static const char * _gncCustomerPrintable (gpointer item)
 static void
 destroy_customer_on_book_close(QofInstance *ent, gpointer data)
 {
-    GncCustomer* c = GNC_CUSTOMER(ent);
-
+    if(!ent)
+        return;
+    if (typeid(*ent) != typeid(GncCustomer))
+        return;
+    GncCustomer* c = dynamic_cast<GncCustomer*>(ent);
     gncCustomerBeginEdit(c);
     gncCustomerDestroy(c);
 }

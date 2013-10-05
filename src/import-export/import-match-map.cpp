@@ -33,6 +33,7 @@
 #include "import-match-map.h"
 #include "gnc-ui-util.h"
 #include "gnc-engine.h"
+#include "AccountP.h"
 
 /********************************************************************\
  *   Constants   *

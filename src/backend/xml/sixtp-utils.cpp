@@ -95,6 +95,7 @@ generic_free_data_for_children(gpointer data_for_children,
                                gpointer *result,
                                const gchar *tag)
 {
+#warning g_free
     if (data_for_children) g_free(data_for_children);
 }
 

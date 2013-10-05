@@ -67,7 +67,8 @@ static void gnc_tree_model_split_reg_dispose (GObject *object);
 
 static guint gnc_tree_model_split_reg_signals[LAST_SIGNAL] = {0};
 
-static const gchar *iter_to_string (GtkTreeIter *iter);
+//static const gchar *iter_to_string (GtkTreeIter *iter);
+#define iter_to_string(iter) ""
 
 /** Implementation of GtkTreeModel  **************************************/
 static void gnc_tree_model_split_reg_tree_model_init (GtkTreeModelIface *iface);
@@ -643,43 +644,43 @@ gnc_tree_model_split_reg_get_sub_account (GncTreeModelSplitReg *model)
 /************************************************************/
 /*        Gnc Tree Model Debugging Utility Function         */
 /************************************************************/
-#define ITER_STRING_LEN 128
-
-static const gchar *
-iter_to_string (GtkTreeIter *iter)
-{
-#ifdef G_THREADS_ENABLED
-
-    static GPrivate gtmits_buffer_key = G_PRIVATE_INIT(g_free);
-    gchar *string;
-
-    string = g_private_get (&gtmits_buffer_key);
-    if (string == NULL)
-    {
-        string = g_malloc(ITER_STRING_LEN + 1);
-        g_private_set (&gtmits_buffer_key, string);
-    }
-#else
-    static char string[ITER_STRING_LEN + 1];
-#endif
-
-    if (iter)
-        snprintf(
-            string, ITER_STRING_LEN,
-            "[stamp:%x data:%d, %p (%p:%s), %p (%p:%s)]",
-            iter->stamp, GPOINTER_TO_INT(iter->user_data),
-            iter->user_data2,
-            iter->user_data2 ? ((GList *) iter->user_data2)->data : 0,
-            iter->user_data2 ?
-            (QOF_INSTANCE(((GList *) iter->user_data2)->data))->e_type : "",
-            iter->user_data3,
-            iter->user_data3 ? ((GList *) iter->user_data3)->data : 0,
-            iter->user_data3 ?
-            (QOF_INSTANCE(((GList *) iter->user_data3)->data))->e_type : "");
-    else
-        strcpy(string, "(null)");
-    return string;
-}
+//#define ITER_STRING_LEN 128
+//
+//static const gchar *
+//iter_to_string (GtkTreeIter *iter)
+//{
+//#ifdef G_THREADS_ENABLED
+//
+//    static GPrivate gtmits_buffer_key = G_PRIVATE_INIT(g_free);
+//    gchar *string;
+//
+//    string = g_private_get (&gtmits_buffer_key);
+//    if (string == NULL)
+//    {
+//        string = g_malloc(ITER_STRING_LEN + 1);
+//        g_private_set (&gtmits_buffer_key, string);
+//    }
+//#else
+//    static char string[ITER_STRING_LEN + 1];
+//#endif
+//
+//    if (iter)
+//        snprintf(
+//            string, ITER_STRING_LEN,
+//            "[stamp:%x data:%d, %p (%p:%s), %p (%p:%s)]",
+//            iter->stamp, GPOINTER_TO_INT(iter->user_data),
+//            iter->user_data2,
+//            iter->user_data2 ? ((GList *) iter->user_data2)->data : 0,
+//            iter->user_data2 ?
+//            (QOF_INSTANCE(((GList *) iter->user_data2)->data))->e_type : "",
+//            iter->user_data3,
+//            iter->user_data3 ? ((GList *) iter->user_data3)->data : 0,
+//            iter->user_data3 ?
+//            (QOF_INSTANCE(((GList *) iter->user_data3)->data))->e_type : "");
+//    else
+//        strcpy(string, "(null)");
+//    return string;
+//}
 
 
 /************************************************************/

@@ -40,331 +40,26 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "gnc.engine.sx"
 
-enum
-{
-    PROP_0,
-    PROP_NAME,
-    PROP_ENABLED,
-    PROP_NUM_OCCURANCE,
-    PROP_REM_OCCURANCE,
-    PROP_AUTO_CREATE,
-    PROP_AUTO_CREATE_NOTIFY,
-    PROP_ADVANCE_CREATION_DAYS,
-    PROP_ADVANCE_REMINDER_DAYS,
-    PROP_START_DATE,
-    PROP_END_DATE,
-    PROP_LAST_OCCURANCE_DATE,
-    PROP_INSTANCE_COUNT,
-    PROP_TEMPLATE_ACCOUNT
-};
-
 /* GObject initialization */
-G_DEFINE_TYPE(SchedXaction, gnc_schedxaction, QOF_TYPE_INSTANCE);
-
-static void
-gnc_schedxaction_init(SchedXaction* sx)
-{
-    sx->schedule = NULL;
-
-    g_date_clear( &sx->last_date, 1 );
-    g_date_clear( &sx->start_date, 1 );
-    g_date_clear( &sx->end_date, 1 );
-
-    sx->enabled = 1;
-    sx->num_occurances_total = 0;
-    sx->autoCreateOption = FALSE;
-    sx->autoCreateNotify = FALSE;
-    sx->advanceCreateDays = 0;
-    sx->advanceRemindDays = 0;
-    sx->instance_num = 0;
-    sx->deferredList = NULL;
-}
-
-static void
-gnc_schedxaction_dispose(GObject *sxp)
-{
-    G_OBJECT_CLASS(gnc_schedxaction_parent_class)->dispose(sxp);
-}
-
-static void
-gnc_schedxaction_finalize(GObject* sxp)
-{
-    G_OBJECT_CLASS(gnc_schedxaction_parent_class)->finalize(sxp);
-}
-
-static void
-gnc_schedxaction_get_property (GObject         *object,
-                               guint            prop_id,
-                               GValue          *value,
-                               GParamSpec      *pspec)
-{
-    SchedXaction *sx;
-
-    g_return_if_fail(GNC_IS_SCHEDXACTION(object));
-
-    sx = GNC_SCHEDXACTION(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        g_value_set_string(value, sx->name);
-        break;
-    case PROP_ENABLED:
-        g_value_set_boolean(value, sx->enabled);
-        break;
-    case PROP_NUM_OCCURANCE:
-        g_value_set_int(value, sx->num_occurances_total);
-        break;
-    case PROP_REM_OCCURANCE:
-        g_value_set_int(value, sx->num_occurances_remain);
-        break;
-    case PROP_AUTO_CREATE:
-        g_value_set_boolean(value, sx->autoCreateOption);
-        break;
-    case PROP_AUTO_CREATE_NOTIFY:
-        g_value_set_boolean(value, sx->autoCreateNotify);
-        break;
-    case PROP_ADVANCE_CREATION_DAYS:
-        g_value_set_int(value, sx->advanceCreateDays);
-        break;
-    case PROP_ADVANCE_REMINDER_DAYS:
-        g_value_set_int(value, sx->advanceRemindDays);
-        break;
-    case PROP_START_DATE:
-        g_value_set_boxed(value, &sx->start_date);
-        break;
-    case PROP_END_DATE:
-        /* g_value_set_boxed raises a critical error if sx->end_date
-         * is invalid */
-        if (g_date_valid (&sx->end_date))
-            g_value_set_boxed(value, &sx->end_date);
-        break;
-    case PROP_LAST_OCCURANCE_DATE:
-     /* g_value_set_boxed raises a critical error if sx->last_date
-         * is invalid */
-        if (g_date_valid (&sx->last_date))
-            g_value_set_boxed(value, &sx->last_date);
-        break;
-    case PROP_INSTANCE_COUNT:
-        g_value_set_int(value, sx->instance_num);
-        break;
-    case PROP_TEMPLATE_ACCOUNT:
-        g_value_set_object(value, sx->template_acct);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_schedxaction_set_property (GObject         *object,
-                               guint            prop_id,
-                               const GValue     *value,
-                               GParamSpec      *pspec)
-{
-    SchedXaction *sx;
-
-    g_return_if_fail(GNC_IS_SCHEDXACTION(object));
-
-    sx = GNC_SCHEDXACTION(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        xaccSchedXactionSetName(sx, g_value_get_string(value));
-        break;
-    case PROP_ENABLED:
-        xaccSchedXactionSetEnabled(sx, g_value_get_boolean(value));
-        break;
-    case PROP_NUM_OCCURANCE:
-        xaccSchedXactionSetNumOccur(sx, g_value_get_int(value));
-        break;
-    case PROP_REM_OCCURANCE:
-        xaccSchedXactionSetRemOccur(sx, g_value_get_int(value));
-        break;
-    case PROP_AUTO_CREATE:
-        xaccSchedXactionSetAutoCreate(sx, g_value_get_boolean(value), sx->autoCreateNotify);
-        break;
-    case PROP_AUTO_CREATE_NOTIFY:
-        xaccSchedXactionSetAutoCreate(sx, sx->autoCreateOption, g_value_get_boolean(value));
-        break;
-    case PROP_ADVANCE_CREATION_DAYS:
-        xaccSchedXactionSetAdvanceCreation(sx, g_value_get_int(value));
-        break;
-    case PROP_ADVANCE_REMINDER_DAYS:
-        xaccSchedXactionSetAdvanceReminder(sx, g_value_get_int(value));
-        break;
-    case PROP_START_DATE:
-        /* Note: when passed through a boxed gvalue, the julian value of the date is copied.
-           The date may appear invalid until a function requiring for dmy calculation is
-           called. */
-        xaccSchedXactionSetStartDate(sx, g_value_get_boxed(value));
-        break;
-    case PROP_END_DATE:
-        /* Note: when passed through a boxed gvalue, the julian value of the date is copied.
-           The date may appear invalid until a function requiring for dmy calculation is
-           called. */
-        xaccSchedXactionSetEndDate(sx, g_value_get_boxed(value));
-        break;
-    case PROP_LAST_OCCURANCE_DATE:
-        /* Note: when passed through a boxed gvalue, the julian value of the date is copied.
-           The date may appear invalid until a function requiring for dmy calculation is
-           called. */
-        xaccSchedXactionSetLastOccurDate(sx, g_value_get_boxed(value));
-        break;
-    case PROP_INSTANCE_COUNT:
-        gnc_sx_set_instance_count(sx, g_value_get_int(value));
-        break;
-    case PROP_TEMPLATE_ACCOUNT:
-        sx_set_template_account(sx, g_value_get_object(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_schedxaction_class_init (SchedXactionClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-    gobject_class->dispose = gnc_schedxaction_dispose;
-    gobject_class->finalize = gnc_schedxaction_finalize;
-    gobject_class->set_property = gnc_schedxaction_set_property;
-    gobject_class->get_property = gnc_schedxaction_get_property;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NAME,
-     g_param_spec_string ("name",
-                          "Scheduled Transaction Name",
-                          "The name is an arbitrary string "
-                          "assigned by the user.  It is intended to "
-                          "a short, 5 to 30 character long string "
-                          "that is displayed by the GUI.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ENABLED,
-     g_param_spec_boolean ("enabled",
-                           "Enabled",
-                           "TRUE if the scheduled transaction is enabled.",
-                           TRUE,
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NUM_OCCURANCE,
-     g_param_spec_int ("num-occurance",
-                       "Number of occurances",
-                       "Total number of occurances for this scheduled transaction.",
-                       0,
-                       G_MAXINT16,
-                       1,
-                       G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_REM_OCCURANCE,
-     g_param_spec_int ("rem-occurance",
-                       "Number of occurances remaining",
-                       "Remaining number of occurances for this scheduled transaction.",
-                       0,
-                       G_MAXINT16,
-                       1,
-                       G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_AUTO_CREATE,
-     g_param_spec_boolean ("auto-create",
-                           "Auto-create",
-                           "TRUE if the transaction will be automatically "
-                           "created when its time comes.",
-                           FALSE,
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_AUTO_CREATE_NOTIFY,
-     g_param_spec_boolean ("auto-create-notify",
-                           "Auto-create-notify",
-                           "TRUE if the the user will be notified when the transaction "
-                           "is automatically created.",
-                           FALSE,
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ADVANCE_CREATION_DAYS,
-     g_param_spec_int ("advance-creation-days",
-                       "Days in advance to create",
-                       "Number of days in advance to create this scheduled transaction.",
-                       0,
-                       G_MAXINT16,
-                       0,
-                       G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ADVANCE_REMINDER_DAYS,
-     g_param_spec_int ("advance-reminder-days",
-                       "Days in advance to remind",
-                       "Number of days in advance to remind about this scheduled transaction.",
-                       0,
-                       G_MAXINT16,
-                       0,
-                       G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_START_DATE,
-     g_param_spec_boxed("start-date",
-                        "Start Date",
-                        "Date for the first occurence for the scheduled transaction.",
-                        G_TYPE_DATE,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_END_DATE,
-     g_param_spec_boxed("end-date",
-                        "End Date",
-                        "Date for the scheduled transaction to end.",
-                        G_TYPE_DATE,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_LAST_OCCURANCE_DATE,
-     g_param_spec_boxed("last-occurance-date",
-                        "Last Occurance Date",
-                        "Date for the last occurance of the scheduled transaction.",
-                        G_TYPE_DATE,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_INSTANCE_COUNT,
-     g_param_spec_int ("instance-count",
-                       "Instance count",
-                       "Number of instances of this scheduled transaction.",
-                       0,
-                       G_MAXINT16,
-                       0,
-                       G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_TEMPLATE_ACCOUNT,
-     g_param_spec_object("template-account",
-                         "Template account",
-                         "Account which holds the template transactions.",
-                         GNC_TYPE_ACCOUNT,
-                         G_PARAM_READWRITE));
-}
+//
+//static void
+//gnc_schedxaction_init(SchedXaction* sx)
+//{
+//    sx->schedule = NULL;
+//
+//    g_date_clear( &sx->last_date, 1 );
+//    g_date_clear( &sx->start_date, 1 );
+//    g_date_clear( &sx->end_date, 1 );
+//
+//    sx->enabled = 1;
+//    sx->num_occurances_total = 0;
+//    sx->autoCreateOption = FALSE;
+//    sx->autoCreateNotify = FALSE;
+//    sx->advanceCreateDays = 0;
+//    sx->advanceRemindDays = 0;
+//    sx->instance_num = 0;
+//    sx->deferredList = NULL;
+//}
 
 static void
 xaccSchedXactionInit(SchedXaction *sx, QofBook *book)
@@ -372,7 +67,7 @@ xaccSchedXactionInit(SchedXaction *sx, QofBook *book)
     Account        *ra;
     const GncGUID *guid;
 
-    qof_instance_init_data (&sx->inst, GNC_ID_SCHEDXACTION, book);
+    qof_instance_init_data (sx, GNC_ID_SCHEDXACTION, book);
 
     /* create a new template account for our splits */
     sx->template_acct = xaccMallocAccount(book);
@@ -396,9 +91,9 @@ xaccSchedXactionMalloc(QofBook *book)
 
     g_return_val_if_fail (book, NULL);
 
-    sx = g_object_new(GNC_TYPE_SCHEDXACTION, NULL);
+    sx = new SchedXaction; //g_object_new(GNC_TYPE_SCHEDXACTION, NULL);
     xaccSchedXactionInit( sx, book );
-    qof_event_gen( &sx->inst, QOF_EVENT_CREATE , NULL);
+    qof_event_gen( sx, QOF_EVENT_CREATE , NULL);
 
     return sx;
 }
@@ -461,7 +156,7 @@ sx_set_template_account (SchedXaction *sx, Account *account)
 void
 xaccSchedXactionDestroy( SchedXaction *sx )
 {
-    qof_instance_set_destroying( QOF_INSTANCE(sx), TRUE );
+    qof_instance_set_destroying( sx, TRUE );
     gnc_sx_commit_edit( sx );
 }
 
@@ -472,7 +167,7 @@ xaccSchedXactionFree( SchedXaction *sx )
 
     if ( sx == NULL ) return;
 
-    qof_event_gen( &sx->inst, QOF_EVENT_DESTROY , NULL);
+    qof_event_gen( sx, QOF_EVENT_DESTROY , NULL);
 
     if ( sx->name )
         g_free( sx->name );
@@ -508,7 +203,8 @@ xaccSchedXactionFree( SchedXaction *sx )
     }
 
     /* qof_instance_release (&sx->inst); */
-    g_object_unref( sx );
+//    g_object_unref( sx );
+    delete sx;
 }
 
 /* ============================================================ */
@@ -516,12 +212,12 @@ xaccSchedXactionFree( SchedXaction *sx )
 void
 gnc_sx_begin_edit (SchedXaction *sx)
 {
-    qof_begin_edit (&sx->inst);
+    qof_begin_edit (sx);
 }
 
 static void sx_free(QofInstance* inst )
 {
-    xaccSchedXactionFree( GNC_SX(inst) );
+    xaccSchedXactionFree( dynamic_cast<SchedXaction*>(inst) );
 }
 
 static void commit_err (QofInstance *inst, QofBackendError errcode)
@@ -539,7 +235,7 @@ void
 gnc_sx_commit_edit (SchedXaction *sx)
 {
     if (!qof_commit_edit (QOF_INSTANCE(sx))) return;
-    qof_commit_edit_part2 (&sx->inst, commit_err, commit_done, sx_free);
+    qof_commit_edit_part2 (sx, commit_err, commit_done, sx_free);
 }
 
 /* ============================================================ */
@@ -556,7 +252,7 @@ gnc_sx_set_schedule(SchedXaction *sx, GList *schedule)
     g_return_if_fail(sx);
     gnc_sx_begin_edit(sx);
     sx->schedule = schedule;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -577,7 +273,7 @@ xaccSchedXactionSetName( SchedXaction *sx, const gchar *newName )
         sx->name = NULL;
     }
     sx->name = g_strdup( newName );
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -603,7 +299,7 @@ xaccSchedXactionSetStartDate( SchedXaction *sx, const GDate* newStart )
     }
     gnc_sx_begin_edit(sx);
     sx->start_date = *newStart;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -638,7 +334,7 @@ xaccSchedXactionSetEndDate( SchedXaction *sx, const GDate *newEnd )
 
     gnc_sx_begin_edit(sx);
     sx->end_date = *newEnd;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -656,7 +352,7 @@ xaccSchedXactionSetLastOccurDate(SchedXaction *sx, const GDate* new_last_occur)
         return;
     gnc_sx_begin_edit(sx);
     sx->last_date = *new_last_occur;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -679,7 +375,7 @@ xaccSchedXactionSetNumOccur(SchedXaction *sx, gint new_num)
         return;
     gnc_sx_begin_edit(sx);
     sx->num_occurances_remain = sx->num_occurances_total = new_num;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -704,7 +400,7 @@ xaccSchedXactionSetRemOccur(SchedXaction *sx, gint num_remain)
             return;
         gnc_sx_begin_edit(sx);
         sx->num_occurances_remain = num_remain;
-        qof_instance_set_dirty(&sx->inst);
+        qof_instance_set_dirty(sx);
         gnc_sx_commit_edit(sx);
     }
 }
@@ -795,7 +491,7 @@ xaccSchedXactionSetEnabled( SchedXaction *sx, gboolean newEnabled)
 {
     gnc_sx_begin_edit(sx);
     sx->enabled = newEnabled;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -820,7 +516,7 @@ xaccSchedXactionSetAutoCreate( SchedXaction *sx,
     gnc_sx_begin_edit(sx);
     sx->autoCreateOption = newAutoCreate;
     sx->autoCreateNotify = newNotify;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
     return;
 }
@@ -836,7 +532,7 @@ xaccSchedXactionSetAdvanceCreation( SchedXaction *sx, gint createDays )
 {
     gnc_sx_begin_edit(sx);
     sx->advanceCreateDays = createDays;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -851,7 +547,7 @@ xaccSchedXactionSetAdvanceReminder( SchedXaction *sx, gint reminderDays )
 {
     gnc_sx_begin_edit(sx);
     sx->advanceRemindDays = reminderDays;
-    qof_instance_set_dirty(&sx->inst);
+    qof_instance_set_dirty(sx);
     gnc_sx_commit_edit(sx);
 }
 
@@ -872,7 +568,7 @@ xaccSchedXactionGetNextInstance(const SchedXaction *sx, SXTmpStateData *stateDat
 
     if ( stateData != NULL )
     {
-        SXTmpStateData *tsd = (SXTmpStateData*)stateData;
+        SXTmpStateData *tsd = stateData;
         last_occur = tsd->last_date;
     }
 
@@ -915,7 +611,7 @@ xaccSchedXactionGetNextInstance(const SchedXaction *sx, SXTmpStateData *stateDat
     {
         if ( stateData )
         {
-            SXTmpStateData *tsd = (SXTmpStateData*)stateData;
+            SXTmpStateData *tsd = stateData;
             if ( tsd->num_occur_rem == 0 )
             {
                 g_debug("no more occurances remain");
@@ -949,7 +645,7 @@ xaccSchedXactionGetInstanceAfter( const SchedXaction *sx,
 
     if ( stateData != NULL )
     {
-        SXTmpStateData *tsd = (SXTmpStateData*)stateData;
+        SXTmpStateData *tsd = stateData;
         prev_occur = tsd->last_date;
     }
 
@@ -974,7 +670,7 @@ xaccSchedXactionGetInstanceAfter( const SchedXaction *sx,
     {
         if ( stateData )
         {
-            SXTmpStateData *tsd = (SXTmpStateData*)stateData;
+            SXTmpStateData *tsd = stateData;
             if ( tsd->num_occur_rem == 0 )
             {
                 g_date_clear( &next_occur, 1 );
@@ -999,7 +695,7 @@ gnc_sx_get_instance_count( const SchedXaction *sx, SXTmpStateData *stateData )
 
     if ( stateData )
     {
-        tsd = (SXTmpStateData*)stateData;
+        tsd = stateData;
         toRet = tsd->num_inst;
     }
     else
@@ -1139,7 +835,8 @@ SXTmpStateData*
 gnc_sx_create_temporal_state(const SchedXaction *sx )
 {
     SXTmpStateData *toRet =
-        g_new0( SXTmpStateData, 1 );
+//        g_new0( SXTmpStateData, 1 );
+            new SXTmpStateData;
     toRet->last_date       = sx->last_date;
     toRet->num_occur_rem   = sx->num_occurances_remain;
     toRet->num_inst   = sx->instance_num;
@@ -1150,7 +847,7 @@ void
 gnc_sx_incr_temporal_state(const SchedXaction *sx, SXTmpStateData *stateData )
 {
     GDate unused;
-    SXTmpStateData *tsd = (SXTmpStateData*)stateData;
+    SXTmpStateData *tsd = stateData;
 
     g_date_clear( &unused, 1 );
     tsd->last_date =
@@ -1167,15 +864,17 @@ gnc_sx_incr_temporal_state(const SchedXaction *sx, SXTmpStateData *stateData )
 void
 gnc_sx_destroy_temporal_state( SXTmpStateData *stateData )
 {
-    g_free( (SXTmpStateData*)stateData );
+    delete stateData;
 }
 
 SXTmpStateData*
 gnc_sx_clone_temporal_state( SXTmpStateData *stateData )
 {
     SXTmpStateData *toRet, *tsd;
-    tsd = (SXTmpStateData*)stateData;
-    toRet = g_memdup( tsd, sizeof( SXTmpStateData ) );
+    tsd = stateData;
+    toRet = new SXTmpStateData;
+    *toRet = *tsd;
+//    toRet = g_memdup( tsd, sizeof( SXTmpStateData ) );
     return toRet;
 }
 
@@ -1250,7 +949,7 @@ gnc_sx_get_defer_instances( SchedXaction *sx )
 static void
 destroy_sx_on_book_close(QofInstance *ent, gpointer data)
 {
-    SchedXaction* sx = GNC_SCHEDXACTION(ent);
+    SchedXaction* sx = dynamic_cast<SchedXaction*>(ent);
 
     gnc_sx_begin_edit(sx);
     xaccSchedXactionDestroy(sx);

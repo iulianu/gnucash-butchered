@@ -40,33 +40,9 @@ static QofLogModule log_module = QOF_MOD_ENGINE;
 
 /* ========================================================== */
 
-enum
+class QofInstancePrivate
 {
-    LAST_SIGNAL
-};
-
-enum
-{
-    PROP_0,
-    PROP_TYPE,
-    PROP_GUID,
-    PROP_COLLECTION,
-    PROP_BOOK,
-    PROP_KVP_DATA,
-    PROP_LAST_UPDATE,
-    PROP_EDITLEVEL,
-    PROP_DESTROYING,
-    PROP_DIRTY,
-    PROP_INFANT,
-
-    PROP_VERSION,
-    PROP_VERSION_CHECK,
-    PROP_IDATA,
-};
-
-struct QofInstancePrivate
-{
-//    QofIdType        e_type;    /**<	Entity type */
+public:
     GncGUID guid;                  /**< GncGUID for the entity */
     QofCollection  *collection; /**< Entity collection */
 
@@ -108,174 +84,65 @@ struct QofInstancePrivate
     /* -------------------------------------------------------------- */
     /* Backend private expansion data */
     uint32_t  idata;   /* used by the sql backend for kvp management */
+    
+    QofInstancePrivate()
+    {
+        guid = * guid_null();
+        collection = NULL;
+        book = NULL;
+        last_update = {0,0};
+        editlevel = 0;
+        do_free = false;
+        dirty = false;
+        infant = false;
+        version = 0;
+        version_check = 0;
+        idata = 0;
+    }
 };
 
 #define GET_PRIVATE(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), QOF_TYPE_INSTANCE,  QofInstancePrivate))
+   (((QofInstance*)o)->priv)
 
-QOF_GOBJECT_GET_TYPE(QofInstance, qof_instance, G_TYPE_OBJECT, {});
-QOF_GOBJECT_FINALIZE(qof_instance);
 
-static void qof_instance_get_property (GObject         *object,
-                                       unsigned int     prop_id,
-                                       GValue          *value,
-                                       GParamSpec      *pspec);
-static void qof_instance_set_property (GObject         *object,
-                                       unsigned int     prop_id,
-                                       const GValue    *value,
-                                       GParamSpec      *pspec);
-static void qof_instance_dispose(GObject*);
-static void qof_instance_class_init(QofInstanceClass *klass)
+QofInstance::QofInstance()
 {
-    GObjectClass *object_class = G_OBJECT_CLASS(klass);
-    object_class->finalize = qof_instance_finalize;
-    object_class->dispose = qof_instance_dispose;
-    object_class->set_property = qof_instance_set_property;
-    object_class->get_property = qof_instance_get_property;
-
-    g_type_class_add_private(klass, sizeof(QofInstancePrivate));
-
-    klass->get_display_name = NULL;
-    klass->refers_to_object = NULL;
-    klass->get_typed_referring_object_list = NULL;
-
-    g_object_class_install_property
-    (object_class,
-     PROP_GUID,
-     g_param_spec_boxed ("guid",
-                         "Object GncGUID",
-                         "The object Globally Unique ID.",
-                         GNC_TYPE_GUID,
-                         G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_COLLECTION,
-     g_param_spec_pointer ("collection",
-                           "Object Collection",
-                           "A collection of like objects of which this "
-                           "particular object is amember.  E.g.. A "
-                           "collection of accounts, or a collection of "
-                           "splits.",
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_BOOK,
-     g_param_spec_object ("book",
-                          "Object Book",
-                          "The book that contains this object.",
-                          QOF_TYPE_BOOK,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_KVP_DATA,
-     g_param_spec_pointer ("kvp-data",
-                           "Object KVP Data",
-                           "A pointer to the key-value data associated "
-                           "with this object.",
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_LAST_UPDATE,
-     g_param_spec_pointer ("last-update",
-                           "Object Last Update",
-                           "A pointer to the last time this object was "
-                           "updated.  This value is present for use by "
-                           "backends and shouldnot be written by other "
-                           "code.",
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_EDITLEVEL,
-     g_param_spec_int ("editlevel",
-                       "Object Edit Level",
-                       "The object edit level.",
-                       0, G_MAXINT32, 0,
-                       G_PARAM_READABLE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_DESTROYING,
-     g_param_spec_boolean ("destroying",
-                           "Object Destroying",
-                           "This flag is set to TRUE if the object is "
-                           "about to be destroyed.",
-                           FALSE,
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_DIRTY,
-     g_param_spec_boolean ("dirty",
-                           "Object Dirty",
-                           "This flag is set to TRUE if the object has "
-                           "unsaved changes.",
-                           FALSE,
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_INFANT,
-     g_param_spec_boolean ("infant",
-                           "Object Infant",
-                           "This flag is set to TRUE if the object has "
-                           "never been added to a book.  This implies "
-                           "that its destruction does not affect the "
-                           "state of the book, and therefore the saved "
-                           "state of the data file.",
-                           FALSE,
-                           G_PARAM_READABLE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_VERSION,
-     g_param_spec_int ("version",
-                       "Version",
-                       "The version number of the current instance state.",
-                       0,
-                       G_MAXINT32,
-                       0,
-                       G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_VERSION_CHECK,
-     g_param_spec_uint ("version-check",
-                        "Version Check",
-                        "The version check number of the current instance state.",
-                        0,
-                        G_MAXUINT32,
-                        0,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (object_class,
-     PROP_EDITLEVEL,
-     g_param_spec_uint ("idata",
-                        "Object IData",
-                        "Per instance backend private data.",
-                        0, G_MAXUINT32, 0,
-                        G_PARAM_READWRITE));
+    init_();
 }
 
-static void
-qof_instance_init (QofInstance *inst)
+void QofInstance::init_()
 {
-    QofInstancePrivate *priv;
-
-    priv = GET_PRIVATE(inst);
+    this->priv = new QofInstancePrivate;
+    priv = GET_PRIVATE(this);
     priv->book = NULL;
-    inst->kvp_data = kvp_frame_new();
+    this->kvp_data = kvp_frame_new();
     priv->last_update.tv_sec = 0;
     priv->last_update.tv_nsec = -1;
     priv->editlevel = 0;
-    priv->do_free = FALSE;
-    priv->dirty = FALSE;
-    priv->infant = TRUE;
+    priv->do_free = false;
+    priv->dirty = false;
+    priv->infant = true;
+}
+
+QofInstance::QofInstance(const GncGUID* guid)
+{
+    init_();
+    qof_instance_set_guid(this, guid);
+}
+
+QofInstance::~QofInstance()
+{
+    if (priv->collection != NULL)
+    {
+        qof_collection_remove_entity_upon_destruction(priv->collection, &priv->guid);
+    }
+    
+    CACHE_REMOVE(e_type);
+    e_type = NULL;
+
+    kvp_frame_delete(kvp_data);    
+    
+    delete priv;
 }
 
 void
@@ -285,7 +152,8 @@ qof_instance_init_data (QofInstance *inst, QofIdType type, QofBook *book)
     QofCollection *col;
     QofIdType col_type;
 
-    g_return_if_fail(QOF_IS_INSTANCE(inst));
+//    g_return_if_fail(QOF_IS_INSTANCE(inst));
+    if(!inst) return;
     priv = GET_PRIVATE(inst);
     g_return_if_fail(!priv->book);
 
@@ -321,147 +189,21 @@ qof_instance_init_data (QofInstance *inst, QofIdType type, QofBook *book)
     qof_collection_insert_entity (col, inst);
 }
 
-static void
-qof_instance_dispose (GObject *instp)
-{
-    QofInstancePrivate *priv;
-    QofInstance* inst = QOF_INSTANCE(instp);
-
-    priv = GET_PRIVATE(instp);
-    if (!priv->collection)
-        return;
-    qof_collection_remove_entity(inst);
-
-    CACHE_REMOVE(inst->e_type);
-    inst->e_type = NULL;
-
-    G_OBJECT_CLASS(qof_instance_parent_class)->dispose(instp);
-}
-
-static void
-qof_instance_finalize_real (GObject *instp)
-{
-    QofInstancePrivate *priv;
-    QofInstance* inst = QOF_INSTANCE(instp);
-
-    kvp_frame_delete (inst->kvp_data);
-    inst->kvp_data = NULL;
-
-    priv = GET_PRIVATE(inst);
-    priv->editlevel = 0;
-    priv->do_free = FALSE;
-    priv->dirty = FALSE;
-}
-
-static void
-qof_instance_get_property (GObject         *object,
-                           unsigned int     prop_id,
-                           GValue          *value,
-                           GParamSpec      *pspec)
-{
-    QofInstance *inst;
-    QofInstancePrivate *priv;
-
-    g_return_if_fail(QOF_IS_INSTANCE(object));
-
-    inst = QOF_INSTANCE(object);
-    priv = GET_PRIVATE(inst);
-
-    switch (prop_id)
-    {
-    case PROP_GUID:
-        g_value_set_boxed(value, &priv->guid);
-        break;
-    case PROP_COLLECTION:
-        g_value_set_pointer(value, priv->collection);
-        break;
-    case PROP_BOOK:
-        g_value_set_object(value, priv->book);
-        break;
-    case PROP_KVP_DATA:
-        g_value_set_pointer(value, inst->kvp_data);
-        break;
-    case PROP_LAST_UPDATE:
-        g_value_set_pointer(value, &priv->last_update);
-        break;
-    case PROP_EDITLEVEL:
-        g_value_set_int(value, priv->editlevel);
-        break;
-    case PROP_DESTROYING:
-        g_value_set_boolean(value, priv->do_free);
-        break;
-    case PROP_DIRTY:
-        g_value_set_boolean(value, qof_instance_get_dirty(inst));
-        break;
-    case PROP_INFANT:
-        g_value_set_boolean(value, priv->infant);
-        break;
-    case PROP_VERSION:
-        g_value_set_int(value, priv->version);
-        break;
-    case PROP_VERSION_CHECK:
-        g_value_set_uint(value, priv->version_check);
-        break;
-    case PROP_IDATA:
-        g_value_set_uint(value, priv->idata);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-qof_instance_set_property (GObject         *object,
-                           unsigned int     prop_id,
-                           const GValue    *value,
-                           GParamSpec      *pspec)
-{
-    QofInstance *inst;
-    Timespec *ts;
-
-    g_return_if_fail(QOF_IS_INSTANCE(object));
-
-    inst = QOF_INSTANCE(object);
-
-    switch (prop_id)
-    {
-    case PROP_GUID:
-        qof_instance_set_guid(inst, g_value_get_boxed(value));
-        break;
-    case PROP_COLLECTION:
-        qof_instance_set_collection(inst, g_value_get_pointer(value));
-        break;
-    case PROP_BOOK:
-        qof_instance_set_book(inst, g_value_get_object(value));
-        break;
-    case PROP_KVP_DATA:
-        qof_instance_set_slots(inst, g_value_get_pointer(value));
-        break;
-    case PROP_LAST_UPDATE:
-        ts = g_value_get_pointer(value);
-        qof_instance_set_last_update(inst, *ts);
-        break;
-    case PROP_DESTROYING:
-        qof_instance_set_destroying(inst, g_value_get_boolean(value));
-        break;
-    case PROP_DIRTY:
-        qof_instance_set_dirty(inst);
-        break;
-    case PROP_VERSION:
-        qof_instance_set_version(inst, g_value_get_int(value));
-        break;
-    case PROP_VERSION_CHECK:
-        qof_instance_set_version_check(inst, g_value_get_uint(value));
-        break;
-    case PROP_IDATA:
-        qof_instance_set_idata(inst, g_value_get_uint(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
+//static void
+//qof_instance_finalize_real (GObject *instp)
+//{
+//    QofInstancePrivate *priv;
+//    QofInstance* inst = QOF_INSTANCE(instp);
+//
+//    kvp_frame_delete (inst->kvp_data);
+//    inst->kvp_data = NULL;
+//
+//    priv = GET_PRIVATE(inst);
+//    priv->editlevel = 0;
+//    priv->do_free = FALSE;
+//    priv->dirty = FALSE;
+//}
+//
 
 const GncGUID *
 qof_instance_get_guid (const void * inst)
@@ -469,7 +211,7 @@ qof_instance_get_guid (const void * inst)
     QofInstancePrivate *priv;
 
     if (!inst) return NULL;
-    g_return_val_if_fail(QOF_IS_INSTANCE(inst), guid_null());
+//    g_return_val_if_fail(QOF_IS_INSTANCE(inst), guid_null());
     priv = GET_PRIVATE(inst);
     return &(priv->guid);
 }
@@ -487,7 +229,8 @@ qof_instance_set_guid (void * ptr, const GncGUID *guid)
     QofInstance *inst;
     QofCollection *col;
 
-    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+//    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+    if(!ptr) return;
 
     inst = QOF_INSTANCE(ptr);
     priv = GET_PRIVATE(inst);
@@ -503,8 +246,10 @@ qof_instance_set_guid (void * ptr, const GncGUID *guid)
 void
 qof_instance_copy_guid (void * to, const void * from)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(to));
-    g_return_if_fail(QOF_IS_INSTANCE(from));
+//    g_return_if_fail(QOF_IS_INSTANCE(to));
+//    g_return_if_fail(QOF_IS_INSTANCE(from));
+    if(!to) return;
+    if(!from) return;
 
     GET_PRIVATE(to)->guid = GET_PRIVATE(from)->guid;
 }
@@ -514,8 +259,10 @@ qof_instance_guid_compare(const void * ptr1, const void * ptr2)
 {
     const QofInstancePrivate *priv1, *priv2;
 
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr1), -1);
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr2),  1);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(ptr1), -1);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(ptr2),  1);
+    if(!ptr1) return -1;
+    if(!ptr2) return 1;
 
     priv1 = GET_PRIVATE(ptr1);
     priv2 = GET_PRIVATE(ptr2);
@@ -527,14 +274,16 @@ QofCollection *
 qof_instance_get_collection (const void * ptr)
 {
 
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr), NULL);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(ptr), NULL);
+    if(!ptr) return NULL;
     return GET_PRIVATE(ptr)->collection;
 }
 
 void
 qof_instance_set_collection (const void * ptr, QofCollection *col)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+//    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+    if(!ptr) return;
     GET_PRIVATE(ptr)->collection = col;
 }
 
@@ -542,22 +291,25 @@ QofBook *
 qof_instance_get_book (const void * inst)
 {
     if (!inst) return NULL;
-    g_return_val_if_fail(QOF_IS_INSTANCE(inst), NULL);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(inst), NULL);
     return GET_PRIVATE(inst)->book;
 }
 
 void
 qof_instance_set_book (const void * inst, QofBook *book)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(inst));
+//    g_return_if_fail(QOF_IS_INSTANCE(inst));
+    if(!inst) return;
     GET_PRIVATE(inst)->book = book;
 }
 
 void
 qof_instance_copy_book (void * ptr1, const void * ptr2)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(ptr1));
-    g_return_if_fail(QOF_IS_INSTANCE(ptr2));
+//    g_return_if_fail(QOF_IS_INSTANCE(ptr1));
+//    g_return_if_fail(QOF_IS_INSTANCE(ptr2));
+    if(!ptr1) return;
+    if(!ptr2) return;
 
     GET_PRIVATE(ptr1)->book = GET_PRIVATE(ptr2)->book;
 }
@@ -567,8 +319,10 @@ qof_instance_books_equal (const void * ptr1, const void * ptr2)
 {
     const QofInstancePrivate *priv1, *priv2;
 
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr1), false);
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr2), false);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(ptr1), false);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(ptr2), false);
+    if(!ptr1) return false;
+    if(!ptr2) return false;
 
     priv1 = GET_PRIVATE(ptr1);
     priv2 = GET_PRIVATE(ptr2);
@@ -600,6 +354,11 @@ qof_instance_set_slots (QofInstance *inst, KvpFrame *frm)
     inst->kvp_data = frm;
 }
 
+Timespec qof_instance_get_last_update(const QofInstance *inst)
+{
+    return GET_PRIVATE(inst)->last_update;
+}
+
 void
 qof_instance_set_last_update (QofInstance *inst, Timespec ts)
 {
@@ -610,25 +369,29 @@ qof_instance_set_last_update (QofInstance *inst, Timespec ts)
 int
 qof_instance_get_editlevel (const void * ptr)
 {
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr), 0);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(ptr), 0);
+    if(!ptr) return 0;
     return GET_PRIVATE(ptr)->editlevel;
 }
 
 void qof_instance_increase_editlevel (void * ptr)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+//    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+    if(!ptr) return;
     GET_PRIVATE(ptr)->editlevel++;
 }
 
 void qof_instance_decrease_editlevel (void * ptr)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+//    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+    if(!ptr) return;
     GET_PRIVATE(ptr)->editlevel--;
 }
 
 void qof_instance_reset_editlevel (void * ptr)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+//    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+    if(!ptr) return;
     GET_PRIVATE(ptr)->editlevel = 0;
 }
 
@@ -653,28 +416,32 @@ qof_instance_version_cmp (const QofInstance *left, const QofInstance *right)
 bool
 qof_instance_get_destroying (const void * ptr)
 {
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr), FALSE);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(ptr), FALSE);
+    if(!ptr) return false;
     return GET_PRIVATE(ptr)->do_free;
 }
 
 void
-qof_instance_set_destroying (void * ptr, bool value)
+qof_instance_set_destroying (QofInstance * ptr, bool value)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+//    g_return_if_fail(QOF_IS_INSTANCE(ptr));
+    if(!ptr) return;
     GET_PRIVATE(ptr)->do_free = value;
 }
 
 bool
 qof_instance_get_dirty_flag (const void * ptr)
 {
-    g_return_val_if_fail(QOF_IS_INSTANCE(ptr), FALSE);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(ptr), FALSE);
+    if(!ptr) return false;
     return GET_PRIVATE(ptr)->dirty;
 }
 
 void
 qof_instance_set_dirty_flag (const void * inst, bool flag)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(inst));
+//    g_return_if_fail(QOF_IS_INSTANCE(inst));
+    if(!inst) return;
     GET_PRIVATE(inst)->dirty = flag;
 }
 
@@ -728,7 +495,7 @@ qof_instance_set_dirty(QofInstance* inst)
     QofCollection *coll;
 
     priv = GET_PRIVATE(inst);
-    priv->dirty = TRUE;
+    priv->dirty = true;
     if (!qof_get_alt_dirty_mode())
     {
         coll = priv->collection;
@@ -739,51 +506,60 @@ qof_instance_set_dirty(QofInstance* inst)
 bool
 qof_instance_get_infant(const QofInstance *inst)
 {
-    g_return_val_if_fail(QOF_IS_INSTANCE(inst), FALSE);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(inst), FALSE);
+    if(!inst) return false;
     return GET_PRIVATE(inst)->infant;
 }
 
 int32_t
 qof_instance_get_version (const void * inst)
 {
-    g_return_val_if_fail(QOF_IS_INSTANCE(inst), 0);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(inst), 0);
+    if(!inst) return 0;
     return GET_PRIVATE(inst)->version;
 }
 
 void
 qof_instance_set_version (void * inst, int32_t vers)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(inst));
+//    g_return_if_fail(QOF_IS_INSTANCE(inst));
+    if(!inst) return;
     GET_PRIVATE(inst)->version = vers;
 }
 
 void
 qof_instance_copy_version (void * to, const void * from)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(to));
-    g_return_if_fail(QOF_IS_INSTANCE(from));
+//    g_return_if_fail(QOF_IS_INSTANCE(to));
+//    g_return_if_fail(QOF_IS_INSTANCE(from));
+    if(!to) return;
+    if(!from) return;
     GET_PRIVATE(to)->version = GET_PRIVATE(from)->version;
 }
 
 uint32_t
 qof_instance_get_version_check (const void * inst)
 {
-    g_return_val_if_fail(QOF_IS_INSTANCE(inst), 0);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(inst), 0);
+    if(!inst) return 0;
     return GET_PRIVATE(inst)->version_check;
 }
 
 void
 qof_instance_set_version_check (void * inst, uint32_t value)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(inst));
+//    g_return_if_fail(QOF_IS_INSTANCE(inst));
+    if(!inst) return;
     GET_PRIVATE(inst)->version_check = value;
 }
 
 void
 qof_instance_copy_version_check (void * to, const void * from)
 {
-    g_return_if_fail(QOF_IS_INSTANCE(to));
-    g_return_if_fail(QOF_IS_INSTANCE(from));
+//    g_return_if_fail(QOF_IS_INSTANCE(to));
+//    g_return_if_fail(QOF_IS_INSTANCE(from));
+    if(!to) return;
+    if(!from) return;
     GET_PRIVATE(to)->version_check = GET_PRIVATE(from)->version_check;
 }
 
@@ -793,7 +569,7 @@ uint32_t qof_instance_get_idata (const void * inst)
     {
         return 0;
     }
-    g_return_val_if_fail(QOF_IS_INSTANCE(inst), 0);
+//    g_return_val_if_fail(QOF_IS_INSTANCE(inst), 0);
     return GET_PRIVATE(inst)->idata;
 }
 
@@ -807,142 +583,135 @@ void qof_instance_set_idata(void * inst, uint32_t idata)
     {
         return;
     }
-    g_return_if_fail(QOF_IS_INSTANCE(inst));
+//    g_return_if_fail(QOF_IS_INSTANCE(inst));
     GET_PRIVATE(inst)->idata = idata;
 }
 
 /* ========================================================== */
 
 /* Returns a displayable name to represent this object */
-char* qof_instance_get_display_name(const QofInstance* inst)
+const char* QofInstance::get_display_name() const
 {
-    g_return_val_if_fail( inst != NULL, NULL );
+    g_return_val_if_fail( this != NULL, NULL );
 
-    if ( QOF_INSTANCE_GET_CLASS(inst)->get_display_name != NULL )
-    {
-        return QOF_INSTANCE_GET_CLASS(inst)->get_display_name(inst);
-    }
-    else
-    {
-        /* Not implemented - return default string */
-        return g_strdup_printf("Object %s %p",
-                               qof_collection_get_type(qof_instance_get_collection(inst)),
-                               inst);
-    }
+    /* Not implemented - return default string */
+    return g_strdup_printf("Object %s %p",
+                           qof_collection_get_type(qof_instance_get_collection(this)),
+                           this);
 }
+//
+//struct GetReferringObjectHelperData
+//{
+//    const QofInstance* inst;
+//    GList* list;
+//};
+//
+//static void
+//get_referring_object_instance_helper(QofInstance* inst, void * user_data)
+//{
+//    QofInstance** pInst = (QofInstance**)user_data;
+//
+//    if (*pInst == NULL)
+//    {
+//        *pInst = inst;
+//    }
+//}
+//
+//static void
+//get_referring_object_helper(QofCollection* coll, void * user_data)
+//{
+//    QofInstance* first_instance = NULL;
+//    GetReferringObjectHelperData* data = (GetReferringObjectHelperData*)user_data;
+//
+//    qof_collection_foreach(coll, get_referring_object_instance_helper, &first_instance);
+//
+//    if (first_instance != NULL)
+//    {
+//        GList* new_list = qof_instance_get_typed_referring_object_list(first_instance, data->inst);
+//        data->list = g_list_concat(data->list, new_list);
+//    }
+//}
+//
+///* Returns a list of objects referring to this object */
+//GList* qof_instance_get_referring_object_list(const QofInstance* inst)
+//{
+//    GetReferringObjectHelperData data;
+//
+//    g_return_val_if_fail( inst != NULL, NULL );
+//
+//    /* scan all collections */
+//    data.inst = inst;
+//    data.list = NULL;
+//
+//    qof_book_foreach_collection(qof_instance_get_book(inst),
+//                                get_referring_object_helper,
+//                                &data);
+//    return data.list;
+//}
 
-struct GetReferringObjectHelperData
-{
-    const QofInstance* inst;
-    GList* list;
-};
-
-static void
-get_referring_object_instance_helper(QofInstance* inst, void * user_data)
-{
-    QofInstance** pInst = (QofInstance**)user_data;
-
-    if (*pInst == NULL)
-    {
-        *pInst = inst;
-    }
-}
-
-static void
-get_referring_object_helper(QofCollection* coll, void * user_data)
-{
-    QofInstance* first_instance = NULL;
-    GetReferringObjectHelperData* data = (GetReferringObjectHelperData*)user_data;
-
-    qof_collection_foreach(coll, get_referring_object_instance_helper, &first_instance);
-
-    if (first_instance != NULL)
-    {
-        GList* new_list = qof_instance_get_typed_referring_object_list(first_instance, data->inst);
-        data->list = g_list_concat(data->list, new_list);
-    }
-}
-
-/* Returns a list of objects referring to this object */
-GList* qof_instance_get_referring_object_list(const QofInstance* inst)
-{
-    GetReferringObjectHelperData data;
-
-    g_return_val_if_fail( inst != NULL, NULL );
-
-    /* scan all collections */
-    data.inst = inst;
-    data.list = NULL;
-
-    qof_book_foreach_collection(qof_instance_get_book(inst),
-                                get_referring_object_helper,
-                                &data);
-    return data.list;
-}
-
-static void
-get_typed_referring_object_instance_helper(QofInstance* inst, void * user_data)
-{
-    GetReferringObjectHelperData* data = (GetReferringObjectHelperData*)user_data;
-
-    if (qof_instance_refers_to_object(inst, data->inst))
-    {
-        data->list = g_list_prepend(data->list, inst);
-    }
-}
-
-GList*
-qof_instance_get_referring_object_list_from_collection(const QofCollection* coll, const QofInstance* ref)
-{
-    GetReferringObjectHelperData data;
-
-    g_return_val_if_fail( coll != NULL, NULL );
-    g_return_val_if_fail( ref != NULL, NULL );
-
-    data.inst = ref;
-    data.list = NULL;
-
-    qof_collection_foreach(coll, get_typed_referring_object_instance_helper, &data);
-    return data.list;
-}
-
-GList*
-qof_instance_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    g_return_val_if_fail( inst != NULL, NULL );
-    g_return_val_if_fail( ref != NULL, NULL );
-
-    if ( QOF_INSTANCE_GET_CLASS(inst)->get_typed_referring_object_list != NULL )
-    {
-        return QOF_INSTANCE_GET_CLASS(inst)->get_typed_referring_object_list(inst, ref);
-    }
-    else
-    {
-        /* Not implemented - by default, loop through all objects of this object's type and check
-           them individually. */
-        QofCollection* coll;
-
-        coll = qof_instance_get_collection(inst);
-        return qof_instance_get_referring_object_list_from_collection(coll, ref);
-    }
-}
-
-/* Check if this object refers to a specific object */
-bool qof_instance_refers_to_object(const QofInstance* inst, const QofInstance* ref)
-{
-    g_return_val_if_fail( inst != NULL, false );
-    g_return_val_if_fail( ref != NULL, false );
-
-    if ( QOF_INSTANCE_GET_CLASS(inst)->refers_to_object != NULL )
-    {
-        return QOF_INSTANCE_GET_CLASS(inst)->refers_to_object(inst, ref);
-    }
-    else
-    {
-        /* Not implemented - default = NO */
-        return false;
-    }
-}
+//static void
+//get_typed_referring_object_instance_helper(QofInstance* inst, void * user_data)
+//{
+//    GetReferringObjectHelperData* data = (GetReferringObjectHelperData*)user_data;
+//
+//    if (qof_instance_refers_to_object(inst, data->inst))
+//    {
+//        data->list = g_list_prepend(data->list, inst);
+//    }
+//}
+//
+//GList*
+//qof_instance_get_referring_object_list_from_collection(const QofCollection* coll, const QofInstance* ref)
+//{
+//    GetReferringObjectHelperData data;
+//
+//    g_return_val_if_fail( coll != NULL, NULL );
+//    g_return_val_if_fail( ref != NULL, NULL );
+//
+//    data.inst = ref;
+//    data.list = NULL;
+//
+//    qof_collection_foreach(coll, get_typed_referring_object_instance_helper, &data);
+//    return data.list;
+//}
+//
+//GList*
+//qof_instance_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    g_return_val_if_fail( inst != NULL, NULL );
+//    g_return_val_if_fail( ref != NULL, NULL );
+//
+//    if ( QOF_INSTANCE_GET_CLASS(inst)->get_typed_referring_object_list != NULL )
+//    {
+//        return QOF_INSTANCE_GET_CLASS(inst)->get_typed_referring_object_list(inst, ref);
+//    }
+//    else
+//    {
+//        /* Not implemented - by default, loop through all objects of this object's type and check
+//           them individually. */
+//        QofCollection* coll;
+//
+//        coll = qof_instance_get_collection(inst);
+//        return qof_instance_get_referring_object_list_from_collection(coll, ref);
+//    }
+//}
+//
+///* Check if this object refers to a specific object */
+//bool qof_instance_refers_to_object(const QofInstance* inst, const QofInstance* ref)
+//{
+//    g_return_val_if_fail( inst != NULL, false );
+//    g_return_val_if_fail( ref != NULL, false );
+//
+//    if ( QOF_INSTANCE_GET_CLASS(inst)->refers_to_object != NULL )
+//    {
+//        return QOF_INSTANCE_GET_CLASS(inst)->refers_to_object(inst, ref);
+//    }
+//    else
+//    {
+//        /* Not implemented - default = NO */
+//        return false;
+//    }
+//}
 
 /* =================================================================== */
 /* Entity edit and commit utilities */

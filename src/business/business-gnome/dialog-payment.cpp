@@ -40,6 +40,7 @@
 #include "gnc-tree-view-account.h"
 #include "Transaction.h"
 #include "Account.h"
+#include "AccountP.h"
 #include "gncOwner.h"
 #include "engine-helpers.h"
 

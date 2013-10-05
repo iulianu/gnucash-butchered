@@ -38,6 +38,33 @@ G_GNUC_UNUSED static QofLogModule log_module = QOF_MOD_BACKEND;
 #define QOF_CONFIG_DESC    "desc"
 #define QOF_CONFIG_TIP     "tip"
 
+QofBackend::QofBackend()
+{
+    session_begin = NULL;
+    session_end = NULL;
+    destroy_backend = NULL;
+    load = NULL;
+    begin = NULL;
+    commit = NULL;
+    rollback = NULL;
+    compile_query = NULL;
+    free_query = NULL;
+    run_query = NULL;
+    sync = NULL;
+    safe_sync = NULL;
+    load_config = NULL;
+    get_config = NULL;
+    events_pending = NULL;
+    process_events = NULL;
+    provider = NULL;
+    error_msg = NULL;
+    backend_configuration = NULL;
+    config_count = 0;
+    fullpath = NULL;
+    price_lookup = NULL;
+    export_fn = NULL;
+}
+
 /* *******************************************************************\
  * error handling                                                   *
 \********************************************************************/

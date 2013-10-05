@@ -34,6 +34,7 @@
 #include "gnc-tree-view-account.h"
 
 #include "Account.h"
+#include "AccountP.h"
 #include "gnc-accounting-period.h"
 #include "gnc-commodity.h"
 #include "gnc-component-manager.h"
@@ -1198,7 +1199,7 @@ gnc_tree_view_account_filter_by_view_info(Account* acct, gpointer data)
     GNCAccountType acct_type;
     AccountViewInfo* avi = (AccountViewInfo*)data;
 
-    g_return_val_if_fail(GNC_IS_ACCOUNT(acct), FALSE);
+//    g_return_val_if_fail(GNC_IS_ACCOUNT(acct), FALSE);
     acct_type = xaccAccountGetType(acct);
 
     if (!avi->include_type[acct_type]) return FALSE;

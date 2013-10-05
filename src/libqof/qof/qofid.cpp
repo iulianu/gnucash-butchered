@@ -33,13 +33,28 @@
 static QofLogModule log_module = QOF_MOD_ENGINE;
 static bool qof_alt_dirty_mode = false;
 
-struct QofCollection_s
+class QofCollection
 {
+public:
     QofIdType    e_type;
     bool         is_dirty;
 
     GHashTable * hash_of_entities;
     void       * data;       /* place where object class can hang arbitrary data */
+    
+    QofCollection()
+    {
+        e_type = 0;
+        is_dirty = false;
+        hash_of_entities = guid_hash_table_new();
+        data = NULL;
+    }
+    
+    ~QofCollection()
+    {
+        g_hash_table_destroy(hash_of_entities);
+        hash_of_entities = NULL;
+    }
 };
 
 /* =============================================================== */
@@ -61,10 +76,8 @@ qof_set_alt_dirty_mode (bool enabled)
 QofCollection *
 qof_collection_new (QofIdType type)
 {
-    QofCollection *col;
-    col = g_new0(QofCollection, 1);
+    QofCollection *col = new QofCollection;
     col->e_type = CACHE_INSERT (type);
-    col->hash_of_entities = guid_hash_table_new();
     col->data = NULL;
     return col;
 }
@@ -73,11 +86,9 @@ void
 qof_collection_destroy (QofCollection *col)
 {
     CACHE_REMOVE (col->e_type);
-    g_hash_table_destroy(col->hash_of_entities);
     col->e_type = NULL;
-    col->hash_of_entities = NULL;
     col->data = NULL;   /** XXX there should be a destroy notifier for this */
-    g_free (col);
+    delete col;
 }
 
 /* =============================================================== */
@@ -105,6 +116,11 @@ qof_collection_remove_entity (QofInstance *ent)
     if (!qof_alt_dirty_mode)
         qof_collection_mark_dirty(col);
     qof_instance_set_collection(ent, NULL);
+}
+
+void qof_collection_remove_entity_upon_destruction (QofCollection * col, GncGUID * guid)
+{
+    g_hash_table_remove (col->hash_of_entities, guid);
 }
 
 void

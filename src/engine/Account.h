@@ -60,27 +60,14 @@ typedef gnc_numeric (*xaccGetBalanceAsOfDateFn) (
 typedef void (*AccountCb)(Account *a, gpointer data);
 typedef gpointer (*AccountCb2)(Account *a, gpointer data);
 
-typedef struct
-{
-    QofInstanceClass parent_class;
-} AccountClass;
-
 /* --- type macros --- */
+// TODO still needed by gnc-budget-view.cpp
 #define GNC_TYPE_ACCOUNT            (gnc_account_get_type ())
-#define GNC_ACCOUNT(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_ACCOUNT, Account))
-#define GNC_ACCOUNT_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_ACCOUNT, AccountClass))
-#define GNC_IS_ACCOUNT(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_ACCOUNT))
-#define GNC_IS_ACCOUNT_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_ACCOUNT))
-#define GNC_ACCOUNT_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_ACCOUNT, AccountClass))
 /** Returns the GType type system description of the Account class.
  *
  * This must not be confused with the \ref GNCAccountType as returned
  * by xaccAccountGetType(). */
+// TODO still needed by gnc-budget-view.cpp
 GType gnc_account_get_type(void);
 
 /** The account types are used to determine how the transaction data
@@ -307,6 +294,8 @@ GNCAccountType xaccAccountGetType (const Account *account);
 /** Returns true if the account is a stock, mutual fund or currency,
  * otherwise false. */
 gboolean xaccAccountIsPriced(const Account *acc);
+
+gnc_numeric gnc_account_get_start_balance(const Account * acc);
 
 /** This function will set the starting commodity balance for this
  *  account.  This routine is intended for use with backends that do

@@ -1932,7 +1932,7 @@ gnc_invoice_recreate_page (GncMainWindow *window,
     GncInvoice *invoice;
     GncGUID guid;
     QofBook *book;
-    GncOwner owner = { 0 };
+    GncOwner owner;// = { 0 };
 
     /* Get Invoice Type */
     tmp_string = g_key_file_get_string(key_file, group_name,

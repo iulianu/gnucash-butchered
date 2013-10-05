@@ -39,41 +39,21 @@
 #ifndef GNC_SX_BOOK_H
 #define GNC_SX_BOOK_H
 
-typedef struct xaccSchedXactionsDef SchedXactions;
-typedef struct _SchedXactionsClass SchedXactionsClass;
+class SchedXactions;
 
 #include <glib.h>
 #include "SchedXaction.h"
 #include "qof.h"
 
-struct xaccSchedXactionsDef
+class SchedXactions : public QofInstance
 {
-    QofInstance inst;
+public:
     GList* sx_list;
     gboolean sx_notsaved;
+    
+    SchedXactions();
+    virtual ~SchedXactions();
 };
-
-struct _SchedXactionsClass
-{
-    QofInstanceClass parent_class;
-};
-
-/* --- type macros --- */
-#define GNC_TYPE_SCHEDXACTIONS            (gnc_schedxactions_get_type ())
-#define GNC_SCHEDXACTIONS(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_SCHEDXACTIONS, SchedXactions))
-#define GNC_SCHEDXACTIONS_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_SCHEDXACTIONS, SchedXactionsClass))
-#define GNC_IS_SCHEDXACTIONS(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_SCHEDXACTIONS))
-#define GNC_IS_SCHEDXACTIONS_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_SCHEDXACTIONS))
-#define GNC_SCHEDXACTIONS_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_SCHEDXACTIONS, SchedXactionsClass))
-GType gnc_schedxactions_get_type(void);
-
-#define GNC_IS_SXES(obj)  GNC_IS_SCHEDXACTIONS(obj)
-#define GNC_SXES(obj)     GNC_SCHEDXACTIONS(obj)
 
 /*@ dependent @*/ SchedXactions* gnc_book_get_schedxactions(QofBook* book);
 

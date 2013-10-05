@@ -138,6 +138,8 @@ struct QofQueryPredData
 {
     QofType               type_name;  /* QOF_TYPE_* */
     QofQueryCompare       how;
+    
+    QofQueryPredData();
 };
 
 /** A list of parameters (::QofIdType) used to describe a parameter to

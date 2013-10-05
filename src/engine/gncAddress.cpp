@@ -33,27 +33,10 @@
 #include "gncAddressP.h"
 #include "gncCustomerP.h"
 
-struct _gncAddress
-{
-    QofInstance inst;
-
-    QofBook *	book;
-    QofInstance * parent;
-    gboolean	dirty;
-    char *	name;
-    char *	addr1;
-    char *	addr2;
-    char *	addr3;
-    char *	addr4;
-    char *	phone;
-    char *	fax;
-    char *	email;
-};
-
-struct _gncAddressClass
-{
-    QofInstanceClass parent_class;
-};
+//struct _gncAddressClass
+//{
+//    QofInstanceClass parent_class;
+//};
 
 static QofLogModule log_module = GNC_MOD_BUSINESS;
 
@@ -67,237 +50,41 @@ void mark_address (GncAddress *address)
     qof_event_gen (QOF_INSTANCE(address), QOF_EVENT_MODIFY, address->parent);
     qof_event_gen (address->parent, QOF_EVENT_MODIFY, NULL);
 }
-
-enum
+    
+GncAddress::GncAddress()
 {
-    PROP_0,
-    PROP_NAME,
-    PROP_ADDR1,
-    PROP_ADDR2,
-    PROP_ADDR3,
-    PROP_ADDR4,
-    PROP_PHONE,
-    PROP_FAX,
-    PROP_EMAIL
-};
-
-/* GObject Initialization */
-G_DEFINE_TYPE(GncAddress, gnc_address, QOF_TYPE_INSTANCE);
-
-static void
-gnc_address_init(GncAddress* addr)
+    book = NULL;
+    parent = NULL;
+    dirty = false;
+    name = NULL;
+    addr1 = NULL;
+    addr2 = NULL;
+    addr3 = NULL;
+    addr4 = NULL;
+    phone = NULL;
+    fax = NULL;
+    email = NULL;
+}
+    
+GncAddress::~GncAddress()
 {
+    
 }
 
-static void
-gnc_address_dispose(GObject *addrp)
-{
-    G_OBJECT_CLASS(gnc_address_parent_class)->dispose(addrp);
-}
 
-static void
-gnc_address_finalize(GObject* addrp)
-{
-    G_OBJECT_CLASS(gnc_address_parent_class)->finalize(addrp);
-}
-
-static void
-gnc_address_get_property (GObject         *object,
-                          guint            prop_id,
-                          GValue          *value,
-                          GParamSpec      *pspec)
-{
-    GncAddress *address;
-
-    g_return_if_fail(GNC_IS_ADDRESS(object));
-
-    address = GNC_ADDRESS(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        g_value_set_string(value, address->name);
-        break;
-    case PROP_ADDR1:
-        g_value_set_string(value, address->addr1);
-        break;
-    case PROP_ADDR2:
-        g_value_set_string(value, address->addr2);
-        break;
-    case PROP_ADDR3:
-        g_value_set_string(value, address->addr3);
-        break;
-    case PROP_ADDR4:
-        g_value_set_string(value, address->addr4);
-        break;
-    case PROP_PHONE:
-        g_value_set_string(value, address->phone);
-        break;
-    case PROP_FAX:
-        g_value_set_string(value, address->fax);
-        break;
-    case PROP_EMAIL:
-        g_value_set_string(value, address->email);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_address_set_property (GObject         *object,
-                          guint            prop_id,
-                          const GValue          *value,
-                          GParamSpec      *pspec)
-{
-    GncAddress *address;
-
-    g_return_if_fail(GNC_IS_ADDRESS(object));
-
-    address = GNC_ADDRESS(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        gncAddressSetName(address, g_value_get_string(value));
-        break;
-    case PROP_ADDR1:
-        gncAddressSetAddr1(address, g_value_get_string(value));
-        break;
-    case PROP_ADDR2:
-        gncAddressSetAddr2(address, g_value_get_string(value));
-        break;
-    case PROP_ADDR3:
-        gncAddressSetAddr3(address, g_value_get_string(value));
-        break;
-    case PROP_ADDR4:
-        gncAddressSetAddr4(address, g_value_get_string(value));
-        break;
-    case PROP_PHONE:
-        gncAddressSetPhone(address, g_value_get_string(value));
-        break;
-    case PROP_FAX:
-        gncAddressSetFax(address, g_value_get_string(value));
-        break;
-    case PROP_EMAIL:
-        gncAddressSetEmail(address, g_value_get_string(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    /* Refers to nothing.  The parent field doesn't really count since the parent knows which address
-       belongs to it. */
-    return NULL;
-}
-
-static void
-gnc_address_class_init (GncAddressClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_address_dispose;
-    gobject_class->finalize = gnc_address_finalize;
-    gobject_class->set_property = gnc_address_set_property;
-    gobject_class->get_property = gnc_address_get_property;
-
-    qof_class->get_display_name = NULL;
-    qof_class->refers_to_object = NULL;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NAME,
-     g_param_spec_string ("name",
-                          "Address Name",
-                          "The address name is an arbitrary string "
-                          "assigned by the user.  It is intended to "
-                          "a short string to identify the address.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ADDR1,
-     g_param_spec_string ("addr1",
-                          "Address Line 1",
-                          "The address line 1 is an arbitrary string "
-                          "assigned by the user.  It is the first "
-                          "line of the address.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ADDR2,
-     g_param_spec_string ("addr2",
-                          "Address Line 2",
-                          "The address line 2 is an arbitrary string "
-                          "assigned by the user.  It is the second "
-                          "line of the address.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ADDR3,
-     g_param_spec_string ("addr3",
-                          "Address Line 3",
-                          "The address line 3 is an arbitrary string "
-                          "assigned by the user.  It is the third "
-                          "line of the address.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ADDR4,
-     g_param_spec_string ("addr4",
-                          "Address Line 4",
-                          "The address line 4 is an arbitrary string "
-                          "assigned by the user.  It is the fourth "
-                          "line of the address.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_PHONE,
-     g_param_spec_string ("phone",
-                          "Phone",
-                          "The phone number is the number at this address.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_FAX,
-     g_param_spec_string ("fax",
-                          "Fax",
-                          "The fax number at this address.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_EMAIL,
-     g_param_spec_string ("email",
-                          "E-mail address",
-                          "The e-mail address at this address.",
-                          NULL,
-                          G_PARAM_READWRITE));
-}
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    /* Refers to nothing.  The parent field doesn't really count since the parent knows which address
+//       belongs to it. */
+//    return NULL;
+//}
 
 /* Create/Destroy functions */
 
@@ -308,8 +95,8 @@ gncAddressCreate (QofBook *book, QofInstance *prnt)
 
     if (!book) return NULL;
 
-    addr = g_object_new (GNC_TYPE_ADDRESS, NULL);
-    qof_instance_init_data(&addr->inst, GNC_ID_ADDRESS, book);
+    addr = new GncAddress; //g_object_new (GNC_TYPE_ADDRESS, NULL);
+    qof_instance_init_data(addr, GNC_ID_ADDRESS, book);
     addr->book = book;
     addr->dirty = FALSE;
     addr->parent = prnt;
@@ -370,7 +157,7 @@ gncAddressFree (GncAddress *addr)
 {
     if (!addr) return;
 
-    qof_event_gen (&addr->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (addr, QOF_EVENT_DESTROY, NULL);
 
     CACHE_REMOVE (addr->name);
     CACHE_REMOVE (addr->addr1);
@@ -382,7 +169,8 @@ gncAddressFree (GncAddress *addr)
     CACHE_REMOVE (addr->email);
 
     /* qof_instance_release (&addr->inst); */
-    g_object_unref (addr);
+//    g_object_unref (addr);
+    delete addr;
 }
 
 
@@ -473,7 +261,7 @@ void gncAddressSetEmail (GncAddress *addr, const char *email)
 
 void gncAddressBeginEdit (GncAddress *addr)
 {
-    qof_begin_edit (&addr->inst);
+    qof_begin_edit (addr);
 }
 
 static void gncAddressOnError (QofInstance *inst, QofBackendError errcode)
@@ -486,14 +274,14 @@ static void gncAddressOnDone (QofInstance *addr) { }
 
 static void address_free (QofInstance *inst)
 {
-    GncAddress *addr = (GncAddress *) inst;
+    GncAddress *addr = dynamic_cast<GncAddress *>(inst);
     gncAddressFree (addr);
 }
 
 void gncAddressCommitEdit (GncAddress *addr)
 {
-    if (!qof_commit_edit (QOF_INSTANCE(addr))) return;
-    qof_commit_edit_part2 (&addr->inst, gncAddressOnError,
+    if (!qof_commit_edit (addr)) return;
+    qof_commit_edit_part2 (addr, gncAddressOnError,
                            gncAddressOnDone, address_free);
 }
 
@@ -575,8 +363,8 @@ gncAddressEqual(const GncAddress* a, const GncAddress* b)
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
 
-    g_return_val_if_fail(GNC_IS_ADDRESS(a), FALSE);
-    g_return_val_if_fail(GNC_IS_ADDRESS(b), FALSE);
+//    g_return_val_if_fail(GNC_IS_ADDRESS(a), FALSE);
+//    g_return_val_if_fail(GNC_IS_ADDRESS(b), FALSE);
 
     if (g_strcmp0(a->name, b->name) != 0)
     {

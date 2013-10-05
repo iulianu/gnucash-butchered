@@ -69,9 +69,9 @@ run_test (void)
 
     for (i = 0; i < NENT; i++)
     {
-        ent = g_object_new(QOF_TYPE_INSTANCE, NULL);
+        ent = new QofInstance; //g_object_new(QOF_TYPE_INSTANCE, NULL);
         guid_new(&guid);
-        ent = g_object_new(QOF_TYPE_INSTANCE, "guid", &guid, NULL);
+        ent = new QofInstance(&guid); // g_object_new(QOF_TYPE_INSTANCE, "guid", &guid, NULL);
         do_test ((NULL == qof_collection_lookup_entity (col, &guid)),
                  "duplicate guid");
         ent->e_type = type;

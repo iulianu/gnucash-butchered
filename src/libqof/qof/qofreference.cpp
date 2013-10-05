@@ -25,6 +25,15 @@
 #include <glib.h>
 #include "qofreference.h"
 
+QofInstanceReference::QofInstanceReference()
+{
+    choice_type = 0;
+    type = 0;
+    ref_guid = NULL;
+    param = NULL;
+    ent_guid = NULL;
+}
+
 static void
 entity_set_reference_cb(QofInstance *ent, void * user_data)
 {
@@ -138,9 +147,9 @@ create_reference(QofInstance *ent, const QofParam *param)
     {
         return NULL;
     }
-    reference = g_new0(QofInstanceReference, 1);
+    reference = new QofInstanceReference;//g_new0(QofInstanceReference, 1);
     reference->type = ent->e_type;
-    reference->ref_guid = g_new(GncGUID, 1);
+    reference->ref_guid = new GncGUID;//g_new(GncGUID, 1);
     reference->ent_guid = qof_instance_get_guid(ent);
     if (qof_object_is_choice(ent->e_type))
     {

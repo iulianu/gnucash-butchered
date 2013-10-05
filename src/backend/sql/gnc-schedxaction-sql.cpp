@@ -173,9 +173,9 @@ gnc_sql_save_schedxaction( GncSqlBackend* be, QofInstance* inst )
 
     g_return_val_if_fail( be != NULL, FALSE );
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_SX(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_SX(inst), FALSE );
 
-    pSx = GNC_SX(inst);
+    pSx = (SchedXaction*)(inst);
 
     is_infant = qof_instance_get_infant( inst );
     if ( qof_instance_get_destroying( inst ) )

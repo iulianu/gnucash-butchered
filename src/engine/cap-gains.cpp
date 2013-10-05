@@ -285,7 +285,7 @@ xaccAccountSetDefaultGainAccount (Account *acc, const Account *gain_acct)
     xaccAccountBeginEdit (acc);
     vvv = kvp_value_new_guid (xaccAccountGetGUID (gain_acct));
     kvp_frame_set_slot_nc (cwd, cur_name, vvv);
-    qof_instance_set_slots(QOF_INSTANCE(acc), acc->inst.kvp_data);
+    qof_instance_set_slots(acc, acc->kvp_data);
     xaccAccountCommitEdit (acc);
 }
 
@@ -352,7 +352,7 @@ GetOrMakeGainAcct (Account *acc, gnc_commodity * currency)
 
         vvv = kvp_value_new_guid (xaccAccountGetGUID (gain_acct));
         kvp_frame_set_slot_nc (cwd, cur_name, vvv);
-        qof_instance_set_slots(QOF_INSTANCE(acc), acc->inst.kvp_data);
+        qof_instance_set_slots(acc, acc->kvp_data);
         xaccAccountCommitEdit (acc);
 
     }
@@ -550,11 +550,11 @@ xaccSplitAssignToLot (Split *split, GNCLot *lot)
         /* Add kvp markup to indicate that these two splits used
          * to be one before being 'split'
          */
-        gnc_kvp_bag_add (split->inst.kvp_data, "lot-split", now,
+        gnc_kvp_bag_add (split->kvp_data, "lot-split", now,
                          "peer_guid", xaccSplitGetGUID (new_split),
                          NULL);
 
-        gnc_kvp_bag_add (new_split->inst.kvp_data, "lot-split", now,
+        gnc_kvp_bag_add (new_split->kvp_data, "lot-split", now,
                          "peer_guid", xaccSplitGetGUID (split),
                          NULL);
 
@@ -639,7 +639,7 @@ xaccSplitGetCapGainsSplit (const Split *split)
 
     if (!split) return NULL;
 
-    val = kvp_frame_get_slot (split->inst.kvp_data, "gains-split");
+    val = kvp_frame_get_slot (split->kvp_data, "gains-split");
     if (!val) return NULL;
     gains_guid = kvp_value_get_guid (val);
     if (!gains_guid) return NULL;
@@ -662,7 +662,7 @@ xaccSplitGetGainsSourceSplit (const Split *split)
 
     if (!split) return NULL;
 
-    val = kvp_frame_get_slot (split->inst.kvp_data, "gains-source");
+    val = kvp_frame_get_slot (split->kvp_data, "gains-source");
     if (!val) return NULL;
     source_guid = kvp_value_get_guid (val);
     if (!source_guid) return NULL;
@@ -968,9 +968,9 @@ xaccSplitComputeCapGains(Split *split, Account *gain_acc)
              * that this is the gains transaction that corresponds
              * to the gains source.
              */
-            kvp_frame_set_guid (split->inst.kvp_data, "gains-split",
+            kvp_frame_set_guid (split->kvp_data, "gains-split",
                                 xaccSplitGetGUID (lot_split));
-            kvp_frame_set_guid (lot_split->inst.kvp_data, "gains-source",
+            kvp_frame_set_guid (lot_split->kvp_data, "gains-source",
                                 xaccSplitGetGUID (split));
 
         }

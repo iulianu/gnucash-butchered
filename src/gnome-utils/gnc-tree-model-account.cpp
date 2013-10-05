@@ -28,10 +28,12 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <string.h>
+#include <typeinfo>
 
 #include "gnc-tree-model-account.h"
 #include "gnc-component-manager.h"
 #include "Account.h"
+#include "AccountP.h"
 #include "gnc-accounting-period.h"
 #include "gnc-commodity.h"
 #include "gnc-gconf-utils.h"
@@ -1297,14 +1299,18 @@ gnc_tree_model_account_event_handler (QofInstance *entity,
     Account *account, *parent;
 
     g_return_if_fail(model);	/* Required */
-    if (!GNC_IS_ACCOUNT(entity))
+    if(!entity)
         return;
+    if(typeid(*entity) != typeid(Account))
+        return;
+//    if (!GNC_IS_ACCOUNT(entity))
+//        return;
 
     ENTER("entity %p of type %d, model %p, event_data %p",
           entity, event_type, model, ed);
     priv = GNC_TREE_MODEL_ACCOUNT_GET_PRIVATE(model);
 
-    account = GNC_ACCOUNT(entity);
+    account = dynamic_cast<Account*>(entity);
     if (gnc_account_get_book(account) != priv->book)
     {
         LEAVE("not in this book");
@@ -1340,7 +1346,7 @@ gnc_tree_model_account_event_handler (QofInstance *entity,
     case QOF_EVENT_REMOVE:
         if (!ed) /* Required for a remove. */
             break;
-        parent = ed->node ? GNC_ACCOUNT(ed->node) : priv->root;
+        parent = ed->node ? reinterpret_cast<Account*>(ed->node) : priv->root;
         parent_name = ed->node ? xaccAccountGetName(parent) : "Root";
         DEBUG("remove child %d of account %p (%s)", ed->idx, parent, parent_name);
         path = gnc_tree_model_account_get_path_from_account(model, parent);

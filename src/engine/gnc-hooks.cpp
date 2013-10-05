@@ -67,7 +67,7 @@ gnc_hook_create (const gchar *name, gint num_args, const gchar *desc)
         return((gchar*)name);
     }
 
-    hook_list = g_new0(GncHook, 1);
+    hook_list = new GncHook;//g_new0(GncHook, 1);
     hook_list->desc = g_strdup(desc);
     hook_list->c_danglers = g_malloc(sizeof(GHookList));
     g_hook_list_init(hook_list->c_danglers, sizeof(GHook));

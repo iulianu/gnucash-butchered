@@ -49,7 +49,6 @@
 
 #include "platform.h"
 
-
 #ifdef HAVE_LANGINFO_D_FMT
 #  define GNC_D_FMT (nl_langinfo (D_FMT))
 #  define GNC_D_T_FMT (nl_langinfo (D_T_FMT))
@@ -59,6 +58,18 @@
 #  define GNC_D_T_FMT "%Y-%m-%d %r"
 #  define GNC_T_FMT "%r"
 #endif
+
+//Timespec::Timespec()
+//{
+//    tv_sec = 0;
+//    tv_nsec = 0;
+//}
+//
+//Timespec::Timespec(time64 sec, long nsec)
+//{
+//    tv_sec = sec;
+//    tv_nsec = nsec;
+//}
 
 const char *gnc_default_strftime_date_format =
     /* The default date format for use with strftime in other OS. */
@@ -1311,7 +1322,7 @@ gnc_date_timestamp (void)
 Timespec
 gnc_iso8601_to_timespec_gmt(const char *str)
 {
-    Timespec time = { 0L, 0L };
+    Timespec time = {0L, 0L};
     GDateTime *gdt;
     int hour = 0, minute = 0, day = 0, month = 0, year = 0;
     char zone[12];
@@ -1417,13 +1428,13 @@ gnc_dmy2timespec_internal (int day, int month, int year, bool start_of_day)
 Timespec
 gnc_dmy2timespec (int day, int month, int year)
 {
-    return gnc_dmy2timespec_internal (day, month, year, TRUE);
+    return gnc_dmy2timespec_internal (day, month, year, true);
 }
 
 Timespec
 gnc_dmy2timespec_end (int day, int month, int year)
 {
-    return gnc_dmy2timespec_internal (day, month, year, FALSE);
+    return gnc_dmy2timespec_internal (day, month, year, false);
 }
 
 /********************************************************************\
@@ -1586,40 +1597,6 @@ gnc_dow_abbrev(gchar *buf, int buf_len, int dow)
     buf[i] = 0;
 }
 
-/* *******************************************************************
- *  GValue handling
- ********************************************************************/
-static void*
-timespec_boxed_copy_func( void* in_timespec )
-{
-    Timespec* newvalue;
-
-    newvalue = g_malloc( sizeof( Timespec ) );
-    memcpy( newvalue, in_timespec, sizeof( Timespec ) );
-
-    return newvalue;
-}
-
-static void
-timespec_boxed_free_func( void* in_timespec )
-{
-    g_free( in_timespec );
-}
-
-GType
-timespec_get_type( void )
-{
-    static GType type = 0;
-
-    if ( type == 0 )
-    {
-        type = g_boxed_type_register_static( "timespec",
-                                             timespec_boxed_copy_func,
-                                             timespec_boxed_free_func );
-    }
-
-    return type;
-}
 
 Testfuncs*
 gnc_date_load_funcs (void)

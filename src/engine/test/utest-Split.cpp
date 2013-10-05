@@ -28,7 +28,7 @@
 /* Add specific headers for this class */
 #include <Split.h>
 #include <SplitP.h>
-#include <Account.h>
+#include <AccountP.h>
 #include <Transaction.h>
 #include <TransactionP.h>
 #include <gnc-lot.h>
@@ -95,16 +95,24 @@ teardown (Fixture *fixture, gconstpointer pData)
     Account *acc = xaccSplitGetAccount (fixture->split);
     Transaction *txn = xaccSplitGetParent (fixture->split);
     GNCLot *lot = xaccSplitGetLot (fixture->split);
-    test_destroy (fixture->split->gains_split);
-    test_destroy (lot);
-    test_destroy (txn);
-    test_destroy (acc);
-    test_destroy (fixture->split);
-    test_destroy (fixture->curr);
-    test_destroy (fixture->comm);
-    test_destroy (book);
-    g_free (fixture->func);
-
+//    test_destroy (fixture->split->gains_split);
+//    test_destroy (lot);
+//    test_destroy (txn);
+//    test_destroy (acc);
+//    test_destroy (fixture->split);
+//    test_destroy (fixture->curr);
+//    test_destroy (fixture->comm);
+//    test_destroy (book);
+    delete fixture->split->gains_split;
+    delete lot;
+    delete txn;
+    delete acc;
+    delete fixture->split;
+    delete fixture->curr;
+    delete fixture->comm;
+    delete book;
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 
 /* gnc_split_init
@@ -113,7 +121,7 @@ gnc_split_init(Split* split)*/
 static void
 test_gnc_split_init ()
 {
-    Split *split = g_object_new (GNC_TYPE_SPLIT, NULL);
+    Split *split = new Split; //g_object_new (GNC_TYPE_SPLIT, NULL);
     g_assert (split->acc == NULL);
     g_assert (split->orig_acc == NULL);
     g_assert (split->parent == NULL);
@@ -129,9 +137,10 @@ test_gnc_split_init ()
     g_assert_cmpint (split->gains, ==, GAINS_STATUS_UNKNOWN);
     g_assert (split->gains_split == NULL);
 /* Make sure that the parent's init has been run */
-    g_assert (split->inst.kvp_data != NULL);
+    g_assert (split->kvp_data != NULL);
 
-    g_object_unref (split);
+//    g_object_unref (split);
+    delete split;
 }
 /* gnc_split_dispose
 static void
@@ -149,7 +158,7 @@ test_gnc_split_dispose ()
  * Transaction objects, a Split object, and a GNCLot object. All of
  * these should be unreffed in gnc_split_dispose.
  */
-    Split *split = g_object_new (GNC_TYPE_SPLIT, NULL);
+    Split *split = new Split; //g_object_new (GNC_TYPE_SPLIT, NULL);
     QofInstance *instance = QOF_INSTANCE (split);
     QofBook *book = qof_book_new ();
 
@@ -161,8 +170,10 @@ test_gnc_split_dispose ()
 
     g_assert (instance->e_type == NULL);
 
-    g_object_unref (split);
-    g_object_unref (book);
+//    g_object_unref (split);
+//    g_object_unref (book);
+    delete split;
+    delete book;
 }
 /* gnc_split_finalize
 static void
@@ -237,12 +248,17 @@ test_gnc_split_set_get_property ()
  * few leaks to save trouble; it will all work fine once the
  * refactoring is taken care of.
  */
-    g_object_unref (txn);
-    g_object_unref (acc);
-    g_object_unref (lot);
+//    g_object_unref (txn);
+//    g_object_unref (acc);
+//    g_object_unref (lot);
+    delete txn;
+    delete acc;
+    delete lot;
     gnc_commodity_destroy (curr);
-    g_object_unref (split);
-    g_object_unref (book);
+//    g_object_unref (split);
+//    g_object_unref (book);
+    delete split;
+    delete book;
 }
 
 /* xaccInitSplit
@@ -286,7 +302,7 @@ test_xaccDupeSplit (Fixture *fixture, gconstpointer pData)
     g_assert (split->lot == f_split->lot);
     g_assert_cmpstr (split->memo, ==, f_split->memo);
     g_assert_cmpstr (split->action, ==, f_split->action);
-    g_assert (kvp_frame_compare (split->inst.kvp_data, f_split->inst.kvp_data) == 0);
+    g_assert (kvp_frame_compare (split->kvp_data, f_split->kvp_data) == 0);
     g_assert_cmpint (split->reconciled, ==, f_split->reconciled);
     g_assert (timespec_equal (&(split->date_reconciled), &(f_split->date_reconciled)));
     g_assert (gnc_numeric_equal (split->value, f_split->value));
@@ -321,7 +337,7 @@ test_xaccSplitClone (Fixture *fixture, gconstpointer pData)
     g_assert (split->lot == f_split->lot);
     g_assert_cmpstr (split->memo, ==, f_split->memo);
     g_assert_cmpstr (split->action, ==, f_split->action);
-    g_assert (kvp_frame_compare (split->inst.kvp_data, f_split->inst.kvp_data) == 0);
+    g_assert (kvp_frame_compare (split->kvp_data, f_split->kvp_data) == 0);
     g_assert_cmpint (split->reconciled, ==, f_split->reconciled);
     g_assert (timespec_equal (&(split->date_reconciled), &(f_split->date_reconciled)));
     g_assert (gnc_numeric_equal (split->value, f_split->value));
@@ -520,8 +536,10 @@ test_xaccSplitEqual (Fixture *fixture, gconstpointer pData)
 
     test_clear_error_list ();
     g_assert (xaccSplitEqual (fixture->split, split2, TRUE, FALSE, TRUE) == TRUE);
-    g_object_unref (split1);
-    g_object_unref (split2);
+//    g_object_unref (split1);
+//    g_object_unref (split2);
+    delete split1;
+    delete split2;
     test_clear_error_list ();
     g_log_set_default_handler (oldlogger, NULL);
     g_free (msg03);
@@ -628,8 +646,10 @@ test_xaccSplitCommitEdit (Fixture *fixture, gconstpointer pData)
 
     test_signal_free (sig1);
     test_signal_free (sig2);
-    test_destroy (oacc);
-    test_destroy (opar);
+//    test_destroy (oacc);
+//    test_destroy (opar);
+    delete oacc;
+    delete opar;
 }
 /* xaccSplitRollbackEdit
 void
@@ -728,12 +748,12 @@ test_xaccSplitDetermineGainStatus (Fixture *fixture, gconstpointer pData)
 
     fixture->split->gains = GAINS_STATUS_UNKNOWN;
     fixture->split->gains_split = NULL;
-    g_assert (kvp_frame_get_slot (fixture->split->inst.kvp_data, "gains_source") == NULL);
+    g_assert (kvp_frame_get_slot (fixture->split->kvp_data, "gains_source") == NULL);
     xaccSplitDetermineGainStatus (fixture->split);
     g_assert (fixture->split->gains_split == NULL);
     g_assert_cmpint (fixture->split->gains, ==, GAINS_STATUS_A_VDIRTY | GAINS_STATUS_DATE_DIRTY);
 
-    kvp_frame_set_guid (fixture->split->inst.kvp_data, "gains-source", g_guid);
+    kvp_frame_set_guid (fixture->split->kvp_data, "gains-source", g_guid);
     g_assert (fixture->split->gains_split == NULL);
     fixture->split->gains = GAINS_STATUS_UNKNOWN;
     xaccSplitDetermineGainStatus (fixture->split);
@@ -952,7 +972,8 @@ test_xaccSplitSetBaseValue (Fixture *fixture, gconstpointer pData)
 
     g_free (check.msg);
     g_log_set_default_handler (oldlogger, NULL);
-    test_destroy (gnaira);
+//    test_destroy (gnaira);
+    delete gnaira;
 }
 // Not Used
 /* xaccSplitGetBaseValue
@@ -1045,14 +1066,21 @@ test_xaccSplitConvertAmount (void)
     g_assert_cmpint (result.denom, ==, 1000);
     g_assert_cmpint (check.hits, ==, 1);
 
-    test_destroy (split);
-    test_destroy (acc);
-    test_destroy (o_split);
-    test_destroy (o_acc);
-    test_destroy (ya_acc);
-    test_destroy (gnaira);
-    test_destroy (gncxx);
-    test_destroy (gnm);
+//    test_destroy (split);
+//    test_destroy (acc);
+//    test_destroy (o_split);
+//    test_destroy (o_acc);
+//    test_destroy (ya_acc);
+//    test_destroy (gnaira);
+//    test_destroy (gncxx);
+//    test_destroy (gnm);
+    delete split;
+    delete acc;
+    delete o_split;
+    delete o_acc;
+    delete ya_acc;
+    delete gnaira;
+    delete gncxx;
     g_log_set_default_handler (oldlogger, NULL);
     g_free (check.msg);
 }
@@ -1093,11 +1121,16 @@ test_xaccSplitDestroy ()
 
     g_assert_cmpint (is_destroyed, ==, TRUE);
 
-    test_destroy (split2);
-    test_destroy (txn);
-    test_destroy (acc);
-    test_destroy (gnaira);
-    test_destroy (book);
+//    test_destroy (split2);
+//    test_destroy (txn);
+//    test_destroy (acc);
+//    test_destroy (gnaira);
+//    test_destroy (book);
+    delete split2;
+    delete txn;
+    delete acc;
+    delete gnaira;
+    delete book;
 }
 /* xaccSplitOrder
 gint
@@ -1212,8 +1245,10 @@ test_xaccSplitOrder (Fixture *fixture, gconstpointer pData)
 
 /* so that it won't assert during teardown */
     split->parent = txn;
-    test_destroy (o_split);
-    test_destroy (o_txn);
+//    test_destroy (o_split);
+//    test_destroy (o_txn);
+    delete o_split;
+    delete o_txn;
 }
 /* xaccSplitOrderDateOnly
 gint
@@ -1253,8 +1288,10 @@ test_xaccSplitOrderDateOnly (Fixture *fixture, gconstpointer pData)
     o_txn->date_posted.tv_sec -= 50;
     g_assert_cmpint (xaccSplitOrderDateOnly (split, o_split), ==, -1);
 
-    test_destroy (o_split);
-    test_destroy (o_txn);
+//    test_destroy (o_split);
+//    test_destroy (o_txn);
+    delete o_split;
+    delete o_txn;
 }
 /* get_corr_account_split
 static gboolean
@@ -1308,12 +1345,18 @@ test_get_corr_account_split (Fixture *fixture, gconstpointer pData)
     g_assert (!fixture->func->get_corr_account_split(NULL, &result));
     g_assert (result == NULL);
 
-    test_destroy (split1);
-    test_destroy (split2);
-    test_destroy (split3);
-    test_destroy (acc1);
-    test_destroy (acc2);
-    test_destroy (acc3);
+//    test_destroy (split1);
+//    test_destroy (split2);
+//    test_destroy (split3);
+//    test_destroy (acc1);
+//    test_destroy (acc2);
+//    test_destroy (acc3);
+    delete split1;
+    delete split2;
+    delete split3;
+    delete acc1;
+    delete acc2;
+    delete acc3;
 }
 // Not Used
 /* xaccSplitGetCorrAccountName
@@ -1357,10 +1400,14 @@ test_xaccSplitGetCorrAccountFullName (Fixture *fixture, gconstpointer pData)
     g_assert_cmpstr (result, ==, gnc_account_get_full_name (acc2));
     g_free (result);
 
-    test_destroy (split1);
-    test_destroy (acc2);
-    test_destroy (acc1);
-    test_destroy (acc0);
+//    test_destroy (split1);
+//    test_destroy (acc2);
+//    test_destroy (acc1);
+//    test_destroy (acc0);
+    delete split1;
+    delete acc2;
+    delete acc1;
+    delete acc0;
 
 }
 // Make Static
@@ -1392,8 +1439,10 @@ test_xaccSplitGetCorrAccountCode (Fixture *fixture, gconstpointer pData)
 
     g_assert_cmpstr (xaccSplitGetCorrAccountCode (fixture->split), ==, code);
 
-    test_destroy (split1);
-    test_destroy (acc1);
+//    test_destroy (split1);
+//    test_destroy (acc1);
+    delete split1;
+    delete acc1;
 }
 /* xaccSplitCompareAccountFullNames
 int
@@ -1430,10 +1479,14 @@ test_xaccSplitCompareAccountFullNames (Fixture *fixture, gconstpointer pData)
     xaccSplitSetParent (split1, txn);
     xaccTransCommitEdit (txn);
 
-    test_destroy (split1);
-    test_destroy (acc2);
-    test_destroy (acc1);
-    test_destroy (acc0);
+//    test_destroy (split1);
+//    test_destroy (acc2);
+//    test_destroy (acc1);
+//    test_destroy (acc0);
+    delete split1;
+    delete acc2;
+    delete acc1;
+    delete acc0;
 }
 /* xaccSplitCompareAccountCodes
 int
@@ -1462,9 +1515,12 @@ test_xaccSplitCompareAccountCodes (Fixture *fixture, gconstpointer pData)
     g_assert_cmpint (xaccSplitCompareAccountCodes (NULL, split), ==, -1);
     g_assert_cmpint (xaccSplitCompareAccountCodes (split, split1), >, 0);
 
-    test_destroy (split1);
-    test_destroy (acc1);
-    test_destroy (gnaira);
+//    test_destroy (split1);
+//    test_destroy (acc1);
+//    test_destroy (gnaira);
+    delete split1;
+    delete acc1;
+    delete gnaira;
 }
 /* xaccSplitCompareOtherAccountFullNames
 int
@@ -1519,13 +1575,20 @@ test_xaccSplitCompareOtherAccountFullNames (Fixture *fixture, gconstpointer pDat
     xaccSplitSetParent (split1, txn);
     xaccTransCommitEdit (txn);
 
-    test_destroy (split1);
-    test_destroy (split2);
-    test_destroy (split3);
-    test_destroy (txn1);
-    test_destroy (acc2);
-    test_destroy (acc1);
-    test_destroy (acc0);
+//    test_destroy (split1);
+//    test_destroy (split2);
+//    test_destroy (split3);
+//    test_destroy (txn1);
+//    test_destroy (acc2);
+//    test_destroy (acc1);
+//    test_destroy (acc0);
+    delete split1;
+    delete split2;
+    delete split3;
+    delete txn1;
+    delete acc2;
+    delete acc1;
+    delete acc0;
 }
 /* xaccSplitCompareOtherAccountCodes
 int
@@ -1568,11 +1631,16 @@ test_xaccSplitCompareOtherAccountCodes (Fixture *fixture, gconstpointer pData)
     g_assert_cmpint (xaccSplitCompareOtherAccountCodes (NULL, split), ==, -1);
     g_assert_cmpint (xaccSplitCompareOtherAccountCodes (split, split1), <, 0);
 
-    test_destroy (split1);
-    test_destroy (split2);
-    test_destroy (split3);
-    test_destroy (txn1);
-    test_destroy (acc1);
+//    test_destroy (split1);
+//    test_destroy (split2);
+//    test_destroy (split3);
+//    test_destroy (txn1);
+//    test_destroy (acc1);
+    delete split1;
+    delete split2;
+    delete split3;
+    delete txn1;
+    delete acc1;
 }
 
 /* xaccSplitSetParent
@@ -1759,7 +1827,7 @@ test_xaccSplitGetOtherSplit (Fixture *fixture, gconstpointer pData)
     g_assert (xaccSplitGetOtherSplit (split1) == NULL);
 
     g_assert (xaccTransUseTradingAccounts (txn) == FALSE);
-    g_assert (kvp_frame_get_slot (split->inst.kvp_data, "lot-split") == NULL);
+    g_assert (kvp_frame_get_slot (split->kvp_data, "lot-split") == NULL);
     g_assert_cmpint (xaccTransCountSplits (txn), !=, 2);
     g_assert (xaccSplitGetOtherSplit (split) == NULL);
 
@@ -1770,18 +1838,18 @@ test_xaccSplitGetOtherSplit (Fixture *fixture, gconstpointer pData)
     xaccSplitSetParent (split2, txn);
     g_assert (xaccSplitGetOtherSplit (split) == NULL);
 
-    kvp_frame_set_slot (split->inst.kvp_data, "lot-split", kvptrue);
-    g_assert (kvp_frame_get_slot (split->inst.kvp_data, "lot-split"));
+    kvp_frame_set_slot (split->kvp_data, "lot-split", kvptrue);
+    g_assert (kvp_frame_get_slot (split->kvp_data, "lot-split"));
     g_assert (xaccSplitGetOtherSplit (split) == NULL);
 
-    kvp_frame_set_slot (split1->inst.kvp_data, "lot-split", kvptrue);
-    g_assert (kvp_frame_get_slot (split1->inst.kvp_data, "lot-split"));
+    kvp_frame_set_slot (split1->kvp_data, "lot-split", kvptrue);
+    g_assert (kvp_frame_get_slot (split1->kvp_data, "lot-split"));
     g_assert (xaccSplitGetOtherSplit (split) == split2);
 
-    kvp_frame_set_slot (split->inst.kvp_data, "lot-split", NULL);
-    g_assert (kvp_frame_get_slot (split->inst.kvp_data, "lot-split") == NULL);
-    kvp_frame_set_slot (split1->inst.kvp_data, "lot-split", NULL);
-    g_assert (kvp_frame_get_slot (split1->inst.kvp_data, "lot-split") == NULL);
+    kvp_frame_set_slot (split->kvp_data, "lot-split", NULL);
+    g_assert (kvp_frame_get_slot (split->kvp_data, "lot-split") == NULL);
+    kvp_frame_set_slot (split1->kvp_data, "lot-split", NULL);
+    g_assert (kvp_frame_get_slot (split1->kvp_data, "lot-split") == NULL);
     kvp_frame_set_slot_path (book_slots, kvptrue, KVP_OPTION_PATH,
 			     OPTION_SECTION_ACCOUNTS,
 			     OPTION_NAME_TRADING_ACCOUNTS, NULL);
@@ -1791,9 +1859,12 @@ test_xaccSplitGetOtherSplit (Fixture *fixture, gconstpointer pData)
     xaccAccountSetType (acc2, ACCT_TYPE_TRADING);
     g_assert (xaccSplitGetOtherSplit (split) == split1);
 
-    test_destroy (split1);
-    test_destroy (split2);
-    test_destroy (acc2);
+//    test_destroy (split1);
+//    test_destroy (split2);
+//    test_destroy (acc2);
+    delete split1;
+    delete split2;
+    delete acc2;
 }
 /* xaccSplitVoidFormerAmount // SCM: 1  Local: 1:0:0
  * xaccSplitVoidFormerValue // Local: 1:0:0

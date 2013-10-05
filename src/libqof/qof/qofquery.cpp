@@ -51,6 +51,15 @@ struct QofQueryTerm
      */
     GSList *                param_fcns;
     QofQueryPredicateFunc   pred_fcn;
+    
+    QofQueryTerm()
+    {
+        param_list = NULL;
+        pdata = NULL;
+        invert = false;
+        param_fcns = NULL;
+        pred_fcn = NULL;
+    }
 };
 
 struct QofQuerySort
@@ -68,6 +77,17 @@ struct QofQuerySort
     GSList *            param_fcns;     /* Chain of paramters to walk */
     QofSortFunc         obj_cmp;        /* In case you are comparing objects */
     QofCompareFunc      comp_fcn;       /* When you are comparing core types */
+    
+    QofQuerySort()
+    {
+        param_list = NULL;
+        options = 0;
+        increasing = false;
+        use_default = false;
+        param_fcns = NULL;
+        obj_cmp = NULL;
+        comp_fcn = NULL;
+    }
 };
 
 /* The QUERY structure */
@@ -101,6 +121,18 @@ struct QofQuery
     int               changed;
 
     GList *           results;
+    
+    QofQuery()
+    {
+        search_for = 0;
+        terms = NULL;
+        defaultSort = NULL;
+        max_results = 0;
+        books = NULL;
+        be_compiled = NULL;
+        changed = 0;
+        results = NULL;
+    }
 };
 
 struct QofQueryCB
@@ -108,6 +140,13 @@ struct QofQueryCB
     QofQuery *        query;
     GList *           list;
     int               count;
+    
+    QofQueryCB()
+    {
+        query = NULL;
+        list = NULL;
+        count = 0;
+    }
 };
 
 /* initial_term will be owned by the new Query */
@@ -178,7 +217,8 @@ static void free_query_term (QofQueryTerm *qt)
     qof_query_core_predicate_free (qt->pdata);
     g_slist_free (qt->param_list);
     g_slist_free (qt->param_fcns);
-    g_free (qt);
+    //g_free (qt);
+    delete qt;
 }
 
 static QofQueryTerm * copy_query_term (const QofQueryTerm *qt)
@@ -186,7 +226,7 @@ static QofQueryTerm * copy_query_term (const QofQueryTerm *qt)
     QofQueryTerm *new_qt;
     if (!qt) return NULL;
 
-    new_qt = g_new0 (QofQueryTerm, 1);
+    new_qt = new QofQueryTerm;//g_new0 (QofQueryTerm, 1);
     memcpy (new_qt, qt, sizeof(QofQueryTerm));
     new_qt->param_list = g_slist_copy (qt->param_list);
     new_qt->param_fcns = g_slist_copy (qt->param_fcns);
@@ -656,7 +696,7 @@ void qof_query_add_term (QofQuery *q, QofQueryParamList *param_list,
 
     if (!q || !param_list || !pred_data) return;
 
-    qt = g_new0 (QofQueryTerm, 1);
+    qt = new QofQueryTerm;//g_new0 (QofQueryTerm, 1);
     qt->param_list = param_list;
     qt->pdata = pred_data;
     qs = qof_query_create ();
@@ -885,7 +925,7 @@ void qof_query_clear (QofQuery *query)
 
 QofQuery * qof_query_create (void)
 {
-    QofQuery *qp = g_new0 (QofQuery, 1);
+    QofQuery *qp = new QofQuery;// g_new0 (QofQuery, 1);
     qp->be_compiled = g_hash_table_new (g_direct_hash, g_direct_equal);
     query_init (qp, NULL);
     return qp;
@@ -978,7 +1018,8 @@ void qof_query_destroy (QofQuery *q)
     free_members (q);
     query_clear_compiles (q);
     g_hash_table_destroy (q->be_compiled);
-    g_free (q);
+    //g_free (q);
+    delete q;
 }
 
 QofQuery * qof_query_copy (QofQuery *q)

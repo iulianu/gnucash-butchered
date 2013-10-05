@@ -149,7 +149,7 @@ gnc_budget_view_new(GncBudget *budget, AccountFilterDialog* fd, const gchar* gco
     gchar* label;
     const GList *item;
 
-    g_return_val_if_fail(GNC_IS_BUDGET(budget), NULL);
+//    g_return_val_if_fail(GNC_IS_BUDGET(budget), NULL);
     ENTER(" ");
 
     budget_view = g_object_new(GNC_TYPE_BUDGET_VIEW, NULL);
@@ -701,7 +701,7 @@ budget_col_source(Account *account, GtkTreeViewColumn *col,
     gnc_numeric numeric;
     gchar amtbuff[100]; //FIXME: overkill, where's the #define?
 
-    budget = GNC_BUDGET(g_object_get_data(G_OBJECT(col), "budget"));
+    budget = reinterpret_cast<GncBudget*>(g_object_get_data(G_OBJECT(col), "budget"));
     period_num = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(col),
                                   "period_num"));
 
@@ -777,7 +777,7 @@ budget_total_col_source(Account *account, GtkTreeViewColumn *col,
     gnc_numeric total = gnc_numeric_zero();
     gchar amtbuff[100]; //FIXME: overkill, where's the #define?
 
-    budget = GNC_BUDGET(g_object_get_data(G_OBJECT(col), "budget"));
+    budget = reinterpret_cast<GncBudget*>(g_object_get_data(G_OBJECT(col), "budget"));
     total = bgv_get_total_for_account(account, budget);
     xaccSPrintAmount(amtbuff, total,
                      gnc_account_print_info(account, FALSE));
@@ -799,7 +799,7 @@ budget_col_edited(Account *account, GtkTreeViewColumn *col,
     period_num = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(col),
                                   "period_num"));
 
-    budget = GNC_BUDGET(g_object_get_data(G_OBJECT(col), "budget"));
+    budget = reinterpret_cast<GncBudget*>(g_object_get_data(G_OBJECT(col), "budget"));
 
     if (new_text && *new_text == '\0')
         gnc_budget_unset_account_period_value(budget, account, period_num);
@@ -827,7 +827,7 @@ totals_col_source(GtkTreeViewColumn *col, GtkCellRenderer *cell,
     priv = GNC_BUDGET_VIEW_GET_PRIVATE(view);
 
     gtk_tree_model_get(s_model, s_iter, 1, &row_type, -1);
-    budget = GNC_BUDGET(g_object_get_data(G_OBJECT(col), "budget"));
+    budget = reinterpret_cast<GncBudget*>(g_object_get_data(G_OBJECT(col), "budget"));
     period_num = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col),
                                  "period_num"));
 

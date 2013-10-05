@@ -186,10 +186,10 @@ save_invoice( GncSqlBackend* be, QofInstance* inst )
     gboolean is_ok = TRUE;
 
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_INVOICE(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_INVOICE(inst), FALSE );
     g_return_val_if_fail( be != NULL, FALSE );
 
-    invoice = GNC_INVOICE(inst);
+    invoice = (GncInvoice*)(inst);
 
     is_infant = qof_instance_get_infant( inst );
     if ( qof_instance_get_destroying( inst ) )
@@ -256,10 +256,10 @@ write_single_invoice( QofInstance *term_p, gpointer data_p )
     write_objects_t* s = (write_objects_t*)data_p;
 
     g_return_if_fail( term_p != NULL );
-    g_return_if_fail( GNC_IS_INVOICE(term_p) );
+//    g_return_if_fail( GNC_IS_INVOICE(term_p) );
     g_return_if_fail( data_p != NULL );
 
-    if ( s->is_ok && invoice_should_be_saved( GNC_INVOICE(term_p) ) )
+    if ( s->is_ok && invoice_should_be_saved( (GncInvoice*)(term_p) ) )
     {
         s->is_ok = save_invoice( s->be, term_p );
     }

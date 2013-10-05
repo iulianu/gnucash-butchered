@@ -83,7 +83,7 @@ typedef const char * QofIdTypeConst;
 /** QofLogModule declaration */
 typedef const char* QofLogModule;
 
-typedef struct QofCollection_s QofCollection;
+class QofCollection;
 
 #include "qofinstance.h"
 
@@ -220,6 +220,9 @@ bool
 qof_collection_add_entity (QofCollection *coll, QofInstance *ent);
 
 void qof_collection_remove_entity (QofInstance *ent);
+
+void qof_collection_remove_entity_upon_destruction (QofCollection * col, GncGUID *guid);
+
 
 /** \brief Compare two secondary collections.
 

@@ -104,9 +104,9 @@ get_parent( gpointer pObject )
     const GncGUID* parent_guid;
 
     g_return_val_if_fail( pObject != NULL, NULL );
-    g_return_val_if_fail( GNC_IS_ACCOUNT(pObject), NULL );
+//    g_return_val_if_fail( GNC_IS_ACCOUNT(pObject), NULL );
 
-    pAccount = GNC_ACCOUNT(pObject);
+    pAccount = (Account*)(pObject);
     pParent = gnc_account_get_parent( pAccount );
     if ( pParent == NULL )
     {
@@ -129,9 +129,9 @@ set_parent( gpointer pObject, /*@ null @*/ gpointer pValue )
     Account* pParent;
 
     g_return_if_fail( pObject != NULL );
-    g_return_if_fail( GNC_IS_ACCOUNT(pObject) );
+//    g_return_if_fail( GNC_IS_ACCOUNT(pObject) );
 
-    pAccount = GNC_ACCOUNT(pObject);
+    pAccount = (Account*)(pObject);
     pBook = qof_instance_get_book( QOF_INSTANCE(pAccount) );
     if ( guid != NULL )
     {
@@ -329,7 +329,7 @@ create_account_tables( GncSqlBackend* be )
 gboolean
 gnc_sql_save_account( GncSqlBackend* be, QofInstance* inst )
 {
-    Account* pAcc = GNC_ACCOUNT(inst);
+    Account* pAcc = (Account*)(inst);
     const GncGUID* guid;
     gboolean is_infant;
     gboolean is_ok = FALSE;
@@ -338,7 +338,7 @@ gnc_sql_save_account( GncSqlBackend* be, QofInstance* inst )
 
     g_return_val_if_fail( be != NULL, FALSE );
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_ACCOUNT(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_ACCOUNT(inst), FALSE );
 
     ENTER( "inst=%p", inst );
 

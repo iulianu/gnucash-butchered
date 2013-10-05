@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <string.h>
+#include <typeinfo>
 
 #include "Account.h"
 #include "gnc-commodity.h"
@@ -41,327 +42,78 @@ static gint gs_address_event_handler_id = 0;
 static void listen_for_address_events(QofInstance *entity, QofEventId event_type,
                                       gpointer user_data, gpointer event_data);
 
-struct _gncEmployee
-{
-    QofInstance     inst;
-    char *          id;
-    char *          username;
-    GncAddress *    addr;
-    gnc_commodity * currency;
-    gboolean        active;
-
-    char *          language;
-    char *          acl;
-    gnc_numeric     workday;
-    gnc_numeric     rate;
-
-    Account *        ccard_acc;
-};
-
-struct _gncEmployeeClass
-{
-    QofInstanceClass parent_class;
-};
-
 static QofLogModule log_module = GNC_MOD_BUSINESS;
 
 #define _GNC_MOD_NAME        GNC_ID_EMPLOYEE
 
+GncEmployee::GncEmployee()
+{
+    id = NULL;
+    username = NULL;
+    addr = NULL;
+    currency = NULL;
+    active = false;
+    language = NULL;
+    acl = NULL;
+    workday = gnc_numeric_zero();
+    rate = gnc_numeric_zero();
+    ccard_acc = NULL;
+}
+
+GncEmployee::~GncEmployee()
+{
+    
+}
+
 G_INLINE_FUNC void mark_employee (GncEmployee *employee);
 void mark_employee (GncEmployee *employee)
 {
-    qof_instance_set_dirty(&employee->inst);
-    qof_event_gen (&employee->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(employee);
+    qof_event_gen (employee, QOF_EVENT_MODIFY, NULL);
 }
 
 /* ============================================================== */
 
-enum
-{
-    PROP_0,
-    PROP_USERNAME,
-    PROP_ID,
-    PROP_ACTIVE,
-    PROP_LANGUAGE,
-    PROP_CURRENCY,
-    PROP_ACL,
-    PROP_ADDRESS,
-    PROP_WORKDAY,
-    PROP_RATE,
-    PROP_CCARD
-};
-
-/* GObject Initialization */
-G_DEFINE_TYPE(GncEmployee, gnc_employee, QOF_TYPE_INSTANCE);
-
-static void
-gnc_employee_init(GncEmployee* emp)
-{
-}
-
-static void
-gnc_employee_dispose(GObject *empp)
-{
-    G_OBJECT_CLASS(gnc_employee_parent_class)->dispose(empp);
-}
-
-static void
-gnc_employee_finalize(GObject* empp)
-{
-    G_OBJECT_CLASS(gnc_employee_parent_class)->finalize(empp);
-}
-
-static void
-gnc_employee_get_property (GObject         *object,
-                           guint            prop_id,
-                           GValue          *value,
-                           GParamSpec      *pspec)
-{
-    GncEmployee *emp;
-
-    g_return_if_fail(GNC_IS_EMPLOYEE(object));
-
-    emp = GNC_EMPLOYEE(object);
-    switch (prop_id)
-    {
-    case PROP_USERNAME:
-        g_value_set_string(value, emp->username);
-        break;
-    case PROP_ID:
-        g_value_set_string(value, emp->id);
-        break;
-    case PROP_ACTIVE:
-        g_value_set_boolean(value, emp->active);
-        break;
-    case PROP_LANGUAGE:
-        g_value_set_string(value, emp->language);
-        break;
-    case PROP_CURRENCY:
-        g_value_set_object(value, emp->currency);
-        break;
-    case PROP_ACL:
-        g_value_set_string(value, emp->acl);
-        break;
-    case PROP_ADDRESS:
-        g_value_set_object(value, emp->addr);
-        break;
-    case PROP_WORKDAY:
-        g_value_set_boxed(value, &emp->workday);
-        break;
-    case PROP_RATE:
-        g_value_set_boxed(value, &emp->rate);
-        break;
-    case PROP_CCARD:
-        g_value_set_object(value, emp->ccard_acc);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_employee_set_property (GObject         *object,
-                           guint            prop_id,
-                           const GValue          *value,
-                           GParamSpec      *pspec)
-{
-    GncEmployee *emp;
-
-    g_return_if_fail(GNC_IS_EMPLOYEE(object));
-
-    emp = GNC_EMPLOYEE(object);
-    switch (prop_id)
-    {
-    case PROP_USERNAME:
-        gncEmployeeSetUsername(emp, g_value_get_string(value));
-        break;
-    case PROP_ID:
-        gncEmployeeSetID(emp, g_value_get_string(value));
-        break;
-    case PROP_ACTIVE:
-        gncEmployeeSetActive(emp, g_value_get_boolean(value));
-        break;
-    case PROP_LANGUAGE:
-        gncEmployeeSetLanguage(emp, g_value_get_string(value));
-        break;
-    case PROP_CURRENCY:
-        gncEmployeeSetCurrency(emp, g_value_get_object(value));
-        break;
-    case PROP_ACL:
-        gncEmployeeSetAcl(emp, g_value_get_string(value));
-        break;
-    case PROP_ADDRESS:
-        qofEmployeeSetAddr(emp, g_value_get_object(value));
-        break;
-    case PROP_WORKDAY:
-        gncEmployeeSetWorkday(emp, *(gnc_numeric*)g_value_get_boxed(value));
-        break;
-    case PROP_RATE:
-        gncEmployeeSetRate(emp, *(gnc_numeric*)g_value_get_boxed(value));
-        break;
-    case PROP_CCARD:
-        gncEmployeeSetCCard(emp, g_value_get_object(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-/** Does this object refer to a specific object */
-static gboolean
-impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
-{
-    GncEmployee* emp;
-
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_EMPLOYEE(inst), FALSE);
-
-    emp = GNC_EMPLOYEE(inst);
-
-    if (GNC_IS_COMMODITY(ref))
-    {
-        return (emp->currency == GNC_COMMODITY(ref));
-    }
-    else if (GNC_IS_ACCOUNT(ref))
-    {
-        return (emp->ccard_acc == GNC_ACCOUNT(ref));
-    }
-
-    return FALSE;
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    if (!GNC_IS_COMMODITY(ref) && !GNC_IS_ACCOUNT(ref))
-    {
-        return NULL;
-    }
-
-    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
-}
-
-static void
-gnc_employee_class_init (GncEmployeeClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_employee_dispose;
-    gobject_class->finalize = gnc_employee_finalize;
-    gobject_class->set_property = gnc_employee_set_property;
-    gobject_class->get_property = gnc_employee_get_property;
-
-    qof_class->get_display_name = NULL;
-    qof_class->refers_to_object = impl_refers_to_object;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_USERNAME,
-     g_param_spec_string ("username",
-                          "Employee Name",
-                          "The employee name is an arbitrary string "
-                          "assigned by the user which provides the employee "
-                          "name.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ID,
-     g_param_spec_string ("id",
-                          "Employee ID",
-                          "The employee ID is an arbitrary string "
-                          "assigned by the user which provides the employee "
-                          "ID.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ACTIVE,
-     g_param_spec_boolean ("active",
-                           "Active",
-                           "TRUE if the employee is active.  FALSE if inactive.",
-                           FALSE,
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_LANGUAGE,
-     g_param_spec_string ("language",
-                          "Employee Language",
-                          "The language is an arbitrary string "
-                          "assigned by the user which provides the language spoken "
-                          " by the employee.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_CURRENCY,
-     g_param_spec_object ("currency",
-                          "Currency",
-                          "The currency property denotes the currency used by this employee.",
-                          GNC_TYPE_COMMODITY,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ACL,
-     g_param_spec_string ("acl",
-                          "Employee ACL",
-                          "The acl is an arbitrary string "
-                          "assigned by the user which provides ??? "
-                          " for the employee.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ADDRESS,
-     g_param_spec_object ("address",
-                          "Address",
-                          "The address property contains the address information for this employee.",
-                          GNC_TYPE_ADDRESS,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_WORKDAY,
-     g_param_spec_boxed("workday",
-                        "Workday rate",
-                        "The daily rate for this employee.",
-                        GNC_TYPE_NUMERIC,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_RATE,
-     g_param_spec_boxed("rate",
-                        "Hourly rate",
-                        "The hourly rate for this employee.",
-                        GNC_TYPE_NUMERIC,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_CCARD,
-     g_param_spec_object ("credit-card-account",
-                          "Credit card account",
-                          "The credit card account for this employee.",
-                          GNC_TYPE_ACCOUNT,
-                          G_PARAM_READWRITE));
-}
+///** Does this object refer to a specific object */
+//static gboolean
+//impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
+//{
+//    GncEmployee* emp;
+//
+//    g_return_val_if_fail(inst != NULL, FALSE);
+////    g_return_val_if_fail(GNC_IS_EMPLOYEE(inst), FALSE);
+//
+//    emp = (GncEmployee*)(inst);
+//
+//    if (GNC_IS_COMMODITY(ref))
+//    {
+//        return (emp->currency == GNC_COMMODITY(ref));
+//    }
+//    else if (GNC_IS_ACCOUNT(ref))
+//    {
+//        return (emp->ccard_acc == GNC_ACCOUNT(ref));
+//    }
+//
+//    return FALSE;
+//}
+//
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    if (!GNC_IS_COMMODITY(ref) && !GNC_IS_ACCOUNT(ref))
+//    {
+//        return NULL;
+//    }
+//
+//    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
+//}
+//
 
 /* Create/Destroy Functions */
 GncEmployee *gncEmployeeCreate (QofBook *book)
@@ -370,14 +122,14 @@ GncEmployee *gncEmployeeCreate (QofBook *book)
 
     if (!book) return NULL;
 
-    employee = g_object_new (GNC_TYPE_EMPLOYEE, NULL);
-    qof_instance_init_data (&employee->inst, _GNC_MOD_NAME, book);
+    employee = new GncEmployee;// g_object_new (GNC_TYPE_EMPLOYEE, NULL);
+    qof_instance_init_data (employee, _GNC_MOD_NAME, book);
 
     employee->id = CACHE_INSERT ("");
     employee->username = CACHE_INSERT ("");
     employee->language = CACHE_INSERT ("");
     employee->acl = CACHE_INSERT ("");
-    employee->addr = gncAddressCreate (book, &employee->inst);
+    employee->addr = gncAddressCreate (book, employee);
     employee->workday = gnc_numeric_zero();
     employee->rate = gnc_numeric_zero();
     employee->active = TRUE;
@@ -387,7 +139,7 @@ GncEmployee *gncEmployeeCreate (QofBook *book)
         gs_address_event_handler_id = qof_event_register_handler(listen_for_address_events, NULL);
     }
 
-    qof_event_gen (&employee->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (employee, QOF_EVENT_CREATE, NULL);
 
     return employee;
 }
@@ -403,7 +155,7 @@ static void gncEmployeeFree (GncEmployee *employee)
 {
     if (!employee) return;
 
-    qof_event_gen (&employee->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (employee, QOF_EVENT_DESTROY, NULL);
 
     CACHE_REMOVE (employee->id);
     CACHE_REMOVE (employee->username);
@@ -413,7 +165,8 @@ static void gncEmployeeFree (GncEmployee *employee)
     gncAddressDestroy (employee->addr);
 
     /* qof_instance_release (&employee->inst); */
-    g_object_unref (employee);
+//    g_object_unref (employee);
+    delete employee;
 }
 
 /* ============================================================== */
@@ -635,7 +388,7 @@ gboolean gncEmployeeIsDirty (const GncEmployee *employee)
 
 void gncEmployeeBeginEdit (GncEmployee *employee)
 {
-    qof_begin_edit(&employee->inst);
+    qof_begin_edit(employee);
 }
 
 static void gncEmployeeOnError (QofInstance *employee, QofBackendError errcode)
@@ -646,13 +399,13 @@ static void gncEmployeeOnError (QofInstance *employee, QofBackendError errcode)
 
 static void gncEmployeeOnDone (QofInstance *inst)
 {
-    GncEmployee *employee = (GncEmployee *) inst;
+    GncEmployee *employee = dynamic_cast<GncEmployee *>(inst);
     gncAddressClearDirty (employee->addr);
 }
 
 static void emp_free (QofInstance *inst)
 {
-    GncEmployee *employee = (GncEmployee *) inst;
+    GncEmployee *employee = dynamic_cast<GncEmployee *>(inst);
     gncEmployeeFree (employee);
 }
 
@@ -660,7 +413,7 @@ static void emp_free (QofInstance *inst)
 void gncEmployeeCommitEdit (GncEmployee *employee)
 {
     if (!qof_commit_edit (QOF_INSTANCE(employee))) return;
-    qof_commit_edit_part2 (&employee->inst, gncEmployeeOnError,
+    qof_commit_edit_part2 (employee, gncEmployeeOnError,
                            gncEmployeeOnDone, emp_free);
 }
 
@@ -681,8 +434,8 @@ gboolean gncEmployeeEqual(const GncEmployee* a, const GncEmployee* b)
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL ) return FALSE;
 
-    g_return_val_if_fail(GNC_IS_EMPLOYEE(a), FALSE);
-    g_return_val_if_fail(GNC_IS_EMPLOYEE(b), FALSE);
+//    g_return_val_if_fail(GNC_IS_EMPLOYEE(a), FALSE);
+//    g_return_val_if_fail(GNC_IS_EMPLOYEE(b), FALSE);
 
     if (g_strcmp0(a->id, b->id) != 0)
     {
@@ -775,15 +528,18 @@ listen_for_address_events(QofInstance *entity, QofEventId event_type,
     {
         return;
     }
-    if (!GNC_IS_ADDRESS(entity))
+    if(!entity)
+        return;
+    if (typeid(*entity) != typeid(GncAddress))
     {
         return;
     }
-    if (!GNC_IS_EMPLOYEE(event_data))
-    {
-        return;
-    }
-    empl = GNC_EMPLOYEE(event_data);
+//    if (typeid(event_data) != typeid(GncEmployee*))
+//    {
+//        return;
+//    }
+    // TODO: insufficient type checks
+    empl = reinterpret_cast<GncEmployee*>(event_data);
     gncEmployeeBeginEdit(empl);
     mark_employee(empl);
     gncEmployeeCommitEdit(empl);
@@ -792,7 +548,7 @@ listen_for_address_events(QofInstance *entity, QofEventId event_type,
 static void
 destroy_employee_on_book_close(QofInstance *ent, gpointer data)
 {
-    GncEmployee* e = GNC_EMPLOYEE(ent);
+    GncEmployee* e = dynamic_cast<GncEmployee*>(ent);
 
     gncEmployeeBeginEdit(e);
     gncEmployeeDestroy(e);

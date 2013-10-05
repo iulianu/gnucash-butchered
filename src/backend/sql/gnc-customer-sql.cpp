@@ -170,7 +170,7 @@ static gboolean
 save_customer( GncSqlBackend* be, QofInstance* inst )
 {
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_CUSTOMER(inst), FALSE );
+    g_return_val_if_fail( (GncCustomer*)(inst), FALSE );
     g_return_val_if_fail( be != NULL, FALSE );
 
     return gnc_sql_commit_standard_item( be, inst, TABLE_NAME, GNC_ID_CUSTOMER, col_table );
@@ -206,10 +206,10 @@ write_single_customer( QofInstance *term_p, gpointer data_p )
     write_customers_t* data = (write_customers_t*)data_p;
 
     g_return_if_fail( term_p != NULL );
-    g_return_if_fail( GNC_IS_CUSTOMER(term_p) );
+//    g_return_if_fail( GNC_IS_CUSTOMER(term_p) );
     g_return_if_fail( data_p != NULL );
 
-    if ( customer_should_be_saved( GNC_CUSTOMER(term_p) ) && data->is_ok )
+    if ( customer_should_be_saved( (GncCustomer*)(term_p) ) && data->is_ok )
     {
         data->is_ok = save_customer( data->be, term_p );
     }

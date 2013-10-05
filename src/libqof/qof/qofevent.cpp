@@ -87,7 +87,7 @@ qof_event_register_handler (QofEventHandler handler, void * user_data)
     handler_id = find_next_handler_id();
 
     /* Found one, add the handler */
-    hi = g_new0 (HandlerInfo, 1);
+    hi = new HandlerInfo;//g_new0 (HandlerInfo, 1);
 
     hi->handler = handler;
     hi->user_data = user_data;
@@ -127,7 +127,8 @@ qof_event_unregister_handler (int handler_id)
         {
             handlers = g_list_remove_link (handlers, node);
             g_list_free_1 (node);
-            g_free (hi);
+//            g_free (hi);
+            delete hi;
         }
         else
         {
@@ -210,7 +211,8 @@ qof_event_generate_internal (QofInstance *entity, QofEventId event_id,
                 /* remove this node from the list, then free this node */
                 handlers = g_list_remove_link (handlers, node);
                 g_list_free_1 (node);
-                g_free (hi);
+//                g_free (hi);
+                delete hi;
             }
         }
         pending_deletes = 0;

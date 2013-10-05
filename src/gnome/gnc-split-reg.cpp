@@ -36,6 +36,7 @@
 #include "Account.h"
 #include "qof.h"
 #include "SX-book.h"
+#include "TransactionP.h"
 #include "dialog-account.h"
 #include "dialog-sx-editor.h"
 #include "dialog-sx-from-trans.h"

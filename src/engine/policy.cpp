@@ -181,7 +181,7 @@ xaccGetFIFOPolicy (void)
 
     if (!pcy)
     {
-        pcy = g_new (GNCPolicy, 1);
+        pcy = new GNCPolicy;//g_new (GNCPolicy, 1);
         pcy->PolicyGetLot = FIFOPolicyGetLot;
         pcy->PolicyGetSplit = FIFOPolicyGetSplit;
         pcy->PolicyGetLotOpening = FIFOPolicyGetLotOpening;

@@ -38,190 +38,26 @@ static GNCPrice *lookup_nearest_in_time(GNCPriceDB *db, const gnc_commodity *c,
                                         const gnc_commodity *currency,
                                         Timespec t, gboolean sameday);
 
-enum
-{
-    PROP_0,
-    PROP_COMMODITY,
-    PROP_CURRENCY,
-    PROP_DATE,
-    PROP_SOURCE,
-    PROP_TYPE,
-    PROP_VALUE
-};
-
-/* GObject Initialization */
-G_DEFINE_TYPE(GNCPrice, gnc_price, QOF_TYPE_INSTANCE);
-
-static void
-gnc_price_init(GNCPrice* price)
-{
-    price->refcount = 1;
-    price->value = gnc_numeric_zero();
-    price->type = NULL;
-    price->source = NULL;
-}
-
-static void
-gnc_price_dispose(GObject *pricep)
-{
-    G_OBJECT_CLASS(gnc_price_parent_class)->dispose(pricep);
-}
-
-static void
-gnc_price_finalize(GObject* pricep)
-{
-    G_OBJECT_CLASS(gnc_price_parent_class)->finalize(pricep);
-}
-
-static void
-gnc_price_get_property(GObject* object, guint prop_id, GValue* value, GParamSpec* pspec)
-{
-    GNCPrice* price;
-
-    g_return_if_fail(GNC_IS_PRICE(object));
-
-    price = GNC_PRICE(object);
-    switch (prop_id)
-    {
-    case PROP_SOURCE:
-        g_value_set_string(value, price->source);
-        break;
-    case PROP_TYPE:
-        g_value_set_string(value, price->type);
-        break;
-    case PROP_VALUE:
-        g_value_set_boxed(value, &price->value);
-        break;
-    case PROP_COMMODITY:
-        g_value_set_object(value, price->commodity);
-        break;
-    case PROP_CURRENCY:
-        g_value_set_object(value, price->currency);
-        break;
-    case PROP_DATE:
-        g_value_set_boxed(value, &price->tmspec);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_price_set_property(GObject* object, guint prop_id, const GValue* value, GParamSpec* pspec)
-{
-    GNCPrice* price;
-    gnc_numeric* number;
-    Timespec* ts;
-
-    g_return_if_fail(GNC_IS_PRICE(object));
-
-    price = GNC_PRICE(object);
-    switch (prop_id)
-    {
-    case PROP_SOURCE:
-        gnc_price_set_source(price, g_value_get_string(value));
-        break;
-    case PROP_TYPE:
-        gnc_price_set_typestr(price, g_value_get_string(value));
-        break;
-    case PROP_VALUE:
-        number = g_value_get_boxed(value);
-        gnc_price_set_value(price, *number);
-        break;
-    case PROP_COMMODITY:
-        gnc_price_set_commodity(price, g_value_get_object(value));
-        break;
-    case PROP_CURRENCY:
-        gnc_price_set_currency(price, g_value_get_object(value));
-        break;
-    case PROP_DATE:
-        ts = g_value_get_boxed(value);
-        gnc_price_set_time(price, *ts);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_price_class_init(GNCPriceClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-    gobject_class->dispose = gnc_price_dispose;
-    gobject_class->finalize = gnc_price_finalize;
-    gobject_class->set_property = gnc_price_set_property;
-    gobject_class->get_property = gnc_price_get_property;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_COMMODITY,
-     g_param_spec_object ("commodity",
-                          "Commodity",
-                          "The commodity field denotes the base kind of "
-                          "'stuff' for the units of this quote, whether "
-                          "it is USD, gold, stock, etc.",
-                          GNC_TYPE_COMMODITY,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_CURRENCY,
-     g_param_spec_object ("currency",
-                          "Currency",
-                          "The currency field denotes the external kind "
-                          "'stuff' for the units of this quote, whether "
-                          "it is USD, gold, stock, etc.",
-                          GNC_TYPE_COMMODITY,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_SOURCE,
-     g_param_spec_string ("source",
-                          "Price source",
-                          "The price source is a string describing the "
-                          "source of a price quote.  It will be something "
-                          "like this: 'Finance::Quote', 'user:misc', "
-                          "'user:foo', etc.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_TYPE,
-     g_param_spec_string ("type",
-                          "Quote type",
-                          "The quote type is a string describing the "
-                          "type of a price quote.  Types possible now "
-                          "are 'bid', 'ask', 'last', 'nav' and 'unknown'.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_DATE,
-     g_param_spec_boxed("date",
-                        "Date",
-                        "The date of the price quote.",
-                        GNC_TYPE_NUMERIC,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_VALUE,
-     g_param_spec_boxed("value",
-                        "Value",
-                        "The value of the price quote.",
-                        GNC_TYPE_NUMERIC,
-                        G_PARAM_READWRITE));
-}
-
 /* ==================================================================== */
 /* GNCPrice functions
  */
+
+GNCPrice::GNCPrice()
+{
+    db = NULL;
+    commodity = NULL;
+    currency = NULL;
+    tmspec = {0,0};
+    source = NULL;
+    type = NULL;
+    value = gnc_numeric_zero();
+    refcount = 1;
+}
+
+GNCPrice::~GNCPrice()
+{
+    // TODO
+}
 
 /* allocation */
 GNCPrice *
@@ -231,10 +67,10 @@ gnc_price_create (QofBook *book)
 
     g_return_val_if_fail (book, NULL);
 
-    p = g_object_new(GNC_TYPE_PRICE, NULL);
+    p = new GNCPrice; //g_object_new(GNC_TYPE_PRICE, NULL);
 
-    qof_instance_init_data (&p->inst, GNC_ID_PRICE, book);
-    qof_event_gen (&p->inst, QOF_EVENT_CREATE, NULL);
+    qof_instance_init_data (p, GNC_ID_PRICE, book);
+    qof_event_gen (p, QOF_EVENT_CREATE, NULL);
 
     return p;
 }
@@ -243,13 +79,14 @@ static void
 gnc_price_destroy (GNCPrice *p)
 {
     ENTER(" ");
-    qof_event_gen (&p->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (p, QOF_EVENT_DESTROY, NULL);
 
     if (p->type) CACHE_REMOVE(p->type);
     if (p->source) CACHE_REMOVE(p->source);
 
     /* qof_instance_release (&p->inst); */
-    g_object_unref(p);
+//    g_object_unref(p);
+    delete p;
     LEAVE (" ");
 }
 
@@ -326,7 +163,7 @@ gnc_price_clone (GNCPrice* p, QofBook *book)
 void
 gnc_price_begin_edit (GNCPrice *p)
 {
-    qof_begin_edit(&p->inst);
+    qof_begin_edit(p);
 }
 
 static void commit_err (QofInstance *inst, QofBackendError errcode)
@@ -341,7 +178,7 @@ void
 gnc_price_commit_edit (GNCPrice *p)
 {
     if (!qof_commit_edit (QOF_INSTANCE(p))) return;
-    qof_commit_edit_part2 (&p->inst, commit_err, noop, noop);
+    qof_commit_edit_part2 (p, commit_err, noop, noop);
 }
 
 /* ==================================================================== */
@@ -349,14 +186,14 @@ gnc_price_commit_edit (GNCPrice *p)
 void
 gnc_pricedb_begin_edit (GNCPriceDB *pdb)
 {
-    qof_begin_edit(&pdb->inst);
+    qof_begin_edit(pdb);
 }
 
 void
 gnc_pricedb_commit_edit (GNCPriceDB *pdb)
 {
     if (!qof_commit_edit (QOF_INSTANCE(pdb))) return;
-    qof_commit_edit_part2 (&pdb->inst, commit_err, noop, noop);
+    qof_commit_edit_part2 (pdb, commit_err, noop, noop);
 }
 
 /* ==================================================================== */
@@ -365,8 +202,8 @@ gnc_pricedb_commit_edit (GNCPriceDB *pdb)
 static void
 gnc_price_set_dirty (GNCPrice *p)
 {
-    qof_instance_set_dirty(&p->inst);
-    qof_event_gen(&p->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(p);
+    qof_event_gen(p, QOF_EVENT_MODIFY, NULL);
 }
 
 void
@@ -645,12 +482,13 @@ gnc_price_list_insert(PriceList **prices, GNCPrice *p, gboolean check_dupl)
 
     if (check_dupl)
     {
-        pStruct = g_new0( PriceListIsDuplStruct, 1 );
+        pStruct = new PriceListIsDuplStruct;//g_new0( PriceListIsDuplStruct, 1 );
         pStruct->pPrice = p;
         pStruct->isDupl = FALSE;
         g_list_foreach( *prices, price_list_is_duplicate, pStruct );
         isDupl = pStruct->isDupl;
-        g_free( pStruct );
+//        g_free( pStruct );
+        delete pStruct;
 
         if ( isDupl )
         {
@@ -733,23 +571,17 @@ gnc_price_list_equal(PriceList *prices1, PriceList *prices2)
    that the value is expressed in terms of.
  */
 
-/* GObject Initialization */
-QOF_GOBJECT_IMPL(gnc_pricedb, GNCPriceDB, QOF_TYPE_INSTANCE);
-
-static void
-gnc_pricedb_init(GNCPriceDB* pdb)
+GNCPriceDB::GNCPriceDB()
 {
+    commodity_hash = NULL;
+    bulk_update = false;
 }
 
-static void
-gnc_pricedb_dispose_real (GObject *pdbp)
+GNCPriceDB::~GNCPriceDB()
 {
+    // TODO
 }
 
-static void
-gnc_pricedb_finalize_real(GObject* pdbp)
-{
-}
 
 static GNCPriceDB *
 gnc_pricedb_create(QofBook * book)
@@ -770,8 +602,8 @@ gnc_pricedb_create(QofBook * book)
         return result;
     }
 
-    result = g_object_new(GNC_TYPE_PRICEDB, NULL);
-    qof_instance_init_data (&result->inst, GNC_ID_PRICEDB, book);
+    result = new GNCPriceDB;// g_object_new(GNC_TYPE_PRICEDB, NULL);
+    qof_instance_init_data (result, GNC_ID_PRICEDB, book);
     qof_collection_mark_clean(col);
 
     /** \todo This leaks result when the collection is destroyed.  When
@@ -829,7 +661,8 @@ gnc_pricedb_destroy(GNCPriceDB *db)
     g_hash_table_destroy (db->commodity_hash);
     db->commodity_hash = NULL;
     /* qof_instance_release (&db->inst); */
-    g_object_unref(db);
+//    g_object_unref(db);
+    delete db;
 }
 
 void
@@ -1026,7 +859,7 @@ add_price(GNCPriceDB *db, GNCPrice *p)
     }
     g_hash_table_insert(currency_hash, currency, price_list);
     p->db = db;
-    qof_event_gen (&p->inst, QOF_EVENT_ADD, NULL);
+    qof_event_gen (p, QOF_EVENT_ADD, NULL);
 
     LEAVE ("db=%p, pr=%p dirty=%d dextroying=%d commodity=%s/%s currency_hash=%p",
            db, p, qof_instance_get_dirty_flag(p),
@@ -1055,7 +888,7 @@ gnc_pricedb_add_price(GNCPriceDB *db, GNCPrice *p)
     }
 
     gnc_pricedb_begin_edit(db);
-    qof_instance_set_dirty(&db->inst);
+    qof_instance_set_dirty(db);
     gnc_pricedb_commit_edit(db);
 
     LEAVE ("db=%p, pr=%p dirty=%d destroying=%d",
@@ -1107,7 +940,7 @@ remove_price(GNCPriceDB *db, GNCPrice *p, gboolean cleanup)
         return FALSE;
     }
 
-    qof_event_gen (&p->inst, QOF_EVENT_REMOVE, NULL);
+    qof_event_gen (p, QOF_EVENT_REMOVE, NULL);
     price_list = g_hash_table_lookup(currency_hash, currency);
     gnc_price_ref(p);
     if (!gnc_price_list_remove(&price_list, p))
@@ -1158,7 +991,7 @@ gnc_pricedb_remove_price(GNCPriceDB *db, GNCPrice *p)
     gnc_price_ref(p);
     rc = remove_price (db, p, TRUE);
     gnc_pricedb_begin_edit(db);
-    qof_instance_set_dirty(&db->inst);
+    qof_instance_set_dirty(db);
     gnc_pricedb_commit_edit(db);
 
     /* invoke the backend to delete this price */
@@ -1308,7 +1141,7 @@ gnc_pricedb_lookup_latest(GNCPriceDB *db,
 
     if (!db || !commodity || !currency) return NULL;
     ENTER ("db=%p commodity=%p currency=%p", db, commodity, currency);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (be && be->price_lookup)
@@ -1372,7 +1205,7 @@ gnc_pricedb_lookup_latest_any_currency(GNCPriceDB *db,
 
     if (!db || !commodity) return NULL;
     ENTER ("db=%p commodity=%p", db, commodity);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (be && be->price_lookup)
@@ -1427,7 +1260,7 @@ gnc_pricedb_has_prices(GNCPriceDB *db,
 
     if (!db || !commodity) return FALSE;
     ENTER ("db=%p commodity=%p currency=%p", db, commodity, currency);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (book && be && be->price_lookup)
@@ -1479,7 +1312,7 @@ gnc_pricedb_get_prices(GNCPriceDB *db,
 
     if (!db || !commodity) return NULL;
     ENTER ("db=%p commodity=%p currency=%p", db, commodity, currency);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (be && be->price_lookup)
@@ -1571,7 +1404,7 @@ gnc_pricedb_lookup_at_time(GNCPriceDB *db,
 
     if (!db || !c || !currency) return NULL;
     ENTER ("db=%p commodity=%p currency=%p", db, c, currency);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (be && be->price_lookup)
@@ -1656,7 +1489,7 @@ lookup_nearest_in_time(GNCPriceDB *db,
 
     if (!db || !c || !currency) return NULL;
     ENTER ("db=%p commodity=%p currency=%p", db, c, currency);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (be && be->price_lookup)
@@ -1805,7 +1638,7 @@ gnc_pricedb_lookup_latest_before (GNCPriceDB *db,
 
     if (!db || !c || !currency) return NULL;
     ENTER ("db=%p commodity=%p currency=%p", db, c, currency);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (be && be->price_lookup)
@@ -1955,7 +1788,7 @@ gnc_pricedb_lookup_nearest_in_time_any_currency(GNCPriceDB *db,
 
     if (!db || !c) return NULL;
     ENTER ("db=%p commodity=%p", db, c);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (be && be->price_lookup)
@@ -2006,7 +1839,7 @@ gnc_pricedb_lookup_latest_before_any_currency(GNCPriceDB *db,
 
     if (!db || !c) return NULL;
     ENTER ("db=%p commodity=%p", db, c);
-    book = qof_instance_get_book(&db->inst);
+    book = qof_instance_get_book(db);
     be = qof_book_get_backend(book);
 #ifdef GNUCASH_MAJOR_VERSION
     if (be && be->price_lookup)

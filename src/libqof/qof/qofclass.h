@@ -230,7 +230,7 @@ void qof_class_register (QofIdTypeConst obj_name,
  */
 bool qof_class_is_registered (QofIdTypeConst obj_name);
 
-/** Return the core datatype of the specified object's parameter */
+///** Return the core datatype of the specified object's parameter */
 QofType qof_class_get_parameter_type (QofIdTypeConst obj_name,
                                       const char *param_name);
 
@@ -238,7 +238,7 @@ QofType qof_class_get_parameter_type (QofIdTypeConst obj_name,
 const QofParam * qof_class_get_parameter (QofIdTypeConst obj_name,
         const char *parameter);
 
-/** Return the object's parameter getter function */
+///** Return the object's parameter getter function */
 QofAccessFunc qof_class_get_parameter_getter (QofIdTypeConst obj_name,
         const char *parameter);
 

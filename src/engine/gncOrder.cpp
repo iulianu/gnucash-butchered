@@ -37,10 +37,9 @@
 #include "gncOwner.h"
 #include "gncOwnerP.h"
 
-struct _gncOrder
+class GncOrder : public QofInstance
 {
-    QofInstance inst;
-
+public:
     char *	id;
     char *	notes;
     gboolean 	active;
@@ -51,11 +50,20 @@ struct _gncOrder
     GList *	entries;
     Timespec 	opened;
     Timespec 	closed;
-};
-
-struct _gncOrderClass
-{
-    QofInstanceClass parent_class;
+    
+    GncOrder()
+    {
+        id = NULL;
+        notes = NULL;
+        active = false;
+        reference = NULL;
+        printname = NULL;
+        entries = NULL;
+        opened = {0,0};
+        closed = {0,0};
+    }
+    
+    virtual ~GncOrder() {}
 };
 
 static QofLogModule log_module = GNC_MOD_BUSINESS;
@@ -75,204 +83,25 @@ static QofLogModule log_module = GNC_MOD_BUSINESS;
 G_INLINE_FUNC void mark_order (GncOrder *order);
 void mark_order (GncOrder *order)
 {
-    qof_instance_set_dirty(&order->inst);
-    qof_event_gen (&order->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(order);
+    qof_event_gen (order, QOF_EVENT_MODIFY, NULL);
 }
 
 /* =============================================================== */
 
-enum
-{
-    PROP_0,
-    PROP_ID,
-    PROP_NOTES,
-    PROP_ACTIVE,
-    PROP_DATE_OPENED,
-    PROP_DATE_CLOSED,
-    PROP_REFERENCE
-};
-
-/* GObject Initialization */
-G_DEFINE_TYPE(GncOrder, gnc_order, QOF_TYPE_INSTANCE);
-
-static void
-gnc_order_init(GncOrder* order)
-{
-}
-
-static void
-gnc_order_dispose(GObject *orderp)
-{
-    G_OBJECT_CLASS(gnc_order_parent_class)->dispose(orderp);
-}
-
-static void
-gnc_order_finalize(GObject* orderp)
-{
-    G_OBJECT_CLASS(gnc_order_parent_class)->dispose(orderp);
-}
-
-static void
-gnc_order_get_property (GObject         *object,
-                        guint            prop_id,
-                        GValue          *value,
-                        GParamSpec      *pspec)
-{
-    GncOrder *priv;
-
-    g_return_if_fail(GNC_IS_ORDER(object));
-
-    priv = GNC_ORDER(object);
-    switch (prop_id)
-    {
-    case PROP_ID:
-        g_value_set_string(value, priv->id);
-        break;
-    case PROP_NOTES:
-        g_value_set_string(value, priv->notes);
-        break;
-    case PROP_ACTIVE:
-        g_value_set_boolean(value, priv->active);
-        break;
-    case PROP_DATE_OPENED:
-        g_value_set_boxed(value, &priv->opened);
-        break;
-    case PROP_DATE_CLOSED:
-        g_value_set_boxed(value, &priv->closed);
-        break;
-    case PROP_REFERENCE:
-        g_value_set_string(value, priv->reference);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_order_set_property (GObject         *object,
-                        guint            prop_id,
-                        const GValue          *value,
-                        GParamSpec      *pspec)
-{
-    GncOrder *order;
-
-    g_return_if_fail(GNC_IS_ORDER(object));
-
-    order = GNC_ORDER(object);
-    switch (prop_id)
-    {
-    case PROP_ID:
-        gncOrderSetID(order, g_value_get_string(value));
-        break;
-    case PROP_NOTES:
-        gncOrderSetNotes(order, g_value_get_string(value));
-        break;
-    case PROP_ACTIVE:
-        gncOrderSetActive(order, g_value_get_boolean(value));
-        break;
-    case PROP_DATE_OPENED:
-        gncOrderSetDateOpened(order, *(Timespec*)g_value_get_boxed(value));
-        break;
-    case PROP_DATE_CLOSED:
-        gncOrderSetDateClosed(order, *(Timespec*)g_value_get_boxed(value));
-        break;
-    case PROP_REFERENCE:
-        gncOrderSetReference(order, g_value_get_string(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    /* Refers to nothing */
-    return NULL;
-}
-
-static void
-gnc_order_class_init (GncOrderClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_order_dispose;
-    gobject_class->finalize = gnc_order_finalize;
-    gobject_class->set_property = gnc_order_set_property;
-    gobject_class->get_property = gnc_order_get_property;
-
-    qof_class->get_display_name = NULL;
-    qof_class->refers_to_object = NULL;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ID,
-     g_param_spec_string ("id",
-                          "Order ID",
-                          "The order id is an arbitrary string "
-                          "assigned by the user to identify the order.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NOTES,
-     g_param_spec_string ("notes",
-                          "Order Notes",
-                          "The order notes is an arbitrary string "
-                          "assigned by the user to provide notes about "
-                          "this order.",
-                          NULL,
-                          G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_ACTIVE,
-     g_param_spec_boolean ("active",
-                           "Active",
-                           "TRUE if the order is active.  FALSE if inactive.",
-                           FALSE,
-                           G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_DATE_OPENED,
-     g_param_spec_boxed("date-opened",
-                        "Date Opened",
-                        "The date the order was opened.",
-                        GNC_TYPE_TIMESPEC,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_DATE_CLOSED,
-     g_param_spec_boxed("date-closed",
-                        "Date Closed",
-                        "The date the order was closed.",
-                        GNC_TYPE_TIMESPEC,
-                        G_PARAM_READWRITE));
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_REFERENCE,
-     g_param_spec_string ("reference",
-                          "Order Reference",
-                          "The order reference is an arbitrary string "
-                          "assigned by the user to provide a reference for "
-                          "this order.",
-                          NULL,
-                          G_PARAM_READWRITE));
-}
+//
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    /* Refers to nothing */
+//    return NULL;
+//}
 
 /* Create/Destroy Functions */
 GncOrder *gncOrderCreate (QofBook *book)
@@ -281,8 +110,8 @@ GncOrder *gncOrderCreate (QofBook *book)
 
     if (!book) return NULL;
 
-    order = g_object_new (GNC_TYPE_ORDER, NULL);
-    qof_instance_init_data (&order->inst, _GNC_MOD_NAME, book);
+    order = new GncOrder; //g_object_new (GNC_TYPE_ORDER, NULL);
+    qof_instance_init_data (order, _GNC_MOD_NAME, book);
 
     order->id = CACHE_INSERT ("");
     order->notes = CACHE_INSERT ("");
@@ -290,7 +119,7 @@ GncOrder *gncOrderCreate (QofBook *book)
 
     order->active = TRUE;
 
-    qof_event_gen (&order->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (order, QOF_EVENT_CREATE, NULL);
 
     return order;
 }
@@ -306,7 +135,7 @@ static void gncOrderFree (GncOrder *order)
 {
     if (!order) return;
 
-    qof_event_gen (&order->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (order, QOF_EVENT_DESTROY, NULL);
 
     g_list_free (order->entries);
     CACHE_REMOVE (order->id);
@@ -316,7 +145,8 @@ static void gncOrderFree (GncOrder *order)
     if (order->printname) g_free (order->printname);
 
     /* qof_instance_release (&order->inst); */
-    g_object_unref (order);
+//    g_object_unref (order);
+    delete order;
 }
 
 /* =============================================================== */
@@ -484,7 +314,7 @@ gboolean gncOrderIsClosed (const GncOrder *order)
 
 void gncOrderBeginEdit (GncOrder *order)
 {
-    qof_begin_edit(&order->inst);
+    qof_begin_edit(order);
 }
 
 static void gncOrderOnError (QofInstance *order, QofBackendError errcode)
@@ -497,14 +327,14 @@ static void gncOrderOnDone (QofInstance *order) {}
 
 static void order_free (QofInstance *inst)
 {
-    GncOrder *order = (GncOrder *) inst;
+    GncOrder *order = dynamic_cast<GncOrder *>(inst);
     gncOrderFree (order);
 }
 
 void gncOrderCommitEdit (GncOrder *order)
 {
     if (!qof_commit_edit (QOF_INSTANCE(order))) return;
-    qof_commit_edit_part2 (&order->inst, gncOrderOnError,
+    qof_commit_edit_part2 (order, gncOrderOnError,
                            gncOrderOnDone, order_free);
 }
 

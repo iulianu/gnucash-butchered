@@ -52,7 +52,8 @@ new_object( QofIdType e_type, const char *type_label, MockFields field)
 {
     QofObject *object = NULL;
 
-    object = g_new0( QofObject, 1 );
+//    object = g_new0( QofObject, 1 );
+    object = new QofObject;
     g_assert( object );
     object->interface_version = QOF_OBJECT_VERSION;
     object->e_type = e_type;
@@ -91,7 +92,8 @@ setup( Fixture *fixture, gconstpointer pData )
 static void
 teardown( Fixture *fixture, gconstpointer pData )
 {
-    g_free( fixture->qofobject );
+//    g_free( fixture->qofobject );
+    delete fixture->qofobject;
     qof_object_shutdown();
 }
 
@@ -194,7 +196,8 @@ test_qof_object_register( Fixture *fixture, gconstpointer pData )
 
     g_list_foreach( books, (GFunc) qof_book_destroy, NULL );
     g_list_free( books );
-    g_free( simple_object );
+//    g_free( simple_object );
+    delete simple_object;
 }
 
 static void
@@ -313,7 +316,7 @@ test_qof_object_book_begin( Fixture *fixture, gconstpointer pData )
     g_test_message( "Test book begin with no objects" );
     g_assert_cmpint( 0, == , g_list_length( get_book_list() ) );
     object_book_begin_struct.call_count = 0;
-    book = g_object_new(QOF_TYPE_BOOK, NULL);
+    book = new QofBook; //g_object_new(QOF_TYPE_BOOK, NULL);
     g_assert( book );
     qof_object_book_begin( book );
     g_assert_cmpint( 1, == , g_list_length( get_book_list() ) );
@@ -326,7 +329,7 @@ test_qof_object_book_begin( Fixture *fixture, gconstpointer pData )
 
     g_test_message( "Test book begin with random objects registered and book begin set up" );
     g_assert_cmpint( 0, == , g_list_length( get_book_list() ) );
-    book2 = g_object_new(QOF_TYPE_BOOK, NULL);
+    book2 = new QofBook; //g_object_new(QOF_TYPE_BOOK, NULL);
     g_assert( book2 );
     object_book_begin_struct.book = book2;
     qof_object_book_begin( book2 );
@@ -476,9 +479,9 @@ mock_object_create( QofBook *book )
 {
     QofInstance *inst = NULL;
 
-    inst = g_object_new(QOF_TYPE_INSTANCE, NULL);
+    inst = new QofInstance; //g_object_new(QOF_TYPE_INSTANCE, NULL);
     g_assert( inst );
-    g_assert( QOF_IS_INSTANCE( inst ) );
+//    g_assert( QOF_IS_INSTANCE( inst ) );
     g_assert( book );
     g_assert( book == object_create_struct.book );
     object_create_struct.is_called = TRUE;
@@ -515,7 +518,8 @@ test_qof_object_new_instance( Fixture *fixture, gconstpointer pData )
     g_assert( object_create_struct.is_called == TRUE );
     g_assert( object_create_struct.inst == inst );
 
-    g_object_unref( inst );
+//    g_object_unref( inst );
+    delete inst;
     qof_book_destroy( book );
 }
 
@@ -698,8 +702,8 @@ test_qof_object_foreach_sorted( Fixture *fixture, gconstpointer pData )
     col = qof_book_get_collection( book, fixture->qofobject->e_type );
     for (i = 0; i < list_length; i++ )
     {
-        QofInstance * inst = g_object_new( QOF_TYPE_INSTANCE, NULL );
-        g_assert( QOF_IS_INSTANCE( inst ) );
+        QofInstance * inst = new QofInstance; //g_object_new( QOF_TYPE_INSTANCE, NULL );
+//        g_assert( QOF_IS_INSTANCE( inst ) );
         foreach_for_sorted_struct.instances = g_list_append( foreach_for_sorted_struct.instances, inst );
         qof_collection_insert_entity( col, inst );
     }

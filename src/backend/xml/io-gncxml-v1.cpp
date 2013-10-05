@@ -1417,8 +1417,8 @@ account_restore_after_child_handler(gpointer data_for_children,
     {
         kvp_frame *f = (kvp_frame *) child_result->data;
         g_return_val_if_fail(f, FALSE);
-        if (a->inst.kvp_data) kvp_frame_delete(a->inst.kvp_data);
-        a->inst.kvp_data = f;
+        if (a->kvp_data) kvp_frame_delete(a->kvp_data);
+        a->kvp_data = f;
         child_result->should_cleanup = FALSE;
     }
     else if (strcmp(child_result->tag, "currency") == 0)
@@ -3175,8 +3175,8 @@ txn_restore_split_after_child_handler(gpointer data_for_children,
     {
         kvp_frame *f = (kvp_frame *) child_result->data;
         g_return_val_if_fail(f, FALSE);
-        if (s->inst.kvp_data) kvp_frame_delete(s->inst.kvp_data);
-        s->inst.kvp_data = f;
+        if (s->kvp_data) kvp_frame_delete(s->kvp_data);
+        s->kvp_data = f;
         child_result->should_cleanup = FALSE;
     }
     else if (strcmp(child_result->tag, "quantity") == 0)

@@ -36,9 +36,7 @@ transaction and lot for the posted invoice.
 #ifndef GNC_INVOICE_H_
 #define GNC_INVOICE_H_
 
-struct _gncInvoice;
-typedef struct _gncInvoice GncInvoice;
-typedef struct _gncInvoiceClass GncInvoiceClass;
+class GncInvoice;
 typedef GList GncInvoiceList;
 
 #include "gncBillTerm.h"
@@ -65,20 +63,6 @@ typedef enum
                                         so I've added it to prevent unexpected errors */
     GNC_INVOICE_NUM_TYPES
 } GncInvoiceType;
-
-/* --- type macros --- */
-#define GNC_TYPE_INVOICE            (gnc_invoice_get_type ())
-#define GNC_INVOICE(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_INVOICE, GncInvoice))
-#define GNC_INVOICE_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_INVOICE, GncInvoiceClass))
-#define GNC_IS_INVOICE(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_INVOICE))
-#define GNC_IS_INVOICE_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_INVOICE))
-#define GNC_INVOICE_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_INVOICE, GncInvoiceClass))
-GType gnc_invoice_get_type(void);
 
 /** @name Create/Destroy Functions
  @{ */

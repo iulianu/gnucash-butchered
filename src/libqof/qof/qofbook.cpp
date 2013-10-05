@@ -50,7 +50,7 @@
 
 static QofLogModule log_module = QOF_MOD_ENGINE;
 
-QOF_GOBJECT_IMPL(qof_book, QofBook, QOF_TYPE_INSTANCE);
+//QOF_GOBJECT_IMPL(qof_book, QofBook, QOF_TYPE_INSTANCE);
 
 /* ====================================================================== */
 /* constructor / destructor */
@@ -60,25 +60,32 @@ static void coll_destroy(void * col)
     qof_collection_destroy((QofCollection *) col);
 }
 
-static void
-qof_book_init (QofBook *book)
+QofBook::QofBook()
 {
-    if (!book) return;
-
-    book->hash_of_collections = g_hash_table_new_full(
+    session_dirty = false;
+    dirty_time = 0;
+    dirty_cb = NULL;
+    dirty_data = NULL;
+    hash_of_collections = g_hash_table_new_full(
                                     g_str_hash, g_str_equal,
                                     (GDestroyNotify)qof_string_cache_remove,  /* key_destroy_func   */
                                     coll_destroy);                            /* value_destroy_func */
 
-    qof_instance_init_data (&book->inst, QOF_ID_BOOK, book);
+    qof_instance_init_data (this, QOF_ID_BOOK, this);
 
-    book->data_tables = g_hash_table_new (g_str_hash, g_str_equal);
-    book->data_table_finalizers = g_hash_table_new (g_str_hash, g_str_equal);
+    data_tables = g_hash_table_new (g_str_hash, g_str_equal);
+    data_table_finalizers = g_hash_table_new (g_str_hash, g_str_equal);
 
-    book->book_open = 'y';
-    book->read_only = false;
-    book->session_dirty = false;
-    book->version = 0;
+    read_only = false;
+    book_open = 'y';
+    shutting_down = false;
+    version = 0;
+    backend = NULL;
+}
+
+QofBook::~QofBook()
+{
+    // TODO
 }
 
 QofBook *
@@ -87,10 +94,10 @@ qof_book_new (void)
     QofBook *book;
 
     ENTER (" ");
-    book = g_object_new(QOF_TYPE_BOOK, NULL);
+    book = new QofBook;// g_object_new(QOF_TYPE_BOOK, NULL);
     qof_object_book_begin (book);
 
-    qof_event_gen (&book->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (book, QOF_EVENT_CREATE, NULL);
     LEAVE ("book=%p", book);
     return book;
 }
@@ -124,7 +131,7 @@ qof_book_destroy (QofBook *book)
     ENTER ("book=%p", book);
 
     book->shutting_down = true;
-    qof_event_force (&book->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_force (book, QOF_EVENT_DESTROY, NULL);
 
     /* Call the list of finalizers, let them do their thing.
      * Do this before tearing into the rest of the book.
@@ -146,11 +153,11 @@ qof_book_destroy (QofBook *book)
      * been destroyed.
      */
     cols = book->hash_of_collections;
-    g_object_unref (book);
+//    g_object_unref (book);
+    LEAVE ("book=%p", book);
+    delete book;
     g_hash_table_destroy (cols);
     /*book->hash_of_collections = NULL;*/
-
-    LEAVE ("book=%p", book);
 }
 /* ====================================================================== */
 
@@ -724,7 +731,7 @@ qof_book_set_string_option(QofBook* book, const char* opt_name, const char* opt_
 void
 qof_book_begin_edit (QofBook *book)
 {
-    qof_begin_edit(&book->inst);
+    qof_begin_edit(book);
 }
 
 static void commit_err (QofInstance *inst, QofBackendError errcode)
@@ -739,7 +746,7 @@ void
 qof_book_commit_edit(QofBook *book)
 {
     if (!qof_commit_edit (QOF_INSTANCE(book))) return;
-    qof_commit_edit_part2 (&book->inst, commit_err, noop, noop/*lot_free*/);
+    qof_commit_edit_part2 (book, commit_err, noop, noop/*lot_free*/);
 }
 
 /* QofObject function implementation and registration */

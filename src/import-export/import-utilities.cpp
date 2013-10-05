@@ -33,6 +33,8 @@
 #include "qof.h"
 #include "Account.h"
 #include "Transaction.h"
+#include "AccountP.h"
+#include "TransactionP.h"
 
 
 /********************************************************************\

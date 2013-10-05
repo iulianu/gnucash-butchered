@@ -26,6 +26,8 @@
 #include "gnc-gconf-utils.h"
 #include "gnc-engine.h"
 #include "gnc-ui-util.h"
+#include <typeinfo>
+#include "AccountP.h"
 
 /* This static indicates the debugging module that this .o belongs to. */
 static QofLogModule log_module = GNC_MOD_REGISTER;
@@ -248,9 +250,13 @@ listen_for_account_events  (QofInstance *entity,  QofEventId event_type,
     if (0 == (event_type & (QOF_EVENT_MODIFY | QOF_EVENT_ADD | QOF_EVENT_REMOVE)))
         return;
 
-    if (!GNC_IS_ACCOUNT (entity))
+//    if (!GNC_IS_ACCOUNT (entity))
+//        return;
+    if(!entity)
         return;
-    account = GNC_ACCOUNT (entity);
+    if(typeid(*entity) != typeid(Account))
+        return;
+    account = dynamic_cast<Account*>(entity);
 
     ENTER("entity %p, event type %x, user data %p, ecent data %p",
           entity, event_type, user_data, event_data);

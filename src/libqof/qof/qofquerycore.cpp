@@ -122,6 +122,74 @@ static GHashTable *predEqualTable = NULL;
                                 PREDICATE_ERROR); \
 }
 
+
+QofQueryPredData::QofQueryPredData()
+{
+    type_name = 0;
+    how = 0;
+}
+
+query_string_def::query_string_def()
+{
+    options = 0;
+    is_regex = false;
+    matchstring = NULL;
+}
+query_date_def::query_date_def()
+{
+    options = 0;
+    date = {0,0};
+}
+query_numeric_def::query_numeric_def()
+{
+    options = 0;
+    amount = gnc_numeric_zero();
+}
+query_guid_def::query_guid_def()
+{
+    options = 0;
+    guids = NULL;
+}
+query_int32_def::query_int32_def()
+{
+    val = 0;
+}
+query_int64_def::query_int64_def()
+{
+    val = 0;
+}
+query_double_def::query_double_def()
+{
+    val = 0;
+}
+query_boolean_def::query_boolean_def()
+{
+    val = false;
+}
+query_char_def::query_char_def()
+{
+    options = 0;
+    char_list = NULL;
+}
+query_kvp_def::query_kvp_def()
+{
+    path = NULL;
+    value = NULL;
+}
+query_coll_def::query_coll_def()
+{
+    options = 0;
+    coll = NULL;
+    guids = NULL;
+}
+query_choice_def::query_choice_def()
+{
+    options = 0;
+    guid = NULL;
+    guids = NULL;
+}
+
+
 /* *******************************************************************/
 /* TYPE-HANDLING FUNCTIONS */
 
@@ -222,7 +290,7 @@ qof_string_number_compare_func (void * a, void * b, int options,
 static void
 string_free_pdata (QofQueryPredData *pd)
 {
-    query_string_t pdata = (query_string_t) pd;
+    query_string_t pdata = reinterpret_cast<query_string_t>(pd);
 
     VERIFY_PDATA (query_string_type);
 
@@ -230,7 +298,9 @@ string_free_pdata (QofQueryPredData *pd)
         regfree (&pdata->compiled);
 
     g_free (pdata->matchstring);
-    g_free (pdata);
+//    g_free (pdata);
+//    delete pdata->matchstring;
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -267,7 +337,7 @@ qof_query_string_predicate (QofQueryCompare how,
     g_return_val_if_fail (*str != '\0', NULL);
     g_return_val_if_fail (how == QOF_COMPARE_EQUAL || how == QOF_COMPARE_NEQ, NULL);
 
-    pdata = g_new0 (query_string_def, 1);
+    pdata = new query_string_def;//g_new0 (query_string_def, 1);
     pdata->pd.type_name = query_string_type;
     pdata->pd.how = how;
     pdata->options = options;
@@ -284,7 +354,9 @@ qof_query_string_predicate (QofQueryCompare how,
         if (rc)
         {
             g_free(pdata->matchstring);
-            g_free(pdata);
+//            g_free(pdata);
+//            delete pdata->matchstring;
+            delete pdata;
             return NULL;
         }
         pdata->is_regex = TRUE;
@@ -381,7 +453,8 @@ date_free_pdata (QofQueryPredData *pd)
 
     VERIFY_PDATA (query_date_type);
 
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -410,7 +483,7 @@ qof_query_date_predicate (QofQueryCompare how,
 {
     query_date_t pdata;
 
-    pdata = g_new0 (query_date_def, 1);
+    pdata = new query_date_def;//g_new0 (query_date_def, 1);
     pdata->pd.type_name = query_date_type;
     pdata->pd.how = how;
     pdata->options = options;
@@ -519,7 +592,8 @@ numeric_free_pdata (QofQueryPredData* pd)
 {
     query_numeric_t pdata = (query_numeric_t)pd;
     VERIFY_PDATA (query_numeric_type);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -546,7 +620,7 @@ qof_query_numeric_predicate (QofQueryCompare how,
                              gnc_numeric value)
 {
     query_numeric_t pdata;
-    pdata = g_new0 (query_numeric_def, 1);
+    pdata = new query_numeric_def;// g_new0 (query_numeric_def, 1);
     pdata->pd.type_name = query_numeric_type;
     pdata->pd.how = how;
     pdata->options = options;
@@ -696,7 +770,8 @@ guid_free_pdata (QofQueryPredData *pd)
         guid_free (node->data);
     }
     g_list_free (pdata->guids);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -734,7 +809,7 @@ qof_query_guid_predicate (QofGuidMatch options, GList *guid_list)
     if (!guid_list)
         g_return_val_if_fail (options == QOF_GUID_MATCH_NULL, NULL);
 
-    pdata = g_new0 (query_guid_def, 1);
+    pdata = new query_guid_def;// g_new0 (query_guid_def, 1);
     pdata->pd.how = QOF_COMPARE_EQUAL;
     pdata->pd.type_name = query_guid_type;
     pdata->options = options;
@@ -803,7 +878,8 @@ int32_free_pdata (QofQueryPredData *pd)
 {
     query_int32_t pdata = (query_int32_t)pd;
     VERIFY_PDATA (query_int32_type);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -826,7 +902,7 @@ int32_predicate_equal (const QofQueryPredData *p1, const QofQueryPredData *p2)
 QofQueryPredData *
 qof_query_int32_predicate (QofQueryCompare how, int32_t val)
 {
-    query_int32_t pdata = g_new0 (query_int32_def, 1);
+    query_int32_t pdata = new query_int32_def;//g_new0 (query_int32_def, 1);
     pdata->pd.type_name = query_int32_type;
     pdata->pd.how = how;
     pdata->val = val;
@@ -895,7 +971,8 @@ int64_free_pdata (QofQueryPredData *pd)
 {
     query_int64_t pdata = (query_int64_t)pd;
     VERIFY_PDATA (query_int64_type);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -918,7 +995,7 @@ int64_predicate_equal (const QofQueryPredData *p1, const QofQueryPredData *p2)
 QofQueryPredData *
 qof_query_int64_predicate (QofQueryCompare how, int64_t val)
 {
-    query_int64_t pdata = g_new0 (query_int64_def, 1);
+    query_int64_t pdata = new query_int64_def;//g_new0 (query_int64_def, 1);
     pdata->pd.type_name = query_int64_type;
     pdata->pd.how = how;
     pdata->val = val;
@@ -987,7 +1064,8 @@ double_free_pdata (QofQueryPredData *pd)
 {
     query_double_t pdata = (query_double_t)pd;
     VERIFY_PDATA (query_double_type);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -1010,7 +1088,7 @@ double_predicate_equal (const QofQueryPredData *p1, const QofQueryPredData *p2)
 QofQueryPredData *
 qof_query_double_predicate (QofQueryCompare how, double val)
 {
-    query_double_t pdata = g_new0 (query_double_def, 1);
+    query_double_t pdata = new query_double_def;//g_new0 (query_double_def, 1);
     pdata->pd.type_name = query_double_type;
     pdata->pd.how = how;
     pdata->val = val;
@@ -1068,7 +1146,8 @@ boolean_free_pdata (QofQueryPredData *pd)
 {
     query_boolean_t pdata = (query_boolean_t)pd;
     VERIFY_PDATA (query_boolean_type);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -1094,7 +1173,7 @@ qof_query_boolean_predicate (QofQueryCompare how, bool val)
     query_boolean_t pdata;
     g_return_val_if_fail (how == QOF_COMPARE_EQUAL || how == QOF_COMPARE_NEQ, NULL);
 
-    pdata = g_new0 (query_boolean_def, 1);
+    pdata = new query_boolean_def;//g_new0 (query_boolean_def, 1);
     pdata->pd.type_name = query_boolean_type;
     pdata->pd.how = how;
     pdata->val = val;
@@ -1152,7 +1231,9 @@ char_free_pdata (QofQueryPredData *pd)
     query_char_t pdata = (query_char_t)pd;
     VERIFY_PDATA (query_char_type);
     g_free (pdata->char_list);
-    g_free (pdata);
+//    g_free (pdata);
+//    delete pdata->char_list;
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -1178,7 +1259,7 @@ qof_query_char_predicate (QofCharMatch options, const char *chars)
 {
     query_char_t pdata;
     g_return_val_if_fail (chars, NULL);
-    pdata = g_new0 (query_char_def, 1);
+    pdata = new query_char_def;//g_new0 (query_char_def, 1);
     pdata->pd.type_name = query_char_type;
     pdata->pd.how = QOF_COMPARE_EQUAL;
     pdata->options = options;
@@ -1250,11 +1331,12 @@ kvp_free_pdata (QofQueryPredData *pd)
     kvp_value_delete (pdata->value);
     for (node = pdata->path; node; node = node->next)
     {
-        g_free (node->data);
+        delete (node->data);
         node->data = NULL;
     }
     g_slist_free (pdata->path);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -1296,7 +1378,7 @@ qof_query_kvp_predicate (QofQueryCompare how,
 
     g_return_val_if_fail (path && value, NULL);
 
-    pdata = g_new0 (query_kvp_def, 1);
+    pdata = new query_kvp_def;//g_new0 (query_kvp_def, 1);
     pdata->pd.type_name = query_kvp_type;
     pdata->pd.how = how;
     pdata->value = kvp_value_copy (value);
@@ -1461,7 +1543,8 @@ collect_free_pdata (QofQueryPredData *pd)
     }
     qof_collection_destroy(pdata->coll);
     g_list_free (pdata->guids);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -1505,7 +1588,7 @@ qof_query_collect_predicate (QofGuidMatch options, QofCollection *coll)
     query_coll_t pdata;
 
     g_return_val_if_fail (coll, NULL);
-    pdata = g_new0 (query_coll_def, 1);
+    pdata = new query_coll_def;//g_new0 (query_coll_def, 1);
     pdata->pd.type_name = query_collect_type;
     pdata->options = options;
     qof_collection_foreach(coll, query_collect_cb, pdata);
@@ -1629,7 +1712,8 @@ choice_free_pdata (QofQueryPredData *pd)
         guid_free (node->data);
     }
     g_list_free (pdata->guids);
-    g_free (pdata);
+//    g_free (pdata);
+    delete pdata;
 }
 
 static QofQueryPredData *
@@ -1665,7 +1749,7 @@ qof_query_choice_predicate (QofGuidMatch options, GList *guid_list)
 
     if (NULL == guid_list) return NULL;
 
-    pdata = g_new0 (query_choice_def, 1);
+    pdata = new query_choice_def;//g_new0 (query_choice_def, 1);
     pdata->pd.how = QOF_COMPARE_EQUAL;
     pdata->pd.type_name = query_choice_type;
     pdata->options = options;

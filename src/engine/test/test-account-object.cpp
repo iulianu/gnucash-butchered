@@ -40,7 +40,7 @@ run_test (void)
     QofSession *sess;
     QofBook *book;
     Account *acc;
-    gnc_numeric *start, *end, end2, delta, five;
+    gnc_numeric start, end2, delta, five;
 
     sess = get_random_session ();
     book = qof_session_get_book (sess);
@@ -49,25 +49,29 @@ run_test (void)
 
     /*****/
 
-    g_object_get(acc, "start-balance", &start, "end-balance", &end, NULL);
+//    g_object_get(acc, "start-balance", &start, "end-balance", &end, NULL);
+    start = gnc_account_get_start_balance(acc);
     end2 = xaccAccountGetBalance(acc);
-    delta = gnc_numeric_sub(*end, *start, GNC_DENOM_AUTO, GNC_HOW_DENOM_FIXED);
+//    delta = gnc_numeric_sub(end, start, GNC_DENOM_AUTO, GNC_HOW_DENOM_FIXED);
+    delta = gnc_numeric_sub(end2, start, GNC_DENOM_AUTO, GNC_HOW_DENOM_FIXED);
 
-    do_test (gnc_numeric_zero_p(*start), "start balance is zero");
-    do_test (gnc_numeric_zero_p(*end), "end balance is zero");
+    do_test (gnc_numeric_zero_p(start), "start balance is zero");
+//    do_test (gnc_numeric_zero_p(end), "end balance is zero");
     do_test (gnc_numeric_zero_p(delta), "delta is zero");
     do_test (gnc_numeric_zero_p(end2), "end2 balance is zero");
 
     /*****/
 
     five = gnc_numeric_create(5, 1);
-    g_object_set(acc, "start-balance", &five, NULL);
+//    g_object_set(acc, "start-balance", &five, NULL);
+    gnc_account_set_start_balance(acc, five);
     xaccAccountRecomputeBalance(acc);
-    g_object_get(acc, "start-balance", &start, "end-balance", &end, NULL);
+//    g_object_get(acc, "start-balance", &start, "end-balance", &end, NULL);
+    start = gnc_account_get_start_balance(acc);
     end2 = xaccAccountGetBalance(acc);
 
-    delta = gnc_numeric_sub(*end, five, GNC_DENOM_AUTO, GNC_HOW_DENOM_FIXED);
-    do_test (gnc_numeric_zero_p(delta), "end balance matches");
+//    delta = gnc_numeric_sub(end, five, GNC_DENOM_AUTO, GNC_HOW_DENOM_FIXED);
+//    do_test (gnc_numeric_zero_p(delta), "end balance matches");
     delta = gnc_numeric_sub(end2, five, GNC_DENOM_AUTO, GNC_HOW_DENOM_FIXED);
     do_test (gnc_numeric_zero_p(delta), "end2 balance matches");
 

@@ -515,12 +515,5 @@ bool gnc_numeric_to_decimal(gnc_numeric * a,
                                 uint8_t * max_decimal_places);
 /** @} */
 
-/** @name GValue
-  @{
-*/
-GType gnc_numeric_get_type( void );
-#define GNC_TYPE_NUMERIC (gnc_numeric_get_type ())
-
-/** @} */
 /** @} */
 #endif

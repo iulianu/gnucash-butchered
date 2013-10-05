@@ -149,9 +149,9 @@ get_split_reconcile_state( gpointer pObject )
     static gchar c[2];
 
     g_return_val_if_fail( pObject != NULL, NULL );
-    g_return_val_if_fail( GNC_IS_SPLIT(pObject), NULL );
+//    g_return_val_if_fail( GNC_IS_SPLIT(pObject), NULL );
 
-    c[0] = xaccSplitGetReconcile( GNC_SPLIT(pObject) );
+    c[0] = xaccSplitGetReconcile( (Split*)(pObject) );
     c[1] = '\0';
     return (gpointer)c;
 }
@@ -162,19 +162,19 @@ set_split_reconcile_state( gpointer pObject, /*@ null @*/ gpointer pValue )
     const gchar* s = (const gchar*)pValue;
 
     g_return_if_fail( pObject != NULL );
-    g_return_if_fail( GNC_IS_SPLIT(pObject) );
+//    g_return_if_fail( GNC_IS_SPLIT(pObject) );
     g_return_if_fail( pValue != NULL );
 
-    xaccSplitSetReconcile( GNC_SPLIT(pObject), s[0] );
+    xaccSplitSetReconcile( (Split*)(pObject), s[0] );
 }
 #if 0 /* Not Used */
 static void
 set_split_reconcile_date( gpointer pObject, Timespec ts )
 {
     g_return_if_fail( pObject != NULL );
-    g_return_if_fail( GNC_IS_SPLIT(pObject) );
+//    g_return_if_fail( GNC_IS_SPLIT(pObject) );
 
-    xaccSplitSetDateReconciledTS( GNC_SPLIT(pObject), &ts );
+    xaccSplitSetDateReconciledTS( (Split*)(pObject), &ts );
 }
 #endif
 
@@ -185,14 +185,14 @@ set_split_lot( gpointer pObject, /*@ null @*/ gpointer pLot )
     Split* split;
 
     g_return_if_fail( pObject != NULL );
-    g_return_if_fail( GNC_IS_SPLIT(pObject) );
+//    g_return_if_fail( GNC_IS_SPLIT(pObject) );
 
     if ( pLot == NULL ) return;
 
-    g_return_if_fail( GNC_IS_LOT(pLot) );
+//    g_return_if_fail( GNC_IS_LOT(pLot) );
 
-    split = GNC_SPLIT(pObject);
-    lot = GNC_LOT(pLot);
+    split = (Split*)(pObject);
+    lot = (GNCLot*)(pLot);
     gnc_lot_add_split( lot, split );
 }
 
@@ -426,7 +426,7 @@ query_transactions( GncSqlBackend* be, GncSqlStatement* stmt )
         // Commit all of the transactions
         for ( node = tx_list; node != NULL; node = node->next )
         {
-            Transaction* pTx = GNC_TRANSACTION(node->data);
+            Transaction* pTx = (Transaction*)(node->data);
             xaccTransCommitEdit( pTx );
         }
         g_list_free( tx_list );
@@ -573,10 +573,10 @@ static void
 delete_split_slots_cb( gpointer data, gpointer user_data )
 {
     split_info_t* split_info = (split_info_t*)user_data;
-    Split* pSplit = GNC_SPLIT(data);
+    Split* pSplit = (Split*)(data);
 
     g_return_if_fail( data != NULL );
-    g_return_if_fail( GNC_IS_SPLIT(data) );
+//    g_return_if_fail( GNC_IS_SPLIT(data) );
     g_return_if_fail( user_data != NULL );
 
     if ( split_info->is_ok )
@@ -660,10 +660,10 @@ static void
 save_split_cb( gpointer data, gpointer user_data )
 {
     split_info_t* split_info = (split_info_t*)user_data;
-    Split* pSplit = GNC_SPLIT(data);
+    Split* pSplit = (Split*)(data);
 
     g_return_if_fail( data != NULL );
-    g_return_if_fail( GNC_IS_SPLIT(data) );
+//    g_return_if_fail( GNC_IS_SPLIT(data) );
     g_return_if_fail( user_data != NULL );
 
     if ( split_info->is_ok )
@@ -804,9 +804,9 @@ gnc_sql_save_transaction( GncSqlBackend* be, QofInstance* inst )
 {
     g_return_val_if_fail( be != NULL, FALSE );
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_TRANS(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_TRANS(inst), FALSE );
 
-    return save_transaction( be, GNC_TRANS(inst), /* do_save_splits */TRUE );
+    return save_transaction( be, (Transaction*)(inst), /* do_save_splits */TRUE );
 }
 
 static gboolean
@@ -814,9 +814,9 @@ commit_transaction( GncSqlBackend* be, QofInstance* inst )
 {
     g_return_val_if_fail( be != NULL, FALSE );
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_TRANS(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_TRANS(inst), FALSE );
 
-    return save_transaction( be, GNC_TRANS(inst), /* do_save_splits */FALSE );
+    return save_transaction( be, (Transaction*)(inst), /* do_save_splits */FALSE );
 }
 
 /* ================================================================= */

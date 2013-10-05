@@ -30,6 +30,7 @@
 #include "../AccountP.h"
 #include "../Split.h"
 #include "../Transaction.h"
+#include "../TransactionP.h"
 #include "../gnc-lot.h"
 
 
@@ -279,7 +280,7 @@ insert_split (Account *parent, Transaction *txn, SplitParms *p)
     if (p->lotnum > g_list_length (lotlist))
         lot = gnc_lot_new (book);
     else
-        lot = GNC_LOT (g_list_nth_data (lotlist, p->lotnum - 1));
+        lot = reinterpret_cast<GNCLot*> (g_list_nth_data (lotlist, p->lotnum - 1));
 
     gnc_lot_add_split (lot, split);
     return split;
@@ -370,7 +371,8 @@ teardown ( Fixture *fixture, gconstpointer pData)
     Account *child = fixture->acct;
     qof_book_destroy (gnc_account_get_book (child));
     /* No need to free the last account, qof_book_destroy did that */
-    g_free (fixture->func);
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 
 
@@ -531,7 +533,7 @@ gnc_account_init (Account* acc)// 1
 static void
 test_gnc_account_create_and_destroy (void)
 {
-    Account *acc = g_object_new (GNC_TYPE_ACCOUNT, NULL);
+    Account *acc = new Account; //g_object_new (GNC_TYPE_ACCOUNT, NULL);
     gchar *name, *fname, *code, *desc, *color, *notes, *tax_code, *tax_src;
     GNCAccountType type;
     gnc_commodity *commo;
@@ -610,11 +612,11 @@ test_gnc_account_create_and_destroy (void)
     g_free (tax_code);
     g_free (tax_src);
 
-    g_object_unref (acc);
-    /* There's no good way to test that the object has been properly
-     * destroyed; on the other hand, that's GObject's job.
-     */
-
+//    g_object_unref (acc);
+//    /* There's no good way to test that the object has been properly
+//     * destroyed; on the other hand, that's GObject's job.
+//     */
+    delete acc;
 }
 /* xaccInitAccount
 static void
@@ -683,8 +685,10 @@ test_gnc_book_set_get_root_account (Fixture *fixture, gconstpointer pData)
     /* acc1 gets freed by setting the root accout to acc2
         g_object_unref (acc1);
     */
-    g_object_unref (book1);
-    g_object_unref (acc2);
+//    g_object_unref (book1);
+//    g_object_unref (acc2);
+    delete book1;
+    delete acc2;
 }
 
 /* xaccMallocAccount
@@ -700,8 +704,10 @@ test_xaccMallocAccount (void)
     g_assert (acc != NULL);
     test_signal_assert_hits (signal, 1);
     test_signal_free (signal);
-    g_object_unref (book);
-    g_object_unref (acc);
+//    g_object_unref (book);
+//    g_object_unref (acc);
+    delete book;
+    delete acc;
 }
 
 /* gnc_account_create_root
@@ -723,9 +729,12 @@ test_gnc_account_create_root (void)
     g_object_get (acc, "name", &name, NULL);
     g_assert_cmpstr (name, == , "Root Account");
     g_assert (gnc_book_get_root_account (book) == acc);
-    g_object_unref (book);
-    g_object_unref (acc);
-    g_free (func);
+//    g_object_unref (book);
+//    g_object_unref (acc);
+    delete book;
+    delete acc;
+//    g_free (func);
+    delete func;
     g_free (name);
 }
 /* xaccCloneAccountCommon
@@ -762,13 +771,14 @@ test_xaccCloneAccount (Fixture *fixture, gconstpointer pData)
     g_assert (clone_p->accountName == acct_p->accountName);
     g_assert (clone_p->accountCode == acct_p->accountCode);
     g_assert (clone_p->description == acct_p->description);
-    g_assert (kvp_frame_compare (clone->inst.kvp_data,
-                                 fixture->acct->inst.kvp_data) == 0);
+    g_assert (kvp_frame_compare (clone->kvp_data,
+                                 fixture->acct->kvp_data) == 0);
     g_assert (gnc_commodity_equal (clone_p->commodity, acct_p->commodity));
     g_assert (clone_p->commodity_scu == acct_p->commodity_scu);
     g_assert (clone_p->non_standard_scu == acct_p->non_standard_scu);
     /* Clean Up */
-    g_object_unref (clone);
+//    g_object_unref (clone);
+    delete clone;
 
 }
 /* xaccFreeOneChildAccount
@@ -792,7 +802,8 @@ test_xaccFreeAccountChildren (Fixture *fixture, gconstpointer pData)
     g_assert_cmpuint (g_list_length (priv->children), == , 0);
     qof_book_destroy (gnc_account_get_book (root));
     /* No need to unref the root account, qof_book_destroy did that. */
-    g_free (fixture->func);
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 /* xaccFreeAccount
 static void
@@ -883,7 +894,8 @@ test_xaccFreeAccount (Fixture *fixture, gconstpointer pData)
     g_log_remove_handler ("gnc.engine", hdlr2);
     test_clear_error_list ();
     qof_book_destroy (book);
-    g_free (fixture->func);
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 /* xaccAccountBeginEdit
 void
@@ -979,8 +991,8 @@ test_xaccAccountCommitEdit (Fixture *fixture, gconstpointer pData)
     g_assert_cmpint (check1.hits, ==, 0);
     g_assert_cmpint (check2.hits, ==, 0);
 
-    sig1 = test_signal_new (&parent->inst, QOF_EVENT_MODIFY, NULL);
-    sig2 = test_signal_new (&parent->inst, QOF_EVENT_DESTROY, NULL);
+    sig1 = test_signal_new (parent, QOF_EVENT_MODIFY, NULL);
+    sig2 = test_signal_new (parent, QOF_EVENT_DESTROY, NULL);
     /* Now we're ready to start testing. */
     xaccAccountBeginEdit (parent);
     xaccAccountCommitEdit (parent);
@@ -1011,7 +1023,8 @@ test_xaccAccountCommitEdit (Fixture *fixture, gconstpointer pData)
     g_log_remove_handler ("gnc.engine", hdlr2);
     test_clear_error_list ();
     qof_book_destroy (book);
-    g_free (fixture->func);
+//    g_free (fixture->func);
+    delete fixture->func;
 }
 /* xaccAcctChildrenEqual
 static gboolean
@@ -1062,8 +1075,8 @@ test_gnc_account_insert_remove_split (Fixture *fixture, gconstpointer pData)
     TestErrorStruct check2 = { loglevel, "gnc.engine", msg2, 0 };
     TestErrorStruct check3 = { loglevel, "gnc.engine", NULL, 0 };
     guint logger;
-    sig1 = test_signal_new (&fixture->acct->inst, QOF_EVENT_MODIFY, NULL);
-    sig2 = test_signal_new (&fixture->acct->inst, GNC_EVENT_ITEM_ADDED, split1);
+    sig1 = test_signal_new (fixture->acct, QOF_EVENT_MODIFY, NULL);
+    sig2 = test_signal_new (fixture->acct, GNC_EVENT_ITEM_ADDED, split1);
 
     test_add_error (&check1);
     test_add_error (&check2);
@@ -1107,7 +1120,7 @@ test_gnc_account_insert_remove_split (Fixture *fixture, gconstpointer pData)
     g_assert (!gnc_account_insert_split (fixture->acct, split1));
     /* Free up hdlr2 and set up hdlr2 */
     test_signal_free (sig2);
-    sig3 = test_signal_new (&fixture->acct->inst, GNC_EVENT_ITEM_ADDED, split2);
+    sig3 = test_signal_new (fixture->acct, GNC_EVENT_ITEM_ADDED, split2);
     /* Now add a second split to the account and check that sort_dirty isn't set. We have to bump the editlevel to force this. */
     g_assert (gnc_account_insert_split (fixture->acct, split2));
     g_assert_cmpuint (g_list_length (priv->splits), == , 2);
@@ -1117,7 +1130,7 @@ test_gnc_account_insert_remove_split (Fixture *fixture, gconstpointer pData)
     test_signal_assert_hits (sig3, 1);
     /* One more add, incrementing the editlevel to get sort_dirty set. */
     test_signal_free (sig3);
-    sig3 = test_signal_new (&fixture->acct->inst, GNC_EVENT_ITEM_ADDED, split3);
+    sig3 = test_signal_new (fixture->acct, GNC_EVENT_ITEM_ADDED, split3);
     qof_instance_increase_editlevel (fixture->acct);
     g_assert (gnc_account_insert_split (fixture->acct, split3));
     qof_instance_decrease_editlevel (fixture->acct);
@@ -1129,7 +1142,7 @@ test_gnc_account_insert_remove_split (Fixture *fixture, gconstpointer pData)
     /* Finally delete a split. It's going to recompute the balance, so
      * balance_dirty will be false. */
     test_signal_free (sig3);
-    sig3 = test_signal_new (&fixture->acct->inst, GNC_EVENT_ITEM_REMOVED,
+    sig3 = test_signal_new (fixture->acct, GNC_EVENT_ITEM_REMOVED,
                             split3);
     g_assert (gnc_account_remove_split (fixture->acct, split3));
     g_assert_cmpuint (g_list_length (priv->splits), == , 2);
@@ -1191,11 +1204,11 @@ test_xaccAccountInsertRemoveLot (Fixture *fixture, gconstpointer pData)
     Account *parent = gnc_account_get_parent (fixture->acct);
     TestSignal sig1 = test_signal_new (QOF_INSTANCE (lot),
                                        QOF_EVENT_ADD, NULL);
-    TestSignal sig2 = test_signal_new (&fixture->acct->inst,
+    TestSignal sig2 = test_signal_new (fixture->acct,
                                        QOF_EVENT_MODIFY, NULL);
     TestSignal sig3 = test_signal_new (QOF_INSTANCE (lot),
                                        QOF_EVENT_REMOVE, NULL);
-    TestSignal sig4 = test_signal_new (&parent->inst, QOF_EVENT_MODIFY, NULL);
+    TestSignal sig4 = test_signal_new (parent, QOF_EVENT_MODIFY, NULL);
 
     AccountPrivate *a_priv = fixture->func->get_private (fixture->acct);
     AccountPrivate *p_priv = fixture->func->get_private (parent);
@@ -1368,7 +1381,8 @@ test_xaccAccountOrder ( )
     xaccAccountDestroy (aa);
     xaccAccountBeginEdit (ab);
     xaccAccountDestroy (ab);
-    g_object_unref (book);
+//    g_object_unref (book);
+    delete book;
 }
 /* qof_xaccAccountOrder
 static int
@@ -1483,8 +1497,8 @@ test_gnc_account_append_remove_child (Fixture *fixture, gconstpointer pData)
     test_signal_free (sig1);
     test_signal_free (sig2);
     test_signal_free (sig3);
-    sig1 = test_signal_new (&account->inst, QOF_EVENT_REMOVE, NULL);
-    sig2 = test_signal_new (&(fixture->acct)->inst, QOF_EVENT_MODIFY, NULL);
+    sig1 = test_signal_new (account, QOF_EVENT_REMOVE, NULL);
+    sig2 = test_signal_new (fixture->acct, QOF_EVENT_MODIFY, NULL);
     log_handler = g_log_set_handler (logdomain, G_LOG_LEVEL_CRITICAL | G_LOG_FLAG_FATAL,
                                      (GLogFunc)test_null_handler, &check_err);
     g_test_log_set_fatal_handler ((GTestLogFatalFunc)test_checked_handler, &check_err);
@@ -1509,7 +1523,8 @@ test_gnc_account_append_remove_child (Fixture *fixture, gconstpointer pData)
     xaccAccountDestroy (account);
     xaccAccountBeginEdit (froot);
     xaccAccountDestroy (froot);
-    g_object_unref (fbook);
+//    g_object_unref (fbook);
+    delete fbook;
 
 }
 /* Simple Getters or passthroughs, no tests:
@@ -1714,7 +1729,7 @@ static void
 thunk (Account *s, gpointer data)
 {
     guint *counter = (guint*)data;
-    g_assert (GNC_IS_ACCOUNT (s));
+//    g_assert (GNC_IS_ACCOUNT (s));
     ++(*counter);
 }
 
@@ -1723,7 +1738,7 @@ thunk2 (Account *s, gpointer data)
 {
     guint *counter = (guint*)data;
     gchar *name;
-    g_assert (GNC_IS_ACCOUNT (s));
+//    g_assert (GNC_IS_ACCOUNT (s));
     g_object_get (G_OBJECT (s), "name", &name, NULL);
     if (!g_strcmp0 (name, "int"))
     {
@@ -2085,7 +2100,7 @@ test_xaccAccountType_Stuff (void)
     TestErrorStruct check1 = { loglevel, logdomain, msg1, 0 };
     TestErrorStruct check2 = { loglevel, logdomain, msg2, 0 };
     TestErrorStruct check3 = { loglevel, logdomain, msg3, 0 };
-    Account *acc = g_object_new (GNC_TYPE_ACCOUNT, NULL);
+    Account *acc = new Account; //g_object_new (GNC_TYPE_ACCOUNT, NULL);
 
     for (type = ACCT_TYPE_NONE; type < ACCT_TYPE_LAST; type = static_cast<int>(type) + 1)
     {
@@ -2130,7 +2145,8 @@ test_xaccAccountType_Stuff (void)
             g_assert (!xaccAccountIsPriced (acc));
 
     }
-    g_object_unref (acc);
+//    g_object_unref (acc);
+    delete acc;
 
     loghandler = g_log_set_handler (logdomain, loglevel,
                                     (GLogFunc)test_null_handler, &check1);

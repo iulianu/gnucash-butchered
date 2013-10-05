@@ -88,9 +88,9 @@ get_quote_source_name( gpointer pObject )
     const gnc_commodity* pCommodity;
 
     g_return_val_if_fail( pObject != NULL, NULL );
-    g_return_val_if_fail( GNC_IS_COMMODITY(pObject), NULL );
+//    g_return_val_if_fail( GNC_IS_COMMODITY(pObject), NULL );
 
-    pCommodity = GNC_COMMODITY(pObject);
+    pCommodity = (gnc_commodity*)(pObject);
     return (gpointer)gnc_quote_source_get_internal_name(
                gnc_commodity_get_quote_source(pCommodity));
 }
@@ -103,11 +103,11 @@ set_quote_source_name( gpointer pObject, gpointer pValue )
     gnc_quote_source* quote_source;
 
     g_return_if_fail( pObject != NULL );
-    g_return_if_fail( GNC_IS_COMMODITY(pObject) );
+//    g_return_if_fail( GNC_IS_COMMODITY(pObject) );
 
     if ( pValue == NULL ) return;
 
-    pCommodity = GNC_COMMODITY(pObject);
+    pCommodity = (gnc_commodity*)(pObject);
     quote_source = gnc_quote_source_lookup_by_internal( quote_source_name );
     gnc_commodity_set_quote_source( pCommodity, quote_source );
 }
@@ -227,7 +227,7 @@ commit_commodity( GncSqlBackend* be, QofInstance* inst )
 {
     g_return_val_if_fail( be != NULL, FALSE );
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_COMMODITY(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_COMMODITY(inst), FALSE );
 
     return do_commit_commodity( be, inst, FALSE );
 }

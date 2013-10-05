@@ -51,6 +51,26 @@ static QofLogModule log_module = QOF_MOD_SESSION;
 static GSList *provider_list = NULL;
 static bool qof_providers_initialized = false;
 
+QofSession::QofSession()
+{
+    book = NULL;
+    book_id = NULL;
+    error_message = NULL;
+    backend = NULL;
+    lock = 0;
+}
+
+QofInstanceCopyData::QofInstanceCopyData()
+{
+    from = NULL;
+    to = NULL;
+    param = NULL;
+    referenceList = NULL;
+    param_list = NULL;
+    new_session = NULL;
+    error = false;
+}
+
 /*
  * These getters are used in tests to reach static vars from outside
  * They should be removed when no longer needed
@@ -79,12 +99,17 @@ get_qof_providers_initialized (void)
     return qof_providers_initialized;
 }
 
+static void free_provider(QofBackendProvider *prov)
+{
+    delete prov;
+}
+
 void
 unregister_all_providers (void)
 {
     if (provider_list)
     {
-        g_slist_foreach (provider_list, (GFunc) g_free, NULL);
+        g_slist_foreach (provider_list, (GFunc) free_provider, NULL);
         g_slist_free (provider_list);
         provider_list = NULL;
     }
@@ -258,7 +283,7 @@ qof_session_init (QofSession *session)
 QofSession *
 qof_session_new (void)
 {
-    QofSession *session = g_new0(QofSession, 1);
+    QofSession *session = new QofSession;// g_new0(QofSession, 1);
     qof_session_init(session);
     return session;
 }
@@ -383,9 +408,9 @@ col_ref_cb (QofInstance* ref_ent, void * user_data)
     qecd = (QofInstanceCopyData*)user_data;
     ent = qecd->from;
     g_return_if_fail (ent);
-    ref = g_new0 (QofInstanceReference, 1);
+    ref = new QofInstanceReference;// g_new0 (QofInstanceReference, 1);
     ref->type = ent->e_type;
-    ref->ref_guid = g_new (GncGUID, 1);
+    ref->ref_guid = new GncGUID;// g_new (GncGUID, 1);
     ref->ent_guid = qof_instance_get_guid (ent);
     ref->param = qof_class_get_parameter (ent->e_type,
                                           qecd->param->param_name);
@@ -752,7 +777,7 @@ qof_instance_copy_list (QofSession *new_session, GList *entity_list)
         return FALSE;
     }
     ENTER (" list=%d", g_list_length (entity_list));
-    qecd = g_new0 (QofInstanceCopyData, 1);
+    qecd = new QofInstanceCopyData;// g_new0 (QofInstanceCopyData, 1);
     qof_event_suspend ();
     qecd->param_list = NULL;
     qecd->new_session = new_session;
@@ -763,7 +788,8 @@ qof_instance_copy_list (QofSession *new_session, GList *entity_list)
     {
         PWARN (" some/all entities in the list could not be copied.");
     }
-    g_free (qecd);
+//    g_free (qecd);
+    delete qecd;
     LEAVE (" ");
     return TRUE;
 }
@@ -1082,7 +1108,7 @@ qof_session_destroy_backend (QofSession *session)
         }
         else
         {
-            g_free(session->backend);
+            delete session->backend;
         }
     }
 
@@ -1517,7 +1543,8 @@ qof_session_destroy (QofSession *session)
     qof_book_destroy (session->book);
     session->book  = NULL;
 
-    g_free (session);
+//    g_free (session);
+    delete session;
 
     LEAVE ("sess=%p", session);
 }

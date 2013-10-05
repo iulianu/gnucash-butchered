@@ -42,40 +42,8 @@
 #include "gncInvoice.h"
 #include "gncInvoiceP.h"
 #include "gncOwnerP.h"
+#include "TransactionP.h"
 #include "engine-helpers.h"
-
-struct _gncInvoice
-{
-    QofInstance   inst;
-
-    char          *id;
-    char          *notes;
-    gboolean      active;
-
-    char          *billing_id;
-    char          *printname;
-    GncBillTerm   *terms;
-    GList         *entries;
-    GList         *prices;
-    GncOwner      owner;
-    GncOwner      billto;
-    GncJob        *job;
-    Timespec      date_opened;
-    Timespec      date_posted;
-
-    gnc_numeric   to_charge_amount;
-
-    gnc_commodity *currency;
-
-    Account       *posted_acc;
-    Transaction   *posted_txn;
-    GNCLot        *posted_lot;
-};
-
-struct _gncInvoiceClass
-{
-    QofInstanceClass parent_class;
-};
 
 static QofLogModule log_module = GNC_MOD_BUSINESS;
 
@@ -99,8 +67,8 @@ static void mark_invoice (GncInvoice *invoice);
 static void
 mark_invoice (GncInvoice *invoice)
 {
-    qof_instance_set_dirty(&invoice->inst);
-    qof_event_gen (&invoice->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(invoice);
+    qof_event_gen (invoice, QOF_EVENT_MODIFY, NULL);
 }
 
 QofBook * gncInvoiceGetBook(GncInvoice *x)
@@ -110,188 +78,93 @@ QofBook * gncInvoiceGetBook(GncInvoice *x)
 
 /* ================================================================== */
 
-enum
+GncInvoice::GncInvoice()
 {
-    PROP_0,
-    PROP_NOTES
-};
+    id = NULL;
+    notes = NULL;
+    active = false;
 
-/* GObject Initialization */
-G_DEFINE_TYPE(GncInvoice, gnc_invoice, QOF_TYPE_INSTANCE);
+    billing_id = NULL;
+    printname = NULL;
+    terms = NULL;
+    entries = NULL;
+    prices = NULL;
+    job = NULL;
+    date_opened = {0,0};
+    date_posted = {0,0};
 
-static void
-gnc_invoice_init(GncInvoice* inv)
-{
+    to_charge_amount = gnc_numeric_zero();
+
+    currency = NULL;
+
+    posted_acc = NULL;
+    posted_txn = NULL;
+    posted_lot = NULL;
+
 }
 
-static void
-gnc_invoice_dispose(GObject *invp)
+GncInvoice::~GncInvoice()
 {
-    G_OBJECT_CLASS(gnc_invoice_parent_class)->dispose(invp);
-}
-
-static void
-gnc_invoice_finalize(GObject* invp)
-{
-    G_OBJECT_CLASS(gnc_invoice_parent_class)->finalize(invp);
-}
-
-static void
-gnc_invoice_get_property (GObject         *object,
-                          guint            prop_id,
-                          GValue          *value,
-                          GParamSpec      *pspec)
-{
-    GncInvoice *inv;
-
-    g_return_if_fail(GNC_IS_INVOICE(object));
-
-    inv = GNC_INVOICE(object);
-    switch (prop_id)
-    {
-    case PROP_NOTES:
-        g_value_set_string(value, inv->notes);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_invoice_set_property (GObject         *object,
-                          guint            prop_id,
-                          const GValue          *value,
-                          GParamSpec      *pspec)
-{
-    GncInvoice *inv;
-
-    g_return_if_fail(GNC_IS_INVOICE(object));
-
-    inv = GNC_INVOICE(object);
-    switch (prop_id)
-    {
-    case PROP_NOTES:
-        gncInvoiceSetNotes(inv, g_value_get_string(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-/** Returns a string representing this object */
-static gchar*
-impl_get_display_name(const QofInstance* inst)
-{
-    GncInvoice* inv;
-    QofInstance* owner;
-    gchar* s;
-
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_INVOICE(inst), FALSE);
-
-    inv = GNC_INVOICE(inst);
-    owner = qofOwnerGetOwner(&inv->owner);
-    if (owner != NULL)
-    {
-        gchar* display_name;
-
-        display_name = qof_instance_get_display_name(owner);
-        s = g_strdup_printf("Invoice %s (%s)", inv->id, display_name);
-        g_free(display_name);
-    }
-    else
-    {
-        s = g_strdup_printf("Invoice %s", inv->id);
-    }
-
-    return s;
+    
 }
 
 /** Does this object refer to a specific object */
-static gboolean
-impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
-{
-    GncInvoice* inv;
+//static gboolean
+//impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
+//{
+//    GncInvoice* inv;
+//
+//    g_return_val_if_fail(inst != NULL, FALSE);
+////    g_return_val_if_fail(GNC_IS_INVOICE(inst), FALSE);
+//
+//    inv = (GncInvoice*)(inst);
+//
+//    if (GNC_IS_BILLTERM(ref))
+//    {
+//        return (inv->terms == GNC_BILLTERM(ref));
+//    }
+//    else if (GNC_IS_JOB(ref))
+//    {
+//        return (inv->job == GNC_JOB(ref));
+//    }
+//    else if (GNC_IS_COMMODITY(ref))
+//    {
+//        return (inv->currency == GNC_COMMODITY(ref));
+//    }
+//    else if (GNC_IS_ACCOUNT(ref))
+//    {
+//        return (inv->posted_acc == GNC_ACCOUNT(ref));
+//    }
+//    else if (GNC_IS_TRANSACTION(ref))
+//    {
+//        return (inv->posted_txn == (Transaction*)(ref));
+//    }
+//    else if (GNC_IS_LOT(ref))
+//    {
+//        return (inv->posted_lot == GNC_LOT(ref));
+//    }
+//
+//    return FALSE;
+//}
 
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_INVOICE(inst), FALSE);
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    if (!GNC_IS_BILLTERM(ref) && !GNC_IS_JOB(ref) && !GNC_IS_COMMODITY(ref) && !GNC_IS_ACCOUNT(ref)
+//            && !GNC_IS_TRANSACTION(ref) && !GNC_IS_LOT(ref))
+//    {
+//        return NULL;
+//    }
+//
+//    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
+//}
 
-    inv = GNC_INVOICE(inst);
-
-    if (GNC_IS_BILLTERM(ref))
-    {
-        return (inv->terms == GNC_BILLTERM(ref));
-    }
-    else if (GNC_IS_JOB(ref))
-    {
-        return (inv->job == GNC_JOB(ref));
-    }
-    else if (GNC_IS_COMMODITY(ref))
-    {
-        return (inv->currency == GNC_COMMODITY(ref));
-    }
-    else if (GNC_IS_ACCOUNT(ref))
-    {
-        return (inv->posted_acc == GNC_ACCOUNT(ref));
-    }
-    else if (GNC_IS_TRANSACTION(ref))
-    {
-        return (inv->posted_txn == GNC_TRANSACTION(ref));
-    }
-    else if (GNC_IS_LOT(ref))
-    {
-        return (inv->posted_lot == GNC_LOT(ref));
-    }
-
-    return FALSE;
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    if (!GNC_IS_BILLTERM(ref) && !GNC_IS_JOB(ref) && !GNC_IS_COMMODITY(ref) && !GNC_IS_ACCOUNT(ref)
-            && !GNC_IS_TRANSACTION(ref) && !GNC_IS_LOT(ref))
-    {
-        return NULL;
-    }
-
-    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
-}
-
-static void
-gnc_invoice_class_init (GncInvoiceClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_invoice_dispose;
-    gobject_class->finalize = gnc_invoice_finalize;
-    gobject_class->set_property = gnc_invoice_set_property;
-    gobject_class->get_property = gnc_invoice_get_property;
-
-    qof_class->get_display_name = impl_get_display_name;
-    qof_class->refers_to_object = impl_refers_to_object;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NOTES,
-     g_param_spec_string ("notes",
-                          "Invoice Notes",
-                          "The invoice notes is an arbitrary string "
-                          "assigned by the user to provide notes regarding "
-                          "this invoice.",
-                          NULL,
-                          G_PARAM_READWRITE));
-}
 
 /* Create/Destroy Functions */
 GncInvoice *gncInvoiceCreate (QofBook *book)
@@ -300,8 +173,8 @@ GncInvoice *gncInvoiceCreate (QofBook *book)
 
     if (!book) return NULL;
 
-    invoice = g_object_new (GNC_TYPE_INVOICE, NULL);
-    qof_instance_init_data (&invoice->inst, _GNC_MOD_NAME, book);
+    invoice = new GncInvoice; //g_object_new (GNC_TYPE_INVOICE, NULL);
+    qof_instance_init_data (invoice, _GNC_MOD_NAME, book);
 
     invoice->id = CACHE_INSERT ("");
     invoice->notes = CACHE_INSERT ("");
@@ -312,7 +185,7 @@ GncInvoice *gncInvoiceCreate (QofBook *book)
 
     invoice->to_charge_amount = gnc_numeric_zero();
 
-    qof_event_gen (&invoice->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (invoice, QOF_EVENT_CREATE, NULL);
 
     return invoice;
 }
@@ -328,8 +201,8 @@ GncInvoice *gncInvoiceCopy (const GncInvoice *from)
     book = qof_instance_get_book(from);
     g_assert(book);
 
-    invoice = g_object_new (GNC_TYPE_INVOICE, NULL);
-    qof_instance_init_data (&invoice->inst, _GNC_MOD_NAME, book);
+    invoice = new GncInvoice; //g_object_new (GNC_TYPE_INVOICE, NULL);
+    qof_instance_init_data (invoice, _GNC_MOD_NAME, book);
 
     gncInvoiceBeginEdit(invoice);
 
@@ -338,8 +211,8 @@ GncInvoice *gncInvoiceCopy (const GncInvoice *from)
     invoice->billing_id = CACHE_INSERT (from->billing_id);
     invoice->active = from->active;
 
-    is_cn = kvp_frame_get_gint64(from->inst.kvp_data, GNC_INVOICE_IS_CN);
-    kvp_frame_set_gint64(invoice->inst.kvp_data, GNC_INVOICE_IS_CN, is_cn);
+    is_cn = kvp_frame_get_gint64(from->kvp_data, GNC_INVOICE_IS_CN);
+    kvp_frame_set_gint64(invoice->kvp_data, GNC_INVOICE_IS_CN, is_cn);
 
     invoice->terms = from->terms;
     gncBillTermIncRef (invoice->terms);
@@ -397,7 +270,7 @@ static void gncInvoiceFree (GncInvoice *invoice)
 {
     if (!invoice) return;
 
-    qof_event_gen (&invoice->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (invoice, QOF_EVENT_DESTROY, NULL);
 
     CACHE_REMOVE (invoice->id);
     CACHE_REMOVE (invoice->notes);
@@ -411,7 +284,8 @@ static void gncInvoiceFree (GncInvoice *invoice)
         gncBillTermDecRef (invoice->terms);
 
     /* qof_instance_release (&invoice->inst); */
-    g_object_unref (invoice);
+//    g_object_unref (invoice);
+    delete invoice;
 }
 
 /* ================================================================== */
@@ -531,7 +405,7 @@ void gncInvoiceSetIsCreditNote (GncInvoice *invoice, gboolean credit_note)
 {
     if (!invoice) return;
     gncInvoiceBeginEdit (invoice);
-    kvp_frame_set_gint64(invoice->inst.kvp_data, GNC_INVOICE_IS_CN,
+    kvp_frame_set_gint64(invoice->kvp_data, GNC_INVOICE_IS_CN,
                          credit_note ? 1 : 0);
     mark_invoice (invoice);
     gncInvoiceCommitEdit (invoice);
@@ -694,7 +568,7 @@ const GncOwner * gncInvoiceGetOwner (const GncInvoice *invoice)
     return &invoice->owner;
 }
 
-static QofInstance*
+static GncOwner*
 qofInvoiceGetOwner (GncInvoice *invoice)
 {
     GncOwner *owner;
@@ -704,10 +578,10 @@ qofInvoiceGetOwner (GncInvoice *invoice)
         return NULL;
     }
     owner = &invoice->owner;
-    return QOF_INSTANCE(owner);
+    return owner;
 }
 
-static QofInstance*
+static GncOwner*
 qofInvoiceGetBillTo (GncInvoice *invoice)
 {
     GncOwner *billto;
@@ -717,7 +591,7 @@ qofInvoiceGetBillTo (GncInvoice *invoice)
         return NULL;
     }
     billto = &invoice->billto;
-    return QOF_INSTANCE(billto);
+    return billto;
 }
 
 Timespec gncInvoiceGetDateOpened (const GncInvoice *invoice)
@@ -956,7 +830,7 @@ gboolean gncInvoiceGetActive (const GncInvoice *invoice)
 gboolean gncInvoiceGetIsCreditNote (const GncInvoice *invoice)
 {
     if (!invoice) return FALSE;
-    if (kvp_frame_get_gint64(invoice->inst.kvp_data, GNC_INVOICE_IS_CN))
+    if (kvp_frame_get_gint64(invoice->kvp_data, GNC_INVOICE_IS_CN))
         return TRUE;
     else
         return FALSE;
@@ -1013,11 +887,12 @@ qofInvoiceEntryCB (QofInstance *ent, gpointer user_data)
 {
     GncInvoice *invoice;
 
-    invoice = (GncInvoice*)user_data;
-    if (!invoice || !ent)
+    if (!user_data || !ent)
     {
         return;
     }
+    // TODO insufficient type checks
+    invoice = reinterpret_cast<GncInvoice*>(user_data);
     switch (gncInvoiceGetOwnerType (invoice))
     {
     case GNC_OWNER_VENDOR:
@@ -1761,7 +1636,7 @@ gboolean gncInvoiceIsPaid (const GncInvoice *invoice)
 
 void gncInvoiceBeginEdit (GncInvoice *invoice)
 {
-    qof_begin_edit(&invoice->inst);
+    qof_begin_edit(invoice);
 }
 
 static void gncInvoiceOnError (QofInstance *inst, QofBackendError errcode)
@@ -1781,7 +1656,7 @@ static void invoice_free (QofInstance *inst)
 void gncInvoiceCommitEdit (GncInvoice *invoice)
 {
     if (!qof_commit_edit (QOF_INSTANCE(invoice))) return;
-    qof_commit_edit_part2 (&invoice->inst, gncInvoiceOnError,
+    qof_commit_edit_part2 (invoice, gncInvoiceOnError,
                            gncInvoiceOnDone, invoice_free);
 }
 
@@ -1810,8 +1685,8 @@ gboolean gncInvoiceEqual(const GncInvoice *a, const GncInvoice *b)
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
 
-    g_return_val_if_fail(GNC_IS_INVOICE(a), FALSE);
-    g_return_val_if_fail(GNC_IS_INVOICE(b), FALSE);
+//    g_return_val_if_fail(GNC_IS_INVOICE(a), FALSE);
+//    g_return_val_if_fail(GNC_IS_INVOICE(b), FALSE);
 
     if (g_strcmp0(a->id, b->id) != 0)
     {
@@ -1920,7 +1795,7 @@ static const char * _gncInvoicePrintable (gpointer obj)
 static void
 destroy_invoice_on_book_close(QofInstance *ent, gpointer data)
 {
-    GncInvoice* invoice = GNC_INVOICE(ent);
+    GncInvoice* invoice = dynamic_cast<GncInvoice*>(ent);
 
     gncInvoiceBeginEdit(invoice);
     gncInvoiceDestroy(invoice);

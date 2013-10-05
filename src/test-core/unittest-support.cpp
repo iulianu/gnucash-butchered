@@ -174,6 +174,7 @@ void
 test_free( gpointer data )
 {
     if (!data) return;
+#warning g_free
     g_free(data);
 }
 
@@ -236,12 +237,12 @@ notify_destroy (gpointer pdata, GObject *obj)
     if (! (*data)) *data = TRUE;
 }
 
-gboolean
-test_object_checked_destroy (GObject *obj)
-{
-    gboolean is_destroyed = FALSE;
-    if (!obj || ! G_IS_OBJECT (obj)) return FALSE;
-    g_object_weak_ref (obj, notify_destroy, &is_destroyed);
-    g_object_unref (obj);
-    return is_destroyed;
-}
+//gboolean
+//test_object_checked_destroy (GObject *obj)
+//{
+//    gboolean is_destroyed = FALSE;
+//    if (!obj || ! G_IS_OBJECT (obj)) return FALSE;
+//    g_object_weak_ref (obj, notify_destroy, &is_destroyed);
+//    g_object_unref (obj);
+//    return is_destroyed;
+//}

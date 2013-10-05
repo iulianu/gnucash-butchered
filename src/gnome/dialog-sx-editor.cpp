@@ -41,6 +41,7 @@
 #include <gnc-gdate-utils.h>
 #include "qof.h"
 #include "Account.h"
+#include "AccountP.h"
 #include "SchedXaction.h"
 #include "SX-book.h"
 #include "dialog-preferences.h"
@@ -1726,9 +1727,11 @@ _sx_engine_event_handler(QofInstance *ent, QofEventId event_type, gpointer user_
 
     if (!(event_type & QOF_EVENT_DESTROY))
         return;
-    if (!GNC_IS_ACCOUNT(ent))
+    if(!ent)
         return;
-    acct = GNC_ACCOUNT(ent);
+    acct = dynamic_cast<Account*>(ent);
+    if(!acct)
+        return;
     book = qof_instance_get_book(QOF_INSTANCE(acct));
     affected_sxes = gnc_sx_get_sxes_referencing_account(book, acct);
 

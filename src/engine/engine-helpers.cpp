@@ -301,26 +301,26 @@ typedef enum
 
 /* QofCompareFunc */
 
-static void
-gnc_guid_glist_free (GList *guids)
-{
-    GList *node;
-
-    for (node = guids; node; node = node->next)
-        guid_free (node->data);
-
-    g_list_free (guids);
-}
-
-static void
-gnc_query_path_free (GSList *path)
-{
-    GSList *node;
-
-    for (node = path; node; node = node->next)
-        g_free (node->data);
-
-    g_slist_free (path);
-}
-
-
+//static void
+//gnc_guid_glist_free (GList *guids)
+//{
+//    GList *node;
+//
+//    for (node = guids; node; node = node->next)
+//        guid_free (node->data);
+//
+//    g_list_free (guids);
+//}
+//
+//static void
+//gnc_query_path_free (GSList *path)
+//{
+//    GSList *node;
+//
+//    for (node = path; node; node = node->next)
+//        g_free (node->data);
+//
+//    g_slist_free (path);
+//}
+//
+//

@@ -160,10 +160,10 @@ save_vendor( GncSqlBackend* be, QofInstance* inst )
     gboolean is_ok = TRUE;
 
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_VENDOR(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_VENDOR(inst), FALSE );
     g_return_val_if_fail( be != NULL, FALSE );
 
-    v = GNC_VENDOR(inst);
+    v = (GncVendor*)(inst);
 
     is_infant = qof_instance_get_infant( inst );
     if ( qof_instance_get_destroying( inst ) )
@@ -229,10 +229,10 @@ write_single_vendor( QofInstance *term_p, gpointer data_p )
     write_objects_t* s = (write_objects_t*)data_p;
 
     g_return_if_fail( term_p != NULL );
-    g_return_if_fail( GNC_IS_VENDOR(term_p) );
+//    g_return_if_fail( GNC_IS_VENDOR(term_p) );
     g_return_if_fail( data_p != NULL );
 
-    if ( s->is_ok && vendor_should_be_saved( GNC_VENDOR(term_p) ) )
+    if ( s->is_ok && vendor_should_be_saved( (GncVendor*)(term_p) ) )
     {
         s->is_ok = save_vendor( s->be, term_p );
     }

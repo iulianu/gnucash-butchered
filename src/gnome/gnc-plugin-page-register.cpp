@@ -37,6 +37,7 @@
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+#include <typeinfo>
 
 #include "gnc-plugin-page-register.h"
 #include "gnc-plugin-register.h"
@@ -71,6 +72,10 @@
 #include "window-autoclear.h"
 #include "engine-helpers.h"
 #include "qofbookslots.h"
+#include "TransactionP.h"
+#include "AccountP.h"
+
+#include <typeinfo>
 
 /* This static indicates the debugging module that this .o belongs to.  */
 static QofLogModule log_module = GNC_MOD_GUI;
@@ -3517,15 +3522,19 @@ gnc_plugin_page_register_event_handler (QofInstance *entity,
     gchar *label, *color;
 
     g_return_if_fail(page);	/* Required */
-    if (!GNC_IS_TRANS(entity) && !GNC_IS_ACCOUNT(entity))
+    if(!entity)
         return;
+    if( typeid(*entity) != typeid(Transaction) && typeid(*entity) != typeid(Account))
+        return;
+//    if (!GNC_IS_TRANS(entity) && !GNC_IS_ACCOUNT(entity))
+//        return;
 
     ENTER("entity %p of type %d, page %p, event data %p",
           entity, event_type, page, ed);
 
     window = gnc_plugin_page_get_window(GNC_PLUGIN_PAGE(page));
 
-    if (GNC_IS_ACCOUNT(entity))
+    if (typeid(*entity) == typeid(Account))
     {
         if (GNC_IS_MAIN_WINDOW(window))
         {
@@ -3545,7 +3554,7 @@ gnc_plugin_page_register_event_handler (QofInstance *entity,
         LEAVE("not a modify");
         return;
     }
-    trans = GNC_TRANS(entity);
+    trans = dynamic_cast<Transaction*>(entity);
     book = qof_instance_get_book(QOF_INSTANCE(trans));
     if (!gnc_plugin_page_has_book(GNC_PLUGIN_PAGE(page), book))
     {

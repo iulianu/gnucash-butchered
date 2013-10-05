@@ -34,6 +34,36 @@
 #include "gnc-lot.h"
 #include "gncOwner.h"
 
+class GncInvoice : public QofInstance
+{
+public:
+    char          *id;
+    char          *notes;
+    gboolean      active;
+
+    char          *billing_id;
+    char          *printname;
+    GncBillTerm   *terms;
+    GList         *entries;
+    GList         *prices;
+    GncOwner      owner;
+    GncOwner      billto;
+    GncJob        *job;
+    Timespec      date_opened;
+    Timespec      date_posted;
+
+    gnc_numeric   to_charge_amount;
+
+    gnc_commodity *currency;
+
+    Account       *posted_acc;
+    Transaction   *posted_txn;
+    GNCLot        *posted_lot;
+    
+    GncInvoice();
+    virtual ~GncInvoice();
+};
+
 gboolean gncInvoiceRegister (void);
 gchar *gncInvoiceNextID (QofBook *book, const GncOwner *owner);
 void gncInvoiceSetPostedAcc (GncInvoice *invoice, Account *acc);

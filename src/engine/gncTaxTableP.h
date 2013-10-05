@@ -31,6 +31,26 @@
 
 #include "gncTaxTable.h"
 
+
+class GncTaxTable : public QofInstance
+{
+public:
+    char *          name;
+    GncTaxTableEntryList*  entries;
+    Timespec        modtime;      /* internal date of last modtime */
+
+    /* See src/doc/business.txt for an explanation of the following */
+    /* Code that handles this is *identical* to that in gncBillTerm */
+    gint64          refcount;
+    GncTaxTable *   parent;       /* if non-null, we are an immutable child */
+    GncTaxTable *   child;        /* if non-null, we have not changed */
+    gboolean        invisible;
+    GList *         children;     /* list of children for disconnection */
+    
+    GncTaxTable();
+    virtual ~GncTaxTable() {}
+};
+
 gboolean gncTaxTableRegister (void);
 
 void gncTaxTableSetParent (GncTaxTable *table, GncTaxTable *parent);

@@ -31,6 +31,68 @@
 
 #include "gncEntry.h"
 
+class GncEntry : public QofInstance
+{
+public:
+    Timespec	date;
+    Timespec	date_entered;
+    char *	desc;
+    char *	action;
+    char *	notes;
+    gnc_numeric 	quantity;
+
+    /* customer invoice data */
+    Account *	i_account;
+    gnc_numeric 	i_price;
+    gboolean	i_taxable;
+    gboolean	i_taxincluded;
+    GncTaxTable *	i_tax_table;
+    gnc_numeric 	i_discount;
+    GncAmountType	i_disc_type;
+    GncDiscountHow i_disc_how;
+
+    /* vendor bill data */
+    Account *	b_account;
+    gnc_numeric 	b_price;
+    gboolean	b_taxable;
+    gboolean	b_taxincluded;
+    GncTaxTable *	b_tax_table;
+    gboolean	billable;
+    GncOwner	billto;
+
+    /* employee bill data */
+    GncEntryPaymentType b_payment;
+
+    /* my parent(s) */
+    GncOrder *	order;
+    GncInvoice *	invoice;
+    GncInvoice *	bill;
+
+    /* CACHED VALUES */
+    gboolean	values_dirty;
+
+    /* customer invoice */
+    gnc_numeric	i_value;
+    gnc_numeric	i_value_rounded;
+    GList *	i_tax_values;
+    gnc_numeric	i_tax_value;
+    gnc_numeric	i_tax_value_rounded;
+    gnc_numeric	i_disc_value;
+    gnc_numeric	i_disc_value_rounded;
+    Timespec	i_taxtable_modtime;
+
+    /* vendor bill */
+    gnc_numeric	b_value;
+    gnc_numeric	b_value_rounded;
+    GList *	b_tax_values;
+    gnc_numeric	b_tax_value;
+    gnc_numeric	b_tax_value_rounded;
+    Timespec	b_taxtable_modtime;
+
+    GncEntry();
+    virtual ~GncEntry() {}
+};
+
 gboolean gncEntryRegister (void);
 void gncEntrySetGUID (GncEntry *entry, const GncGUID *guid);
 void gncEntrySetOrder (GncEntry *entry, GncOrder *order);

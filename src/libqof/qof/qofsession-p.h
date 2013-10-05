@@ -64,6 +64,8 @@ struct QofSession
      * between the persistant store and the local engine.  */
     QofBackend *backend;
     int lock;
+    
+    QofSession();
 };
 
 struct QofInstanceCopyData
@@ -75,6 +77,8 @@ struct QofInstanceCopyData
     GSList *param_list;
     QofSession *new_session;
     bool error;
+    
+    QofInstanceCopyData();
 };
 
 QofBackend * qof_session_get_backend (const QofSession *session);

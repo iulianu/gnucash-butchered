@@ -49,6 +49,17 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "gnc.engine.sx"
 
+SchedXactions::SchedXactions()
+{
+    sx_list = NULL;
+    sx_notsaved = false;
+}
+
+SchedXactions::~SchedXactions()
+{
+    
+}
+
 /* XXX this whole file is crufty, it doesn't really use entities
  * in the most efficient/best way */
 
@@ -205,7 +216,7 @@ gnc_sxes_add_sx(SchedXactions *sxes, SchedXaction *sx)
     if (g_list_find(sxes->sx_list, sx) != NULL)
         return;
     sxes->sx_list = g_list_append(sxes->sx_list, sx);
-    qof_event_gen(&sxes->inst, GNC_EVENT_ITEM_ADDED, (gpointer)sx);
+    qof_event_gen(sxes, GNC_EVENT_ITEM_ADDED, (gpointer)sx);
 }
 
 void
@@ -216,35 +227,17 @@ gnc_sxes_del_sx(SchedXactions *sxes, SchedXaction *sx)
     if (to_remove == NULL)
         return;
     sxes->sx_list = g_list_delete_link(sxes->sx_list, to_remove);
-    qof_event_gen(&sxes->inst, GNC_EVENT_ITEM_REMOVED, (gpointer)sx);
+    qof_event_gen(sxes, GNC_EVENT_ITEM_REMOVED, (gpointer)sx);
 }
 
 /* ====================================================================== */
 /* SX-trans stuff */
 
-/* GObject initialization */
-QOF_GOBJECT_IMPL(gnc_schedxactions, SchedXactions, QOF_TYPE_INSTANCE);
-
-static void
-gnc_schedxactions_init(SchedXactions* sxs)
-{
-}
-
-static void
-gnc_schedxactions_dispose_real (GObject *sxsp)
-{
-}
-
-static void
-gnc_schedxactions_finalize_real(GObject* sxsp)
-{
-}
-
 static void
 mark_sx_clean(gpointer data, gpointer user_data)
 {
     SchedXaction *sx = (SchedXaction *) data;
-    qof_instance_mark_clean (QOF_INSTANCE(sx));
+    qof_instance_mark_clean (sx);
 }
 
 static void
@@ -254,9 +247,9 @@ book_sxes_setup(QofBook *book)
     SchedXactions *sxes;
 
     col = qof_book_get_collection(book, GNC_ID_SCHEDXACTION);
-    sxes = g_object_new (GNC_TYPE_SCHEDXACTIONS, NULL);
+    sxes = new SchedXactions; //g_object_new (GNC_TYPE_SCHEDXACTIONS, NULL);
     g_assert(sxes);
-    qof_instance_init_data(&sxes->inst, GNC_ID_SXES, book);
+    qof_instance_init_data(sxes, GNC_ID_SXES, book);
     sxes->sx_list = NULL;
     sxes->sx_notsaved = TRUE;
     qof_collection_set_data(col, sxes);
@@ -272,7 +265,8 @@ book_sxes_end(QofBook* book)
     sxes = qof_collection_get_data(col);
     if (sxes != NULL)
     {
-        g_object_unref(sxes);
+//        g_object_unref(sxes);
+        delete sxes;
         qof_collection_set_data(col, NULL);
     }
 }

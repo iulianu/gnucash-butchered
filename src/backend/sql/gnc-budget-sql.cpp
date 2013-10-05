@@ -140,9 +140,9 @@ set_account( gpointer pObj, gpointer val )
 
     g_return_if_fail( pObj != NULL );
     g_return_if_fail( val != NULL );
-    g_return_if_fail( GNC_IS_ACCOUNT(val) );
+//    g_return_if_fail( GNC_IS_ACCOUNT(val) );
 
-    info->account = GNC_ACCOUNT(val);
+    info->account = (Account*)(val);
 }
 
 static gint
@@ -278,7 +278,7 @@ save_budget_amounts( GncSqlBackend* be, GncBudget* budget )
     {
         guint i;
 
-        info.account = GNC_ACCOUNT(node->data);
+        info.account = (Account*)(node->data);
         for ( i = 0; i < num_periods && is_ok; i++ )
         {
             if ( gnc_budget_is_account_period_value_set( budget, info.account, i ) )

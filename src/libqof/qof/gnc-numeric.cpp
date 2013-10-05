@@ -1390,40 +1390,6 @@ string_to_gnc_numeric(const char* str, gnc_numeric *n)
     return true;
 }
 
-/* *******************************************************************
- *  GValue handling
- ********************************************************************/
-static void*
-gnc_numeric_boxed_copy_func( void* in_gnc_numeric )
-{
-    gnc_numeric* newvalue;
-
-    newvalue = g_malloc( sizeof( gnc_numeric ) );
-    memcpy( newvalue, in_gnc_numeric, sizeof( gnc_numeric ) );
-
-    return newvalue;
-}
-
-static void
-gnc_numeric_boxed_free_func( void* in_gnc_numeric )
-{
-    g_free( in_gnc_numeric );
-}
-
-GType
-gnc_numeric_get_type( void )
-{
-    static GType type = 0;
-
-    if ( type == 0 )
-    {
-        type = g_boxed_type_register_static( "gnc_numeric",
-                                             gnc_numeric_boxed_copy_func,
-                                             gnc_numeric_boxed_free_func );
-    }
-
-    return type;
-}
 
 /* *******************************************************************
  *  gnc_numeric misc testing

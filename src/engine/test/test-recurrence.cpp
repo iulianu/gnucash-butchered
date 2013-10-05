@@ -327,11 +327,12 @@ static void test_some()
 
 static void test_use()
 {
-    Recurrence *r;
+    Recurrence *r = new Recurrence;
 
-    r = g_new(Recurrence, 1);
+//    r = g_new(Recurrence, 1);
     do_test(r != NULL, "allocation");
-    g_free(r);
+//    g_free(r);
+    delete r;
 }
 
 static void test_main()

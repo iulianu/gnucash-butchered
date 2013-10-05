@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <typeinfo>
 
 #include "gnc-backend-sql.h"
 #include "gnc-slots-sql.h"
@@ -105,7 +106,7 @@ typedef struct
 static void
 set_invisible( gpointer data, gboolean value )
 {
-    GncBillTerm* term = GNC_BILLTERM(data);
+    GncBillTerm* term = reinterpret_cast<GncBillTerm*>(data);
 
     g_return_if_fail( term != NULL );
 
@@ -116,16 +117,17 @@ set_invisible( gpointer data, gboolean value )
 }
 
 static /*@ null @*//*@ dependent @*/ gpointer
-bt_get_parent( gpointer pObject )
+bt_get_parent( QofInstance* pObject )
 {
     const GncBillTerm* billterm;
     const GncBillTerm* pParent;
     const GncGUID* parent_guid;
 
     g_return_val_if_fail( pObject != NULL, NULL );
-    g_return_val_if_fail( GNC_IS_BILLTERM(pObject), NULL );
+//    g_return_val_if_fail( GNC_IS_BILLTERM(pObject), NULL );
 
-    billterm = GNC_BILLTERM(pObject);
+    billterm = dynamic_cast<GncBillTerm*>(pObject);
+    g_return_val_if_fail( billterm, NULL );
     pParent = gncBillTermGetParent( billterm );
     if ( pParent == NULL )
     {
@@ -140,7 +142,7 @@ bt_get_parent( gpointer pObject )
 }
 
 static void
-bt_set_parent( gpointer data, gpointer value )
+bt_set_parent( QofInstance* data, gpointer value )
 {
     GncBillTerm* billterm;
     GncBillTerm* parent;
@@ -148,9 +150,10 @@ bt_set_parent( gpointer data, gpointer value )
     GncGUID* guid = (GncGUID*)value;
 
     g_return_if_fail( data != NULL );
-    g_return_if_fail( GNC_IS_BILLTERM(data) );
+//    g_return_if_fail( GNC_IS_BILLTERM(data) );
 
-    billterm = GNC_BILLTERM(data);
+    billterm = dynamic_cast<GncBillTerm*>(data);
+    g_return_if_fail( billterm );
     pBook = qof_instance_get_book( QOF_INSTANCE(billterm) );
     if ( guid != NULL )
     {
@@ -339,7 +342,7 @@ gboolean
 gnc_sql_save_billterm( GncSqlBackend* be, QofInstance* inst )
 {
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_BILLTERM(inst), FALSE );
+    g_return_val_if_fail( typeid(*inst) == typeid(QofInstance), FALSE );
     g_return_val_if_fail( be != NULL, FALSE );
 
     return gnc_sql_commit_standard_item( be, inst, TABLE_NAME, GNC_ID_BILLTERM, col_table );

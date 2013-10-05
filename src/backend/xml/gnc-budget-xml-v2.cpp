@@ -120,13 +120,13 @@ budget_id_handler (xmlNodePtr node, gpointer bgt)
 static gboolean
 budget_name_handler (xmlNodePtr node, gpointer bgt)
 {
-    return set_string(node, GNC_BUDGET(bgt), gnc_budget_set_name);
+    return set_string(node, reinterpret_cast<GncBudget*>(bgt), gnc_budget_set_name);
 }
 
 static gboolean
 budget_description_handler (xmlNodePtr node, gpointer bgt)
 {
-    return set_string(node, GNC_BUDGET(bgt), gnc_budget_set_description);
+    return set_string(node, reinterpret_cast<GncBudget*>(bgt), gnc_budget_set_description);
 }
 
 static gboolean
@@ -136,7 +136,7 @@ budget_num_periods_handler (xmlNodePtr node, gpointer bgt)
 
     if (dom_tree_to_guint(node, &num_periods))
     {
-        gnc_budget_set_num_periods(GNC_BUDGET(bgt), num_periods);
+        gnc_budget_set_num_periods(reinterpret_cast<GncBudget*>(bgt), num_periods);
         return TRUE;
     }
     else
@@ -151,7 +151,7 @@ budget_recurrence_handler (xmlNodePtr node, gpointer bgt)
     if ((r = dom_tree_to_recurrence(node)) == NULL)
         return FALSE;
 
-    gnc_budget_set_recurrence(GNC_BUDGET(bgt), r);
+    gnc_budget_set_recurrence(reinterpret_cast<GncBudget*>(bgt), r);
     g_free(r);
     return TRUE;
 }

@@ -38,6 +38,7 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
+#include <typeinfo>
 
 #include "gnc-tree-model-commodity.h"
 #include "gnc-component-manager.h"
@@ -1311,11 +1312,9 @@ gnc_tree_model_commodity_event_handler (QofInstance *entity,
         gnc_tree_model_commodity_do_deletions(NULL);
 
     /* get type specific data */
-    if (GNC_IS_COMMODITY(entity))
+    if ((entity != NULL) && (typeid(*entity) == typeid(gnc_commodity)))
     {
-        gnc_commodity *commodity;
-
-        commodity = GNC_COMMODITY(entity);
+        gnc_commodity *commodity = dynamic_cast<gnc_commodity*>(entity);
         name = gnc_commodity_get_mnemonic(commodity);
         if (event_type != QOF_EVENT_DESTROY)
         {
@@ -1326,11 +1325,9 @@ gnc_tree_model_commodity_event_handler (QofInstance *entity,
             }
         }
     }
-    else if (GNC_IS_COMMODITY_NAMESPACE(entity))
+    else if ((entity != NULL) && (typeid(*entity) == typeid(gnc_commodity_namespace)))
     {
-        gnc_commodity_namespace *comm_namespace;
-
-        comm_namespace = GNC_COMMODITY_NAMESPACE(entity);
+        gnc_commodity_namespace *comm_namespace = dynamic_cast<gnc_commodity_namespace*>(entity);
         name = gnc_commodity_namespace_get_name(comm_namespace);
         if (event_type != QOF_EVENT_DESTROY)
         {

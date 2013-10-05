@@ -350,6 +350,7 @@ struct QofBackend
      */
     void (*export_fn) (QofBackend *, QofBook *);
 
+    QofBackend();
 };
 
 /** Let the sytem know about a new provider of backends.  This function

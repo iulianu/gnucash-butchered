@@ -113,6 +113,8 @@ struct QofInstanceReference
     const QofParam  *param;      /**< The parameter of the original entity to use
 	to get or set the reference. */
     const GncGUID      *ent_guid;   /**< The GncGUID of the original entity. */
+    
+    QofInstanceReference();
 };
 
 /** Used as the key value for the QofBook data hash.

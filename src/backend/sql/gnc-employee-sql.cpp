@@ -163,10 +163,10 @@ save_employee( GncSqlBackend* be, QofInstance* inst )
     gboolean is_ok = TRUE;
 
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_EMPLOYEE(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_EMPLOYEE(inst), FALSE );
     g_return_val_if_fail( be != NULL, FALSE );
 
-    emp = GNC_EMPLOYEE(inst);
+    emp = (GncEmployee*)(inst);
 
     is_infant = qof_instance_get_infant( inst );
     if ( qof_instance_get_destroying( inst ) )
@@ -233,10 +233,10 @@ write_single_employee( QofInstance *term_p, gpointer data_p )
     write_objects_t* s = (write_objects_t*)data_p;
 
     g_return_if_fail( term_p != NULL );
-    g_return_if_fail( GNC_IS_EMPLOYEE(term_p) );
+//    g_return_if_fail( GNC_IS_EMPLOYEE(term_p) );
     g_return_if_fail( data_p != NULL );
 
-    if ( s->is_ok && employee_should_be_saved( GNC_EMPLOYEE(term_p) ) )
+    if ( s->is_ok && employee_should_be_saved( (GncEmployee*)(term_p) ) )
     {
         s->is_ok = save_employee( s->be, term_p );
     }

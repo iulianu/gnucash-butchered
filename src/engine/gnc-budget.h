@@ -66,27 +66,24 @@
 
 #include <glib.h>
 
-/** The budget data.*/
-typedef struct budget_s GncBudget;
-typedef struct _GncBudgetClass GncBudgetClass;
+//typedef struct _GncBudgetClass GncBudgetClass;
 
 #include "qof.h"
 #include "Account.h"
 #include "Recurrence.h"
 
-/* --- type macros --- */
-#define GNC_TYPE_BUDGET            (gnc_budget_get_type ())
-#define GNC_BUDGET(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_BUDGET, GncBudget))
-#define GNC_BUDGET_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_BUDGET, GncBudgetClass))
-#define GNC_IS_BUDGET(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_BUDGET))
-#define GNC_IS_BUDGET_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_BUDGET))
-#define GNC_BUDGET_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_BUDGET, GncBudgetClass))
-GType gnc_budget_get_type(void);
+/** The budget data.*/
+struct BudgetPrivate;
+
+class GncBudget : public QofInstance
+{
+public:
+//    QofInstance inst;
+    BudgetPrivate * priv;
+    
+    GncBudget();
+    virtual ~GncBudget();
+};
 
 #define GNC_BUDGET_MAX_NUM_PERIODS_DIGITS 3 // max num periods == 999
 

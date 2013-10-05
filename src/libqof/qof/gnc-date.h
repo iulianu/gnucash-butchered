@@ -89,11 +89,11 @@ typedef int64_t time64;
  */
 struct Timespec;
 
-/** @name GValue
-  @{
-*/
-GType timespec_get_type( void );
-#define GNC_TYPE_TIMESPEC (timespec_get_type ())
+///** @name GValue
+//  @{
+//*/
+//GType timespec_get_type( void );
+//#define GNC_TYPE_TIMESPEC (timespec_get_type ())
 
 /** @} */
 /** The default date format for use with strftime. */
@@ -207,7 +207,7 @@ time64 gnc_timegm (struct tm* time);
  *       Thu Nov 24 18:22:48 1986\n\0
  * This is equivalent to the strftime format %a %b %H:%M:%S %Y.
  */
-gchar* gnc_ctime (const time64 *secs);
+char* gnc_ctime (const time64 *secs);
 
 /** \brief get the current local time
  *  \param A time64* which, if not NULL, will be filled in with the same
@@ -233,7 +233,7 @@ time64 gnc_time_utc (time64 *tbuf);
  *  \return The difference in seconds between secs1 and secs2. If secs2 is
  * later than secs1 the value will be negative.
  */
-gdouble gnc_difftime (const time64 secs1, const time64 secs2);
+double gnc_difftime (const time64 secs1, const time64 secs2);
 
 /** \brief free a struct tm* created with gnc_localtime() or gnc_gmtime()
  * \param time: The struct tm* to be freed.
@@ -655,7 +655,7 @@ char * gnc_date_timestamp (void);
  * @param buf_len at least MIN_BUF_LEN
  * @param dow struct tm semantics: 0=sunday .. 6=saturday
  **/
-void gnc_dow_abbrev(gchar *buf, int buf_len, int dow);
+void gnc_dow_abbrev(char *buf, int buf_len, int dow);
 
 //@}
 //@}

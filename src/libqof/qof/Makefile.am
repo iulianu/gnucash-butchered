@@ -66,8 +66,7 @@ qofinclude_HEADERS = \
    qofreference.h    \
    qofsession.h      \
    qof-string-cache.h  \
-   qofutil.h         \
-   qof-gobject.h
+   qofutil.h         
 
 noinst_HEADERS = \
    md5.h  \

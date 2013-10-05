@@ -129,7 +129,7 @@
  * defined in the private header AccountP.h, but no one outside the
  * engine should include that file. Instead, access that data only
  * through the functions in Account.h .*/
-typedef struct account_s             Account;
+class Account;
 
 /** @brief Split in Gnucash.
  * A "split" is more commonly referred to as a "entry" in a
@@ -141,7 +141,7 @@ typedef struct account_s             Account;
  * in the private header TransactionP.h, but no one outside the engine
  * should include that file. Instead, access that data only through
  * the functions in Transaction.h .*/
-typedef struct split_s               Split;
+class Split;
 
 /** @brief Transaction in Gnucash.
  * A Transaction is a piece of business done; the transfer of money
@@ -152,7 +152,7 @@ typedef struct split_s               Split;
  * defined in the private header TransactionP.h, but no one outside
  * the engine should include that file. Instead, access that data only
  * through the functions in Transaction.h .*/
-typedef struct transaction_s         Transaction;
+class Transaction;
 
 /** @brief An article that is bought and sold.
  * A Commodity is the most general term of what an account keeps track
@@ -168,13 +168,13 @@ typedef struct transaction_s         Transaction;
  * This is the typename for a gnc_commodity. The actual structure is
  * defined in a private source file. For accessing that data, only use
  * the functions in gnc-commodity.h .*/
-typedef struct gnc_commodity_s       gnc_commodity;
+class gnc_commodity;
 
 /** @brief A gnc_commodity_namespace is an collection of commodities. */
-typedef struct gnc_commodity_namespace_s gnc_commodity_namespace;
+class gnc_commodity_namespace;
 
 /** @brief A gnc_commodity_table is a database of commodity info. */
-typedef struct gnc_commodity_table_s gnc_commodity_table;
+class gnc_commodity_table;
 
 /** @brief Identifies that something sold at one time was bought at another.
  * A GNCLot provides a way of tracking physical items as they are
@@ -185,14 +185,14 @@ typedef struct gnc_commodity_table_s gnc_commodity_table;
  *
  * See the file src/doc/lots.txt for implementation overview.
  */
-typedef struct gnc_lot_s             GNCLot;
+class GNCLot;
 
 /** @brief Price of commodity on a given date.
  * A GNCPrice encapsulates price information: the cost of a commodity
  * expressed as a currency, on a given date.  It also holds info about
  * the provenance of the price: where it came from, its general validity.
  */
-typedef struct gnc_price_s           GNCPrice;
+class GNCPrice;
 typedef struct gnc_quote_source_s    gnc_quote_source;
 
 /** GList of Account */

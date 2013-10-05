@@ -72,9 +72,9 @@ get_lot_account( gpointer pObject )
     Account* pAccount;
 
     g_return_val_if_fail( pObject != NULL, NULL );
-    g_return_val_if_fail( GNC_IS_LOT(pObject), NULL );
+//    g_return_val_if_fail( GNC_IS_LOT(pObject), NULL );
 
-    lot = GNC_LOT(pObject);
+    lot = (GNCLot*)(pObject);
     pAccount = gnc_lot_get_account( lot );
     return pAccount;
 }
@@ -85,11 +85,11 @@ set_lot_account( gpointer pObject, /*@ null @*/ gpointer pValue )
     GNCLot* lot;
     Account* pAccount;
 
-    g_return_if_fail( pObject != NULL && GNC_IS_LOT(pObject) );
-    g_return_if_fail( pValue == NULL || GNC_IS_ACCOUNT(pValue) );
+    g_return_if_fail( pObject != NULL /*&& GNC_IS_LOT(pObject)*/ );
+//    g_return_if_fail( pValue == NULL || GNC_IS_ACCOUNT(pValue) );
 
-    lot = GNC_LOT(pObject);
-    pAccount = GNC_ACCOUNT(pValue);
+    lot = (GNCLot*)(pObject);
+    pAccount = (Account*)(pValue);
     if ( pAccount != NULL )
     {
         xaccAccountInsertLot( pAccount, lot );
@@ -181,7 +181,7 @@ commit_lot( GncSqlBackend* be, QofInstance* inst )
 {
     g_return_val_if_fail( be != NULL, FALSE );
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_LOT(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_LOT(inst), FALSE );
 
     return gnc_sql_commit_standard_item( be, inst, TABLE_NAME, GNC_ID_LOT, col_table );
 }

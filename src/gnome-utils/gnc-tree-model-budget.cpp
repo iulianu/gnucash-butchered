@@ -26,6 +26,7 @@
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+#include <typeinfo>
 #include "gnc-tree-model-budget.h"
 #include "gnc-budget.h"
 #include "gnc-ui-util.h"
@@ -34,11 +35,14 @@
 static void add_budget_to_model(QofInstance* data, gpointer user_data )
 {
     GtkTreeIter iter;
-    GncBudget* budget = GNC_BUDGET(data);
+    if(!data)
+        return;
+    if(typeid(*data) != typeid(GncBudget))
+        return;
+    GncBudget* budget = dynamic_cast<GncBudget*>(data);
     GtkTreeModel* treeModel = user_data;
 
-    g_return_if_fail(GNC_IS_BUDGET(budget));
-    g_return_if_fail(budget && treeModel);
+    g_return_if_fail(treeModel);
 
     gtk_list_store_append (GTK_LIST_STORE(treeModel), &iter);
     gtk_list_store_set (GTK_LIST_STORE(treeModel), &iter,
@@ -127,7 +131,7 @@ gnc_tree_model_budget_get_iter_for_budget(GtkTreeModel *tm, GtkTreeIter *iter,
     const GncGUID *guid1;
     GncGUID *guid2;
 
-    g_return_val_if_fail(GNC_BUDGET(bgt), FALSE);
+//    g_return_val_if_fail(GNC_BUDGET(bgt), FALSE);
 
     guid1 = gnc_budget_get_guid(bgt);
     if (!gtk_tree_model_get_iter_first(tm, iter))

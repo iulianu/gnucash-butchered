@@ -143,7 +143,7 @@ static gboolean
 save_order( GncSqlBackend* be, QofInstance* inst )
 {
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_ORDER(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_ORDER(inst), FALSE );
     g_return_val_if_fail( be != NULL, FALSE );
 
     return gnc_sql_commit_standard_item( be, inst, TABLE_NAME, GNC_ID_ORDER, col_table );
@@ -173,10 +173,10 @@ write_single_order( QofInstance *term_p, gpointer data_p )
     write_objects_t* s = (write_objects_t*)data_p;
 
     g_return_if_fail( term_p != NULL );
-    g_return_if_fail( GNC_IS_ORDER(term_p) );
+//    g_return_if_fail( GNC_IS_ORDER(term_p) );
     g_return_if_fail( data_p != NULL );
 
-    if ( s->is_ok && order_should_be_saved( GNC_ORDER(term_p) ) )
+    if ( s->is_ok && order_should_be_saved( (GncOrder*)(term_p) ) )
     {
         s->is_ok = save_order( s->be, term_p );
     }

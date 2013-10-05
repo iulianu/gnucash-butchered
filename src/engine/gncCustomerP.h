@@ -30,6 +30,33 @@
 #define GNC_CUSTOMERP_H_
 
 #include "gncCustomer.h"
+#include "gncTaxTableP.h"
+
+class GncCustomer : public QofInstance
+{
+public:
+    /* The following fields are identical to 'vendor' */
+    char *          id;
+    char *          name;
+    char *          notes;
+    GncBillTerm *   terms;
+    GncAddress *    addr;
+    gnc_commodity * currency;
+    GncTaxTable*    taxtable;
+    gboolean        taxtable_override;
+    GncTaxIncluded  taxincluded;
+    bool            active;
+    GList *         jobs;
+
+    /* The following fields are unique to 'customer' */
+    gnc_numeric     credit;
+    gnc_numeric     discount;
+    GncAddress *    shipaddr;
+    
+    GncCustomer();
+    virtual ~GncCustomer();
+};
+
 
 gboolean gncCustomerRegister (void);
 gchar *gncCustomerNextID (QofBook *book);

@@ -42,7 +42,7 @@ test_address (void)
     GncAddress *address;
     QofBook *book = qof_book_new ();
 
-    ent = g_object_new(QOF_TYPE_INSTANCE, "guid", guid_null(), NULL);
+    ent = new QofInstance(guid_null()); //g_object_new(QOF_TYPE_INSTANCE, "guid", guid_null(), NULL);
     ent->e_type = "asdf";
 
     /* Test creation/destruction */

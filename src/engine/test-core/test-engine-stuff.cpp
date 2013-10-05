@@ -214,7 +214,9 @@ get_random_timespec(void)
 {
     Timespec *ret;
 
-    ret = g_new0(Timespec, 1);
+    ret = new Timespec;// g_new0(Timespec, 1);
+    ret->tv_sec = 0;
+    ret->tv_nsec = 0;
 
     while (ret->tv_sec <= 0)
         ret->tv_sec = rand();
@@ -232,7 +234,6 @@ get_random_timespec(void)
             ret->tv_nsec *= 1000;
         }
     }
-
     return ret;
 }
 
@@ -241,7 +242,7 @@ get_random_guid(void)
 {
     GncGUID *ret;
 
-    ret = g_new(GncGUID, 1);
+    ret = new GncGUID;// g_new(GncGUID, 1);
     guid_new(ret);
 
     return ret;
@@ -327,7 +328,8 @@ get_random_kvp_value_depth (int type, gint depth)
         GncGUID *tmp_guid;
         tmp_guid = get_random_guid();
         ret = kvp_value_new_guid(tmp_guid);
-        g_free(tmp_guid);
+        //g_free(tmp_guid);
+        delete tmp_guid;
     }
     break;
 
@@ -335,7 +337,8 @@ get_random_kvp_value_depth (int type, gint depth)
     {
         Timespec *ts = get_random_timespec();
         ret = kvp_value_new_timespec (*ts);
-        g_free(ts);
+        //g_free(ts);
+        delete ts;
     }
     break;
 
@@ -665,7 +668,8 @@ make_random_changes_to_price (QofBook *book, GNCPrice *p)
 
     ts = get_random_timespec ();
     gnc_price_set_time (p, *ts);
-    g_free (ts);
+//    g_free (ts);
+    delete ts;
 
     string = get_random_string ();
     gnc_price_set_source (p, string);
@@ -953,10 +957,10 @@ add_random_splits(QofBook *book, Transaction *trn, GList *account_list)
     xaccTransCommitEdit(trn);
 }
 
-typedef struct
+struct TransInfo
 {
     GncGUID guid;
-} TransInfo;
+};
 
 void
 make_random_changes_to_transaction_and_splits (QofBook *book,
@@ -1046,7 +1050,7 @@ add_trans_helper (Transaction *trans, gpointer data)
     TransInfo *ti;
     GList **list = data;
 
-    ti = g_new (TransInfo, 1);
+    ti = new TransInfo;//g_new (TransInfo, 1);
 
     ti->guid = *xaccTransGetGUID (trans);
 
@@ -1114,7 +1118,8 @@ make_random_changes_to_level (QofBook *book, Account *parent)
     {
         TransInfo *ti = node->data;
 
-        g_free (ti);
+//        g_free (ti);
+        delete ti;
     }
     g_list_free (transes);
     transes = NULL;
@@ -1281,7 +1286,8 @@ get_random_split(QofBook *book, Account *acct, Transaction *trn)
 
     ts = get_random_timespec();
     xaccSplitSetDateReconciledTS(ret, ts);
-    g_free(ts);
+//    g_free(ts);
+    delete ts;
 
     /* Split must be in an account before we can set an amount */
     /* and in a transaction before it can be added to an account. */
@@ -1357,7 +1363,8 @@ make_random_changes_to_split (Split *split)
 
     ts = get_random_timespec();
     xaccSplitSetDateReconciledTS (split, ts);
-    g_free(ts);
+//    g_free(ts);
+    delete ts;
 
     xaccSplitSetSlots_nc (split, get_random_kvp_frame());
 
@@ -1373,7 +1380,7 @@ set_tran_random_string(Transaction* trn,
                        void(*func)(Transaction *act, const gchar*str))
 {
     gchar *tmp_str = get_random_string();
-    if (!trn || !(&trn->inst))
+    if (!trn)
     {
         return;
     }
@@ -1405,7 +1412,8 @@ trn_add_ran_timespec(Transaction *trn, void (*func)(Transaction*,
 
     to_set = get_random_timespec();
     func(trn, to_set);
-    g_free(to_set);
+//    g_free(to_set);
+    delete to_set;
 }
 
 
@@ -1542,7 +1550,8 @@ free_random_guids(GList *guids)
     GList *node;
 
     for (node = guids; node; node = node->next)
-        g_free (node->data);
+        delete (GncGUID*)(node->data);
+//        g_free (node->data);
 
     g_list_free (guids);
 }
@@ -1773,8 +1782,10 @@ get_random_query(void)
                                      get_random_boolean (),
                                      *end,
                                      get_random_queryop ());
-            g_free (start);
-            g_free (end);
+//            g_free (start);
+//            g_free (end);
+            delete start;
+            delete end;
             break;
 
         case 6: /* PR_DESC */
@@ -1793,7 +1804,8 @@ get_random_query(void)
                                    guid,
                                    get_random_id_type (),
                                    get_random_queryop ());
-            g_free (guid);
+//            g_free (guid);
+            delete guid;
             break;
 
         case 8: /* PR_KVP */
@@ -2145,7 +2157,8 @@ make_trans_query (Transaction *trans, TestQueryTypes query_types)
         xaccQueryAddAccountGUIDMatch (q, list, QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
 
         for (node = list; node; node = node->next)
-            g_free (node->data);
+            delete (GncGUID*)(node->data);
+//            g_free (node->data);
         g_list_free (list);
     }
 
@@ -2176,7 +2189,7 @@ make_trans_query (Transaction *trans, TestQueryTypes query_types)
 static Recurrence*
 daily_freq(const GDate* start, int multiplier)
 {
-    Recurrence *r = g_new0(Recurrence, 1);
+    Recurrence *r = new Recurrence;//g_new0(Recurrence, 1);
     recurrenceSet(r, multiplier, PERIOD_DAY, start, WEEKEND_ADJ_NONE);
     return r;
 }
@@ -2184,7 +2197,7 @@ daily_freq(const GDate* start, int multiplier)
 static Recurrence*
 once_freq(const GDate *when)
 {
-    Recurrence *r = g_new0(Recurrence, 1);
+    Recurrence *r = new Recurrence;//g_new0(Recurrence, 1);
     recurrenceSet(r, 1, PERIOD_ONCE, when, WEEKEND_ADJ_NONE);
     return r;
 }

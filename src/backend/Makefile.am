@@ -1,1 +1,2 @@
-SUBDIRS = xml sql
+#SUBDIRS = xml sql
+SUBDIRS = xml

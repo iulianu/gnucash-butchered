@@ -210,7 +210,7 @@ static void
 kv_pair_helper(void * key, void * val, void * user_data)
 {
     GSList **result = (GSList **) user_data;
-    GHashTableKVPair *kvp = g_new(GHashTableKVPair, 1);
+    GHashTableKVPair *kvp = new GHashTableKVPair;//g_new(GHashTableKVPair, 1);
 
     kvp->key = key;
     kvp->value = val;
@@ -229,7 +229,8 @@ void
 g_hash_table_kv_pair_free_gfunc(void * data, void * user_data)
 {
     GHashTableKVPair *kvp = (GHashTableKVPair *) data;
-    g_free(kvp);
+//    g_free(kvp);
+    delete kvp;
 }
 
 /*======================== END OF FILE =============================*/

@@ -46,39 +46,32 @@
 #ifndef GNC_COMMODITY_H
 #define GNC_COMMODITY_H
 
-typedef struct _GncCommodityClass gnc_commodityClass;
-typedef struct _GncCommodityNamespaceClass gnc_commodity_namespaceClass;
-
 #include <glib.h>
 #include "gnc-engine.h"
 
-/* --- type macros --- */
-#define GNC_TYPE_COMMODITY            (gnc_commodity_get_type ())
-#define GNC_COMMODITY(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_COMMODITY, gnc_commodity))
-#define GNC_COMMODITY_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_COMMODITY, gnc_commodityClass))
-#define GNC_IS_COMMODITY(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_COMMODITY))
-#define GNC_IS_COMMODITY_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_COMMODITY))
-#define GNC_COMMODITY_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_COMMODITY, gnc_commodityClass))
-GType gnc_commodity_get_type(void);
 
-/* --- type macros --- */
-#define GNC_TYPE_COMMODITY_NAMESPACE            (gnc_commodity_namespace_get_type ())
-#define GNC_COMMODITY_NAMESPACE(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_COMMODITY_NAMESPACE, gnc_commodity_namespace))
-#define GNC_COMMODITY_NAMESPACE_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_COMMODITY_NAMESPACE, gnc_commodity_namespaceClass))
-#define GNC_IS_COMMODITY_NAMESPACE(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_COMMODITY_NAMESPACE))
-#define GNC_IS_COMMODITY_NAMESPACE_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_COMMODITY_NAMESPACE))
-#define GNC_COMMODITY_NAMESPACE_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_COMMODITY_NAMESPACE, gnc_commodity_namespaceClass))
-GType gnc_commodity_namespace_get_type(void);
+struct CommodityPrivate;
+
+class gnc_commodity : public QofInstance
+{
+public:
+    CommodityPrivate * priv;
+    
+    gnc_commodity();
+    virtual ~gnc_commodity();
+};
+
+class gnc_commodity_namespace : public QofInstance
+{
+public:
+    gchar      * name;
+    gboolean     iso4217;
+    GHashTable * cm_table;
+    GList      * cm_list;
+    
+    gnc_commodity_namespace();
+    virtual ~gnc_commodity_namespace();
+};
 
 
 #define GNC_COMMODITY_TABLE "gnc_commodity_table"
@@ -115,7 +108,7 @@ typedef GList CommodityList;
  *  the transaction data in the account is displayed.  These values
  *  can be safely changed from one release to the next.
  */
-typedef enum
+enum QuoteSourceType
 {
     SOURCE_SINGLE = 0,	/**< This quote source pulls from a single
 			 *   specific web site.  For example, the
@@ -130,7 +123,7 @@ typedef enum
 			 *   locations. */
     SOURCE_MAX,
     SOURCE_CURRENCY = SOURCE_MAX, /**< The special currency quote source. */
-} QuoteSourceType;
+};
 
 /** This function indicates whether or not the Finance::Quote module
  *  is installed on a users computer.  This includes any other related

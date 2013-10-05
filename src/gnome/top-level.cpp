@@ -67,7 +67,9 @@
 #include "top-level.h"
 #include "gnc-window.h"
 #include "gnc-gkeyfile-utils.h"
-
+#include "AccountP.h"
+#include "SplitP.h"
+#include "TransactionP.h"
 
 /** GLOBALS *********************************************************/
 /* This static indicates the debugging module that this .o belongs to.  */
@@ -132,7 +134,7 @@ gnc_html_register_url_cb (const char *location, const char *label,
         if (!validate_type("acct-guid=", location, GNC_ID_ACCOUNT, result, &guid, &entity))
             return FALSE;
 
-        account = GNC_ACCOUNT(entity);
+        account = dynamic_cast<Account*>(entity);
     }
 
     else if (strncmp ("trans-guid=", location, strlen ("trans-guid=")) == 0)
@@ -140,7 +142,7 @@ gnc_html_register_url_cb (const char *location, const char *label,
         if (!validate_type("trans-guid=", location, GNC_ID_TRANS, result, &guid, &entity))
             return FALSE;
 
-        trans = (Transaction *) entity;
+        trans = dynamic_cast<Transaction*>(entity);
 
         for (node = xaccTransGetSplitList (trans); node; node = node->next)
         {
@@ -162,7 +164,7 @@ gnc_html_register_url_cb (const char *location, const char *label,
         if (!validate_type("split-guid=", location, GNC_ID_SPLIT, result, &guid, &entity))
             return FALSE;
 
-        split = (Split *) entity;
+        split = dynamic_cast<Split*>(entity);
         account = xaccSplitGetAccount(split);
     }
     else

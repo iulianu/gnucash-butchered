@@ -71,10 +71,9 @@
  * A "split" is more commonly referred to as an "entry" in a "transaction".
  */
 
-struct transaction_s
+class Transaction : public QofInstance
 {
-    QofInstance inst;     /* glbally unique id */
-
+public:
     Timespec date_entered;     /* date register entry was made              */
     Timespec date_posted;      /* date transaction was posted at bank       */
 
@@ -110,12 +109,15 @@ struct transaction_s
      * any changes made if/when the edit is abandoned.
      */
     Transaction *orig;
+    
+    Transaction();
+    virtual ~Transaction();
 };
-
-struct _TransactionClass
-{
-    QofInstanceClass parent_class;
-};
+//
+//struct _TransactionClass
+//{
+//    QofInstanceClass parent_class;
+//};
 
 /* Set the transaction's GncGUID. This should only be done when reading
  * a transaction from a datafile, or some other external source. Never

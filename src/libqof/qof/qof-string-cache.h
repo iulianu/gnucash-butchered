@@ -90,7 +90,7 @@ void qof_string_cache_remove(const void * key);
 /** You can use this function with g_hash_table_insert(), for the key
    (or value), as long as you use the destroy notifier above.
 */
-gpointer qof_string_cache_insert(const void * key);
+void * qof_string_cache_insert(const void * key);
 
 #define CACHE_INSERT(str) qof_string_cache_insert((const void *)(str))
 #define CACHE_REMOVE(str) qof_string_cache_remove((str))

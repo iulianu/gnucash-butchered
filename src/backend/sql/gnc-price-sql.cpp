@@ -157,14 +157,14 @@ create_prices_tables( GncSqlBackend* be )
 static gboolean
 save_price( GncSqlBackend* be, QofInstance* inst )
 {
-    GNCPrice* pPrice = GNC_PRICE(inst);
+    GNCPrice* pPrice = (GNCPrice*)(inst);
     gint op;
     gboolean is_infant;
     gboolean is_ok = TRUE;
 
     g_return_val_if_fail( be != NULL, FALSE );
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_PRICE(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_PRICE(inst), FALSE );
 
     is_infant = qof_instance_get_infant( inst );
     if ( qof_instance_get_destroying( inst ) )

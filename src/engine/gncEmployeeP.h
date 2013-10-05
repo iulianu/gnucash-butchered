@@ -31,6 +31,26 @@
 
 #include "gncEmployee.h"
 
+class GncEmployee : public QofInstance
+{
+public:
+    char *          id;
+    char *          username;
+    GncAddress *    addr;
+    gnc_commodity * currency;
+    gboolean        active;
+
+    char *          language;
+    char *          acl;
+    gnc_numeric     workday;
+    gnc_numeric     rate;
+
+    Account *       ccard_acc;
+    
+    GncEmployee();
+    virtual ~GncEmployee();
+};
+
 gboolean gncEmployeeRegister (void);
 gchar *gncEmployeeNextID (QofBook *book);
 

@@ -64,26 +64,6 @@ static struct md5_ctx guid_context;
 /* This static indicates the debugging module that this .o belongs to.  */
 static QofLogModule log_module = QOF_MOD_ENGINE;
 
-/**
- * gnc_value_get_guid
- *
- * @param value a @c GValue whose value we want to get.
- *
- * @return the value stored in @a value
- */
-const GncGUID*
-gnc_value_get_guid (const GValue *value)
-{
-    GncGUID *val;
-
-    g_return_val_if_fail (value && G_IS_VALUE (value), NULL);
-    g_return_val_if_fail (GNC_VALUE_HOLDS_GUID (value), NULL);
-
-    val = (GncGUID*) g_value_get_boxed (value);
-
-    return val;
-}
-
 
 /* Memory management routines ***************************************/
 GncGUID *
@@ -768,59 +748,4 @@ GHashTable *
 guid_hash_table_new (void)
 {
     return g_hash_table_new (guid_hash_to_guint, guid_g_hash_table_equal);
-}
-
-/***************************/
-static void
-gnc_string_to_guid (const GValue *src, GValue *dest)
-{
-    /* FIXME: add more checks*/
-    GncGUID *guid;
-    const gchar *as_string;
-
-    g_return_if_fail (G_VALUE_HOLDS_STRING (src) &&
-                      GNC_VALUE_HOLDS_GUID (dest));
-
-    as_string = g_value_get_string (src);
-
-    guid = g_new0 (GncGUID, 1);
-    string_to_guid(as_string, guid);
-
-    g_value_take_boxed (dest, guid);
-}
-
-static void
-gnc_guid_to_string (const GValue *src, GValue *dest)
-{
-    const gchar *str;
-
-    g_return_if_fail (G_VALUE_HOLDS_STRING (dest) &&
-                      GNC_VALUE_HOLDS_GUID (src));
-
-    str = guid_to_string(gnc_value_get_guid (src));
-
-    g_value_set_string (dest, str);
-}
-
-GType
-gnc_guid_get_type (void)
-{
-    static GType type = 0;
-
-    if (G_UNLIKELY (type == 0))
-    {
-        type = g_boxed_type_register_static ("GncGUID",
-                                             (GBoxedCopyFunc)guid_copy,
-                                             (GBoxedFreeFunc)guid_free);
-
-        g_value_register_transform_func (G_TYPE_STRING,
-                                         type,
-                                         gnc_string_to_guid);
-
-        g_value_register_transform_func (type,
-                                         G_TYPE_STRING,
-                                         gnc_guid_to_string);
-    }
-
-    return type;
 }

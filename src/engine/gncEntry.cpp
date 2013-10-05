@@ -36,70 +36,62 @@
 #include "gncInvoice.h"
 #include "gncOrder.h"
 
-struct _gncEntry
+GncEntry::GncEntry()
 {
-    QofInstance inst;
-
-    Timespec	date;
-    Timespec	date_entered;
-    char *	desc;
-    char *	action;
-    char *	notes;
-    gnc_numeric 	quantity;
+    date = {0,0};
+    date_entered = {0,0};
+    desc = NULL;
+    action = NULL;
+    notes = NULL;
+    quantity = gnc_numeric_zero();
 
     /* customer invoice data */
-    Account *	i_account;
-    gnc_numeric 	i_price;
-    gboolean	i_taxable;
-    gboolean	i_taxincluded;
-    GncTaxTable *	i_tax_table;
-    gnc_numeric 	i_discount;
-    GncAmountType	i_disc_type;
-    GncDiscountHow i_disc_how;
+    i_account = NULL;
+    i_price = gnc_numeric_zero();
+    i_taxable = false;
+    i_taxincluded = false;
+    i_tax_table = NULL;
+    i_discount = gnc_numeric_zero();
+    i_disc_type = 0;
+    i_disc_how = 0;
 
     /* vendor bill data */
-    Account *	b_account;
-    gnc_numeric 	b_price;
-    gboolean	b_taxable;
-    gboolean	b_taxincluded;
-    GncTaxTable *	b_tax_table;
-    gboolean	billable;
-    GncOwner	billto;
+    b_account = NULL;
+    b_price = gnc_numeric_zero();
+    b_taxable = false;
+    b_taxincluded = false;
+    b_tax_table = NULL;
+    billable = false;
 
     /* employee bill data */
-    GncEntryPaymentType b_payment;
+    b_payment = 0;
 
     /* my parent(s) */
-    GncOrder *	order;
-    GncInvoice *	invoice;
-    GncInvoice *	bill;
+    order = NULL;
+    invoice = NULL;
+    bill = NULL;
 
     /* CACHED VALUES */
-    gboolean	values_dirty;
+    values_dirty = false;
 
     /* customer invoice */
-    gnc_numeric	i_value;
-    gnc_numeric	i_value_rounded;
-    GList *	i_tax_values;
-    gnc_numeric	i_tax_value;
-    gnc_numeric	i_tax_value_rounded;
-    gnc_numeric	i_disc_value;
-    gnc_numeric	i_disc_value_rounded;
-    Timespec	i_taxtable_modtime;
+    i_value = gnc_numeric_zero();
+    i_value_rounded = gnc_numeric_zero();
+    i_tax_values = NULL;
+    i_tax_value = gnc_numeric_zero();
+    i_tax_value_rounded = gnc_numeric_zero();
+    i_disc_value = gnc_numeric_zero();
+    i_disc_value_rounded = gnc_numeric_zero();
+    i_taxtable_modtime = {0,0};
 
     /* vendor bill */
-    gnc_numeric	b_value;
-    gnc_numeric	b_value_rounded;
-    GList *	b_tax_values;
-    gnc_numeric	b_tax_value;
-    gnc_numeric	b_tax_value_rounded;
-    Timespec	b_taxtable_modtime;
-};
-
-struct _gncEntryClass
-{
-    QofInstanceClass parent_class;
-};
+    b_value = gnc_numeric_zero();
+    b_value_rounded = gnc_numeric_zero();
+    b_tax_values = NULL;
+    b_tax_value = gnc_numeric_zero();
+    b_tax_value_rounded = gnc_numeric_zero();
+    b_taxtable_modtime = {0,0};            
+}
 
 static QofLogModule log_module = GNC_MOD_BUSINESS;
 
@@ -201,187 +193,91 @@ gboolean gncEntryPaymentStringToType (const char *str, GncEntryPaymentType *type
 G_INLINE_FUNC void mark_entry (GncEntry *entry);
 void mark_entry (GncEntry *entry)
 {
-    qof_instance_set_dirty(&entry->inst);
-    qof_event_gen (&entry->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(entry);
+    qof_event_gen (entry, QOF_EVENT_MODIFY, NULL);
 }
 
 /* ================================================================ */
 
-enum
-{
-    PROP_0,
-    PROP_DESCRIPTION
-};
-
-/* GObject Initialization */
-G_DEFINE_TYPE(GncEntry, gnc_entry, QOF_TYPE_INSTANCE);
-
-static void
-gnc_entry_init(GncEntry* entry)
-{
-}
-
-static void
-gnc_entry_dispose(GObject *entryp)
-{
-    G_OBJECT_CLASS(gnc_entry_parent_class)->dispose(entryp);
-}
-
-static void
-gnc_entry_finalize(GObject* entryp)
-{
-    G_OBJECT_CLASS(gnc_entry_parent_class)->finalize(entryp);
-}
-
-static void
-gnc_entry_get_property (GObject         *object,
-                        guint            prop_id,
-                        GValue          *value,
-                        GParamSpec      *pspec)
-{
-    GncEntry *entry;
-
-    g_return_if_fail(GNC_IS_ENTRY(object));
-
-    entry = GNC_ENTRY(object);
-    switch (prop_id)
-    {
-    case PROP_DESCRIPTION:
-        g_value_set_string(value, entry->desc);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_entry_set_property (GObject         *object,
-                        guint            prop_id,
-                        const GValue          *value,
-                        GParamSpec      *pspec)
-{
-    GncEntry *entry;
-
-    g_return_if_fail(GNC_IS_ENTRY(object));
-
-    entry = GNC_ENTRY(object);
-    switch (prop_id)
-    {
-    case PROP_DESCRIPTION:
-        gncEntrySetDescription(entry, g_value_get_string(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
 
 /** Return displayable name */
-static gchar*
-impl_get_display_name(const QofInstance* inst)
-{
-    GncEntry* entry;
-    gchar* display_name;
-    gchar* s;
-
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_ENTRY(inst), FALSE);
-
-    entry = GNC_ENTRY(inst);
-    if (entry->order != NULL)
-    {
-        display_name = qof_instance_get_display_name(QOF_INSTANCE(entry->order));
-        s = g_strdup_printf("Entry in %s", display_name);
-        g_free(display_name);
-        return s;
-    }
-    if (entry->invoice != NULL)
-    {
-        display_name = qof_instance_get_display_name(QOF_INSTANCE(entry->invoice));
-        s = g_strdup_printf("Entry in %s", display_name);
-        g_free(display_name);
-        return s;
-    }
-    if (entry->bill != NULL)
-    {
-        display_name = qof_instance_get_display_name(QOF_INSTANCE(entry->bill));
-        s = g_strdup_printf("Entry in %s", display_name);
-        g_free(display_name);
-        return s;
-    }
-
-    return g_strdup_printf("Entry %p", inst);
-}
-
-/** Does this object refer to a specific object */
-static gboolean
-impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
-{
-    GncEntry* entry;
-
-    g_return_val_if_fail(inst != NULL, FALSE);
-    g_return_val_if_fail(GNC_IS_ENTRY(inst), FALSE);
-
-    entry = GNC_ENTRY(inst);
-
-    if (GNC_IS_ACCOUNT(ref))
-    {
-        Account* acc = GNC_ACCOUNT(ref);
-        return (entry->i_account == acc || entry->b_account == acc);
-    }
-    else if (GNC_IS_TAXTABLE(ref))
-    {
-        GncTaxTable* tt = GNC_TAXTABLE(ref);
-        return (entry->i_tax_table == tt || entry->b_tax_table == tt);
-    }
-
-    return FALSE;
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    if (!GNC_IS_ACCOUNT(ref) && !GNC_IS_TAXTABLE(ref))
-    {
-        return NULL;
-    }
-
-    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
-}
-
-static void
-gnc_entry_class_init (GncEntryClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_entry_dispose;
-    gobject_class->finalize = gnc_entry_finalize;
-    gobject_class->set_property = gnc_entry_set_property;
-    gobject_class->get_property = gnc_entry_get_property;
-
-    qof_class->get_display_name = impl_get_display_name;
-    qof_class->refers_to_object = impl_refers_to_object;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_DESCRIPTION,
-     g_param_spec_string ("description",
-                          "Entry Description",
-                          "The description is an arbitrary string "
-                          "assigned by the user.  It provides identification "
-                          "for this entry.",
-                          NULL,
-                          G_PARAM_READWRITE));
-}
+//static gchar*
+//impl_get_display_name(const QofInstance* inst)
+//{
+//    GncEntry* entry;
+//    gchar* display_name;
+//    gchar* s;
+//
+//    g_return_val_if_fail(inst != NULL, FALSE);
+//    g_return_val_if_fail(typeid(inst) == typeid(GncEntry*), FALSE);
+//
+//    entry = dynamic_cast<GncEntry*>(inst);
+//    if (entry->order != NULL)
+//    {
+//        display_name = qof_instance_get_display_name(QOF_INSTANCE(entry->order));
+//        s = g_strdup_printf("Entry in %s", display_name);
+//        g_free(display_name);
+//        return s;
+//    }
+//    if (entry->invoice != NULL)
+//    {
+//        display_name = qof_instance_get_display_name(QOF_INSTANCE(entry->invoice));
+//        s = g_strdup_printf("Entry in %s", display_name);
+//        g_free(display_name);
+//        return s;
+//    }
+//    if (entry->bill != NULL)
+//    {
+//        display_name = qof_instance_get_display_name(QOF_INSTANCE(entry->bill));
+//        s = g_strdup_printf("Entry in %s", display_name);
+//        g_free(display_name);
+//        return s;
+//    }
+//
+//    return g_strdup_printf("Entry %p", inst);
+//}
+//
+///** Does this object refer to a specific object */
+//static gboolean
+//impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
+//{
+//    GncEntry* entry;
+//
+//    g_return_val_if_fail(inst != NULL, FALSE);
+//    g_return_val_if_fail(GNC_IS_ENTRY(inst), FALSE);
+//
+//    entry = GNC_ENTRY(inst);
+//
+//    if (GNC_IS_ACCOUNT(ref))
+//    {
+//        Account* acc = GNC_ACCOUNT(ref);
+//        return (entry->i_account == acc || entry->b_account == acc);
+//    }
+//    else if (GNC_IS_TAXTABLE(ref))
+//    {
+//        GncTaxTable* tt = GNC_TAXTABLE(ref);
+//        return (entry->i_tax_table == tt || entry->b_tax_table == tt);
+//    }
+//
+//    return FALSE;
+//}
+//
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    if (!GNC_IS_ACCOUNT(ref) && !GNC_IS_TAXTABLE(ref))
+//    {
+//        return NULL;
+//    }
+//
+//    return qof_instance_get_referring_object_list_from_collection(qof_instance_get_collection(inst), ref);
+//}
 
 /* Create/Destroy Functions */
 GncEntry *gncEntryCreate (QofBook *book)
@@ -391,8 +287,8 @@ GncEntry *gncEntryCreate (QofBook *book)
 
     if (!book) return NULL;
 
-    entry = g_object_new (GNC_TYPE_ENTRY, NULL);
-    qof_instance_init_data (&entry->inst, _GNC_MOD_NAME, book);
+    entry = new GncEntry; //g_object_new (GNC_TYPE_ENTRY, NULL);
+    qof_instance_init_data (entry, _GNC_MOD_NAME, book);
 
     entry->desc = CACHE_INSERT ("");
     entry->action = CACHE_INSERT ("");
@@ -412,7 +308,7 @@ GncEntry *gncEntryCreate (QofBook *book)
 
     entry->values_dirty = TRUE;
 
-    qof_event_gen (&entry->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (entry, QOF_EVENT_CREATE, NULL);
 
     return entry;
 }
@@ -428,7 +324,7 @@ static void gncEntryFree (GncEntry *entry)
 {
     if (!entry) return;
 
-    qof_event_gen (&entry->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (entry, QOF_EVENT_DESTROY, NULL);
 
     CACHE_REMOVE (entry->desc);
     CACHE_REMOVE (entry->action);
@@ -443,7 +339,8 @@ static void gncEntryFree (GncEntry *entry)
         gncTaxTableDecRef (entry->b_tax_table);
 
     /* qof_instance_release (&entry->inst); */
-    g_object_unref (entry);
+//    g_object_unref (entry);
+    delete entry;
 }
 
 /* ================================================================ */
@@ -1484,7 +1381,7 @@ gboolean gncEntryIsOpen (const GncEntry *entry)
 
 void gncEntryBeginEdit (GncEntry *entry)
 {
-    qof_begin_edit(&entry->inst);
+    qof_begin_edit(entry);
 }
 
 static void gncEntryOnError (QofInstance *entry, QofBackendError errcode)
@@ -1504,7 +1401,7 @@ static void entry_free (QofInstance *inst)
 void gncEntryCommitEdit (GncEntry *entry)
 {
     if (!qof_commit_edit (QOF_INSTANCE(entry))) return;
-    qof_commit_edit_part2 (&entry->inst, gncEntryOnError,
+    qof_commit_edit_part2 (entry, gncEntryOnError,
                            gncEntryOnDone, entry_free);
 }
 
@@ -1566,7 +1463,7 @@ int gncEntryCompare (const GncEntry *a, const GncEntry *b)
 static void
 destroy_entry_on_book_close(QofInstance *ent, gpointer data)
 {
-    GncEntry* entry = GNC_ENTRY(ent);
+    GncEntry* entry = dynamic_cast<GncEntry*>(ent);
 
     gncEntryBeginEdit(entry);
     gncEntryDestroy(entry);

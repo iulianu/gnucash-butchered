@@ -68,10 +68,9 @@
 #define GAINS_STATUS_VDIRTY    (GAINS_STATUS_VALU_DIRTY)
 #define GAINS_STATUS_A_VDIRTY  (GAINS_STATUS_AMNT_DIRTY|GAINS_STATUS_VALU_DIRTY|GAINS_STATUS_LOT_DIRTY)
 
-struct split_s
+class Split : public QofInstance
 {
-    QofInstance inst;
-
+public:
     Account *acc;              /* back-pointer to debited/credited account  */
     Account *orig_acc;
     GNCLot *lot;               /* back-pointer to debited/credited lot */
@@ -125,13 +124,10 @@ struct split_s
     gnc_numeric  balance;
     gnc_numeric  cleared_balance;
     gnc_numeric  reconciled_balance;
+    
+    Split();
+    virtual ~Split();
 };
-
-struct _SplitClass
-{
-    QofInstanceClass parent_class;
-};
-
 
 /* Set the split's GncGUID. This should only be done when reading
  * a split from a datafile, or some other external source. Never

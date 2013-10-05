@@ -99,7 +99,8 @@ test_customer (void)
 
         list = gncBusinessGetList (book, GNC_ID_CUSTOMER, TRUE);
         do_test (list != NULL, "getList all");
-        do_test (g_list_length (list) == count, "correct length: all");
+//        printf("list_length %d, count %d\n", g_list_length(list), count);
+        do_test (g_list_length (list) == count, "correct length: all, list length");
         g_list_free (list);
 
         list = gncBusinessGetList (book, GNC_ID_CUSTOMER, FALSE);

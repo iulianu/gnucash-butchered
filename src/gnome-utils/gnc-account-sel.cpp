@@ -27,6 +27,7 @@
 
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+#include <typeinfo>
 
 #include "dialog-account.h"
 #include "GNCId.h"
@@ -37,6 +38,7 @@
 #include "gnc-ui-util.h"
 #include "qof.h"
 #include "gnc-session.h"
+#include "AccountP.h"
 
 #define ACCT_DATA_TAG "gnc-account-sel_acct"
 
@@ -107,7 +109,8 @@ gnc_account_sel_event_cb( QofInstance *entity,
     if ( ! ( event_type == QOF_EVENT_CREATE
              || event_type == QOF_EVENT_MODIFY
              || event_type == QOF_EVENT_DESTROY )
-            || !GNC_IS_ACCOUNT(entity) )
+             || (entity == NULL)
+             || (typeid(*entity) != typeid(Account) ))
     {
         return;
     }
@@ -248,8 +251,8 @@ gas_filter_accounts( gpointer data, gpointer user_data )
     account_filter_data *atnd;
     Account *a;
 
-    atnd = (account_filter_data*)user_data;
-    a = (Account*)data;
+    atnd = reinterpret_cast<account_filter_data*>(user_data);
+    a = reinterpret_cast<Account*>(data);
     /* Filter as we've been configured to do. */
     if ( atnd->gas->acctTypeFilters )
     {

@@ -36,21 +36,6 @@
 #include "gncJobP.h"
 #include "gncOwnerP.h"
 
-struct _gncJob
-{
-    QofInstance inst;
-    char *        id;
-    char *        name;
-    char *        desc;
-    GncOwner      owner;
-    gboolean      active;
-};
-
-struct _gncJobClass
-{
-    QofInstanceClass parent_class;
-};
-
 static QofLogModule log_module = GNC_MOD_BUSINESS;
 
 #define _GNC_MOD_NAME        GNC_ID_JOB
@@ -61,122 +46,38 @@ static QofLogModule log_module = GNC_MOD_BUSINESS;
 G_INLINE_FUNC void mark_job (GncJob *job);
 void mark_job (GncJob *job)
 {
-    qof_instance_set_dirty(&job->inst);
-    qof_event_gen (&job->inst, QOF_EVENT_MODIFY, NULL);
+    qof_instance_set_dirty(job);
+    qof_event_gen (job, QOF_EVENT_MODIFY, NULL);
 }
 
 /* ================================================================== */
 
-enum
+    
+GncJob::GncJob()
 {
-    PROP_0,
-    PROP_NAME
-};
-
-/* GObject Initialization */
-G_DEFINE_TYPE(GncJob, gnc_job, QOF_TYPE_INSTANCE);
-
-static void
-gnc_job_init(GncJob* job)
-{
+    id = NULL;
+    name = NULL;
+    desc = NULL;
+    active = false;
 }
 
-static void
-gnc_job_dispose(GObject *jobp)
+GncJob::~GncJob()
 {
-    G_OBJECT_CLASS(gnc_job_parent_class)->dispose(jobp);
+    
 }
 
-static void
-gnc_job_finalize(GObject* jobp)
-{
-    G_OBJECT_CLASS(gnc_job_parent_class)->finalize(jobp);
-}
-
-static void
-gnc_job_get_property (GObject         *object,
-                      guint            prop_id,
-                      GValue          *value,
-                      GParamSpec      *pspec)
-{
-    GncJob *job;
-
-    g_return_if_fail(GNC_IS_JOB(object));
-
-    job = GNC_JOB(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        g_value_set_string(value, job->name);
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void
-gnc_job_set_property (GObject         *object,
-                      guint            prop_id,
-                      const GValue          *value,
-                      GParamSpec      *pspec)
-{
-    GncJob *job;
-
-    g_return_if_fail(GNC_IS_JOB(object));
-
-    job = GNC_JOB(object);
-    switch (prop_id)
-    {
-    case PROP_NAME:
-        gncJobSetName(job, g_value_get_string(value));
-        break;
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-/** Returns a list of my type of object which refers to an object.  For example, when called as
-        qof_instance_get_typed_referring_object_list(taxtable, account);
-    it will return the list of taxtables which refer to a specific account.  The result should be the
-    same regardless of which taxtable object is used.  The list must be freed by the caller but the
-    objects on the list must not.
- */
-static GList*
-impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
-{
-    /* Refers to nothing */
-    return NULL;
-}
-
-static void
-gnc_job_class_init (GncJobClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-    QofInstanceClass* qof_class = QOF_INSTANCE_CLASS(klass);
-
-    gobject_class->dispose = gnc_job_dispose;
-    gobject_class->finalize = gnc_job_finalize;
-    gobject_class->set_property = gnc_job_set_property;
-    gobject_class->get_property = gnc_job_get_property;
-
-    qof_class->get_display_name = NULL;
-    qof_class->refers_to_object = NULL;
-    qof_class->get_typed_referring_object_list = impl_get_typed_referring_object_list;
-
-    g_object_class_install_property
-    (gobject_class,
-     PROP_NAME,
-     g_param_spec_string ("name",
-                          "Job Name",
-                          "The job name is an arbitrary string "
-                          "assigned by the user.  It is intended to "
-                          "a short character string that is displayed "
-                          "by the GUI as the job mnemonic.",
-                          NULL,
-                          G_PARAM_READWRITE));
-}
+///** Returns a list of my type of object which refers to an object.  For example, when called as
+//        qof_instance_get_typed_referring_object_list(taxtable, account);
+//    it will return the list of taxtables which refer to a specific account.  The result should be the
+//    same regardless of which taxtable object is used.  The list must be freed by the caller but the
+//    objects on the list must not.
+// */
+//static GList*
+//impl_get_typed_referring_object_list(const QofInstance* inst, const QofInstance* ref)
+//{
+//    /* Refers to nothing */
+//    return NULL;
+//}
 
 /* Create/Destroy Functions */
 GncJob *gncJobCreate (QofBook *book)
@@ -185,8 +86,8 @@ GncJob *gncJobCreate (QofBook *book)
 
     if (!book) return NULL;
 
-    job = g_object_new (GNC_TYPE_JOB, NULL);
-    qof_instance_init_data (&job->inst, _GNC_MOD_NAME, book);
+    job = new GncJob; //g_object_new (GNC_TYPE_JOB, NULL);
+    qof_instance_init_data (job, _GNC_MOD_NAME, book);
 
     job->id = CACHE_INSERT ("");
     job->name = CACHE_INSERT ("");
@@ -194,7 +95,7 @@ GncJob *gncJobCreate (QofBook *book)
     job->active = TRUE;
 
     /* GncOwner not initialized */
-    qof_event_gen (&job->inst, QOF_EVENT_CREATE, NULL);
+    qof_event_gen (job, QOF_EVENT_CREATE, NULL);
 
     return job;
 }
@@ -210,7 +111,7 @@ static void gncJobFree (GncJob *job)
 {
     if (!job) return;
 
-    qof_event_gen (&job->inst, QOF_EVENT_DESTROY, NULL);
+    qof_event_gen (job, QOF_EVENT_DESTROY, NULL);
 
     CACHE_REMOVE (job->id);
     CACHE_REMOVE (job->name);
@@ -229,7 +130,8 @@ static void gncJobFree (GncJob *job)
     }
 
     /* qof_instance_release (&job->inst); */
-    g_object_unref (job);
+//    g_object_unref (job);
+    delete job;
 }
 
 
@@ -338,15 +240,15 @@ qofJobSetOwner (GncJob *job, QofInstance *ent)
     {
         return;
     }
-    qof_begin_edit(&job->inst);
+    qof_begin_edit(job);
     qofOwnerSetEntity(&job->owner, ent);
     mark_job (job);
-    qof_commit_edit(&job->inst);
+    qof_commit_edit(job);
 }
 
 void gncJobBeginEdit (GncJob *job)
 {
-    qof_begin_edit(&job->inst);
+    qof_begin_edit(job);
 }
 
 static void gncJobOnError (QofInstance *inst, QofBackendError errcode)
@@ -357,7 +259,7 @@ static void gncJobOnError (QofInstance *inst, QofBackendError errcode)
 
 static void job_free (QofInstance *inst)
 {
-    GncJob *job = (GncJob *)inst;
+    GncJob *job = dynamic_cast<GncJob *>(inst);
     gncJobFree (job);
 }
 
@@ -366,7 +268,7 @@ static void gncJobOnDone (QofInstance *qof) { }
 void gncJobCommitEdit (GncJob *job)
 {
     if (!qof_commit_edit (QOF_INSTANCE(job))) return;
-    qof_commit_edit_part2 (&job->inst, gncJobOnError,
+    qof_commit_edit_part2 (job, gncJobOnError,
                            gncJobOnDone, job_free);
 }
 
@@ -429,8 +331,8 @@ gboolean gncJobEqual(const GncJob * a, const GncJob *b)
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
 
-    g_return_val_if_fail(GNC_IS_JOB(a), FALSE);
-    g_return_val_if_fail(GNC_IS_JOB(b), FALSE);
+//    g_return_val_if_fail(GNC_IS_JOB(a), FALSE);
+//    g_return_val_if_fail(GNC_IS_JOB(b), FALSE);
 
     if (g_strcmp0(a->id, b->id) != 0)
     {

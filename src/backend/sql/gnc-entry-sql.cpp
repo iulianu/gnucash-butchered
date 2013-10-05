@@ -122,12 +122,12 @@ entry_set_invoice( gpointer pObject, gpointer val )
     GncInvoice* invoice;
 
     g_return_if_fail( pObject != NULL );
-    g_return_if_fail( GNC_IS_ENTRY(pObject) );
+//    g_return_if_fail( GNC_IS_ENTRY(pObject) );
     g_return_if_fail( val != NULL );
-    g_return_if_fail( GNC_IS_INVOICE(val) );
+//    g_return_if_fail( GNC_IS_INVOICE(val) );
 
-    entry = GNC_ENTRY(pObject);
-    invoice = GNC_INVOICE(val);
+    entry = (GncEntry*)(pObject);
+    invoice = (GncInvoice*)(val);
 
     gncInvoiceAddEntry( invoice, entry );
 }
@@ -139,12 +139,12 @@ entry_set_bill( gpointer pObject, gpointer val )
     GncInvoice* bill;
 
     g_return_if_fail( pObject != NULL );
-    g_return_if_fail( GNC_IS_ENTRY(pObject) );
+//    g_return_if_fail( GNC_IS_ENTRY(pObject) );
     g_return_if_fail( val != NULL );
-    g_return_if_fail( GNC_IS_INVOICE(val) );
+//    g_return_if_fail( GNC_IS_INVOICE(val) );
 
-    entry = GNC_ENTRY(pObject);
-    bill = GNC_INVOICE(val);
+    entry = (GncEntry*)(pObject);
+    bill = (GncInvoice*)(val);
 
     gncBillAddEntry( bill, entry );
 }
@@ -237,7 +237,7 @@ static gboolean
 save_entry( GncSqlBackend* be, QofInstance* inst )
 {
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_ENTRY(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_ENTRY(inst), FALSE );
     g_return_val_if_fail( be != NULL, FALSE );
 
     return gnc_sql_commit_standard_item( be, inst, TABLE_NAME, GNC_ID_ENTRY, col_table );
@@ -248,10 +248,10 @@ static void
 write_single_entry( QofInstance *term_p, gpointer data_p )
 {
     write_objects_t* s = (write_objects_t*)data_p;
-    GncEntry* entry = GNC_ENTRY(term_p);
+    GncEntry* entry = (GncEntry*)(term_p);
 
     g_return_if_fail( term_p != NULL );
-    g_return_if_fail( GNC_IS_ENTRY(term_p) );
+//    g_return_if_fail( GNC_IS_ENTRY(term_p) );
     g_return_if_fail( data_p != NULL );
 
     /* Only save if attached */

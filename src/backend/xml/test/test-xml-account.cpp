@@ -41,7 +41,7 @@
 #include <test-file-stuff.h>
 #include <unittest-support.h>
 
-#include "Account.h"
+#include "AccountP.h"
 #include "Scrub.h"
 
 #define GNC_V2_STRING "gnc-v2"

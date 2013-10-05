@@ -28,29 +28,47 @@
 #include "SX-ttinfo.h"
 
 /* KvpFrame policy? */
-struct TTInfo_s
+class TTInfo
 {
+public:
     /* FIXME add notes field */
     char *description; /* owned by us */
     char *num;         /* owned  by us */
     gnc_commodity *common_currency; /* not freed */
 
     GList *splits; /* list of template splits, owned by us */
+    
+    TTInfo()
+    {
+        description = NULL;
+        num = NULL;
+        common_currency = NULL;
+    }
 };
 
-struct TTSplitInfo_s
+class TTSplitInfo
 {
+public:
     char *action; /* owned by us */
     /* FIXME: What about the split's KvpFrame */
     char *memo; /* owned by us */
     char *credit_formula, *debit_formula; /* owned by us */
     Account *acc;
+    
+    TTSplitInfo()
+    {
+        action = NULL;
+        memo = NULL;
+        credit_formula = NULL;
+        debit_formula = NULL;
+        acc = NULL;
+    }
 };
 
 TTInfo *
 gnc_ttinfo_malloc(void)
 {
-    TTInfo *tti = g_new0(TTInfo, 1);
+    TTInfo *tti = new TTInfo;//g_new0(TTInfo, 1);
     return tti;
 }
 
@@ -73,7 +91,8 @@ void gnc_ttinfo_free(TTInfo *info)
 
     g_list_free(info->splits);
 
-    g_free(info);
+//    g_free(info);
+    delete info;
 
     return;
 }
@@ -173,7 +192,7 @@ gnc_ttinfo_get_template_splits(TTInfo *tti)
 TTSplitInfo *
 gnc_ttsplitinfo_malloc(void)
 {
-    TTSplitInfo *ttsi = g_new0(TTSplitInfo, 1);
+    TTSplitInfo *ttsi = new TTSplitInfo;//g_new0(TTSplitInfo, 1);
     return ttsi;
 }
 
@@ -188,7 +207,8 @@ gnc_ttsplitinfo_free(TTSplitInfo *ttsi)
         g_free(ttsi->credit_formula);
     if ( ttsi->debit_formula )
         g_free(ttsi->debit_formula);
-    g_free(ttsi);
+//    g_free(ttsi);
+    delete ttsi;
     return;
 }
 

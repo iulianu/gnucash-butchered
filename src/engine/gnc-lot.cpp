@@ -55,19 +55,8 @@
 /* This static indicates the debugging module that this .o belongs to.  */
 static QofLogModule log_module = GNC_MOD_LOT;
 
-struct gnc_lot_s
-{
-    QofInstance inst;
-};
 
-enum
-{
-    PROP_0,
-    PROP_IS_CLOSED,
-    PROP_MARKER
-};
-
-typedef struct LotPrivate
+struct LotPrivate
 {
     /* Account to which this lot applies.  All splits in the lot must
      * belong to this account.
@@ -84,118 +73,34 @@ typedef struct LotPrivate
 
     /* traversal marker, handy for preventing recursion */
     unsigned char marker;
-} LotPrivate;
+};
 
 #define GET_PRIVATE(o) \
-    (G_TYPE_INSTANCE_GET_PRIVATE((o), GNC_TYPE_LOT, LotPrivate))
+    (o->priv)
 
 #define gnc_lot_set_guid(L,G)  qof_instance_set_guid(QOF_INSTANCE(L),&(G))
 
 /* ============================================================= */
 
 /* GObject Initialization */
-G_DEFINE_TYPE(GNCLot, gnc_lot, QOF_TYPE_INSTANCE)
+//G_DEFINE_TYPE(GNCLot, gnc_lot, QOF_TYPE_INSTANCE)
+//
 
-static void
-gnc_lot_init(GNCLot* lot)
+GNCLot::GNCLot()
 {
-    LotPrivate* priv;
-
-    priv = GET_PRIVATE(lot);
+    priv = new LotPrivate;
     priv->account = NULL;
     priv->splits = NULL;
     priv->is_closed = LOT_CLOSED_UNKNOWN;
     priv->marker = 0;
 }
 
-static void
-gnc_lot_dispose(GObject *lotp)
+GNCLot::~GNCLot()
 {
-    G_OBJECT_CLASS(gnc_lot_parent_class)->dispose(lotp);
+    delete priv;
 }
 
-static void
-gnc_lot_finalize(GObject* lotp)
-{
-    G_OBJECT_CLASS(gnc_lot_parent_class)->finalize(lotp);
-}
 
-static void
-gnc_lot_get_property(GObject* object, guint prop_id, GValue* value, GParamSpec* pspec)
-{
-    GNCLot* lot;
-    LotPrivate* priv;
-
-    g_return_if_fail(GNC_IS_LOT(object));
-
-    lot = GNC_LOT(object);
-    priv = GET_PRIVATE(lot);
-    switch (prop_id)
-    {
-    case PROP_IS_CLOSED:
-        g_value_set_int(value, priv->is_closed);
-        break;
-    case PROP_MARKER:
-        g_value_set_int(value, priv->marker);
-        break;
-    }
-}
-
-static void
-gnc_lot_set_property(GObject* object, guint prop_id, const GValue* value, GParamSpec* pspec)
-{
-    GNCLot* lot;
-    LotPrivate* priv;
-
-    g_return_if_fail(GNC_IS_LOT(object));
-
-    lot = GNC_LOT(object);
-    priv = GET_PRIVATE(lot);
-    switch (prop_id)
-    {
-    case PROP_IS_CLOSED:
-        priv->is_closed = g_value_get_int(value);
-        break;
-    case PROP_MARKER:
-        priv->marker = g_value_get_int(value);
-        break;
-    }
-}
-
-static void
-gnc_lot_class_init(GNCLotClass* klass)
-{
-    GObjectClass* gobject_class = G_OBJECT_CLASS(klass);
-
-    gobject_class->dispose = gnc_lot_dispose;
-    gobject_class->finalize = gnc_lot_finalize;
-    gobject_class->get_property = gnc_lot_get_property;
-    gobject_class->set_property = gnc_lot_set_property;
-
-    g_type_class_add_private(klass, sizeof(LotPrivate));
-
-    g_object_class_install_property(
-        gobject_class,
-        PROP_IS_CLOSED,
-        g_param_spec_int("is-closed",
-                         "Is Lot Closed",
-                         "Indication of whether this lot is open "
-                         "or closed to further changes.",
-                         -1, 1, 0,
-                         G_PARAM_READWRITE));
-
-    g_object_class_install_property(
-        gobject_class,
-        PROP_MARKER,
-        g_param_spec_int("marker",
-                         "Lot marker",
-                         "Ipsum Lorem",
-                         0, G_MAXINT8, 0,
-                         G_PARAM_READWRITE));
-
-
-
-}
 
 GNCLot *
 gnc_lot_new (QofBook *book)
@@ -203,7 +108,7 @@ gnc_lot_new (QofBook *book)
     GNCLot *lot;
     g_return_val_if_fail (book, NULL);
 
-    lot = g_object_new (GNC_TYPE_LOT, NULL);
+    lot = new GNCLot; //g_object_new (GNC_TYPE_LOT, NULL);
     qof_instance_init_data(QOF_INSTANCE(lot), GNC_ID_LOT, book);
     qof_event_gen (QOF_INSTANCE(lot), QOF_EVENT_CREATE, NULL);
     return lot;
@@ -230,7 +135,8 @@ gnc_lot_free(GNCLot* lot)
     priv->account = NULL;
     priv->is_closed = TRUE;
     /* qof_instance_release (&lot->inst); */
-    g_object_unref (lot);
+//    g_object_unref (lot);
+    delete lot;
 }
 
 void
@@ -259,7 +165,7 @@ static void commit_err (QofInstance *inst, QofBackendError errcode)
 
 static void lot_free(QofInstance* inst)
 {
-    GNCLot* lot = GNC_LOT(inst);
+    GNCLot* lot = dynamic_cast<GNCLot*>(inst);
 
     gnc_lot_free(lot);
 }
@@ -598,7 +504,7 @@ gnc_lot_get_latest_split (GNCLot *lot)
 static void
 destroy_lot_on_book_close(QofInstance *ent, gpointer data)
 {
-    GNCLot* lot = GNC_LOT(ent);
+    GNCLot* lot = dynamic_cast<GNCLot*>(ent);
 
     gnc_lot_destroy(lot);
 }

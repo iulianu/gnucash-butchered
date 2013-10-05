@@ -69,13 +69,15 @@ typedef enum
 
 /* Recurrences represent both the phase and period of a recurring event. */
 
-typedef struct
+struct Recurrence
 {
     GDate start;         /* First date in the recurrence; specifies phase. */
     PeriodType ptype;    /* see PeriodType enum */
     guint16 mult;        /* a period multiplier */
     WeekendAdjust wadj;  /* see WeekendAdjust enum */
-} Recurrence;
+    
+    Recurrence();
+};
 
 
 /* recurrenceSet() will enforce internal consistency by overriding

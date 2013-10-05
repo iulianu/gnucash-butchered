@@ -25,7 +25,8 @@
 #include "gnc-addr-quickfill.h"
 #include "engine/gnc-event.h"
 #include "engine/gnc-engine.h"
-#include "engine/gncAddress.h"
+#include "engine/gncAddressP.h"
+#include <typeinfo>
 
 /* This static indicates the debugging module that this .o belongs to. */
 G_GNUC_UNUSED static QofLogModule log_module = GNC_MOD_REGISTER;
@@ -48,7 +49,9 @@ listen_for_gncaddress_events(QofInstance *entity,  QofEventId event_type,
     const char *addr2, *addr3, *addr4;
 
     /* We only listen for GncAddress events */
-    if (!GNC_IS_ADDRESS (entity))
+    if(!entity)
+        return;
+    if (typeid(*entity) != typeid(GncAddress))
         return;
 
     /* We listen for MODIFY (if the description was changed into
@@ -60,9 +63,10 @@ listen_for_gncaddress_events(QofInstance *entity,  QofEventId event_type,
     /*     g_warning("entity %p, entity type %s, event type %s, user data %p, ecent data %p", */
     /*               entity, entity->e_type, qofeventid_to_string(event_type), user_data, event_data); */
 
-    addr2 = gncAddressGetAddr2(GNC_ADDRESS(entity));
-    addr3 = gncAddressGetAddr3(GNC_ADDRESS(entity));
-    addr4 = gncAddressGetAddr4(GNC_ADDRESS(entity));
+    GncAddress * address = dynamic_cast<GncAddress*>(entity);
+    addr2 = gncAddressGetAddr2(address);
+    addr3 = gncAddressGetAddr3(address);
+    addr4 = gncAddressGetAddr4(address);
     if (event_type & QOF_EVENT_MODIFY)
     {
         /* If the description was changed into something non-empty, so

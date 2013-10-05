@@ -23,41 +23,10 @@
 #ifndef GNC_PRICEDB_H
 #define GNC_PRICEDB_H
 
-typedef struct _GncPriceClass GNCPriceClass;
-typedef struct _GncPriceDBClass GNCPriceDBClass;
-
 #include <stdio.h>
 #include "qof.h"
 #include "gnc-commodity.h"
 #include "gnc-engine.h"
-
-/* --- type macros --- */
-#define GNC_TYPE_PRICE            (gnc_price_get_type ())
-#define GNC_PRICE(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_PRICE, GNCPrice))
-#define GNC_PRICE_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_PRICE, GNCPriceClass))
-#define GNC_IS_PRICE(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_PRICE))
-#define GNC_IS_PRICE_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_PRICE))
-#define GNC_PRICE_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_PRICE, GNCPriceClass))
-GType gnc_price_get_type(void);
-
-/* --- type macros --- */
-#define GNC_TYPE_PRICEDB            (gnc_pricedb_get_type ())
-#define GNC_PRICEDB(o)              \
-     (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_PRICEDB, GNCPriceDB))
-#define GNC_PRICEDB_CLASS(k)        \
-     (G_TYPE_CHECK_CLASS_CAST((k), GNC_TYPE_PRICEDB, GNCPriceDBClass))
-#define GNC_IS_PRICEDB(o)           \
-     (G_TYPE_CHECK_INSTANCE_TYPE ((o), GNC_TYPE_PRICEDB))
-#define GNC_IS_PRICEDB_CLASS(k)     \
-     (G_TYPE_CHECK_CLASS_TYPE ((k), GNC_TYPE_PRICEDB))
-#define GNC_PRICEDB_GET_CLASS(o)    \
-     (G_TYPE_INSTANCE_GET_CLASS ((o), GNC_TYPE_PRICEDB, GNCPriceDBClass))
-GType gnc_pricedb_get_type(void);
 
 
 /** @addtogroup PriceDB
@@ -153,7 +122,7 @@ GType gnc_pricedb_get_type(void);
  @{ */
 
 /** */
-typedef struct gnc_price_lookup_s GNCPriceLookup;
+struct GNCPriceLookup;
 typedef GList PriceList;
 
 /* ------------------ */
@@ -278,7 +247,7 @@ gboolean gnc_price_list_equal(PriceList *prices1, PriceList *prices2);
   @{
 */
 /** Data type */
-typedef struct gnc_price_db_s GNCPriceDB;
+class GNCPriceDB;
 
 /** return the pricedb associated with the book */
 /*@ dependent @*/

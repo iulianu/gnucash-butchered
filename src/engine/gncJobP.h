@@ -31,6 +31,19 @@
 
 #include "gncJob.h"
 
+class GncJob : public QofInstance
+{
+public:
+    char *        id;
+    char *        name;
+    char *        desc;
+    GncOwner      owner;
+    gboolean      active;
+    
+    GncJob();
+    virtual ~GncJob();
+};
+
 gboolean gncJobRegister (void);
 gchar *gncJobNextID (QofBook *book);
 

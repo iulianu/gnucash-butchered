@@ -31,8 +31,8 @@
 #include "Account.h"
 #include "gnc-commodity.h"
 
-typedef struct TTInfo_s TTInfo;
-typedef struct TTSplitInfo_s TTSplitInfo;
+struct TTInfo;
+struct TTSplitInfo;
 
 TTInfo *gnc_ttinfo_malloc(void);
 

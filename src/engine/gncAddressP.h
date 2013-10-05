@@ -30,6 +30,27 @@
 
 #include "gncAddress.h"
 
+class GncAddress : public QofInstance
+{
+public:
+//    QofInstance inst;
+
+    QofBook *	book;
+    QofInstance * parent;
+    gboolean	dirty;
+    char *	name;
+    char *	addr1;
+    char *	addr2;
+    char *	addr3;
+    char *	addr4;
+    char *	phone;
+    char *	fax;
+    char *	email;
+    
+    GncAddress();
+    virtual ~GncAddress();
+};
+
 gboolean gncAddressRegister (void);
 
 #endif /* GNC_ADDRESSP_H_ */

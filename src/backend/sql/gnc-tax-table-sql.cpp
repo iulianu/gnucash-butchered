@@ -143,10 +143,10 @@ set_obj_guid( gpointer pObject, gpointer pValue )
 static gpointer
 get_child( gpointer pObject, const QofParam* param )
 {
-    GncTaxTable* tt = GNC_TAXTABLE(pObject);
+    GncTaxTable* tt = (GncTaxTable*)(pObject);
 
     g_return_val_if_fail( pObject != NULL, NULL );
-    g_return_val_if_fail( GNC_IS_TAXTABLE(pObject), NULL );
+//    g_return_val_if_fail( GNC_IS_TAXTABLE(pObject), NULL );
 
     return gncTaxTableGetChild( tt );
 }
@@ -160,9 +160,9 @@ bt_get_parent( gpointer pObject )
     const GncGUID* parent_guid;
 
     g_return_val_if_fail( pObject != NULL, NULL );
-    g_return_val_if_fail( GNC_IS_TAXTABLE(pObject), NULL );
+//    g_return_val_if_fail( GNC_IS_TAXTABLE(pObject), NULL );
 
-    tt = GNC_TAXTABLE(pObject);
+    tt = (GncTaxTable*)(pObject);
     pParent = gncTaxTableGetParent( tt );
     if ( pParent == NULL )
     {
@@ -185,9 +185,9 @@ tt_set_parent( gpointer data, gpointer value )
     GncGUID* guid = (GncGUID*)value;
 
     g_return_if_fail( data != NULL );
-    g_return_if_fail( GNC_IS_TAXTABLE(data) );
+//    g_return_if_fail( GNC_IS_TAXTABLE(data) );
 
-    tt = GNC_TAXTABLE(data);
+    tt = (GncTaxTable*)(data);
     pBook = qof_instance_get_book( QOF_INSTANCE(tt) );
     if ( guid != NULL )
     {
@@ -440,10 +440,10 @@ save_taxtable( GncSqlBackend* be, QofInstance* inst )
     gboolean is_ok;
 
     g_return_val_if_fail( inst != NULL, FALSE );
-    g_return_val_if_fail( GNC_IS_TAXTABLE(inst), FALSE );
+//    g_return_val_if_fail( GNC_IS_TAXTABLE(inst), FALSE );
     g_return_val_if_fail( be != NULL, FALSE );
 
-    tt = GNC_TAXTABLE(inst);
+    tt = (GncTaxTable*)(inst);
 
     is_infant = qof_instance_get_infant( inst );
     if ( qof_instance_get_destroying( inst ) )

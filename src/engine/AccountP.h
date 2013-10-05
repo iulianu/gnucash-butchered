@@ -52,7 +52,7 @@
 */
 
 /** \struct Account */
-typedef struct AccountPrivate
+struct AccountPrivate
 {
     /* The accountName is an arbitrary string assigned by the user.
      * It is intended to a short, 5 to 30 character long string that
@@ -120,11 +120,40 @@ typedef struct AccountPrivate
      * in any way desired.  Handy for specialty traversals of the
      * account tree. */
     short mark;
-} AccountPrivate;
+    
+    AccountPrivate()
+    {
+        accountName = NULL;
+        accountCode = NULL;
+        description = NULL;
+        type = 0;
+        commodity = NULL;
+        commodity_scu = 0;
+        non_standard_scu = false;
+        parent = NULL;
+        children = NULL;
+        starting_balance = gnc_numeric_zero();
+        starting_cleared_balance = gnc_numeric_zero();
+        starting_reconciled_balance = gnc_numeric_zero();
+        balance = gnc_numeric_zero();
+        cleared_balance = gnc_numeric_zero();
+        reconciled_balance = gnc_numeric_zero();
+        balance_dirty = false;
+        splits = NULL;
+        sort_dirty = false;
+        lots = NULL;
+        policy = NULL;
+        mark = 0;
+    }
+};
 
-struct account_s
+class Account : public QofInstance
 {
-    QofInstance inst;
+public:
+    AccountPrivate *priv;
+    
+    Account();
+    virtual ~Account();
 };
 
 /* Set the account's GncGUID. This should only be done when reading

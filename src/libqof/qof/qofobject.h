@@ -113,6 +113,8 @@ public:
      *  to or later than than 'instance_right'.
      */
     int                 (*version_cmp)(void * instance_left, void * instance_right);
+    
+//    QofObject();
 };
 
 typedef void (*QofForeachCB) (void * obj, void * user_data);

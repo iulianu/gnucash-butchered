@@ -969,9 +969,9 @@ commodity_equal (gconstpointer a, gconstpointer b)
 {
     CommodityCount *cc = (CommodityCount*)a;
     gnc_commodity *com = (gnc_commodity*)b;
-    if ( cc == NULL || cc->commodity == NULL ||
-            !GNC_IS_COMMODITY( cc->commodity ) ) return -1;
-    if ( com == NULL || !GNC_IS_COMMODITY( com ) ) return 1;
+    if ( cc == NULL || cc->commodity == NULL /*||
+            !GNC_IS_COMMODITY( cc->commodity )*/ ) return -1;
+    if ( com == NULL /*|| !GNC_IS_COMMODITY( com )*/ ) return 1;
     if ( gnc_commodity_equal(cc->commodity, com) )
         return 0;
     return 1;
@@ -981,16 +981,16 @@ static gint
 commodity_compare( gconstpointer a, gconstpointer b)
 {
     CommodityCount *ca = (CommodityCount*)a, *cb = (CommodityCount*)b;
-    if (ca == NULL || ca->commodity == NULL ||
-            !GNC_IS_COMMODITY( ca->commodity ) )
+    if (ca == NULL || ca->commodity == NULL /*||
+            !GNC_IS_COMMODITY( ca->commodity )*/ )
     {
-        if (cb == NULL || cb->commodity == NULL ||
-                !GNC_IS_COMMODITY( cb->commodity ) )
+        if (cb == NULL || cb->commodity == NULL /*||
+                !GNC_IS_COMMODITY( cb->commodity )*/ )
             return 0;
         return -1;
     }
-    if (cb == NULL || cb->commodity == NULL ||
-            !GNC_IS_COMMODITY( cb->commodity ) )
+    if (cb == NULL || cb->commodity == NULL /*||
+            !GNC_IS_COMMODITY( cb->commodity )*/ )
         return 1;
     if (ca->count == cb->count)
         return 0;
@@ -1212,10 +1212,10 @@ xaccAccountDeleteOldData (Account *account)
     if (!account) return;
     xaccAccountBeginEdit (account);
 
-    kvp_frame_set_slot_nc (account->inst.kvp_data, "old-currency", NULL);
-    kvp_frame_set_slot_nc (account->inst.kvp_data, "old-security", NULL);
-    kvp_frame_set_slot_nc (account->inst.kvp_data, "old-currency-scu", NULL);
-    kvp_frame_set_slot_nc (account->inst.kvp_data, "old-security-scu", NULL);
+    kvp_frame_set_slot_nc (account->kvp_data, "old-currency", NULL);
+    kvp_frame_set_slot_nc (account->kvp_data, "old-security", NULL);
+    kvp_frame_set_slot_nc (account->kvp_data, "old-currency-scu", NULL);
+    kvp_frame_set_slot_nc (account->kvp_data, "old-security-scu", NULL);
     qof_instance_set_dirty (QOF_INSTANCE (account));
     xaccAccountCommitEdit (account);
 }
@@ -1322,23 +1322,23 @@ xaccAccountScrubKvp (Account *account)
 
     if (!account) return;
 
-    str = kvp_frame_get_string(account->inst.kvp_data, "notes");
+    str = kvp_frame_get_string(account->kvp_data, "notes");
     if (str)
     {
         str2 = g_strstrip(g_strdup(str));
         if (strlen(str2) == 0)
-            kvp_frame_set_slot_nc (account->inst.kvp_data, "notes", NULL);
+            kvp_frame_set_slot_nc (account->kvp_data, "notes", NULL);
         g_free(str2);
     }
 
-    str = kvp_frame_get_string(account->inst.kvp_data, "placeholder");
+    str = kvp_frame_get_string(account->kvp_data, "placeholder");
     if (str && strcmp(str, "false") == 0)
-        kvp_frame_set_slot_nc (account->inst.kvp_data, "placeholder", NULL);
+        kvp_frame_set_slot_nc (account->kvp_data, "placeholder", NULL);
 
-    frame = kvp_frame_get_frame(account->inst.kvp_data, "hbci");
+    frame = kvp_frame_get_frame(account->kvp_data, "hbci");
     if (frame && kvp_frame_is_empty(frame))
     {
-        kvp_frame_set_frame_nc(account->inst.kvp_data, "hbci", NULL);
+        kvp_frame_set_frame_nc(account->kvp_data, "hbci", NULL);
     }
 }
 

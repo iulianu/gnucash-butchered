@@ -74,6 +74,21 @@ get_backend_data( void )
 
 /*********/
 
+//QofObject::QofObject()
+//{
+//    interface_version = 0;
+//    e_type = 0;
+//    type_label = NULL;
+//    create = NULL;
+//    book_begin = NULL;
+//    book_end = NULL;
+//    is_dirty = NULL;
+//    mark_clean = NULL;
+//    foreach = NULL;
+//    printable = NULL;
+//    version_cmp = NULL;
+//}
+
 void *
 qof_object_new_instance (QofIdTypeConst type_name, QofBook *book)
 {

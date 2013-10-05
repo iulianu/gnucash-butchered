@@ -37,10 +37,11 @@
 #include "qof.h"
 #include "qofquery-p.h"
 #include "qofquerycore-p.h"
-#include "Account.h"
+#include "AccountP.h"
 #include "TransLog.h"
 #include "gnc-engine.h"
 #include "SX-book.h"
+#include "TransactionP.h"
 #include "Recurrence.h"
 #include "gncBillTerm.h"
 #include "gncTaxTable.h"
@@ -351,7 +352,7 @@ write_account_tree( GncSqlBackend* be, Account* root )
         descendants = gnc_account_get_descendants( root );
         for ( node = descendants; node != NULL && is_ok; node = g_list_next(node) )
         {
-            is_ok = gnc_sql_save_account( be, QOF_INSTANCE(GNC_ACCOUNT(node->data)) );
+            is_ok = gnc_sql_save_account( be, QOF_INSTANCE((Account*)(node->data)) );
             if ( !is_ok ) break;
         }
         g_list_free( descendants );
