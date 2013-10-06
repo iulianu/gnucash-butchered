@@ -72,13 +72,13 @@ void qofOwnerSetEntity (GncOwner *owner, QofInstance *ent);
 ///** Check if entity is an owner kind. This function conveniently
 // *  imitates the various GNC_IS_ checks on the other gnucash
 // *  objects even though an owner is not really a true object. */
-//gboolean GNC_IS_OWNER (QofInstance *ent);
+//bool GNC_IS_OWNER (QofInstance *ent);
 
 /** Returns the QofIdType of the given GncOwnerType, or NULL if no
  * suitable one exists. */
 QofIdTypeConst gncOwnerTypeToQofIdType(GncOwnerType t);
 
-gboolean
+bool
 gncOwnerRegister(void);
 
 /** @} */
@@ -117,7 +117,7 @@ void gncOwnerInitEmployee (GncOwner *owner, GncEmployee *employee);
 GncOwnerType gncOwnerGetType (const GncOwner *owner);
 /** Returns TRUE if the given owner is one of the valid objects.
  * Returns FALSE if the owner is (still) undefined, or if it is NULL. */
-gboolean gncOwnerIsValid (const GncOwner *owner);
+bool gncOwnerIsValid (const GncOwner *owner);
 
 /** If the given owner is of type GNC_OWNER_UNDEFINED, returns the undefined
  * pointer, which is usually NULL. Otherwise returns NULL. */
@@ -138,14 +138,14 @@ GncEmployee * gncOwnerGetEmployee (const GncOwner *owner);
 const char * gncOwnerGetID (const GncOwner *owner);
 const char * gncOwnerGetName (const GncOwner *owner);
 GncAddress * gncOwnerGetAddr (const GncOwner *owner);
-gboolean gncOwnerGetActive (const GncOwner *owner);
+bool gncOwnerGetActive (const GncOwner *owner);
 gnc_commodity * gncOwnerGetCurrency (const GncOwner *owner);
 /** @} */
 
 /** \name Set routines.
 @{
 */
-void gncOwnerSetActive (const GncOwner *owner, gboolean active);
+void gncOwnerSetActive (const GncOwner *owner, bool active);
 /** @} */
 
 void gncOwnerCopy (const GncOwner *src, GncOwner *dest);
@@ -157,7 +157,7 @@ void gncOwnerCopy (const GncOwner *src, GncOwner *dest);
  *  - if both owner objects refer to the same owner type
  *  - and if the owner reference points to the same
  *    {vendor/customer/employee} in memory */
-gboolean gncOwnerEqual (const GncOwner *a, const GncOwner *b);
+bool gncOwnerEqual (const GncOwner *a, const GncOwner *b);
 /** Same as gncOwnerEqual, but returns 0 if
     equal to be used as a GList custom compare function */
 int gncOwnerGCompareFunc (const GncOwner *a, const GncOwner *b);
@@ -181,7 +181,7 @@ void gncOwnerAttachToLot (const GncOwner *owner, GNCLot *lot);
 
 /** Helper function used to filter a list of lots by owner.
  */
-gboolean gncOwnerLotMatchOwnerFunc (GNCLot *lot, gpointer user_data);
+bool gncOwnerLotMatchOwnerFunc (GNCLot *lot, gpointer user_data);
 
 /** Helper function used to sort lots by date. If the lot is
  * linked to an invoice, use the invoice posted date, otherwise
@@ -192,9 +192,9 @@ gint gncOwnerLotsSortFunc (GNCLot *lotA, GNCLot *lotB);
 /** Get the owner from the lot.  If an owner is found in the lot,
  * fill in "owner" and return TRUE.  Otherwise return FALSE.
  */
-gboolean gncOwnerGetOwnerFromLot (GNCLot *lot, GncOwner *owner);
+bool gncOwnerGetOwnerFromLot (GNCLot *lot, GncOwner *owner);
 
-gboolean gncOwnerGetOwnerFromTypeGuid (QofBook *book, GncOwner *owner, QofIdType type, GncGUID *guid);
+bool gncOwnerGetOwnerFromTypeGuid (QofBook *book, GncOwner *owner, QofIdType type, GncGUID *guid);
 
 /** Get the kvp-frame from the underlying owner object */
 KvpFrame* gncOwnerGetSlots(GncOwner* owner);

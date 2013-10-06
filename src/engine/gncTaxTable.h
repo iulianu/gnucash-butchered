@@ -45,7 +45,7 @@ is *identical* to that in ::GncBillTerm
 @param 	gint64          refcount;
 @param 	GncTaxTable *   parent; if non-null, we are an immutable child
 @param 	GncTaxTable *   child;  if non-null, we have not changed
-@param 	gboolean        invisible;
+@param 	bool        invisible;
 @param 	GList *         children; list of children for disconnection
 */
 class GncTaxTable;
@@ -91,10 +91,10 @@ typedef enum
 } GncTaxIncluded;
 
 const char * gncAmountTypeToString (GncAmountType type);
-gboolean gncAmountStringToType (const char *str, GncAmountType *type);
+bool gncAmountStringToType (const char *str, GncAmountType *type);
 
 const char * gncTaxIncludedTypeToString (GncTaxIncluded type);
-gboolean gncTaxIncludedStringToType (const char *str, GncTaxIncluded *type);
+bool gncTaxIncludedStringToType (const char *str, GncTaxIncluded *type);
 
 /** @name Create/Destroy Functions
  @{ */
@@ -120,7 +120,7 @@ void gncTaxTableRemoveEntry (GncTaxTable *table, GncTaxTableEntry *entry);
 void gncTaxTableChanged (GncTaxTable *table);
 void gncTaxTableBeginEdit (GncTaxTable *table);
 void gncTaxTableCommitEdit (GncTaxTable *table);
-gboolean gncTaxTableEqual(const GncTaxTable *a, const GncTaxTable *b);
+bool gncTaxTableEqual(const GncTaxTable *a, const GncTaxTable *b);
 
 /** @name Get Functions
  @{ */
@@ -142,7 +142,7 @@ GList * gncTaxTableGetTables (QofBook *book);
 
 const char *gncTaxTableGetName (const GncTaxTable *table);
 GncTaxTable *gncTaxTableGetParent (const GncTaxTable *table);
-GncTaxTable *gncTaxTableReturnChild (GncTaxTable *table, gboolean make_new);
+GncTaxTable *gncTaxTableReturnChild (GncTaxTable *table, bool make_new);
 #define gncTaxTableGetChild(t) gncTaxTableReturnChild((t),FALSE)
 typedef GList GncTaxTableEntryList;
 GncTaxTableEntryList* gncTaxTableGetEntries (const GncTaxTable *table);
@@ -156,7 +156,7 @@ gnc_numeric gncTaxTableEntryGetAmount (const GncTaxTableEntry *entry);
 
 int gncTaxTableCompare (const GncTaxTable *a, const GncTaxTable *b);
 int gncTaxTableEntryCompare (const GncTaxTableEntry *a, const GncTaxTableEntry *b);
-gboolean gncTaxTableEntryEqual(const GncTaxTableEntry *a, const GncTaxTableEntry *b);
+bool gncTaxTableEntryEqual(const GncTaxTableEntry *a, const GncTaxTableEntry *b);
 
 /************************************************/
 

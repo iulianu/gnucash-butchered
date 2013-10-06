@@ -107,7 +107,7 @@ GncCustomer::~GncCustomer()
 //}
 //
 ///** Does this object refer to a specific object */
-//static gboolean
+//static bool
 //impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
 //{
 //    GncCustomer* cust;
@@ -319,7 +319,7 @@ void gncCustomerSetCurrency (GncCustomer *cust, gnc_commodity *currency)
     gncCustomerCommitEdit (cust);
 }
 
-void gncCustomerSetTaxTableOverride (GncCustomer *customer, gboolean override)
+void gncCustomerSetTaxTableOverride (GncCustomer *customer, bool override)
 {
     if (!customer) return;
     if (customer->taxtable_override == override) return;
@@ -525,7 +525,7 @@ gnc_numeric gncCustomerGetCredit (const GncCustomer *cust)
     return cust->credit;
 }
 
-gboolean gncCustomerGetTaxTableOverride (const GncCustomer *customer)
+bool gncCustomerGetTaxTableOverride (const GncCustomer *customer)
 {
     if (!customer) return FALSE;
     return customer->taxtable_override;
@@ -537,7 +537,7 @@ GncTaxTable* gncCustomerGetTaxTable (const GncCustomer *customer)
     return customer->taxtable;
 }
 
-GList * gncCustomerGetJoblist (const GncCustomer *cust, gboolean show_all)
+GList * gncCustomerGetJoblist (const GncCustomer *cust, bool show_all)
 {
     if (!cust) return NULL;
 
@@ -558,7 +558,7 @@ GList * gncCustomerGetJoblist (const GncCustomer *cust, gboolean show_all)
     }
 }
 
-gboolean gncCustomerIsDirty (GncCustomer *cust)
+bool gncCustomerIsDirty (GncCustomer *cust)
 {
     if (!cust) return FALSE;
     return (qof_instance_is_dirty(cust) ||
@@ -577,7 +577,7 @@ int gncCustomerCompare (const GncCustomer *a, const GncCustomer *b)
     return(strcmp(a->name, b->name));
 }
 
-gboolean
+bool
 gncCustomerEqual(const GncCustomer *a, const GncCustomer *b)
 {
     if (a == NULL && b == NULL) return TRUE;
@@ -758,7 +758,7 @@ static QofObject gncCustomerDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncCustomerRegister (void)
+bool gncCustomerRegister (void)
 {
     static QofParam params[] =
     {

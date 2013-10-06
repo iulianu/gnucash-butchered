@@ -43,7 +43,7 @@ public:
     GncAddress *    addr;
     gnc_commodity * currency;
     GncTaxTable*    taxtable;
-    gboolean        taxtable_override;
+    bool        taxtable_override;
     GncTaxIncluded  taxincluded;
     bool            active;
     GList *         jobs;
@@ -58,7 +58,7 @@ public:
 };
 
 
-gboolean gncCustomerRegister (void);
+bool gncCustomerRegister (void);
 gchar *gncCustomerNextID (QofBook *book);
 
 #define gncCustomerSetGUID(E,G) qof_instance_set_guid(QOF_INSTANCE(E),(G))

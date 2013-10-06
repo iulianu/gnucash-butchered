@@ -336,7 +336,7 @@ const char * gncAddressGetEmail (const GncAddress *addr)
     return addr->email;
 }
 
-gboolean gncAddressIsDirty (const GncAddress *addr)
+bool gncAddressIsDirty (const GncAddress *addr)
 {
     if (!addr) return FALSE;
     return addr->dirty;
@@ -357,7 +357,7 @@ int gncAddressCompare (const GncAddress *a, const GncAddress *b)
     return g_strcmp0 (a->name, b->name);
 }
 
-gboolean
+bool
 gncAddressEqual(const GncAddress* a, const GncAddress* b)
 {
     if (a == NULL && b == NULL) return TRUE;
@@ -425,7 +425,7 @@ static QofObject GncAddressDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncAddressRegister (void)
+bool gncAddressRegister (void)
 {
     static QofParam params[] =
     {

@@ -31,7 +31,7 @@
 static QofLogModule log_module = GNC_MOD_ENGINE;
 
 static GHashTable* gnc_hooks_list = NULL;
-static gboolean gnc_hooks_initialized = FALSE;
+static bool gnc_hooks_initialized = FALSE;
 
 typedef struct
 {
@@ -114,7 +114,7 @@ gnc_hook_add_dangler (const gchar *name, GFunc callback, gpointer cb_arg)
     LEAVE("");
 }
 
-static gboolean
+static bool
 hook_remove_runner (GHook *hook, gpointer data)
 {
     return(hook->func == data);

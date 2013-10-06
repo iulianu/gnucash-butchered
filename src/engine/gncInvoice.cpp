@@ -109,7 +109,7 @@ GncInvoice::~GncInvoice()
 }
 
 /** Does this object refer to a specific object */
-//static gboolean
+//static bool
 //impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
 //{
 //    GncInvoice* inv;
@@ -391,7 +391,7 @@ void gncInvoiceSetNotes (GncInvoice *invoice, const char *notes)
     gncInvoiceCommitEdit (invoice);
 }
 
-void gncInvoiceSetActive (GncInvoice *invoice, gboolean active)
+void gncInvoiceSetActive (GncInvoice *invoice, bool active)
 {
     if (!invoice) return;
     if (invoice->active == active) return;
@@ -401,7 +401,7 @@ void gncInvoiceSetActive (GncInvoice *invoice, gboolean active)
     gncInvoiceCommitEdit (invoice);
 }
 
-void gncInvoiceSetIsCreditNote (GncInvoice *invoice, gboolean credit_note)
+void gncInvoiceSetIsCreditNote (GncInvoice *invoice, bool credit_note)
 {
     if (!invoice) return;
     gncInvoiceBeginEdit (invoice);
@@ -652,13 +652,13 @@ GncOwnerType gncInvoiceGetOwnerType (const GncInvoice *invoice)
 }
 
 static gnc_numeric
-gncInvoiceGetTotalInternal (GncInvoice *invoice, gboolean use_value,
-                            gboolean use_tax,
-                            gboolean use_payment_type, GncEntryPaymentType type)
+gncInvoiceGetTotalInternal (GncInvoice *invoice, bool use_value,
+                            bool use_tax,
+                            bool use_payment_type, GncEntryPaymentType type)
 {
     GList *node;
     gnc_numeric total = gnc_numeric_zero();
-    gboolean is_cust_doc, is_cn;
+    bool is_cust_doc, is_cn;
 
     g_return_val_if_fail (invoice, total);
 
@@ -821,13 +821,13 @@ Account * gncInvoiceGetPostedAcc (const GncInvoice *invoice)
     return invoice->posted_acc;
 }
 
-gboolean gncInvoiceGetActive (const GncInvoice *invoice)
+bool gncInvoiceGetActive (const GncInvoice *invoice)
 {
     if (!invoice) return FALSE;
     return invoice->active;
 }
 
-gboolean gncInvoiceGetIsCreditNote (const GncInvoice *invoice)
+bool gncInvoiceGetIsCreditNote (const GncInvoice *invoice)
 {
     if (!invoice) return FALSE;
     if (kvp_frame_get_gint64(invoice->kvp_data, GNC_INVOICE_IS_CN))
@@ -1033,7 +1033,7 @@ gncInvoiceGetInvoiceFromTxn (const Transaction *txn)
     return gncInvoiceLookup(book, guid);
 }
 
-gboolean gncInvoiceAmountPositive (const GncInvoice *invoice)
+bool gncInvoiceAmountPositive (const GncInvoice *invoice)
 {
     switch (gncInvoiceGetType (invoice))
     {
@@ -1054,7 +1054,7 @@ gboolean gncInvoiceAmountPositive (const GncInvoice *invoice)
     }
 }
 
-static gboolean gncInvoicePostAddSplit (QofBook *book,
+static bool gncInvoicePostAddSplit (QofBook *book,
                                         Account *acc,
                                         Transaction *txn,
                                         gnc_numeric value,
@@ -1123,7 +1123,7 @@ static gboolean gncInvoicePostAddSplit (QofBook *book,
 
 Transaction * gncInvoicePostToAccount (GncInvoice *invoice, Account *acc,
                                        Timespec *post_date, Timespec *due_date,
-                                       const char * memo, gboolean accumulatesplits)
+                                       const char * memo, bool accumulatesplits)
 {
     Transaction *txn;
     QofBook *book;
@@ -1131,13 +1131,13 @@ Transaction * gncInvoicePostToAccount (GncInvoice *invoice, Account *acc,
     GList *iter;
     GList *splitinfo = NULL;
     gnc_numeric total;
-    gboolean is_cust_doc;
-    gboolean is_cn;
+    bool is_cust_doc;
+    bool is_cn;
     const char *name, *type;
     char *lot_title;
     Account *ccard_acct = NULL;
     const GncOwner *owner;
-    gboolean autopay = TRUE; /* FIXME this will have to become a user selectable option at some point */
+    bool autopay = TRUE; /* FIXME this will have to become a user selectable option at some point */
 
     if (!invoice || !acc) return NULL;
 
@@ -1374,8 +1374,8 @@ Transaction * gncInvoicePostToAccount (GncInvoice *invoice, Account *acc,
     return txn;
 }
 
-gboolean
-gncInvoiceUnpost (GncInvoice *invoice, gboolean reset_tax_tables)
+bool
+gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
 {
     Transaction *txn;
     GNCLot *lot;
@@ -1483,7 +1483,7 @@ gncInvoiceUnpost (GncInvoice *invoice, gboolean reset_tax_tables)
     /* if we've been asked to reset the tax tables, then do so */
     if (reset_tax_tables)
     {
-        gboolean is_cust_doc = (gncInvoiceGetOwnerType(invoice) == GNC_OWNER_CUSTOMER);
+        bool is_cust_doc = (gncInvoiceGetOwnerType(invoice) == GNC_OWNER_CUSTOMER);
         GList *iter;
 
         for (iter = gncInvoiceGetEntries(invoice); iter; iter = iter->next)
@@ -1510,10 +1510,10 @@ gncInvoiceUnpost (GncInvoice *invoice, gboolean reset_tax_tables)
 struct lotmatch
 {
     const GncOwner *owner;
-    gboolean positive_balance;
+    bool positive_balance;
 };
 
-static gboolean
+static bool
 gnc_lot_match_owner_balancing (GNCLot *lot, gpointer user_data)
 {
     struct lotmatch *lm = user_data;
@@ -1612,20 +1612,20 @@ gncInvoiceApplyPayment (const GncInvoice *invoice, Transaction *txn,
     gncOwnerAutoApplyPaymentsWithLots (owner, selected_lots);
 }
 
-static gboolean gncInvoiceDateExists (const Timespec *date)
+static bool gncInvoiceDateExists (const Timespec *date)
 {
     g_return_val_if_fail (date, FALSE);
     if (date->tv_sec || date->tv_nsec) return TRUE;
     return FALSE;
 }
 
-gboolean gncInvoiceIsPosted (const GncInvoice *invoice)
+bool gncInvoiceIsPosted (const GncInvoice *invoice)
 {
     if (!invoice) return FALSE;
     return gncInvoiceDateExists (&(invoice->date_posted));
 }
 
-gboolean gncInvoiceIsPaid (const GncInvoice *invoice)
+bool gncInvoiceIsPaid (const GncInvoice *invoice)
 {
     if (!invoice) return FALSE;
     if (!invoice->posted_lot) return FALSE;
@@ -1680,7 +1680,7 @@ int gncInvoiceCompare (const GncInvoice *a, const GncInvoice *b)
     return qof_instance_guid_compare(a, b);
 }
 
-gboolean gncInvoiceEqual(const GncInvoice *a, const GncInvoice *b)
+bool gncInvoiceEqual(const GncInvoice *a, const GncInvoice *b)
 {
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
@@ -1855,7 +1855,7 @@ reg_txn (void)
     qof_class_register (GNC_ID_TRANS, NULL, params);
 }
 
-gboolean gncInvoiceRegister (void)
+bool gncInvoiceRegister (void)
 {
     static QofParam params[] =
     {

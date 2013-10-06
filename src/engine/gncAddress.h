@@ -66,7 +66,7 @@ up to you to pass a suitable entity.
 @param  QofInstance The address instance.
 @param	QofBook*	  Copy of the book pointer.
 @param	QofInstance* parent entity.
-@param	gboolean	dirty flag
+@param	bool	dirty flag
 @param	char*	name of addressee
 @param	char*	first line of address
 @param	char*	second line of address
@@ -115,7 +115,7 @@ const char * gncAddressGetFax (const GncAddress *addr);
 const char * gncAddressGetEmail (const GncAddress *addr);
 /** @} */
 
-gboolean gncAddressIsDirty (const GncAddress *addr);
+bool gncAddressIsDirty (const GncAddress *addr);
 
 /** \brief compare two addresses
 
@@ -128,7 +128,7 @@ int gncAddressCompare (const GncAddress *a, const GncAddress *b);
 
 \return TRUE if all fields match, FALSE otherwise
 */
-gboolean gncAddressEqual(const GncAddress *a, const GncAddress *b);
+bool gncAddressEqual(const GncAddress *a, const GncAddress *b);
 
 #define ADDRESS_NAME    "name"
 #define ADDRESS_ONE		"number"

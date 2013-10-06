@@ -62,7 +62,7 @@ void gncEmployeeSetAcl (GncEmployee *employee, const char *acl);
 void gncEmployeeSetWorkday (GncEmployee *employee, gnc_numeric workday);
 void gncEmployeeSetRate (GncEmployee *employee, gnc_numeric rate);
 void gncEmployeeSetCurrency (GncEmployee *employee, gnc_commodity * currency);
-void gncEmployeeSetActive (GncEmployee *employee, gboolean active);
+void gncEmployeeSetActive (GncEmployee *employee, bool active);
 void gncEmployeeSetCCard (GncEmployee *employee, Account* ccard_acc);
 void qofEmployeeSetAddr (GncEmployee *employee, QofInstance *addr_ent);
 
@@ -85,7 +85,7 @@ const char * gncEmployeeGetAcl (const GncEmployee *employee);
 gnc_numeric gncEmployeeGetWorkday (const GncEmployee *employee);
 gnc_numeric gncEmployeeGetRate (const GncEmployee *employee);
 gnc_commodity * gncEmployeeGetCurrency (const GncEmployee *employee);
-gboolean gncEmployeeGetActive (const GncEmployee *employee);
+bool gncEmployeeGetActive (const GncEmployee *employee);
 Account * gncEmployeeGetCCard (const GncEmployee *employee);
 /** @} */
 
@@ -119,8 +119,8 @@ static inline GncEmployee * gncEmployeeLookup (const QofBook *book, const GncGUI
 #define gncEmployeeLookupDirect(G,B) gncEmployeeLookup((B),&(G))
 
 /** Test support function, used by test-dbi-business-stuff.cpp */
-gboolean gncEmployeeEqual(const GncEmployee* e1, const GncEmployee* e2);
-gboolean gncEmployeeIsDirty (const GncEmployee *employee);
+bool gncEmployeeEqual(const GncEmployee* e1, const GncEmployee* e2);
+bool gncEmployeeIsDirty (const GncEmployee *employee);
 
 #endif /* GNC_EMPLOYEE_H_ */
 /** @} */

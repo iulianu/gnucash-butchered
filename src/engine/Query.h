@@ -107,20 +107,20 @@ void xaccQueryAddAccountGUIDMatch(QofQuery *, AccountGUIDList *,
 void xaccQueryAddSingleAccountMatch(QofQuery *, Account *, QofQueryOp);
 
 void xaccQueryAddStringMatch (QofQuery* q, const char *matchstring,
-                              gboolean case_sens, gboolean use_regexp,
+                              bool case_sens, bool use_regexp,
                               QofQueryOp op,
                               const char * path, ...);
 void
-xaccQueryAddDescriptionMatch(QofQuery *q, const char *m, gboolean c, gboolean r,
+xaccQueryAddDescriptionMatch(QofQuery *q, const char *m, bool c, bool r,
                              QofQueryOp o);
 void
-xaccQueryAddNumberMatch(QofQuery *q, const char *m, gboolean c, gboolean r,
+xaccQueryAddNumberMatch(QofQuery *q, const char *m, bool c, bool r,
                         QofQueryOp o);
 void
-xaccQueryAddActionMatch(QofQuery *q, const char *m, gboolean c, gboolean r,
+xaccQueryAddActionMatch(QofQuery *q, const char *m, bool c, bool r,
                         QofQueryOp o);
 void
-xaccQueryAddMemoMatch(QofQuery *q, const char *m, gboolean c, gboolean r,
+xaccQueryAddMemoMatch(QofQuery *q, const char *m, bool c, bool r,
                       QofQueryOp o);
 void
 xaccQueryAddValueMatch(QofQuery *q, gnc_numeric amt, QofNumericMatch sgn,
@@ -147,17 +147,17 @@ void xaccQueryAddNumericMatch (QofQuery *q, gnc_numeric amount,
  *    all transactions are matched.
  */
 
-void xaccQueryAddDateMatch(QofQuery * q, gboolean use_start,
+void xaccQueryAddDateMatch(QofQuery * q, bool use_start,
                            int sday, int smonth, int syear,
-                           gboolean use_end, int eday, int emonth, int eyear,
+                           bool use_end, int eday, int emonth, int eyear,
                            QofQueryOp op);
 void xaccQueryAddDateMatchTS(QofQuery * q,
-                             gboolean use_start, Timespec sts,
-                             gboolean use_end, Timespec ets,
+                             bool use_start, Timespec sts,
+                             bool use_end, Timespec ets,
                              QofQueryOp op);
 void xaccQueryAddDateMatchTT(QofQuery * q,
-                             gboolean use_start, time64 stt,
-                             gboolean use_end, time64 ett,
+                             bool use_start, time64 stt,
+                             bool use_end, time64 ett,
                              QofQueryOp op);
 void xaccQueryGetDateMatchTS (QofQuery * q,
                               Timespec * sts,

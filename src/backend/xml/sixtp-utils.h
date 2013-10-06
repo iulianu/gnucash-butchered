@@ -31,99 +31,99 @@
 typedef struct
 {
     Timespec ts;
-    guint s_block_count;
-    guint ns_block_count;
+    unsigned int s_block_count;
+    unsigned int ns_block_count;
 } TimespecParseInfo;
 
 #define TIMESPEC_TIME_FORMAT  "%Y-%m-%d %H:%M:%S"
 #define TIMESPEC_PARSE_TIME_FORMAT  "%Y-%m-%d %H:%M:%S"
 #define TIMESPEC_SEC_FORMAT_MAX 256
 
-gboolean isspace_str(const gchar *str, int nomorethan);
+bool isspace_str(const char *str, int nomorethan);
 
-gboolean allow_and_ignore_only_whitespace(GSList *sibling_data,
+bool allow_and_ignore_only_whitespace(GSList *sibling_data,
         gpointer parent_data,
         gpointer global_data,
         gpointer *result,
         const char *text,
         int length);
 
-gboolean generic_accumulate_chars(GSList *sibling_data,
-                                  gpointer parent_data,
-                                  gpointer global_data,
-                                  gpointer *result,
+bool generic_accumulate_chars(GSList *sibling_data,
+                                  void* parent_data,
+                                  void* global_data,
+                                  void** result,
                                   const char *text,
                                   int length);
 
 
-void generic_free_data_for_children(gpointer data_for_children,
+void generic_free_data_for_children(void* data_for_children,
                                     GSList* data_from_children,
                                     GSList* sibling_data,
-                                    gpointer parent_data,
-                                    gpointer global_data,
-                                    gpointer *result,
-                                    const gchar *tag);
+                                    void* parent_data,
+                                    void* global_data,
+                                    void** result,
+                                    const char *tag);
 
-gchar * concatenate_child_result_chars(GSList *data_from_children);
+char * concatenate_child_result_chars(GSList *data_from_children);
 
-gboolean string_to_double(const char *str, double *result);
+bool string_to_double(const char *str, double *result);
 
-gboolean string_to_gint64(const gchar *str, gint64 *v);
+bool string_to_gint64(const char *str, int64_t *v);
 
-gboolean string_to_gint32(const gchar *str, gint32 *v);
+bool string_to_gint32(const char *str, int32_t *v);
 
-gboolean hex_string_to_binary(const gchar *str,  void **v, guint64 *data_len);
+bool hex_string_to_binary(const char *str,  void **v, uint64_t *data_len);
 
-gboolean generic_return_chars_end_handler(gpointer data_for_children,
+bool generic_return_chars_end_handler(void* data_for_children,
         GSList* data_from_children,
         GSList* sibling_data,
-        gpointer parent_data,
-        gpointer global_data,
-        gpointer *result,
-        const gchar *tag);
+        void* parent_data,
+        void* global_data,
+        void** result,
+        const char *tag);
 
 sixtp* simple_chars_only_parser_new(sixtp_end_handler end_handler);
 
-gboolean string_to_timespec_secs(const gchar *str, Timespec *ts);
-gboolean string_to_timespec_nsecs(const gchar *str, Timespec *ts);
+bool string_to_timespec_secs(const char *str, Timespec *ts);
+bool string_to_timespec_nsecs(const char *str, Timespec *ts);
 
-gboolean generic_timespec_start_handler(GSList* sibling_data,
-                                        gpointer parent_data,
-                                        gpointer global_data,
-                                        gpointer *data_for_children,
-                                        gpointer *result,
-                                        const gchar *tag, gchar **attrs);
+bool generic_timespec_start_handler(GSList* sibling_data,
+                                        void* parent_data,
+                                        void* global_data,
+                                        void** data_for_children,
+                                        void** result,
+                                        const char *tag, char **attrs);
 
-gboolean timespec_parse_ok(TimespecParseInfo *info);
+bool timespec_parse_ok(TimespecParseInfo *info);
 
-gboolean generic_timespec_secs_end_handler(
-    gpointer data_for_children,
+bool generic_timespec_secs_end_handler(
+    void* data_for_children,
     GSList  *data_from_children, GSList *sibling_data,
-    gpointer parent_data, gpointer global_data,
-    gpointer *result, const gchar *tag);
+    void* parent_data, void* global_data,
+    void** result, const char *tag);
 
-gboolean generic_timespec_nsecs_end_handler(
-    gpointer data_for_children,
+bool generic_timespec_nsecs_end_handler(
+    void* data_for_children,
     GSList  *data_from_children, GSList *sibling_data,
-    gpointer parent_data, gpointer global_data,
-    gpointer *result, const gchar *tag);
+    void* parent_data, void* global_data,
+    void** result, const char *tag);
 
 
 sixtp* generic_timespec_parser_new(sixtp_end_handler end_handler);
 
-gboolean generic_guid_end_handler(
-    gpointer data_for_children,
+bool generic_guid_end_handler(
+    void* data_for_children,
     GSList  *data_from_children, GSList *sibling_data,
-    gpointer parent_data, gpointer global_data,
-    gpointer *result, const gchar *tag);
+    void* parent_data, void* global_data,
+    void** result, const char *tag);
 
 sixtp* generic_guid_parser_new(void);
 
-gboolean generic_gnc_numeric_end_handler(
-    gpointer data_for_children,
+bool generic_gnc_numeric_end_handler(
+    void* data_for_children,
     GSList  *data_from_children, GSList *sibling_data,
-    gpointer parent_data, gpointer global_data,
-    gpointer *result, const gchar *tag);
+    void* parent_data, void* global_data,
+    void** result, const char *tag);
 
 sixtp* generic_gnc_numeric_parser_new(void);
 

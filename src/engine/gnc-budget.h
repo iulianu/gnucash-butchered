@@ -87,7 +87,7 @@ public:
 
 #define GNC_BUDGET_MAX_NUM_PERIODS_DIGITS 3 // max num periods == 999
 
-gboolean gnc_budget_register(void);
+bool gnc_budget_register(void);
 
 /**
  * Creates and initializes a Budget.
@@ -139,7 +139,7 @@ void gnc_budget_set_account_period_value(
 void gnc_budget_unset_account_period_value(
     GncBudget* budget, const Account* account, guint period_num);
 
-gboolean gnc_budget_is_account_period_value_set(
+bool gnc_budget_is_account_period_value_set(
     const GncBudget *budget, const Account *account, guint period_num);
 
 gnc_numeric gnc_budget_get_account_period_value(

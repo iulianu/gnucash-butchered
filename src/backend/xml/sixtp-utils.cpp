@@ -42,7 +42,7 @@
 
 static QofLogModule log_module = GNC_MOD_IO;
 
-gboolean
+bool
 isspace_str(const gchar *str, int nomorethan)
 {
     const gchar *cursor = str;
@@ -58,7 +58,7 @@ isspace_str(const gchar *str, int nomorethan)
     return(TRUE);
 }
 
-gboolean
+bool
 allow_and_ignore_only_whitespace(GSList *sibling_data,
                                  gpointer parent_data,
                                  gpointer global_data,
@@ -69,7 +69,7 @@ allow_and_ignore_only_whitespace(GSList *sibling_data,
     return(isspace_str(text, length));
 }
 
-gboolean
+bool
 generic_accumulate_chars(GSList *sibling_data,
                          gpointer parent_data,
                          gpointer global_data,
@@ -141,7 +141,7 @@ concatenate_child_result_chars(GSList *data_from_children)
 /* double
  */
 
-gboolean
+bool
 string_to_double(const char *str, double *result)
 {
     char *endptr = 0x0;
@@ -160,7 +160,7 @@ string_to_double(const char *str, double *result)
  */
 /* Maybe there should be a comment here explaining why this function
    doesn't call g_ascii_strtoull, because it's not so obvious. -CAS */
-gboolean
+bool
 string_to_gint64(const gchar *str, gint64 *v)
 {
     /* convert a string to a gint64. only whitespace allowed before and after. */
@@ -195,7 +195,7 @@ string_to_gint64(const gchar *str, gint64 *v)
 /* gint32
  */
 
-gboolean
+bool
 string_to_gint32(const gchar *str, gint32 *v)
 {
     /* convert a string to a gint32. only whitespace allowed before and after. */
@@ -222,13 +222,13 @@ string_to_gint32(const gchar *str, gint32 *v)
 /* hex string
  */
 
-gboolean
+bool
 hex_string_to_binary(const gchar *str,  void **v, guint64 *data_len)
 {
     /* Convert a hex string to binary.  No whitespace allowed. */
     const gchar *cursor = str;
     guint64 str_len;
-    gboolean error = FALSE;
+    bool error = FALSE;
 
     g_return_val_if_fail(str, FALSE);
     g_return_val_if_fail(v, FALSE);
@@ -305,7 +305,7 @@ hex_string_to_binary(const gchar *str,  void **v, guint64 *data_len)
 
  */
 
-gboolean
+bool
 generic_return_chars_end_handler(gpointer data_for_children,
                                  GSList* data_from_children,
                                  GSList* sibling_data,
@@ -356,7 +356,7 @@ simple_chars_only_parser_new(sixtp_end_handler end_handler)
    all goes well, returns the Timespec* as the result.
 */
 
-gboolean
+bool
 string_to_timespec_secs(const gchar *str, Timespec *ts)
 {
 
@@ -415,7 +415,7 @@ string_to_timespec_secs(const gchar *str, Timespec *ts)
     return(TRUE);
 }
 
-gboolean
+bool
 string_to_timespec_nsecs(const gchar *str, Timespec *ts)
 {
     long int nanosecs;
@@ -455,7 +455,7 @@ string_to_timespec_nsecs(const gchar *str, Timespec *ts)
 
  */
 
-gboolean
+bool
 generic_timespec_start_handler(GSList* sibling_data, gpointer parent_data,
                                gpointer global_data,
                                gpointer *data_for_children, gpointer *result,
@@ -471,7 +471,7 @@ generic_timespec_start_handler(GSList* sibling_data, gpointer parent_data,
    your own end handler.  If it returns TRUE, *result will contain the
    new timespec.  Otherwise, you can presume that everything's been
    cleaned up properly and return FALSE.  */
-gboolean
+bool
 timespec_parse_ok(TimespecParseInfo *info)
 {
 
@@ -506,7 +506,7 @@ timespec_parse_ok(TimespecParseInfo *info)
 
  */
 
-gboolean
+bool
 generic_timespec_secs_end_handler(gpointer data_for_children,
                                   GSList  *data_from_children, GSList *sibling_data,
                                   gpointer parent_data, gpointer global_data,
@@ -514,7 +514,7 @@ generic_timespec_secs_end_handler(gpointer data_for_children,
 {
     gchar *txt = NULL;
     TimespecParseInfo *info = (TimespecParseInfo *) parent_data;
-    gboolean ok;
+    bool ok;
 
     g_return_val_if_fail(parent_data, FALSE);
 
@@ -547,7 +547,7 @@ generic_timespec_secs_end_handler(gpointer data_for_children,
 
  */
 
-gboolean
+bool
 generic_timespec_nsecs_end_handler(gpointer data_for_children,
                                    GSList  *data_from_children, GSList *sibling_data,
                                    gpointer parent_data, gpointer global_data,
@@ -555,7 +555,7 @@ generic_timespec_nsecs_end_handler(gpointer data_for_children,
 {
     gchar *txt = NULL;
     TimespecParseInfo *info = (TimespecParseInfo *) parent_data;
-    gboolean ok;
+    bool ok;
 
     g_return_val_if_fail(parent_data, FALSE);
 
@@ -630,7 +630,7 @@ generic_timespec_parser_new(sixtp_end_handler end_handler)
 
  */
 
-gboolean
+bool
 generic_guid_end_handler(gpointer data_for_children,
                          GSList  *data_from_children, GSList *sibling_data,
                          gpointer parent_data, gpointer global_data,
@@ -638,7 +638,7 @@ generic_guid_end_handler(gpointer data_for_children,
 {
     gchar *txt = NULL;
     GncGUID *gid;
-    gboolean ok;
+    bool ok;
 
     txt = concatenate_child_result_chars(data_from_children);
     g_return_val_if_fail(txt, FALSE);
@@ -699,7 +699,7 @@ generic_guid_parser_new(void)
 
  */
 
-gboolean
+bool
 generic_gnc_numeric_end_handler(gpointer data_for_children,
                                 GSList  *data_from_children, GSList *sibling_data,
                                 gpointer parent_data, gpointer global_data,
@@ -707,7 +707,7 @@ generic_gnc_numeric_end_handler(gpointer data_for_children,
 {
     gnc_numeric *num = NULL;
     gchar *txt = NULL;
-    gboolean ok = FALSE;
+    bool ok = FALSE;
 
     txt = concatenate_child_result_chars(data_from_children);
 

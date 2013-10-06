@@ -49,7 +49,7 @@ class SchedXactions : public QofInstance
 {
 public:
     GList* sx_list;
-    gboolean sx_notsaved;
+    bool sx_notsaved;
     
     SchedXactions();
     virtual ~SchedXactions();

@@ -221,7 +221,7 @@ xaccLotScrubDoubleBalance (GNCLot *lot)
 
 /* ================================================================= */
 
-static inline gboolean
+static inline bool
 is_subsplit (Split *split)
 {
     KvpValue *kval;
@@ -325,10 +325,10 @@ merge_splits (Split *sa, Split *sb)
     xaccAccountCommitEdit (act);
 }
 
-gboolean
+bool
 xaccScrubMergeSubSplits (Split *split)
 {
-    gboolean rc = FALSE;
+    bool rc = FALSE;
     Transaction *txn;
     SplitList *node;
     GNCLot *lot;
@@ -373,10 +373,10 @@ restart:
     return rc;
 }
 
-gboolean
+bool
 xaccScrubMergeLotSubSplits (GNCLot *lot)
 {
-    gboolean rc = FALSE;
+    bool rc = FALSE;
     SplitList *node;
 
     if (!lot) return FALSE;

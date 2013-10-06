@@ -77,13 +77,13 @@ typedef struct
     gint fd;
     gchar *filename;
     gchar *perms;
-    gboolean compress;
+    bool compress;
 } gz_thread_params_t;
 
 /* Callback structure */
 struct file_backend
 {
-    gboolean        ok;
+    bool        ok;
     gpointer        data;
     sixtp_gdv2    * gd;
     const char    * tag;
@@ -186,7 +186,7 @@ clear_up_transaction_commodity(
     }
 }
 
-static gboolean
+static bool
 add_account_local(sixtp_gdv2 *data, Account *act)
 {
     gnc_commodity_table *table;
@@ -233,7 +233,7 @@ add_account_local(sixtp_gdv2 *data, Account *act)
     return FALSE;
 }
 
-static gboolean
+static bool
 add_book_local(sixtp_gdv2 *data, QofBook *book)
 {
     data->counter.books_loaded++;
@@ -242,7 +242,7 @@ add_book_local(sixtp_gdv2 *data, QofBook *book)
     return FALSE;
 }
 
-static gboolean
+static bool
 add_commodity_local(sixtp_gdv2 *data, gnc_commodity *com)
 {
     gnc_commodity_table *table;
@@ -257,7 +257,7 @@ add_commodity_local(sixtp_gdv2 *data, gnc_commodity *com)
     return TRUE;
 }
 
-static gboolean
+static bool
 add_transaction_local(sixtp_gdv2 *data, Transaction *trn)
 {
     gnc_commodity_table *table;
@@ -277,7 +277,7 @@ add_transaction_local(sixtp_gdv2 *data, Transaction *trn)
     return TRUE;
 }
 
-static gboolean
+static bool
 add_schedXaction_local(sixtp_gdv2 *data, SchedXaction *sx)
 {
     SchedXactions *sxes;
@@ -288,7 +288,7 @@ add_schedXaction_local(sixtp_gdv2 *data, SchedXaction *sx)
     return TRUE;
 }
 
-static gboolean
+static bool
 add_template_transaction_local( sixtp_gdv2 *data,
                                 gnc_template_xaction_data *txd )
 {
@@ -331,7 +331,7 @@ add_template_transaction_local( sixtp_gdv2 *data,
     return TRUE;
 }
 
-static gboolean
+static bool
 add_pricedb_local(sixtp_gdv2 *data, GNCPriceDB *db)
 {
     /* gnc_pricedb_print_contents(db, stdout); */
@@ -356,7 +356,7 @@ do_counter_cb (const char *type, gpointer data_p, gpointer be_data_p)
     /* XXX: should we do anything with this counter? */
 }
 
-static gboolean
+static bool
 gnc_counter_end_handler(gpointer data_for_children,
                         GSList* data_from_children, GSList* sibling_data,
                         gpointer parent_data, gpointer global_data,
@@ -368,7 +368,7 @@ gnc_counter_end_handler(gpointer data_for_children,
     xmlNodePtr tree = (xmlNodePtr)data_for_children;
     gxpf_data *gdata = (gxpf_data*)global_data;
     sixtp_gdv2 *sixdata = (sixtp_gdv2*)gdata->parsedata;
-    gboolean ret = TRUE;
+    bool ret = TRUE;
 
     if (parent_data)
         return TRUE;
@@ -541,7 +541,7 @@ add_item_cb (const char *type, gpointer data_p, gpointer be_data_p)
     }
 }
 
-static gboolean
+static bool
 book_callback(const char *tag, gpointer globaldata, gpointer data)
 {
     sixtp_gdv2 *gd = (sixtp_gdv2*)globaldata;
@@ -593,7 +593,7 @@ book_callback(const char *tag, gpointer globaldata, gpointer data)
     return TRUE;
 }
 
-static gboolean
+static bool
 generic_callback(const char *tag, gpointer globaldata, gpointer data)
 {
     sixtp_gdv2 *gd = (sixtp_gdv2*)globaldata;
@@ -647,7 +647,7 @@ scrub_cb (const char *type, gpointer data_p, gpointer be_data_p)
 static sixtp_gdv2 *
 gnc_sixtp_gdv2_new (
     QofBook *book,
-    gboolean exporting,
+    bool exporting,
     countCallbackFn countcallback,
     QofBePercentageFunc gui_display_fn)
 {
@@ -676,7 +676,7 @@ gnc_sixtp_gdv2_new (
     return gd;
 }
 
-static gboolean
+static bool
 qof_session_load_from_xml_file_v2_full(
     FileBackend *fbe, QofBook *book,
     sixtp_push_handler push_handler, gpointer push_user_data,
@@ -689,7 +689,7 @@ qof_session_load_from_xml_file_v2_full(
     sixtp *main_parser;
     sixtp *book_parser;
     struct file_backend be_data;
-    gboolean retval;
+    bool retval;
     char *v2type = NULL;
 
     gd = gnc_sixtp_gdv2_new(book, FALSE, file_rw_feedback, be->percentage);
@@ -826,7 +826,7 @@ bail:
     return FALSE;
 }
 
-gboolean
+bool
 qof_session_load_from_xml_file_v2(FileBackend *fbe, QofBook *book,
                                   QofBookFileType type)
 {
@@ -835,12 +835,12 @@ qof_session_load_from_xml_file_v2(FileBackend *fbe, QofBook *book,
 
 /***********************************************************************/
 
-static gboolean
+static bool
 write_counts(FILE* out, ...)
 {
     va_list ap;
     char *type;
-    gboolean success = TRUE;
+    bool success = TRUE;
 
     va_start(ap, out);
     type = va_arg(ap, char *);
@@ -910,10 +910,10 @@ compare_commodity_ids(gconstpointer a, gconstpointer b)
                        gnc_commodity_get_mnemonic(cb)));
 }
 
-static gboolean write_pricedb (FILE *out, QofBook *book, sixtp_gdv2 *gd);
-static gboolean write_transactions (FILE *out, QofBook *book, sixtp_gdv2 *gd);
-static gboolean write_template_transaction_data (FILE *out, QofBook *book, sixtp_gdv2 *gd);
-static gboolean write_schedXactions(FILE *out, QofBook *book, sixtp_gdv2 *gd);
+static bool write_pricedb (FILE *out, QofBook *book, sixtp_gdv2 *gd);
+static bool write_transactions (FILE *out, QofBook *book, sixtp_gdv2 *gd);
+static bool write_template_transaction_data (FILE *out, QofBook *book, sixtp_gdv2 *gd);
+static bool write_schedXactions(FILE *out, QofBook *book, sixtp_gdv2 *gd);
 static void write_budget (QofInstance *ent, gpointer data);
 
 static void
@@ -944,7 +944,7 @@ write_data_cb (const char *type, gpointer data_p, gpointer be_data_p)
         (data->write)(be_data->out, be_data->book);
 }
 
-static gboolean
+static bool
 write_book(FILE *out, QofBook *book, sixtp_gdv2 *gd)
 {
     struct file_backend be_data;
@@ -1027,13 +1027,13 @@ write_book(FILE *out, QofBook *book, sixtp_gdv2 *gd)
     return TRUE;
 }
 
-gboolean
+bool
 write_commodities(FILE *out, QofBook *book, sixtp_gdv2 *gd)
 {
     gnc_commodity_table *tbl;
     GList *namespaces;
     GList *lp;
-    gboolean success = TRUE;
+    bool success = TRUE;
 
     tbl = gnc_commodity_table_get_table(book);
 
@@ -1077,7 +1077,7 @@ write_commodities(FILE *out, QofBook *book, sixtp_gdv2 *gd)
     return success;
 }
 
-static gboolean
+static bool
 write_pricedb(FILE *out, QofBook *book, sixtp_gdv2 *gd)
 {
     xmlNodePtr node;
@@ -1117,7 +1117,7 @@ xml_add_trn_data(Transaction *t, gpointer data)
     return 0;
 }
 
-static gboolean
+static bool
 write_transactions(FILE *out, QofBook *book, sixtp_gdv2 *gd)
 {
     struct file_backend be_data;
@@ -1130,7 +1130,7 @@ write_transactions(FILE *out, QofBook *book, sixtp_gdv2 *gd)
                    (gpointer) &be_data);
 }
 
-static gboolean
+static bool
 write_template_transaction_data( FILE *out, QofBook *book, sixtp_gdv2 *gd )
 {
     Account *ra;
@@ -1153,7 +1153,7 @@ write_template_transaction_data( FILE *out, QofBook *book, sixtp_gdv2 *gd )
     return TRUE;
 }
 
-static gboolean
+static bool
 write_schedXactions( FILE *out, QofBook *book, sixtp_gdv2 *gd)
 {
     GList *schedXactions;
@@ -1202,7 +1202,7 @@ write_budget (QofInstance *ent, gpointer data)
     run_callback(be->gd, "budgets");
 }
 
-gboolean
+bool
 gnc_xml2_write_namespace_decl (FILE *out, const char *xml_namespace)
 {
     g_return_val_if_fail(xml_namespace, FALSE);
@@ -1223,7 +1223,7 @@ do_write_namespace_cb (const char *type, gpointer data_p, gpointer file_p)
         (data->ns)(out);
 }
 
-static gboolean
+static bool
 write_v2_header (FILE *out)
 {
     if (fprintf(out, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n") < 0
@@ -1256,12 +1256,12 @@ write_v2_header (FILE *out)
     return TRUE;
 }
 
-gboolean
+bool
 gnc_book_write_to_xml_filehandle_v2(QofBook *book, FILE *out)
 {
     QofBackend *be;
     sixtp_gdv2 *gd;
-    gboolean success = TRUE;
+    bool success = TRUE;
 
     if (!out) return FALSE;
 
@@ -1292,14 +1292,14 @@ gnc_book_write_to_xml_filehandle_v2(QofBook *book, FILE *out)
 /*
  * This function is called by the "export" code.
  */
-gboolean
+bool
 gnc_book_write_accounts_to_xml_filehandle_v2(QofBackend *be, QofBook *book, FILE *out)
 {
     gnc_commodity_table *table;
     Account *root;
     int ncom, nacc;
     sixtp_gdv2 *gd;
-    gboolean success = TRUE;
+    bool success = TRUE;
 
     if (!out) return FALSE;
 
@@ -1452,8 +1452,8 @@ cleanup_gz_thread_func:
 }
 
 static FILE *
-try_gz_open (const char *filename, const char *perms, gboolean use_gzip,
-             gboolean compress)
+try_gz_open (const char *filename, const char *perms, bool use_gzip,
+             bool compress)
 {
     if (strstr(filename, ".gz.") != NULL) /* its got a temp extension */
         use_gzip = TRUE;
@@ -1517,10 +1517,10 @@ try_gz_open (const char *filename, const char *perms, gboolean use_gzip,
     }
 }
 
-static gboolean
+static bool
 wait_for_gzip(FILE *file)
 {
-    gboolean retval = TRUE;
+    bool retval = TRUE;
 
     G_LOCK(threads);
     if (threads)
@@ -1537,14 +1537,14 @@ wait_for_gzip(FILE *file)
     return retval;
 }
 
-gboolean
+bool
 gnc_book_write_to_xml_file_v2(
     QofBook *book,
     const char *filename,
-    gboolean compress)
+    bool compress)
 {
     FILE *out;
-    gboolean success = TRUE;
+    bool success = TRUE;
 
     out = try_gz_open(filename, "w", compress, TRUE);
 
@@ -1571,14 +1571,14 @@ gnc_book_write_to_xml_file_v2(
  * backend for file export, not the real backend which could be
  * postgress or anything else.
  */
-gboolean
+bool
 gnc_book_write_accounts_to_xml_file_v2(
     QofBackend *be,
     QofBook *book,
     const char *filename)
 {
     FILE *out;
-    gboolean success = TRUE;
+    bool success = TRUE;
 
     out = g_fopen(filename, "w");
 
@@ -1604,7 +1604,7 @@ gnc_book_write_accounts_to_xml_file_v2(
 }
 
 /***********************************************************************/
-static gboolean
+static bool
 is_gzipped_file(const gchar *name)
 {
     unsigned char buf[2];
@@ -1631,7 +1631,7 @@ is_gzipped_file(const gchar *name)
 }
 
 QofBookFileType
-gnc_is_xml_data_file_v2(const gchar *name, gboolean *with_encoding)
+gnc_is_xml_data_file_v2(const gchar *name, bool *with_encoding)
 {
     if (is_gzipped_file(name))
     {
@@ -1759,8 +1759,8 @@ gnc_xml2_find_ambiguous(const gchar *filename, GList *encodings,
     GHashTable *processed = NULL;
     gint n_impossible = 0;
     GError *error = NULL;
-    gboolean is_compressed;
-    gboolean clean_return = FALSE;
+    bool is_compressed;
+    bool clean_return = FALSE;
 
     is_compressed = is_gzipped_file(filename);
     file = try_gz_open(filename, "r", is_compressed, FALSE);
@@ -1967,7 +1967,7 @@ parse_with_subst_push_handler (xmlParserCtxtPtr xml_context,
     GIConv ascii = (GIConv) - 1;
     GString *output = NULL;
     GError *error = NULL;
-    gboolean is_compressed;
+    bool is_compressed;
 
     filename = push_data->filename;
     is_compressed = is_gzipped_file(filename);
@@ -2089,11 +2089,11 @@ cleanup_push_handler:
     }
 }
 
-gboolean
+bool
 gnc_xml2_parse_with_subst (FileBackend *fbe, QofBook *book, GHashTable *subst)
 {
     push_data_type *push_data;
-    gboolean success;
+    bool success;
 
     push_data = g_new(push_data_type, 1);
     push_data->filename = fbe->fullpath;

@@ -56,7 +56,7 @@ struct CommodityPrivate
     int       fraction;
     char    * unique_name;
 
-    gboolean  quote_flag;	    /* user wants price quotes */
+    bool  quote_flag;	    /* user wants price quotes */
     gnc_quote_source * quote_source;   /* current/old source of quotes */
     char    * quote_tz;
 
@@ -115,11 +115,11 @@ struct gnc_new_iso_code
 #define GNC_NEW_ISO_CODES \
         (sizeof(gnc_new_iso_codes) / sizeof(struct gnc_new_iso_code))
 
-static gboolean fq_is_installed = FALSE;
+static bool fq_is_installed = FALSE;
 
 struct gnc_quote_source_s
 {
-    gboolean supported;
+    bool supported;
     QuoteSourceType type;
     gint index;
     char *user_name;		/* User friendly name */
@@ -217,7 +217,7 @@ static GList *new_quote_sources = NULL;
  * This function indicates whether or not the Finance::Quote module
  * is installed on a users computer.
  ********************************************************************/
-gboolean
+bool
 gnc_quote_source_fq_installed (void)
 {
     return fq_is_installed;
@@ -278,7 +278,7 @@ gnc_quote_source_init_tables (void)
  * tracked.)
  ********************************************************************/
 gnc_quote_source *
-gnc_quote_source_add_new (const char *source_name, gboolean supported)
+gnc_quote_source_add_new (const char *source_name, bool supported)
 {
     gnc_quote_source *new_source;
 
@@ -431,7 +431,7 @@ gnc_quote_source_get_index (const gnc_quote_source *source)
     return source->index;
 }
 
-gboolean
+bool
 gnc_quote_source_get_supported (const gnc_quote_source *source)
 {
     ENTER("%p", source);
@@ -843,7 +843,7 @@ gnc_commodity_get_fraction(const gnc_commodity * cm)
  * gnc_commodity_get_auto_quote_control_flag
  ********************************************************************/
 
-static gboolean
+static bool
 gnc_commodity_get_auto_quote_control_flag(const gnc_commodity *cm)
 {
     const char *str;
@@ -858,7 +858,7 @@ gnc_commodity_get_auto_quote_control_flag(const gnc_commodity *cm)
  * gnc_commodity_get_quote_flag
  ********************************************************************/
 
-gboolean
+bool
 gnc_commodity_get_quote_flag(const gnc_commodity *cm)
 {
     if (!cm) return FALSE;
@@ -1018,7 +1018,7 @@ gnc_commodity_set_fraction(gnc_commodity * cm, int fraction)
 
 static void
 gnc_commodity_set_auto_quote_control_flag(gnc_commodity *cm,
-        const gboolean flag)
+        const bool flag)
 {
     ENTER ("(cm=%p, flag=%d)", cm, flag);
 
@@ -1041,7 +1041,7 @@ gnc_commodity_set_auto_quote_control_flag(gnc_commodity *cm,
  ********************************************************************/
 
 void
-gnc_commodity_user_set_quote_flag(gnc_commodity *cm, const gboolean flag)
+gnc_commodity_user_set_quote_flag(gnc_commodity *cm, const bool flag)
 {
     CommodityPrivate* priv;
 
@@ -1077,7 +1077,7 @@ gnc_commodity_user_set_quote_flag(gnc_commodity *cm, const gboolean flag)
  ********************************************************************/
 
 void
-gnc_commodity_set_quote_flag(gnc_commodity *cm, const gboolean flag)
+gnc_commodity_set_quote_flag(gnc_commodity *cm, const bool flag)
 {
     ENTER ("(cm=%p, flag=%d)", cm, flag);
 
@@ -1217,7 +1217,7 @@ gnc_commodity_decrement_usage_count(gnc_commodity *cm)
  * are two commodities the same?
  ********************************************************************/
 
-gboolean
+bool
 gnc_commodity_equiv(const gnc_commodity * a, const gnc_commodity * b)
 {
     CommodityPrivate* priv_a;
@@ -1233,12 +1233,12 @@ gnc_commodity_equiv(const gnc_commodity * a, const gnc_commodity * b)
     return TRUE;
 }
 
-gboolean
+bool
 gnc_commodity_equal(const gnc_commodity * a, const gnc_commodity * b)
 {
     CommodityPrivate* priv_a;
     CommodityPrivate* priv_b;
-    gboolean same_book;
+    bool same_book;
 
     if (a == b) return TRUE;
 
@@ -1341,7 +1341,7 @@ gnc_commodity_namespace_get_commodity_list(const gnc_commodity_namespace *comm_n
     return comm_namespace->cm_list;
 }
 
-gboolean
+bool
 gnc_commodity_namespace_is_iso(const char *comm_namespace)
 {
     return ((g_strcmp0(comm_namespace, GNC_COMMODITY_NS_ISO) == 0) ||
@@ -1734,7 +1734,7 @@ gnc_commodity_table_get_namespaces_list(const gnc_commodity_table * table)
    for GNC_COMMODITY_NS_CURRENCY.  This means that gnc_commodity_is_iso is
    a subset of gnc_commodity_is_currency.  Most callers seem to use
    gnc_commodity_is_iso. */
-gboolean
+bool
 gnc_commodity_is_iso(const gnc_commodity * cm)
 {
     CommodityPrivate* priv;
@@ -1746,7 +1746,7 @@ gnc_commodity_is_iso(const gnc_commodity * cm)
     return priv->comm_namespace->iso4217;
 }
 
-gboolean
+bool
 gnc_commodity_is_currency(const gnc_commodity *cm)
 {
     const char *ns_name;
@@ -1796,7 +1796,7 @@ get_quotables_helper1(gpointer key, gpointer value, gpointer data)
     *l = g_list_prepend(*l, value);
 }
 
-static gboolean
+static bool
 get_quotables_helper2 (gnc_commodity *comm, gpointer data)
 {
     GList ** l = data;
@@ -1964,8 +1964,8 @@ gnc_commodity_table_delete_namespace(gnc_commodity_table * table,
 
 typedef struct
 {
-    gboolean ok;
-    gboolean (*func)(gnc_commodity *, gpointer);
+    bool ok;
+    bool (*func)(gnc_commodity *, gpointer);
     gpointer user_data;
 } IterData;
 
@@ -1988,9 +1988,9 @@ iter_namespace (gpointer key, gpointer value, gpointer user_data)
     g_hash_table_foreach (namespace_hash, iter_commodity, user_data);
 }
 
-gboolean
+bool
 gnc_commodity_table_foreach_commodity (const gnc_commodity_table * tbl,
-                                       gboolean (*f)(gnc_commodity *, gpointer),
+                                       bool (*f)(gnc_commodity *, gpointer),
                                        gpointer user_data)
 {
     IterData iter_data;
@@ -2044,7 +2044,7 @@ gnc_commodity_table_destroy(gnc_commodity_table * t)
 
 #define CUR_I18N(String) dgettext ("iso_4217", String)
 
-gboolean
+bool
 gnc_commodity_table_add_default_data(gnc_commodity_table *table, QofBook *book)
 {
     QofCollection *col;
@@ -2154,7 +2154,7 @@ static QofObject commodity_table_object_def =
     DI(.version_cmp       = ) NULL,
 };
 
-gboolean
+bool
 gnc_commodity_table_register (void)
 {
     gnc_quote_source_init_tables();

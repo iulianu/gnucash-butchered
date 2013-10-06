@@ -30,6 +30,6 @@
 
 #include <glib.h>
 
-gboolean cashobjects_register(void);
+bool cashobjects_register(void);
 
 #endif /* _CASHOBJECTS_H */

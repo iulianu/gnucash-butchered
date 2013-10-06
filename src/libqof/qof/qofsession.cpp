@@ -548,9 +548,9 @@ qof_instance_foreach_copy (void * data, void * user_data)
     }
     if (g_strcmp0 (cm_param->param_type, QOF_TYPE_BOOLEAN) == 0)
     {
-        boolean_getter = (gboolean (*)(QofInstance*, QofParam*)) cm_param->param_getfcn;
+        boolean_getter = (bool (*)(QofInstance*, QofParam*)) cm_param->param_getfcn;
         cm_boolean = boolean_getter (importEnt, cm_param);
-        boolean_setter = (void (*)(QofInstance*, gboolean))cm_param->param_setfcn;
+        boolean_setter = (void (*)(QofInstance*, bool))cm_param->param_setfcn;
         if (boolean_setter != NULL)
         {
             boolean_setter (targetEnt, cm_boolean);
@@ -823,7 +823,7 @@ qof_instance_copy_coll (QofSession *new_session, QofCollection *entity_coll)
 struct recurse_s
 {
     QofSession *session;
-    gboolean   success;
+    bool   success;
     GList      *ref_list;
     GList      *ent_list;
 };
@@ -858,7 +858,7 @@ recurse_ent_cb (QofInstance *ent, void * user_data)
     QofInstance  *ref_ent, *child_ent;
     QofSession *session;
     struct recurse_s *store;
-    gboolean   success;
+    bool   success;
 
     if (user_data == NULL)
     {
@@ -972,7 +972,7 @@ static bool
 qof_instance_copy_coll_r (QofSession *new_session, QofCollection *coll)
 {
     struct recurse_s store;
-    gboolean success;
+    bool success;
 
     if ((!new_session) || (!coll))
     {
@@ -996,7 +996,7 @@ qof_instance_copy_one_r (QofSession *new_session, QofInstance *ent)
 {
     struct recurse_s store;
     QofCollection *coll;
-    gboolean success;
+    bool success;
 
     if ((!new_session) || (!ent))
     {
@@ -1036,8 +1036,8 @@ qof_session_load_backend(QofSession * session, const char * access_method)
     GSList *p;
     QofBackendProvider *prov;
     char *msg;
-    gboolean prov_type;
-    gboolean (*type_check) (const char*);
+    bool prov_type;
+    bool (*type_check) (const char*);
 
     ENTER (" list=%d, initted=%s", g_slist_length(provider_list),
            qof_providers_initialized ? "true" : "false");
@@ -1055,7 +1055,7 @@ qof_session_load_backend(QofSession * session, const char * access_method)
         {
             /* More than one backend could provide this
             access method, check file type compatibility. */
-            type_check = (gboolean (*)(const char*)) prov->check_data_type;
+            type_check = (bool (*)(const char*)) prov->check_data_type;
             if (type_check)
             {
                 prov_type = (type_check)(session->book_id);
@@ -1324,7 +1324,7 @@ qof_session_save (QofSession *session,
                   QofPercentageFunc percentage_func)
 {
     QofBackend *be;
-    gboolean partial, change_backend;
+    bool partial, change_backend;
     QofBackendProvider *prov;
     GSList *p;
     QofBook *book;
@@ -1339,7 +1339,7 @@ qof_session_save (QofSession *session,
            session, session->book_id ? session->book_id : "(null)");
     /* Partial book handling. */
     book = qof_session_get_book(session);
-    partial = (gboolean)GPOINTER_TO_INT(qof_book_get_data(book, PARTIAL_QOFBOOK));
+    partial = (bool)GPOINTER_TO_INT(qof_book_get_data(book, PARTIAL_QOFBOOK));
     change_backend = FALSE;
     msg = g_strdup_printf(" ");
     book_id = g_strdup(session->book_id);
@@ -1556,7 +1556,7 @@ void
 qof_session_swap_data (QofSession *session_1, QofSession *session_2)
 {
     QofBook *book_1, *book_2;
-    gboolean tmp;
+    bool tmp;
 
     if (session_1 == session_2) return;
     if (!session_1 || !session_2) return;

@@ -35,60 +35,60 @@
 
 typedef struct _sixtp_child_result sixtp_child_result;
 
-typedef gboolean (*sixtp_start_handler)(GSList* sibling_data,
-                                        gpointer parent_data,
-                                        gpointer global_data,
-                                        gpointer *data_for_children,
-                                        gpointer *result,
-                                        const gchar *tag,
-                                        gchar **attrs);
+typedef bool (*sixtp_start_handler)(GSList* sibling_data,
+                                        void* parent_data,
+                                        void* global_data,
+                                        void** data_for_children,
+                                        void** result,
+                                        const char *tag,
+                                        char **attrs);
 
-typedef gboolean (*sixtp_before_child_handler)(gpointer data_for_children,
+typedef bool (*sixtp_before_child_handler)(void* data_for_children,
         GSList* data_from_children,
         GSList* sibling_data,
-        gpointer parent_data,
-        gpointer global_data,
-        gpointer *result,
-        const gchar *tag,
-        const gchar *child_tag);
+        void* parent_data,
+        void* global_data,
+        void** result,
+        const char *tag,
+        const char *child_tag);
 
-typedef gboolean (*sixtp_after_child_handler)(gpointer data_for_children,
+typedef bool (*sixtp_after_child_handler)(void* data_for_children,
         GSList* data_from_children,
         GSList* sibling_data,
-        gpointer parent_data,
-        gpointer global_data,
-        gpointer *result,
-        const gchar *tag,
-        const gchar *child_tag,
+        void* parent_data,
+        void* global_data,
+        void** result,
+        const char *tag,
+        const char *child_tag,
         sixtp_child_result *child_result);
 
-typedef gboolean (*sixtp_end_handler)(gpointer data_for_children,
+typedef bool (*sixtp_end_handler)(void* data_for_children,
                                       GSList* data_from_children,
                                       GSList* sibling_data,
-                                      gpointer parent_data,
-                                      gpointer global_data,
-                                      gpointer *result,
-                                      const gchar *tag);
+                                      void* parent_data,
+                                      void* global_data,
+                                      void** result,
+                                      const char *tag);
 
-typedef gboolean (*sixtp_characters_handler)(GSList *sibling_data,
-        gpointer parent_data,
-        gpointer global_data,
-        gpointer *result,
+typedef bool (*sixtp_characters_handler)(GSList *sibling_data,
+        void* parent_data,
+        void* global_data,
+        void** result,
         const char *text,
         int length);
 
 typedef void (*sixtp_result_handler)(sixtp_child_result *result);
 
-typedef void (*sixtp_fail_handler)(gpointer data_for_children,
+typedef void (*sixtp_fail_handler)(void* data_for_children,
                                    GSList* data_from_children,
                                    GSList* sibling_data,
-                                   gpointer parent_data,
-                                   gpointer global_data,
-                                   gpointer *result,
-                                   const gchar *tag);
+                                   void* parent_data,
+                                   void* global_data,
+                                   void** result,
+                                   const char *tag);
 
 typedef void (*sixtp_push_handler)(xmlParserCtxtPtr xml_context,
-                                   gpointer user_data);
+                                   void* user_data);
 
 typedef struct sixtp
 {
@@ -147,24 +147,24 @@ typedef enum
 struct _sixtp_child_result
 {
     sixtp_child_result_type type;
-    gchar *tag; /* NULL for a CHARS node. */
-    gpointer data;
-    gboolean should_cleanup;
+    char *tag; /* NULL for a CHARS node. */
+    void* data;
+    bool should_cleanup;
     sixtp_result_handler cleanup_handler;
     sixtp_result_handler fail_handler;
 };
 
 typedef struct sixtp_sax_data
 {
-    gboolean parsing_ok;
+    bool parsing_ok;
     GSList *stack;
-    gpointer global_data;
+    void* global_data;
     xmlParserCtxtPtr saxParserCtxt;
     sixtp *bad_xml_parser;
 } sixtp_sax_data;
 
 
-gboolean is_child_result_from_node_named(sixtp_child_result *cr,
+bool is_child_result_from_node_named(sixtp_child_result *cr,
         const char *tag);
 void sixtp_child_free_data(sixtp_child_result *result);
 void sixtp_child_result_destroy(sixtp_child_result *r);
@@ -182,15 +182,15 @@ void sixtp_destroy(sixtp *sp);
 void sixtp_handle_catastrophe(sixtp_sax_data *sax_data);
 xmlEntityPtr sixtp_sax_get_entity_handler(void *user_data, const xmlChar *name);
 
-gboolean sixtp_parse_file(sixtp *sixtp, const char *filename,
-                          gpointer data_for_top_level, gpointer global_data,
-                          gpointer *parse_result);
-gboolean sixtp_parse_buffer(sixtp *sixtp, char *bufp, int bufsz,
-                            gpointer data_for_top_level, gpointer global_data,
-                            gpointer *parse_result);
-gboolean sixtp_parse_push(sixtp *sixtp, sixtp_push_handler push_handler,
-                          gpointer push_user_data, gpointer data_for_top_level,
-                          gpointer global_data, gpointer *parse_result);
+bool sixtp_parse_file(sixtp *sixtp, const char *filename,
+                          void* data_for_top_level, void* global_data,
+                          void** parse_result);
+bool sixtp_parse_buffer(sixtp *sixtp, char *bufp, int bufsz,
+                            void* data_for_top_level, void* global_data,
+                            void** parse_result);
+bool sixtp_parse_push(sixtp *sixtp, sixtp_push_handler push_handler,
+                          void* push_user_data, void* data_for_top_level,
+                          void* global_data, void** parse_result);
 
 void sixtp_set_start(sixtp *parser, sixtp_start_handler start_handler);
 void sixtp_set_before_child(sixtp *parser, sixtp_before_child_handler handler);
@@ -203,16 +203,16 @@ void sixtp_set_fail(sixtp *parser, sixtp_fail_handler handler);
 void sixtp_set_result_fail(sixtp *parser, sixtp_result_handler handler);
 void sixtp_set_chars_fail(sixtp *parser, sixtp_result_handler handler);
 
-sixtp* sixtp_set_any(sixtp *tochange, gboolean cleanup, ...);
-sixtp* sixtp_add_some_sub_parsers(sixtp *tochange, gboolean cleanup, ...);
+sixtp* sixtp_set_any(sixtp *tochange, bool cleanup, ...);
+sixtp* sixtp_add_some_sub_parsers(sixtp *tochange, bool cleanup, ...);
 
-gboolean sixtp_add_sub_parser(sixtp *parser, const gchar* tag,
+bool sixtp_add_sub_parser(sixtp *parser, const char* tag,
                               sixtp *sub_parser);
 
 QofBookFileType gnc_is_our_xml_file(const char *filename,
-                                    gboolean *with_encoding);
+                                    bool *with_encoding);
 
-QofBookFileType gnc_is_our_first_xml_chunk(char *chunk, gboolean *with_encoding);
+QofBookFileType gnc_is_our_first_xml_chunk(char *chunk, bool *with_encoding);
 
 
 #endif /* _SIXTP_H_ */

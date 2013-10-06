@@ -196,11 +196,11 @@ static struct dom_tree_handler owner_handlers_v2[] =
     { NULL, 0, 0, 0 }
 };
 
-gboolean
+bool
 gnc_dom_tree_to_owner (xmlNodePtr node, GncOwner *owner, QofBook *book)
 {
     struct owner_pdata owner_pdata;
-    gboolean successful;
+    bool successful;
 
     owner_pdata.owner = owner;
     owner_pdata.book = book;

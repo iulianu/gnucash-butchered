@@ -118,7 +118,7 @@ gncEntryDiscountHowToString (GncDiscountHow how)
 
 /* You must edit the functions in this block in tandem.
  * KEEP THIS FUNCTION IN SYNC with the one above! */
-gboolean gncEntryDiscountStringToHow (const char *str, GncDiscountHow *how)
+bool gncEntryDiscountStringToHow (const char *str, GncDiscountHow *how)
 {
     if (g_strcmp0 ("PRETAX", str) == 0)
     {
@@ -160,7 +160,7 @@ const char * gncEntryPaymentTypeToString (GncEntryPaymentType type)
 
 /* You must edit the functions in this block in tandem.
  * KEEP THIS FUNCTION IN SYNC with the one above! */
-gboolean gncEntryPaymentStringToType (const char *str, GncEntryPaymentType *type)
+bool gncEntryPaymentStringToType (const char *str, GncEntryPaymentType *type)
 {
     if (g_strcmp0 ("CASH", str) == 0)
     {
@@ -238,7 +238,7 @@ void mark_entry (GncEntry *entry)
 //}
 //
 ///** Does this object refer to a specific object */
-//static gboolean
+//static bool
 //impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
 //{
 //    GncEntry* entry;
@@ -348,7 +348,7 @@ static void gncEntryFree (GncEntry *entry)
 
 void gncEntrySetDate (GncEntry *entry, Timespec date)
 {
-    gboolean first_date = FALSE;
+    bool first_date = FALSE;
     Timespec zero_time = { 0, 0 };
 
     if (!entry) return;
@@ -428,7 +428,7 @@ void gncEntrySetQuantity (GncEntry *entry, gnc_numeric quantity)
     gncEntryCommitEdit (entry);
 }
 
-void gncEntrySetDocQuantity (GncEntry *entry, gnc_numeric quantity, gboolean is_cn)
+void gncEntrySetDocQuantity (GncEntry *entry, gnc_numeric quantity, bool is_cn)
 {
     if (!entry) return;
     if (gnc_numeric_eq (entry->quantity, quantity)) return;
@@ -462,7 +462,7 @@ void gncEntrySetInvPrice (GncEntry *entry, gnc_numeric price)
     gncEntryCommitEdit (entry);
 }
 
-void gncEntrySetInvTaxable (GncEntry *entry, gboolean taxable)
+void gncEntrySetInvTaxable (GncEntry *entry, bool taxable)
 {
     if (!entry) return;
     if (entry->i_taxable == taxable) return;
@@ -473,7 +473,7 @@ void gncEntrySetInvTaxable (GncEntry *entry, gboolean taxable)
     gncEntryCommitEdit (entry);
 }
 
-void gncEntrySetInvTaxIncluded (GncEntry *entry, gboolean taxincluded)
+void gncEntrySetInvTaxIncluded (GncEntry *entry, bool taxincluded)
 {
     if (!entry) return;
     if (entry->i_taxincluded == taxincluded) return;
@@ -586,7 +586,7 @@ void gncEntrySetBillPrice (GncEntry *entry, gnc_numeric price)
     gncEntryCommitEdit (entry);
 }
 
-void gncEntrySetBillTaxable (GncEntry *entry, gboolean taxable)
+void gncEntrySetBillTaxable (GncEntry *entry, bool taxable)
 {
     if (!entry) return;
     if (entry->b_taxable == taxable) return;
@@ -597,7 +597,7 @@ void gncEntrySetBillTaxable (GncEntry *entry, gboolean taxable)
     gncEntryCommitEdit (entry);
 }
 
-void gncEntrySetBillTaxIncluded (GncEntry *entry, gboolean taxincluded)
+void gncEntrySetBillTaxIncluded (GncEntry *entry, bool taxincluded)
 {
     if (!entry) return;
     if (entry->b_taxincluded == taxincluded) return;
@@ -623,7 +623,7 @@ void gncEntrySetBillTaxTable (GncEntry *entry, GncTaxTable *table)
     gncEntryCommitEdit (entry);
 }
 
-void gncEntrySetBillable (GncEntry *entry, gboolean billable)
+void gncEntrySetBillable (GncEntry *entry, bool billable)
 {
     if (!entry) return;
     if (entry->billable == billable) return;
@@ -791,7 +791,7 @@ gnc_numeric gncEntryGetQuantity (const GncEntry *entry)
     return entry->quantity;
 }
 
-gnc_numeric gncEntryGetDocQuantity (const GncEntry *entry, gboolean is_cn)
+gnc_numeric gncEntryGetDocQuantity (const GncEntry *entry, bool is_cn)
 {
     gnc_numeric value = gncEntryGetQuantity (entry);
     return (is_cn ? gnc_numeric_neg (value) : value);
@@ -847,13 +847,13 @@ char* qofEntryGetInvDiscHow (const GncEntry *entry)
     return type_string;
 }
 
-gboolean gncEntryGetInvTaxable (const GncEntry *entry)
+bool gncEntryGetInvTaxable (const GncEntry *entry)
 {
     if (!entry) return FALSE;
     return entry->i_taxable;
 }
 
-gboolean gncEntryGetInvTaxIncluded (const GncEntry *entry)
+bool gncEntryGetInvTaxIncluded (const GncEntry *entry)
 {
     if (!entry) return FALSE;
     return entry->i_taxincluded;
@@ -879,13 +879,13 @@ gnc_numeric gncEntryGetBillPrice (const GncEntry *entry)
     return entry->b_price;
 }
 
-gboolean gncEntryGetBillTaxable (const GncEntry *entry)
+bool gncEntryGetBillTaxable (const GncEntry *entry)
 {
     if (!entry) return FALSE;
     return entry->b_taxable;
 }
 
-gboolean gncEntryGetBillTaxIncluded (const GncEntry *entry)
+bool gncEntryGetBillTaxIncluded (const GncEntry *entry)
 {
     if (!entry) return FALSE;
     return entry->b_taxincluded;
@@ -897,7 +897,7 @@ GncTaxTable * gncEntryGetBillTaxTable (const GncEntry *entry)
     return entry->b_tax_table;
 }
 
-gboolean gncEntryGetBillable (const GncEntry *entry)
+bool gncEntryGetBillable (const GncEntry *entry)
 {
     if (!entry) return FALSE;
     return entry->billable;
@@ -969,7 +969,7 @@ GncOrder * gncEntryGetOrder (const GncEntry *entry)
  * to let a consumer know how much they saved.
  */
 void gncEntryComputeValue (gnc_numeric qty, gnc_numeric price,
-                           const GncTaxTable *tax_table, gboolean tax_included,
+                           const GncTaxTable *tax_table, bool tax_included,
                            gnc_numeric discount, GncAmountType discount_type,
                            GncDiscountHow discount_how, int SCU,
                            gnc_numeric *value, gnc_numeric *discount_value,
@@ -1260,7 +1260,7 @@ gncEntryRecomputeValues (GncEntry *entry)
 
 /* The "Int" functions below are for internal use only.
  * Outside this file, use the "Doc" or "Bal" variants found below instead. */
-static gnc_numeric gncEntryGetIntValue (GncEntry *entry, gboolean round, gboolean is_cust_doc)
+static gnc_numeric gncEntryGetIntValue (GncEntry *entry, bool round, bool is_cust_doc)
 {
     if (!entry) return gnc_numeric_zero();
     gncEntryRecomputeValues (entry);
@@ -1270,7 +1270,7 @@ static gnc_numeric gncEntryGetIntValue (GncEntry *entry, gboolean round, gboolea
         return (is_cust_doc ? entry->i_value : entry->b_value);
 }
 
-static gnc_numeric gncEntryGetIntTaxValue (GncEntry *entry, gboolean round, gboolean is_cust_doc)
+static gnc_numeric gncEntryGetIntTaxValue (GncEntry *entry, bool round, bool is_cust_doc)
 {
     if (!entry) return gnc_numeric_zero();
     gncEntryRecomputeValues (entry);
@@ -1281,14 +1281,14 @@ static gnc_numeric gncEntryGetIntTaxValue (GncEntry *entry, gboolean round, gboo
 }
 
 /* Careful: the returned list is managed by the entry, and will only be valid for a short time */
-static AccountValueList * gncEntryGetIntTaxValues (GncEntry *entry, gboolean is_cust_doc)
+static AccountValueList * gncEntryGetIntTaxValues (GncEntry *entry, bool is_cust_doc)
 {
     if (!entry) return NULL;
     gncEntryRecomputeValues (entry);
     return (is_cust_doc ? entry->i_tax_values : entry->b_tax_values);
 }
 
-static gnc_numeric gncEntryGetIntDiscountValue (GncEntry *entry, gboolean round, gboolean is_cust_doc)
+static gnc_numeric gncEntryGetIntDiscountValue (GncEntry *entry, bool round, bool is_cust_doc)
 {
     if (!entry) return gnc_numeric_zero();
     gncEntryRecomputeValues (entry);
@@ -1298,20 +1298,20 @@ static gnc_numeric gncEntryGetIntDiscountValue (GncEntry *entry, gboolean round,
         return (is_cust_doc ? entry->i_disc_value : gnc_numeric_zero());
 }
 
-gnc_numeric gncEntryGetDocValue (GncEntry *entry, gboolean round, gboolean is_cust_doc, gboolean is_cn)
+gnc_numeric gncEntryGetDocValue (GncEntry *entry, bool round, bool is_cust_doc, bool is_cn)
 {
     gnc_numeric value = gncEntryGetIntValue (entry, round, is_cust_doc);
     return (is_cn ? gnc_numeric_neg (value) : value);
 }
 
-gnc_numeric gncEntryGetDocTaxValue (GncEntry *entry, gboolean round, gboolean is_cust_doc, gboolean is_cn)
+gnc_numeric gncEntryGetDocTaxValue (GncEntry *entry, bool round, bool is_cust_doc, bool is_cn)
 {
     gnc_numeric value = gncEntryGetIntTaxValue (entry, round, is_cust_doc);
     return (is_cn ? gnc_numeric_neg (value) : value);
 }
 
 /* Careful: the returned list is NOT owned by the entry and should be freed by the caller */
-AccountValueList * gncEntryGetDocTaxValues (GncEntry *entry, gboolean is_cust_doc, gboolean is_cn)
+AccountValueList * gncEntryGetDocTaxValues (GncEntry *entry, bool is_cust_doc, bool is_cn)
 {
     AccountValueList *int_values = gncEntryGetIntTaxValues (entry, is_cust_doc);
     AccountValueList *values = NULL, *node;
@@ -1328,26 +1328,26 @@ AccountValueList * gncEntryGetDocTaxValues (GncEntry *entry, gboolean is_cust_do
     return values;
 }
 
-gnc_numeric gncEntryGetDocDiscountValue (GncEntry *entry, gboolean round, gboolean is_cust_doc, gboolean is_cn)
+gnc_numeric gncEntryGetDocDiscountValue (GncEntry *entry, bool round, bool is_cust_doc, bool is_cn)
 {
     gnc_numeric value = gncEntryGetIntDiscountValue (entry, round, is_cust_doc);
     return (is_cn ? gnc_numeric_neg (value) : value);
 }
 
-gnc_numeric gncEntryGetBalValue (GncEntry *entry, gboolean round, gboolean is_cust_doc)
+gnc_numeric gncEntryGetBalValue (GncEntry *entry, bool round, bool is_cust_doc)
 {
     gnc_numeric value = gncEntryGetIntValue (entry, round, is_cust_doc);
     return (is_cust_doc ? gnc_numeric_neg (value) : value);
 }
 
-gnc_numeric gncEntryGetBalTaxValue (GncEntry *entry, gboolean round, gboolean is_cust_doc)
+gnc_numeric gncEntryGetBalTaxValue (GncEntry *entry, bool round, bool is_cust_doc)
 {
     gnc_numeric value = gncEntryGetIntTaxValue (entry, round, is_cust_doc);
     return (is_cust_doc ? gnc_numeric_neg (value) : value);
 }
 
 /* Careful: the returned list is NOT owned by the entry and should be freed by the caller */
-AccountValueList * gncEntryGetBalTaxValues (GncEntry *entry, gboolean is_cust_doc)
+AccountValueList * gncEntryGetBalTaxValues (GncEntry *entry, bool is_cust_doc)
 {
     AccountValueList *int_values = gncEntryGetIntTaxValues (entry, is_cust_doc);
     AccountValueList *values = NULL, *node;
@@ -1364,14 +1364,14 @@ AccountValueList * gncEntryGetBalTaxValues (GncEntry *entry, gboolean is_cust_do
     return values;
 }
 
-gnc_numeric gncEntryGetBalDiscountValue (GncEntry *entry, gboolean round, gboolean is_cust_doc)
+gnc_numeric gncEntryGetBalDiscountValue (GncEntry *entry, bool round, bool is_cust_doc)
 {
     gnc_numeric value = gncEntryGetIntDiscountValue (entry, round, is_cust_doc);
     return (is_cust_doc ? gnc_numeric_neg (value) : value);
 }
 
 /* XXX this existence of this routine is just wrong */
-gboolean gncEntryIsOpen (const GncEntry *entry)
+bool gncEntryIsOpen (const GncEntry *entry)
 {
     if (!entry) return FALSE;
     return (qof_instance_get_editlevel(entry) > 0);
@@ -1497,7 +1497,7 @@ static QofObject gncEntryDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncEntryRegister (void)
+bool gncEntryRegister (void)
 {
     static QofParam params[] =
     {

@@ -191,7 +191,7 @@ Timespec        gnc_price_get_time(const GNCPrice *p);
 const char *    gnc_price_get_source(const GNCPrice *p);
 const char *    gnc_price_get_typestr(const GNCPrice *p);
 gnc_numeric     gnc_price_get_value(const GNCPrice *p);
-gboolean        gnc_price_equal(const GNCPrice *p1, const GNCPrice *p2);
+bool        gnc_price_equal(const GNCPrice *p1, const GNCPrice *p2);
 
 #define gnc_price_get_guid(X)    qof_entity_get_guid(QOF_INSTANCE(X))
 #define gnc_price_return_guid(X) (*(qof_entity_get_guid(QOF_INSTANCE(X))))
@@ -219,18 +219,18 @@ void gnc_price_print(GNCPrice *db, FILE *f, int indent);
 
 /** gnc_price_list_insert - insert a price into the given list, calling
      gnc_price_ref on it during the process. */
-gboolean gnc_price_list_insert(PriceList **prices, GNCPrice *p,
-                               gboolean check_dupl);
+bool gnc_price_list_insert(PriceList **prices, GNCPrice *p,
+                               bool check_dupl);
 
 /** gnc_price_list_remove - remove the price, p, from the given list,
      calling gnc_price_unref on it during the process. */
-gboolean gnc_price_list_remove(PriceList **prices, GNCPrice *p);
+bool gnc_price_list_remove(PriceList **prices, GNCPrice *p);
 
 /** gnc_price_list_destroy - destroy the given price list, calling
      gnc_price_unref on all the prices included in the list. */
 void     gnc_price_list_destroy(PriceList *prices);
 
-gboolean gnc_price_list_equal(PriceList *prices1, PriceList *prices2);
+bool gnc_price_list_equal(PriceList *prices1, PriceList *prices2);
 /**  @} */
 /**  @}  end of the Price doxygen group */
 
@@ -266,19 +266,19 @@ void gnc_pricedb_commit_edit (GNCPriceDB *);
 /** Indicate whether or not the database is in the middle of a bulk
  *  update.  Setting this flag will disable checks for duplicate
  *  entries. */
-void gnc_pricedb_set_bulk_update(GNCPriceDB *db, gboolean bulk_update);
+void gnc_pricedb_set_bulk_update(GNCPriceDB *db, bool bulk_update);
 
 /** gnc_pricedb_add_price - add a price to the pricedb, you may drop
      your reference to the price (i.e. call unref) after this
      succeeds, whenever you're finished with the price. */
-gboolean     gnc_pricedb_add_price(GNCPriceDB *db, GNCPrice *p);
+bool     gnc_pricedb_add_price(GNCPriceDB *db, GNCPrice *p);
 
 /** gnc_pricedb_remove_price - removes the given price, p, from the
      pricedb.   Returns TRUE if successful, FALSE otherwise. */
-gboolean     gnc_pricedb_remove_price(GNCPriceDB *db, GNCPrice *p);
+bool     gnc_pricedb_remove_price(GNCPriceDB *db, GNCPrice *p);
 
-gboolean     gnc_pricedb_remove_old_prices(GNCPriceDB *db, Timespec cutoff,
-        const gboolean delete_user, gboolean delete_last);
+bool     gnc_pricedb_remove_old_prices(GNCPriceDB *db, Timespec cutoff,
+        const bool delete_user, bool delete_last);
 
 /** gnc_pricedb_lookup_latest - find the most recent price for the
      given commodity in the given currency.  Returns NULL on
@@ -296,7 +296,7 @@ PriceList * gnc_pricedb_lookup_latest_any_currency(GNCPriceDB *db,
 /** gnc_pricedb_has_prices - return an indication of whether or not
     there are any prices for a given commodity in the given currency.
     Returns TRUE if there are prices, FALSE otherwise. */
-gboolean     gnc_pricedb_has_prices(GNCPriceDB *db,
+bool     gnc_pricedb_has_prices(GNCPriceDB *db,
                                     const gnc_commodity *commodity,
                                     const gnc_commodity *currency);
 
@@ -374,18 +374,18 @@ gnc_pricedb_convert_balance_nearest_price(GNCPriceDB *pdb,
      sure the ordering of the traversal is stable (i.e. the same order
      every time given the same db contents -- stable traversals may be
      less efficient).  */
-gboolean     gnc_pricedb_foreach_price(GNCPriceDB *db,
-                                       gboolean (*f)(GNCPrice *p,
+bool     gnc_pricedb_foreach_price(GNCPriceDB *db,
+                                       bool (*f)(GNCPrice *p,
                                                gpointer user_data),
                                        gpointer user_data,
-                                       gboolean stable_order);
+                                       bool stable_order);
 
 /* The following two convenience functions are used to test the xml backend */
 /** gnc_pricedb_get_num_prices - return the number of prices
    in the database. */
 guint gnc_pricedb_get_num_prices(GNCPriceDB *db);
 /** gnc_pricedb_equal - test equality of two pricedbs */
-gboolean gnc_pricedb_equal (GNCPriceDB *db1, GNCPriceDB *db2);
+bool gnc_pricedb_equal (GNCPriceDB *db1, GNCPriceDB *db2);
 
 /** @name Internal/Debugging
     @{ */

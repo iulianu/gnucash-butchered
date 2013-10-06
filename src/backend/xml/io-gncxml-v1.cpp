@@ -84,7 +84,7 @@ typedef enum
 typedef struct
 {
     /* have we gotten the file version yet? */
-    gboolean seen_version;
+    bool seen_version;
     gint64 version;
 
     /* top level <gnc-data> parser - we need this so we can set it up
@@ -143,7 +143,7 @@ static QofLogModule log_module = GNC_MOD_IO;
 
  */
 
-static gboolean
+static bool
 gnc_parser_configure_for_input_version(GNCParseStatus *status, gint64 version)
 {
 
@@ -178,7 +178,7 @@ gnc_parser_configure_for_input_version(GNCParseStatus *status, gint64 version)
     return(TRUE);
 }
 
-static gboolean
+static bool
 gnc_version_end_handler(gpointer data_for_children,
                         GSList  *data_from_children, GSList *sibling_data,
                         gpointer parent_data, gpointer global_data,
@@ -186,7 +186,7 @@ gnc_version_end_handler(gpointer data_for_children,
 {
     GNCParseStatus *pstatus = (GNCParseStatus *) global_data;
     gint64 version;
-    gboolean ok;
+    bool ok;
     gchar *txt;
 
     g_return_val_if_fail(pstatus, FALSE);
@@ -236,7 +236,7 @@ gnc_version_parser_new(void)
 
  */
 
-static gboolean
+static bool
 gnc_parser_before_child_handler(gpointer data_for_children,
                                 GSList* data_from_children,
                                 GSList* sibling_data,
@@ -268,7 +268,7 @@ gnc_parser_before_child_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 gnc_parser_after_child_handler(gpointer data_for_children,
                                GSList* data_from_children,
                                GSList* sibling_data,
@@ -360,10 +360,10 @@ gncxml_setup_for_read (GNCParseStatus *global_parse_status)
 
 /* ================================================================== */
 
-gboolean
+bool
 qof_session_load_from_xml_file(QofBook *book, const char *filename)
 {
-    gboolean parse_ok;
+    bool parse_ok;
     gpointer parse_result = NULL;
     sixtp *top_level_pr;
     GNCParseStatus global_parse_status;
@@ -409,7 +409,7 @@ qof_session_load_from_xml_file(QofBook *book, const char *filename)
 
 /* ================================================================== */
 
-gboolean
+bool
 gnc_is_xml_data_file(const gchar *filename)
 {
     if ((gnc_is_our_xml_file(filename, NULL)) == GNC_BOOK_XML1_FILE)
@@ -501,12 +501,12 @@ simple_kvp_value_parser_new(sixtp_end_handler end_handler)
   gchar *txt = NULL;						\
   TYPE val;							\
   kvp_value *kvpv;						\
-  gboolean ok;							\
+  bool ok;							\
 								\
   txt = concatenate_child_result_chars(data_from_children);	\
   g_return_val_if_fail(txt, FALSE);				\
   								\
-  ok = (gboolean) string_to_##TYPE(txt, &val);			\
+  ok = (bool) string_to_##TYPE(txt, &val);			\
   g_free(txt);							\
   g_return_val_if_fail(ok, FALSE);				\
 								\
@@ -518,7 +518,7 @@ simple_kvp_value_parser_new(sixtp_end_handler end_handler)
 }
 /* ------------------------------------------------------------ */
 
-static gboolean
+static bool
 gint64_kvp_value_end_handler(gpointer data_for_children,
                              GSList* data_from_children,
                              GSList* sibling_data,
@@ -537,7 +537,7 @@ gint64_kvp_value_parser_new(void)
     return(simple_kvp_value_parser_new(gint64_kvp_value_end_handler));
 }
 
-static gboolean
+static bool
 double_kvp_value_end_handler(gpointer data_for_children,
                              GSList* data_from_children,
                              GSList* sibling_data,
@@ -555,7 +555,7 @@ double_kvp_value_parser_new(void)
     return(simple_kvp_value_parser_new(double_kvp_value_end_handler));
 }
 
-static gboolean
+static bool
 gnc_numeric_kvp_value_end_handler(gpointer data_for_children,
                                   GSList* data_from_children,
                                   GSList* sibling_data,
@@ -573,7 +573,7 @@ gnc_numeric_kvp_value_parser_new(void)
     return(simple_kvp_value_parser_new(gnc_numeric_kvp_value_end_handler));
 }
 
-static gboolean
+static bool
 string_kvp_value_end_handler(gpointer data_for_children,
                              GSList* data_from_children,
                              GSList* sibling_data,
@@ -604,7 +604,7 @@ string_kvp_value_parser_new(void)
 
 /* the guid handler is almost the same as above, but has
  * inconsistent type handling */
-static gboolean
+static bool
 guid_kvp_value_end_handler(gpointer data_for_children,
                            GSList* data_from_children,
                            GSList* sibling_data,
@@ -616,7 +616,7 @@ guid_kvp_value_end_handler(gpointer data_for_children,
     gchar *txt = NULL;
     GncGUID val;
     kvp_value *kvpv;
-    gboolean ok;
+    bool ok;
 
     txt = concatenate_child_result_chars(data_from_children);
     g_return_val_if_fail(txt, FALSE);
@@ -666,7 +666,7 @@ guid_kvp_value_parser_new(void)
 
  */
 
-static gboolean
+static bool
 hex_binary_kvp_value_end_handler(gpointer data_for_children,
                                  GSList  *data_from_children, GSList *sibling_data,
                                  gpointer parent_data, gpointer global_data,
@@ -676,7 +676,7 @@ hex_binary_kvp_value_end_handler(gpointer data_for_children,
     void *val;
     guint64 size;
     kvp_value *kvpv;
-    gboolean ok;
+    bool ok;
 
     txt = concatenate_child_result_chars(data_from_children);
     g_return_val_if_fail(txt, FALSE);
@@ -715,7 +715,7 @@ hex_binary_kvp_value_parser_new(void)
 
  */
 
-static gboolean
+static bool
 kvp_frame_binary_end_handler(gpointer data_for_children,
                              GSList  *data_from_children, GSList *sibling_data,
                              gpointer parent_data, gpointer global_data,
@@ -806,7 +806,7 @@ binary_kvp_value_parser_new(void)
  */
 
 
-static gboolean
+static bool
 glist_kvp_value_end_handler(gpointer data_for_children,
                             GSList  *data_from_children, GSList *sibling_data,
                             gpointer parent_data, gpointer global_data,
@@ -844,7 +844,7 @@ glist_kvp_value_end_handler(gpointer data_for_children,
 /* ---------------------------------------------- */
 
 
-static gboolean
+static bool
 add_all_kvp_value_parsers_as_sub_nodes(sixtp *p,
                                        sixtp *kvp_frame_parser,
                                        sixtp *glist_parser)
@@ -924,7 +924,7 @@ glist_kvp_value_parser_new(sixtp *kvp_frame_parser)
 
  */
 
-static gboolean
+static bool
 kvp_frame_slot_end_handler(gpointer data_for_children,
                            GSList  *data_from_children, GSList *sibling_data,
                            gpointer parent_data, gpointer global_data,
@@ -936,7 +936,7 @@ kvp_frame_slot_end_handler(gpointer data_for_children,
     gchar *key = NULL;
     sixtp_child_result *value_cr = NULL;
     kvp_value *value = NULL;
-    gboolean delete_value = FALSE;
+    bool delete_value = FALSE;
 
     g_return_val_if_fail(f, FALSE);
 
@@ -1043,7 +1043,7 @@ kvp_frame_slot_parser_new(sixtp *kvp_frame_parser)
 
  */
 
-static gboolean
+static bool
 kvp_frame_start_handler(GSList* sibling_data, gpointer parent_data,
                         gpointer global_data, gpointer *data_for_children,
                         gpointer *result, const gchar *tag, gchar **attrs)
@@ -1054,7 +1054,7 @@ kvp_frame_start_handler(GSList* sibling_data, gpointer parent_data,
     return(TRUE);
 }
 
-static gboolean
+static bool
 kvp_frame_end_handler(gpointer data_for_children,
                       GSList  *data_from_children, GSList *sibling_data,
                       gpointer parent_data, gpointer global_data,
@@ -1138,7 +1138,7 @@ kvp_frame_parser_new(void)
 */
 
 
-static gboolean
+static bool
 ledger_data_start_handler(GSList* sibling_data, gpointer parent_data,
                           gpointer global_data, gpointer *data_for_children,
                           gpointer *result, const gchar *tag, gchar **attrs)
@@ -1156,7 +1156,7 @@ ledger_data_start_handler(GSList* sibling_data, gpointer parent_data,
     return(ra != NULL);
 }
 
-static gboolean
+static bool
 ledger_data_after_child_handler(gpointer data_for_children,
                                 GSList* data_from_children,
                                 GSList* sibling_data,
@@ -1190,7 +1190,7 @@ ledger_data_after_child_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 ledger_data_end_handler(gpointer data_for_children,
                         GSList  *data_from_children, GSList *sibling_data,
                         gpointer parent_data, gpointer global_data,
@@ -1310,7 +1310,7 @@ ledger_data_parser_new(void)
 
  */
 
-static gboolean
+static bool
 account_start_handler(GSList* sibling_data,
                       gpointer parent_data,
                       gpointer global_data,
@@ -1345,7 +1345,7 @@ account_start_handler(GSList* sibling_data,
    chars-fail: NA
  */
 
-static gboolean
+static bool
 account_restore_start_handler(GSList* sibling_data,
                               gpointer parent_data,
                               gpointer global_data,
@@ -1366,7 +1366,7 @@ account_restore_start_handler(GSList* sibling_data,
     return(TRUE);
 }
 
-static gboolean
+static bool
 account_restore_end_handler(gpointer data_for_children,
                             GSList  *data_from_children, GSList *sibling_data,
                             gpointer parent_data, gpointer global_data,
@@ -1395,7 +1395,7 @@ account_restore_end_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 account_restore_after_child_handler(gpointer data_for_children,
                                     GSList* data_from_children,
                                     GSList* sibling_data,
@@ -1476,7 +1476,7 @@ account_restore_fail_handler(gpointer data_for_children,
    chars-fail: g_free the result string.
 
  */
-static gboolean
+static bool
 acc_restore_name_end_handler(gpointer data_for_children,
                              GSList  *data_from_children, GSList *sibling_data,
                              gpointer parent_data, gpointer global_data,
@@ -1514,7 +1514,7 @@ acc_restore_name_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 acc_restore_guid_end_handler(gpointer data_for_children,
                              GSList  *data_from_children, GSList *sibling_data,
                              gpointer parent_data, gpointer global_data,
@@ -1524,7 +1524,7 @@ acc_restore_guid_end_handler(gpointer data_for_children,
     Account *acc = (Account *) parent_data;
     gchar *txt = NULL;
     GncGUID gid;
-    gboolean ok;
+    bool ok;
 
     g_return_val_if_fail(acc, FALSE);
 
@@ -1564,7 +1564,7 @@ acc_restore_guid_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 acc_restore_type_end_handler(gpointer data_for_children,
                              GSList  *data_from_children, GSList *sibling_data,
                              gpointer parent_data, gpointer global_data,
@@ -1573,7 +1573,7 @@ acc_restore_type_end_handler(gpointer data_for_children,
     Account *acc = (Account *) parent_data;
     gchar *txt = NULL;
     GNCAccountType type;
-    gboolean ok;
+    bool ok;
 
     g_return_val_if_fail(acc, FALSE);
 
@@ -1608,7 +1608,7 @@ acc_restore_type_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 acc_restore_code_end_handler(gpointer data_for_children,
                              GSList  *data_from_children, GSList *sibling_data,
                              gpointer parent_data, gpointer global_data,
@@ -1647,7 +1647,7 @@ acc_restore_code_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 acc_restore_description_end_handler(gpointer data_for_children,
                                     GSList  *data_from_children, GSList *sibling_data,
                                     gpointer parent_data, gpointer global_data,
@@ -1685,7 +1685,7 @@ acc_restore_description_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 acc_restore_notes_end_handler(gpointer data_for_children,
                               GSList  *data_from_children, GSList *sibling_data,
                               gpointer parent_data, gpointer global_data,
@@ -1726,7 +1726,7 @@ acc_restore_notes_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 acc_restore_parent_end_handler(gpointer data_for_children,
                                GSList  *data_from_children, GSList *sibling_data,
                                gpointer parent_data, gpointer global_data,
@@ -1885,11 +1885,11 @@ typedef struct
     gchar *id;
     gchar *name;
     gchar *xcode;
-    gboolean seen_fraction;
+    bool seen_fraction;
     int fraction;
 } CommodityParseInfo;
 
-static gboolean
+static bool
 commodity_restore_start_handler(GSList* sibling_data, gpointer parent_data,
                                 gpointer global_data,
                                 gpointer *data_for_children, gpointer *result,
@@ -1914,7 +1914,7 @@ commodity_restore_start_handler(GSList* sibling_data, gpointer parent_data,
   else
 /* ----------------------------------------------------*/
 
-static gboolean
+static bool
 commodity_restore_after_child_handler(gpointer data_for_children,
                                       GSList* data_from_children,
                                       GSList* sibling_data,
@@ -1953,7 +1953,7 @@ commodity_restore_after_child_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 commodity_restore_end_handler(gpointer data_for_children,
                               GSList  *data_from_children, GSList *sibling_data,
                               gpointer parent_data, gpointer global_data,
@@ -1961,7 +1961,7 @@ commodity_restore_end_handler(gpointer data_for_children,
 {
     CommodityParseInfo *cpi = (CommodityParseInfo *) data_for_children;
     GNCParseStatus *pstatus = (GNCParseStatus *) global_data;
-    gboolean ok = FALSE;
+    bool ok = FALSE;
     gnc_commodity *comm = NULL;
 
     g_return_val_if_fail(cpi, FALSE);
@@ -2087,7 +2087,7 @@ typedef struct
     gchar *id;
 } CommodityLookupParseInfo;
 
-static gboolean
+static bool
 generic_gnc_commodity_lookup_start_handler(
     GSList* sibling_data, gpointer parent_data, gpointer global_data,
     gpointer *data_for_children, gpointer *result, const gchar *tag,
@@ -2099,7 +2099,7 @@ generic_gnc_commodity_lookup_start_handler(
     return(TRUE);
 }
 
-static gboolean
+static bool
 generic_gnc_commodity_lookup_after_child_handler(gpointer data_for_children,
         GSList* data_from_children,
         GSList* sibling_data,
@@ -2138,7 +2138,7 @@ generic_gnc_commodity_lookup_after_child_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 generic_gnc_commodity_lookup_end_handler(gpointer data_for_children,
         GSList  *data_from_children, GSList *sibling_data,
         gpointer parent_data, gpointer global_data,
@@ -2147,7 +2147,7 @@ generic_gnc_commodity_lookup_end_handler(gpointer data_for_children,
     CommodityLookupParseInfo *cpi =
         (CommodityLookupParseInfo *) data_for_children;
     GNCParseStatus *pstatus = (GNCParseStatus *) global_data;
-    gboolean ok = FALSE;
+    bool ok = FALSE;
 
     g_return_val_if_fail(cpi, FALSE);
 
@@ -2227,7 +2227,7 @@ generic_gnc_commodity_lookup_parser_new(void)
 */
 
 
-static gboolean
+static bool
 query_server_start_handler(GSList* sibling_data,
                            gpointer parent_data,
                            gpointer global_data,
@@ -2239,7 +2239,7 @@ query_server_start_handler(GSList* sibling_data,
     return(TRUE);
 }
 
-static gboolean
+static bool
 query_server_end_handler(gpointer data_for_children,
                          GSList  *data_from_children, GSList *sibling_data,
                          gpointer parent_data, gpointer global_data,
@@ -2281,7 +2281,7 @@ query_server_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 query_start_handler(GSList* sibling_data, gpointer parent_data,
                     gpointer global_data, gpointer *data_for_children,
                     gpointer *result, const gchar *tag, gchar **attrs)
@@ -2289,7 +2289,7 @@ query_start_handler(GSList* sibling_data, gpointer parent_data,
     return(TRUE);
 }
 
-static gboolean
+static bool
 query_end_handler(gpointer data_for_children,
                   GSList  *data_from_children, GSList *sibling_data,
                   gpointer parent_data, gpointer global_data,
@@ -2331,7 +2331,7 @@ query_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 query_restore_start_handler(GSList* sibling_data, gpointer parent_data,
                             gpointer global_data, gpointer *data_for_children,
                             gpointer *result, const gchar *tag, gchar **attrs)
@@ -2344,7 +2344,7 @@ query_restore_start_handler(GSList* sibling_data, gpointer parent_data,
     return(q != NULL);
 }
 
-static gboolean
+static bool
 query_restore_end_handler(gpointer data_for_children,
                           GSList  *data_from_children, GSList *sibling_data,
                           gpointer parent_data, gpointer global_data,
@@ -2378,7 +2378,7 @@ query_restore_end_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 query_restore_after_child_handler(gpointer data_for_children,
                                   GSList* data_from_children,
                                   GSList* sibling_data,
@@ -2426,7 +2426,7 @@ query_restore_fail_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 query_and_start_handler(GSList* sibling_data, gpointer parent_data,
                         gpointer global_data, gpointer *data_for_children,
                         gpointer *result, const gchar *tag, gchar **attrs)
@@ -2441,7 +2441,7 @@ query_and_start_handler(GSList* sibling_data, gpointer parent_data,
     return(q != NULL);
 }
 
-static gboolean
+static bool
 query_and_end_handler(gpointer data_for_children,
                       GSList  *data_from_children, GSList *sibling_data,
                       gpointer parent_data, gpointer global_data,
@@ -2470,13 +2470,13 @@ query_and_fail_handler(gpointer data_for_children,
 
 #define CVT_INT(to) {							\
   gint32 val;								\
-  gboolean ok;								\
+  bool ok;								\
   gchar *txt = NULL;							\
 									\
   txt = concatenate_child_result_chars(data_from_children);		\
   g_return_val_if_fail(txt, FALSE);					\
 									\
-  ok = (gboolean) string_to_gint32(txt, &val);				\
+  ok = (bool) string_to_gint32(txt, &val);				\
   g_free(txt);								\
   g_return_val_if_fail(ok, FALSE);					\
   (to) = val;								\
@@ -2497,7 +2497,7 @@ query_and_fail_handler(gpointer data_for_children,
 
 /* ================================================================= */
 
-static gboolean
+static bool
 qrestore_genericpred_end_handler(gpointer data_for_children,
                                  GSList  *data_from_children, GSList *sibling_data,
                                  gpointer parent_data, gpointer global_data,
@@ -2532,7 +2532,7 @@ qrestore_genericpred_end_handler(gpointer data_for_children,
    chars-fail: NA
  */
 
-static gboolean
+static bool
 qrestore_datepred_start_handler(GSList* sibling_data, gpointer parent_data,
                                 gpointer global_data,
                                 gpointer *data_for_children,
@@ -2566,7 +2566,7 @@ qrestore_datepred_fail_handler(gpointer data_for_children,
    end: set end-date.
  */
 
-static gboolean
+static bool
 datepred_use_start_end_handler(gpointer data_for_children,
                                GSList  *data_from_children, GSList *sibling_data,
                                gpointer parent_data, gpointer global_data,
@@ -2577,7 +2577,7 @@ datepred_use_start_end_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 datepred_use_end_end_handler(gpointer data_for_children,
                              GSList  *data_from_children, GSList *sibling_data,
                              gpointer parent_data, gpointer global_data,
@@ -2588,7 +2588,7 @@ datepred_use_end_end_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 datepred_start_date_end_handler(gpointer data_for_children,
                                 GSList  *data_from_children, GSList *sibling_data,
                                 gpointer parent_data, gpointer global_data,
@@ -2599,7 +2599,7 @@ datepred_start_date_end_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 datepred_end_date_end_handler(gpointer data_for_children,
                               GSList  *data_from_children, GSList *sibling_data,
                               gpointer parent_data, gpointer global_data,
@@ -2610,7 +2610,7 @@ datepred_end_date_end_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 generic_pred_sense_end_handler(gpointer data_for_children,
                                GSList  *data_from_children, GSList *sibling_data,
                                gpointer parent_data, gpointer global_data,
@@ -2760,7 +2760,7 @@ query_server_parser_new (void)
 
  */
 
-static gboolean
+static bool
 transaction_start_handler(GSList* sibling_data, gpointer parent_data,
                           gpointer global_data, gpointer *data_for_children,
                           gpointer *result, const gchar *tag, gchar **attrs)
@@ -2804,7 +2804,7 @@ transaction_start_handler(GSList* sibling_data, gpointer parent_data,
 
  */
 
-static gboolean
+static bool
 txn_restore_start_handler(GSList* sibling_data, gpointer parent_data,
                           gpointer global_data, gpointer *data_for_children,
                           gpointer *result, const gchar *tag, gchar **attrs)
@@ -2820,7 +2820,7 @@ txn_restore_start_handler(GSList* sibling_data, gpointer parent_data,
     return(TRUE);
 }
 
-static gboolean
+static bool
 txn_restore_end_handler(gpointer data_for_children,
                         GSList  *data_from_children, GSList *sibling_data,
                         gpointer parent_data, gpointer global_data,
@@ -2851,7 +2851,7 @@ txn_restore_end_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 txn_restore_after_child_handler(gpointer data_for_children,
                                 GSList* data_from_children,
                                 GSList* sibling_data,
@@ -2914,7 +2914,7 @@ txn_restore_fail_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_guid_end_handler(gpointer data_for_children,
                              GSList  *data_from_children, GSList *sibling_data,
                              gpointer parent_data, gpointer global_data,
@@ -2924,7 +2924,7 @@ txn_restore_guid_end_handler(gpointer data_for_children,
     Transaction *t = (Transaction *) parent_data;
     gchar *txt = NULL;
     GncGUID gid;
-    gboolean ok;
+    bool ok;
 
     g_return_val_if_fail(t, FALSE);
 
@@ -2966,7 +2966,7 @@ txn_restore_guid_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_num_end_handler(gpointer data_for_children,
                             GSList  *data_from_children, GSList *sibling_data,
                             gpointer parent_data, gpointer global_data,
@@ -3006,7 +3006,7 @@ txn_restore_num_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_description_end_handler(gpointer data_for_children,
                                     GSList  *data_from_children, GSList *sibling_data,
                                     gpointer parent_data, gpointer global_data,
@@ -3036,7 +3036,7 @@ txn_restore_description_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_rest_date_posted_end_handler(gpointer data_for_children,
                                  GSList  *data_from_children, GSList *sibling_data,
                                  gpointer parent_data, gpointer global_data,
@@ -3068,7 +3068,7 @@ txn_rest_date_posted_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_rest_date_entered_end_handler(gpointer data_for_children,
                                   GSList  *data_from_children, GSList *sibling_data,
                                   gpointer parent_data, gpointer global_data,
@@ -3115,7 +3115,7 @@ txn_rest_date_entered_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_split_start_handler(GSList* sibling_data, gpointer parent_data,
                                 gpointer global_data,
                                 gpointer *data_for_children, gpointer *result,
@@ -3128,7 +3128,7 @@ txn_restore_split_start_handler(GSList* sibling_data, gpointer parent_data,
     return(TRUE);
 }
 
-static gboolean
+static bool
 txn_restore_split_end_handler(gpointer data_for_children,
                               GSList  *data_from_children, GSList *sibling_data,
                               gpointer parent_data, gpointer global_data,
@@ -3155,7 +3155,7 @@ txn_restore_split_end_handler(gpointer data_for_children,
     return(TRUE);
 }
 
-static gboolean
+static bool
 txn_restore_split_after_child_handler(gpointer data_for_children,
                                       GSList* data_from_children,
                                       GSList* sibling_data,
@@ -3231,7 +3231,7 @@ txn_restore_split_fail_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_split_guid_end_handler(gpointer data_for_children,
                                    GSList  *data_from_children, GSList *sibling_data,
                                    gpointer parent_data, gpointer global_data,
@@ -3241,7 +3241,7 @@ txn_restore_split_guid_end_handler(gpointer data_for_children,
     Split *s = (Split *) parent_data;
     gchar *txt = NULL;
     GncGUID gid;
-    gboolean ok;
+    bool ok;
 
     g_return_val_if_fail(s, FALSE);
 
@@ -3283,7 +3283,7 @@ txn_restore_split_guid_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_split_memo_end_handler(gpointer data_for_children,
                                    GSList  *data_from_children, GSList *sibling_data,
                                    gpointer parent_data, gpointer global_data,
@@ -3323,7 +3323,7 @@ txn_restore_split_memo_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_split_action_end_handler(gpointer data_for_children,
                                      GSList  *data_from_children, GSList *sibling_data,
                                      gpointer parent_data, gpointer global_data,
@@ -3363,7 +3363,7 @@ txn_restore_split_action_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_split_reconcile_state_end_handler(gpointer data_for_children,
         GSList  *data_from_children, GSList *sibling_data,
         gpointer parent_data, gpointer global_data,
@@ -3399,7 +3399,7 @@ txn_restore_split_reconcile_state_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_split_reconcile_date_end_handler(gpointer data_for_children,
         GSList  *data_from_children, GSList *sibling_data,
         gpointer parent_data, gpointer global_data,
@@ -3441,7 +3441,7 @@ txn_restore_split_reconcile_date_end_handler(gpointer data_for_children,
 
  */
 
-static gboolean
+static bool
 txn_restore_split_account_end_handler(gpointer data_for_children,
                                       GSList  *data_from_children, GSList *sibling_data,
                                       gpointer parent_data, gpointer global_data,
@@ -3452,7 +3452,7 @@ txn_restore_split_account_end_handler(gpointer data_for_children,
     Account *acct;
     gchar *txt = NULL;
     GncGUID gid;
-    gboolean ok;
+    bool ok;
 
     g_return_val_if_fail(s, FALSE);
 
@@ -3624,7 +3624,7 @@ gnc_transaction_parser_new(void)
 
 */
 
-static gboolean
+static bool
 price_parse_xml_sub_node(GNCPrice *p, xmlNodePtr sub_node, QofBook *book)
 {
     if (!p || !sub_node) return FALSE;
@@ -3681,7 +3681,7 @@ price_parse_xml_sub_node(GNCPrice *p, xmlNodePtr sub_node, QofBook *book)
     return TRUE;
 }
 
-static gboolean
+static bool
 price_parse_xml_end_handler(gpointer data_for_children,
                             GSList* data_from_children,
                             GSList* sibling_data,
@@ -3690,7 +3690,7 @@ price_parse_xml_end_handler(gpointer data_for_children,
                             gpointer *result,
                             const gchar *tag)
 {
-    gboolean ok = TRUE;
+    bool ok = TRUE;
     xmlNodePtr price_xml = (xmlNodePtr) data_for_children;
     xmlNodePtr child;
     GNCPrice *p = NULL;
@@ -3793,7 +3793,7 @@ gnc_price_parser_new (void)
 
 */
 
-static gboolean
+static bool
 pricedb_start_handler(GSList* sibling_data,
                       gpointer parent_data,
                       gpointer global_data,
@@ -3809,7 +3809,7 @@ pricedb_start_handler(GSList* sibling_data,
     return(TRUE);
 }
 
-static gboolean
+static bool
 pricedb_after_child_handler(gpointer data_for_children,
                             GSList* data_from_children,
                             GSList* sibling_data,

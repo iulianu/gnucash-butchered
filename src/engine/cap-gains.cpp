@@ -75,7 +75,7 @@ static QofLogModule log_module = GNC_MOD_LOT;
 
 /* ============================================================== */
 
-gboolean
+bool
 xaccAccountHasTrades (const Account *acc)
 {
     gnc_commodity *acc_comm;
@@ -107,17 +107,17 @@ struct find_lot_s
     gnc_commodity *currency;
     Timespec ts;
     int (*numeric_pred)(gnc_numeric);
-    gboolean (*date_pred)(Timespec e, Timespec tr);
+    bool (*date_pred)(Timespec e, Timespec tr);
 };
 
-static gboolean
+static bool
 earliest_pred (Timespec earl, Timespec tran)
 {
     return ((earl.tv_sec > tran.tv_sec)  ||
             ((earl.tv_sec == tran.tv_sec) && (earl.tv_nsec > tran.tv_nsec)));
 }
 
-static gboolean
+static bool
 latest_pred (Timespec earl, Timespec tran)
 {
     return ((earl.tv_sec < tran.tv_sec)  ||
@@ -131,7 +131,7 @@ finder_helper (GNCLot *lot,  gpointer user_data)
     Split *s;
     Transaction *trans;
     gnc_numeric bal;
-    gboolean opening_is_positive, bal_is_positive;
+    bool opening_is_positive, bal_is_positive;
 
     if (gnc_lot_is_closed (lot)) return NULL;
 
@@ -169,7 +169,7 @@ static inline GNCLot *
 xaccAccountFindOpenLot (Account *acc, gnc_numeric sign,
                         gnc_commodity *currency,
                         gint64 guess,
-                        gboolean (*date_pred)(Timespec, Timespec))
+                        bool (*date_pred)(Timespec, Timespec))
 {
     struct find_lot_s es;
 
@@ -367,7 +367,7 @@ xaccSplitAssignToLot (Split *split, GNCLot *lot)
     Account *acc;
     gnc_numeric baln;
     int cmp;
-    gboolean baln_is_positive, amt_is_positive;
+    bool baln_is_positive, amt_is_positive;
 
     if (!lot) return split;
     if (!split) return NULL;
@@ -578,11 +578,11 @@ xaccSplitAssignToLot (Split *split, GNCLot *lot)
  * this routine should return a lot.  By implementing this as
  * a callback, we can 'easily' add other accounting policies.
  */
-gboolean
+bool
 xaccSplitAssign (Split *split)
 {
     Account *acc;
-    gboolean splits_split_up = FALSE;
+    bool splits_split_up = FALSE;
     GNCLot *lot;
     GNCPolicy *pcy;
 
@@ -916,7 +916,7 @@ xaccSplitComputeCapGains(Split *split, Account *gain_acc)
         Transaction *trans;
         Split *lot_split, *gain_split;
         Timespec ts;
-        gboolean new_gain_split;
+        bool new_gain_split;
         gnc_numeric negvalue = gnc_numeric_neg (value);
 
         /* See if there already is an associated gains transaction.
@@ -1084,7 +1084,7 @@ xaccLotComputeCapGains (GNCLot *lot, Account *gain_acc)
 {
     SplitList *node;
     GNCPolicy *pcy;
-    gboolean is_dirty = FALSE;
+    bool is_dirty = FALSE;
 
     /* Note: if the value of the 'opening' split(s) has changed,
      * then the cap gains are changed. To capture this, we need

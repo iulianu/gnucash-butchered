@@ -389,7 +389,7 @@ gnc_budget_set_account_period_value(GncBudget *budget, const Account *account,
 /* We don't need these here, but maybe they're useful somewhere else?
    Maybe this should move to Account.h */
 
-gboolean
+bool
 gnc_budget_is_account_period_value_set(const GncBudget *budget, const Account *account,
                                        guint period_num)
 {
@@ -581,7 +581,7 @@ static GDate gnc_budget_get_rec_date(const GncBudget *bgt)
 }
 
 /* Register ourselves with the engine. */
-gboolean gnc_budget_register (void)
+bool gnc_budget_register (void)
 {
     static QofParam params[] =
     {

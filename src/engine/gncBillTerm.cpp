@@ -479,7 +479,7 @@ static GncBillTerm *gncBillTermCopy (const GncBillTerm *term)
     return t;
 }
 
-GncBillTerm *gncBillTermReturnChild (GncBillTerm *term, gboolean make_new)
+GncBillTerm *gncBillTermReturnChild (GncBillTerm *term, bool make_new)
 {
     GncBillTerm *child = NULL;
 
@@ -507,7 +507,7 @@ gint64 gncBillTermGetRefcount (const GncBillTerm *term)
     return term->refcount;
 }
 
-gboolean gncBillTermGetInvisible (const GncBillTerm *term)
+bool gncBillTermGetInvisible (const GncBillTerm *term)
 {
     if (!term) return FALSE;
     return term->invisible;
@@ -527,7 +527,7 @@ int gncBillTermCompare (const GncBillTerm *a, const GncBillTerm *b)
     return g_strcmp0 (a->desc, b->desc);
 }
 
-gboolean gncBillTermEqual(const GncBillTerm *a, const GncBillTerm *b)
+bool gncBillTermEqual(const GncBillTerm *a, const GncBillTerm *b)
 {
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
@@ -591,7 +591,7 @@ gboolean gncBillTermEqual(const GncBillTerm *a, const GncBillTerm *b)
     return TRUE;
 }
 
-gboolean gncBillTermIsFamily (const GncBillTerm *a, const GncBillTerm *b)
+bool gncBillTermIsFamily (const GncBillTerm *a, const GncBillTerm *b)
 {
     if (!gncBillTermCompare (a, b))
         return TRUE;
@@ -599,7 +599,7 @@ gboolean gncBillTermIsFamily (const GncBillTerm *a, const GncBillTerm *b)
         return FALSE;
 }
 
-gboolean gncBillTermIsDirty (const GncBillTerm *term)
+bool gncBillTermIsDirty (const GncBillTerm *term)
 {
     if (!term) return FALSE;
     return qof_instance_get_dirty_flag(term);
@@ -752,7 +752,7 @@ static QofObject gncBillTermDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncBillTermRegister (void)
+bool gncBillTermRegister (void)
 {
     static QofParam params[] =
     {

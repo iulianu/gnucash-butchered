@@ -164,7 +164,7 @@ add_account_local(GncExampleAccount *gea, Account *act)
     }
 }
 
-static gboolean
+static bool
 generic_callback(const char *tag, gpointer globaldata, gpointer data)
 {
     GncExampleAccount *gea = (GncExampleAccount*)globaldata;
@@ -203,11 +203,11 @@ grab_clean_string(xmlNodePtr tree)
     return squash_extra_whitespace(g_strstrip(dom_tree_to_text(tree)));
 }
 
-static gboolean
-gnc_short_descrip_end_handler(gpointer data_for_children,
+static bool
+gnc_short_descrip_end_handler(void* data_for_children,
                               GSList* data_from_children, GSList* sibling_data,
-                              gpointer parent_data, gpointer global_data,
-                              gpointer *result, const gchar *tag)
+                              void* parent_data, void* global_data,
+                              void** result, const char *tag)
 {
     GncExampleAccount *gea =
         (GncExampleAccount*)((gxpf_data*)global_data)->parsedata;
@@ -223,11 +223,11 @@ gnc_short_descrip_sixtp_parser_create(void)
     return sixtp_dom_parser_new(gnc_short_descrip_end_handler, NULL, NULL);
 }
 
-static gboolean
-gnc_long_descrip_end_handler(gpointer data_for_children,
+static bool
+gnc_long_descrip_end_handler(void* data_for_children,
                              GSList* data_from_children, GSList* sibling_data,
-                             gpointer parent_data, gpointer global_data,
-                             gpointer *result, const gchar *tag)
+                             void* parent_data, void* global_data,
+                             void** result, const char *tag)
 {
     GncExampleAccount *gea =
         (GncExampleAccount*)((gxpf_data*)global_data)->parsedata;
@@ -243,11 +243,11 @@ gnc_long_descrip_sixtp_parser_create(void)
     return sixtp_dom_parser_new(gnc_long_descrip_end_handler, NULL, NULL);
 }
 
-static gboolean
-gnc_excludep_end_handler(gpointer data_for_children,
+static bool
+gnc_excludep_end_handler(void* data_for_children,
                          GSList* data_from_children, GSList* sibling_data,
-                         gpointer parent_data, gpointer global_data,
-                         gpointer *result, const gchar *tag)
+                         void* parent_data, void* global_data,
+                         void** result, const char *tag)
 {
     GncExampleAccount *gea =
         (GncExampleAccount*)((gxpf_data*)global_data)->parsedata;
@@ -265,11 +265,11 @@ gnc_excludep_sixtp_parser_create(void)
     return sixtp_dom_parser_new(gnc_excludep_end_handler, NULL, NULL);
 }
 
-static gboolean
-gnc_selected_end_handler(gpointer data_for_children,
+static bool
+gnc_selected_end_handler(void* data_for_children,
                          GSList* data_from_children, GSList* sibling_data,
-                         gpointer parent_data, gpointer global_data,
-                         gpointer *result, const gchar *tag)
+                         void* parent_data, void* global_data,
+                         void** result, const char *tag)
 {
     GncExampleAccount *gea =
         (GncExampleAccount*)((gxpf_data*)global_data)->parsedata;
@@ -287,11 +287,11 @@ gnc_selected_sixtp_parser_create(void)
     return sixtp_dom_parser_new(gnc_selected_end_handler, NULL, NULL);
 }
 
-static gboolean
-gnc_title_end_handler(gpointer data_for_children,
+static bool
+gnc_title_end_handler(void* data_for_children,
                       GSList* data_from_children, GSList* sibling_data,
-                      gpointer parent_data, gpointer global_data,
-                      gpointer *result, const gchar *tag)
+                      void* parent_data, void* global_data,
+                      void** result, const char *tag)
 {
     GncExampleAccount *gea =
         (GncExampleAccount*)((gxpf_data*)global_data)->parsedata;
@@ -374,7 +374,7 @@ write_string_part(FILE *out, const char *tag, const char *data)
 }
 
 static void
-write_bool_part(FILE *out, const char *tag, gboolean data)
+write_bool_part(FILE *out, const char *tag, bool data)
 {
     xmlNodePtr node;
 
@@ -386,7 +386,7 @@ write_bool_part(FILE *out, const char *tag, gboolean data)
     xmlFreeNode(node);
 }
 
-gboolean
+bool
 gnc_write_example_account(GncExampleAccount *gea, const gchar *filename)
 {
     FILE *out;
@@ -495,7 +495,7 @@ gnc_load_example_account_list(const char *dirname)
 
 /***********************************************************************/
 /*
-gboolean
+bool
 gnc_is_example_account_xml(const gchar *name)
 {
     return gnc_is_our_xml_file(name, GNC_ACCOUNT_STRING, NULL);

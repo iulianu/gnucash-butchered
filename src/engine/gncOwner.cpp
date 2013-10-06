@@ -303,7 +303,7 @@ qofOwnerSetEntity (GncOwner *owner, QofInstance *ent)
     }
 }
 
-//gboolean GNC_IS_OWNER (QofInstance *ent)
+//bool GNC_IS_OWNER (QofInstance *ent)
 //{
 //    if (!ent)
 //        return FALSE;
@@ -355,7 +355,7 @@ void gncOwnerCopy (const GncOwner *src, GncOwner *dest)
     memcpy (dest, src, sizeof (*dest));
 }
 
-gboolean gncOwnerEqual (const GncOwner *a, const GncOwner *b)
+bool gncOwnerEqual (const GncOwner *a, const GncOwner *b)
 {
     if (!a || !b) return FALSE;
     if (gncOwnerGetType (a) != gncOwnerGetType (b)) return FALSE;
@@ -449,7 +449,7 @@ gnc_commodity * gncOwnerGetCurrency (const GncOwner *owner)
     }
 }
 
-gboolean gncOwnerGetActive (const GncOwner *owner)
+bool gncOwnerGetActive (const GncOwner *owner)
 {
     if (!owner) return FALSE;
     switch (owner->type)
@@ -491,7 +491,7 @@ const GncGUID * gncOwnerGetGUID (const GncOwner *owner)
 }
 
 void
-gncOwnerSetActive (const GncOwner *owner, gboolean active)
+gncOwnerSetActive (const GncOwner *owner, bool active)
 {
     if (!owner) return;
     switch (owner->type)
@@ -596,7 +596,7 @@ void gncOwnerAttachToLot (const GncOwner *owner, GNCLot *lot)
 
 }
 
-gboolean gncOwnerGetOwnerFromLot (GNCLot *lot, GncOwner *owner)
+bool gncOwnerGetOwnerFromLot (GNCLot *lot, GncOwner *owner)
 {
     KvpFrame *kvp;
     KvpValue *value;
@@ -642,7 +642,7 @@ gboolean gncOwnerGetOwnerFromLot (GNCLot *lot, GncOwner *owner)
     return (owner->owner.undefined != NULL);
 }
 
-gboolean gncOwnerIsValid (const GncOwner *owner)
+bool gncOwnerIsValid (const GncOwner *owner)
 {
     if (!owner) return FALSE;
     return (owner->owner.undefined != NULL);
@@ -665,7 +665,7 @@ KvpFrame* gncOwnerGetSlots(GncOwner* owner)
     }
 }
 
-gboolean
+bool
 gncOwnerLotMatchOwnerFunc (GNCLot *lot, gpointer user_data)
 {
     const GncOwner *req_owner = user_data;
@@ -870,7 +870,7 @@ void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, GList *lots)
         GList *lot_list, *lot_iter;
         Transaction *txn = NULL;
         gnc_numeric base_lot_bal, val_to_pay, val_paid = { 0, 1 };
-        gboolean base_bal_is_pos;
+        bool base_bal_is_pos;
         const gchar *action, *memo;
 
         /* Only attempt to apply payments to open lots.
@@ -1176,7 +1176,7 @@ reg_lot (void)
     qof_class_register (GNC_ID_LOT, NULL, params);
 }
 
-gboolean gncOwnerGetOwnerFromTypeGuid (QofBook *book, GncOwner *owner, QofIdType type, GncGUID *guid)
+bool gncOwnerGetOwnerFromTypeGuid (QofBook *book, GncOwner *owner, QofIdType type, GncGUID *guid)
 {
     if (!book || !owner || !type || !guid) return FALSE;
 
@@ -1207,7 +1207,7 @@ gboolean gncOwnerGetOwnerFromTypeGuid (QofBook *book, GncOwner *owner, QofIdType
     return 0;
 }
 
-gboolean gncOwnerRegister (void)
+bool gncOwnerRegister (void)
 {
     static QofParam params[] =
     {

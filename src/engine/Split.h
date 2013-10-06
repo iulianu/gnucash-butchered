@@ -95,7 +95,7 @@ void xaccSplitReinit(Split * split);
  * @return TRUE upon successful deletion of the split. FALSE when
  * the parenting Transaction is a read-only one.
  */
-gboolean      xaccSplitDestroy (Split *split);
+bool      xaccSplitDestroy (Split *split);
 
 /*################## Added for Reg2 #################*/
 /** This is really a helper for xaccTransCopyOnto. It doesn't reparent
@@ -334,10 +334,10 @@ gnc_numeric xaccSplitGetReconciledBalance (const Split *split);
  * kvp_frame), then, when comparing the parenting transactions with
  * xaccTransEqual(), set its argument check_splits to be TRUE.
  */
-gboolean xaccSplitEqual(const Split *sa, const Split *sb,
-                        gboolean check_guids,
-                        gboolean check_balances,
-                        gboolean check_txn_splits);
+bool xaccSplitEqual(const Split *sa, const Split *sb,
+                        bool check_guids,
+                        bool check_balances,
+                        bool check_txn_splits);
 
 /** The xaccSplitLookup() subroutine will return the
  *    split associated with the given id, or NULL
@@ -361,7 +361,7 @@ Split * xaccSplitGetOtherSplit (const Split *split);
  * (a non-zero value) if the two splits share a common parent
  * transaction, else it returns FALSE (zero).
  *
-gboolean xaccIsPeerSplit (const Split *split_1, const Split *split_2);
+bool xaccIsPeerSplit (const Split *split_1, const Split *split_2);
 */
 /** Returns the split type, which is either the string "normal", or
  * "stock-split" for a split from a stock split (pun intended? :-).  */

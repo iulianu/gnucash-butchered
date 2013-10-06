@@ -42,7 +42,7 @@ class GncOrder : public QofInstance
 public:
     char *	id;
     char *	notes;
-    gboolean 	active;
+    bool 	active;
 
     char *	reference;
     char *	printname;
@@ -207,7 +207,7 @@ void gncOrderSetReference (GncOrder *order, const char *reference)
     gncOrderCommitEdit (order);
 }
 
-void gncOrderSetActive (GncOrder *order, gboolean active)
+void gncOrderSetActive (GncOrder *order, bool active)
 {
     if (!order) return;
     if (order->active == active) return;
@@ -290,7 +290,7 @@ const char * gncOrderGetReference (const GncOrder *order)
     return order->reference;
 }
 
-gboolean gncOrderGetActive (const GncOrder *order)
+bool gncOrderGetActive (const GncOrder *order)
 {
     if (!order) return FALSE;
     return order->active;
@@ -303,7 +303,7 @@ GList * gncOrderGetEntries (GncOrder *order)
     return order->entries;
 }
 
-gboolean gncOrderIsClosed (const GncOrder *order)
+bool gncOrderIsClosed (const GncOrder *order)
 {
     if (!order) return FALSE;
     if (order->closed.tv_sec || order->closed.tv_nsec) return TRUE;
@@ -396,7 +396,7 @@ static QofObject gncOrderDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncOrderRegister (void)
+bool gncOrderRegister (void)
 {
     static QofParam params[] =
     {

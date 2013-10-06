@@ -352,7 +352,7 @@ gnc_sxed_check_changed( GncSxEditorDialog *sxed )
 
     /* SX options [autocreate, notify, reminder, advance] */
     {
-        gboolean dlgEnabled,
+        bool     dlgEnabled,
                  dlgAutoCreate,
                  dlgNotify,
                  sxEnabled,
@@ -1358,7 +1358,7 @@ schedXact_editor_populate( GncSxEditorDialog *sxed )
     struct tm *tmpTm;
     const GDate *gd;
     gint daysInAdvance;
-    gboolean enabledState, autoCreateState, notifyState;
+    bool enabledState, autoCreateState, notifyState;
 
     name = xaccSchedXactionGetName(sxed->sx);
     if ( name != NULL )

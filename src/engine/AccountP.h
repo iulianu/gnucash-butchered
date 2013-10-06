@@ -90,7 +90,7 @@ struct AccountPrivate
      */
     gnc_commodity * commodity;
     int commodity_scu;
-    gboolean non_standard_scu;
+    bool non_standard_scu;
 
     /* The parent and children pointers are used to implement an account
      * hierarchy, of accounts that have sub-accounts ("detail accounts").
@@ -108,10 +108,10 @@ struct AccountPrivate
     gnc_numeric cleared_balance;
     gnc_numeric reconciled_balance;
 
-    gboolean balance_dirty;     /* balances in splits incorrect */
+    bool balance_dirty;     /* balances in splits incorrect */
 
     GList *splits;              /* list of split pointers */
-    gboolean sort_dirty;        /* sort order of splits is bad */
+    bool sort_dirty;        /* sort order of splits is bad */
 
     LotList   *lots;		/* list of lot pointers */
     GNCPolicy *policy;		/* Cached pointer to policy method */
@@ -162,7 +162,7 @@ public:
 void xaccAccountSetGUID (Account *account, const GncGUID *guid);
 
 /* Register Accounts with the engine */
-gboolean xaccAccountRegister (void);
+bool xaccAccountRegister (void);
 
 /* Structure for accessing static functions for testing */
 typedef struct

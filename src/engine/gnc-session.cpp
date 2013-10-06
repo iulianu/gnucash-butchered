@@ -43,7 +43,7 @@ gnc_get_current_session (void)
     return current_session;
 }
 
-gboolean
+bool
 gnc_current_session_exist(void)
 {
     return (current_session != NULL);

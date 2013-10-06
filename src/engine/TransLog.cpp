@@ -133,7 +133,7 @@ xaccLogSetBaseName (const char *basepath)
  * directory path and avoid problems with worrying about any ".."
  * components in the path.
  */
-gboolean
+bool
 xaccFileIsCurrentLog (const gchar *name)
 {
     gchar *base;

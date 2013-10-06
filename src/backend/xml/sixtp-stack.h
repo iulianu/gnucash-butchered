@@ -31,10 +31,10 @@
 typedef struct sixtp_stack_frame
 {
     sixtp *parser;
-    gchar *tag;
-    gpointer data_for_children;
+    char *tag;
+    void * data_for_children;
     GSList *data_from_children; /* in reverse chronological order */
-    gpointer frame_data;
+    void * frame_data;
 
     /* Line and column [of the start tag]; set during parsing. */
     int line;
@@ -52,7 +52,7 @@ typedef struct _sixtp_parser_context_struct sixtp_parser_context;
 
 void sixtp_stack_frame_destroy(sixtp_stack_frame *sf);
 
-void sixtp_stack_frame_print(sixtp_stack_frame *sf, gint indent, FILE *f);
+void sixtp_stack_frame_print(sixtp_stack_frame *sf, int indent, FILE *f);
 
 GSList* sixtp_pop_and_destroy_frame(GSList *frame_stack);
 
@@ -61,8 +61,8 @@ void sixtp_print_frame_stack(GSList *stack, FILE *f);
 sixtp_stack_frame* sixtp_stack_frame_new(sixtp* next_parser, char *tag);
 
 sixtp_parser_context* sixtp_context_new(sixtp *initial_parser,
-                                        gpointer global_data,
-                                        gpointer top_level_data);
+                                        void* global_data,
+                                        void* top_level_data);
 void sixtp_context_destroy(sixtp_parser_context* context);
 void sixtp_context_run_end_handler(sixtp_parser_context* ctxt);
 

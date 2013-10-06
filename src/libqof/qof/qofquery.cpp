@@ -1655,7 +1655,7 @@ qof_query_printSorts (QofQuerySort *s[], const int numSorts, GList * output)
 
     for (curSort = 0; curSort < numSorts; curSort++)
     {
-        gboolean increasing;
+        bool increasing;
         if (!s[curSort])
         {
             break;
@@ -1694,7 +1694,7 @@ qof_query_printAndTerms (GList * terms, GList * output)
     QofQueryPredData *pd;
     QofQueryParamList *path;
     GList *lst;
-    gboolean invert;
+    bool invert;
 
     output = g_list_append (output, g_string_new (prefix));
     for (lst = terms; lst; lst = lst->next)

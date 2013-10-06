@@ -70,7 +70,7 @@ struct gncpolicy_s
                                      gnc_numeric *ret_value,
                                      gnc_commodity **ret_currency);
 
-    gboolean (*PolicyIsOpeningSplit) (GNCPolicy *, GNCLot *lot,
+    bool (*PolicyIsOpeningSplit) (GNCPolicy *, GNCLot *lot,
                                       Split *split);
 };
 

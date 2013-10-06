@@ -112,10 +112,10 @@ gint gncBillTermGetDiscountDays (const GncBillTerm *term);
 gnc_numeric gncBillTermGetDiscount (const GncBillTerm *term);
 gint gncBillTermGetCutoff (const GncBillTerm *term);
 
-gboolean gncBillTermIsDirty (const GncBillTerm *term);
+bool gncBillTermIsDirty (const GncBillTerm *term);
 
 GncBillTerm *gncBillTermGetParent (const GncBillTerm *term);
-GncBillTerm *gncBillTermReturnChild (GncBillTerm *term, gboolean make_new);
+GncBillTerm *gncBillTermReturnChild (GncBillTerm *term, bool make_new);
 #define gncBillTermGetChild(t) gncBillTermReturnChild((t),FALSE)
 gint64 gncBillTermGetRefcount (const GncBillTerm *term);
 /** @} */
@@ -125,7 +125,7 @@ gint64 gncBillTermGetRefcount (const GncBillTerm *term);
 /** Compare BillTerms on their name for sorting. */
 int gncBillTermCompare (const GncBillTerm *a, const GncBillTerm *b);
 /** Check if all internal fields of a and b match. */
-gboolean gncBillTermEqual(const GncBillTerm *a, const GncBillTerm *b);
+bool gncBillTermEqual(const GncBillTerm *a, const GncBillTerm *b);
 /** Check only if the bill terms are "family". This is the case if
  *  - a and b are the same bill term
  *  - a is b's parent or vice versa
@@ -134,7 +134,7 @@ gboolean gncBillTermEqual(const GncBillTerm *a, const GncBillTerm *b);
  *  In practice, this check if performed by comparing the bill term's names.
  *  This is required to be unique per parent/children group.
  */
-gboolean gncBillTermIsFamily (const GncBillTerm *a, const GncBillTerm *b);
+bool gncBillTermIsFamily (const GncBillTerm *a, const GncBillTerm *b);
 /** @} */
 
 /********************************************************/

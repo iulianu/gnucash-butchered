@@ -54,7 +54,7 @@ class GNCPriceDB : public QofInstance
 {
 public:
     GHashTable *commodity_hash;
-    gboolean bulk_update;		 /* TRUE while reading XML file, etc. */
+    bool bulk_update;		 /* TRUE while reading XML file, etc. */
     
     GNCPriceDB();
     virtual ~GNCPriceDB();
@@ -97,7 +97,7 @@ void     gnc_pricedb_substitute_commodity(GNCPriceDB *db,
         gnc_commodity *new_c);
 
 /** register the pricedb object with the gncObject system */
-gboolean gnc_pricedb_register (void);
+bool gnc_pricedb_register (void);
 
 QofBackend * xaccPriceDBGetBackend (GNCPriceDB *prdb);
 

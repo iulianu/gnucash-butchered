@@ -92,8 +92,8 @@ void gncInvoiceSetTerms (GncInvoice *invoice, GncBillTerm *terms);
 void gncInvoiceSetBillingID (GncInvoice *invoice, const char *billing_id);
 void gncInvoiceSetNotes (GncInvoice *invoice, const char *notes);
 void gncInvoiceSetCurrency (GncInvoice *invoice, gnc_commodity *currency);
-void gncInvoiceSetActive (GncInvoice *invoice, gboolean active);
-void gncInvoiceSetIsCreditNote (GncInvoice *invoice, gboolean credit_note);
+void gncInvoiceSetActive (GncInvoice *invoice, bool active);
+void gncInvoiceSetIsCreditNote (GncInvoice *invoice, bool credit_note);
 void gncInvoiceSetBillTo (GncInvoice *invoice, GncOwner *billto);
 void gncInvoiceSetToChargeAmount (GncInvoice *invoice, gnc_numeric amount);
 /** @} */
@@ -128,8 +128,8 @@ const char * gncInvoiceGetTypeString (const GncInvoice *invoice);
 gnc_commodity * gncInvoiceGetCurrency (const GncInvoice *invoice);
 GncOwner * gncInvoiceGetBillTo (GncInvoice *invoice);
 gnc_numeric gncInvoiceGetToChargeAmount (const GncInvoice *invoice);
-gboolean gncInvoiceGetActive (const GncInvoice *invoice);
-gboolean gncInvoiceGetIsCreditNote (const GncInvoice *invoice);
+bool gncInvoiceGetActive (const GncInvoice *invoice);
+bool gncInvoiceGetIsCreditNote (const GncInvoice *invoice);
 
 GNCLot * gncInvoiceGetPostedLot (const GncInvoice *invoice);
 Transaction * gncInvoiceGetPostedTxn (const GncInvoice *invoice);
@@ -155,7 +155,7 @@ GNCPrice * gncInvoiceGetPrice(GncInvoice *invoice, gnc_commodity* commodity);
  *  Returns TRUE if the invoice will increase the balance or FALSE
  *  otherwise.
  */
-gboolean gncInvoiceAmountPositive (const GncInvoice *invoice);
+bool gncInvoiceAmountPositive (const GncInvoice *invoice);
 
 /** Post this invoice to an account.  Returns the new Transaction
  * that is tied to this invoice.   The transaction is set with
@@ -165,7 +165,7 @@ gboolean gncInvoiceAmountPositive (const GncInvoice *invoice);
 Transaction *
 gncInvoicePostToAccount (GncInvoice *invoice, Account *acc,
                          Timespec *posted_date, Timespec *due_date,
-                         const char *memo, gboolean accumulatesplits);
+                         const char *memo, bool accumulatesplits);
 
 /**
  * Unpost this invoice.  This will destroy the posted transaction and
@@ -177,8 +177,8 @@ gncInvoicePostToAccount (GncInvoice *invoice, Account *acc,
  *
  * Returns TRUE if successful, FALSE if there is a problem.
  */
-gboolean
-gncInvoiceUnpost (GncInvoice *invoice, gboolean reset_tax_tables);
+bool
+gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables);
 
 /**
  * Attempt to pay the invoice using open payment lots and
@@ -228,8 +228,8 @@ static inline GncInvoice * gncInvoiceLookup (const QofBook *book, const GncGUID 
 void gncInvoiceBeginEdit (GncInvoice *invoice);
 void gncInvoiceCommitEdit (GncInvoice *invoice);
 int gncInvoiceCompare (const GncInvoice *a, const GncInvoice *b);
-gboolean gncInvoiceIsPosted (const GncInvoice *invoice);
-gboolean gncInvoiceIsPaid (const GncInvoice *invoice);
+bool gncInvoiceIsPosted (const GncInvoice *invoice);
+bool gncInvoiceIsPaid (const GncInvoice *invoice);
 
 #define INVOICE_ID          "id"
 #define INVOICE_OWNER       "owner"
@@ -262,7 +262,7 @@ QofBook *gncInvoiceGetBook(GncInvoice *x);
 #define gncInvoiceLookupDirect(G,B) gncInvoiceLookup((B),&(G))
 
 /** Test support function used by test-dbi-business-stuff.cpp */
-gboolean gncInvoiceEqual(const GncInvoice *a, const GncInvoice *b);
+bool gncInvoiceEqual(const GncInvoice *a, const GncInvoice *b);
 
 #endif /* GNC_INVOICE_H_ */
 /** @} */

@@ -38,7 +38,7 @@ public:
     char *          username;
     GncAddress *    addr;
     gnc_commodity * currency;
-    gboolean        active;
+    bool        active;
 
     char *          language;
     char *          acl;
@@ -51,7 +51,7 @@ public:
     virtual ~GncEmployee();
 };
 
-gboolean gncEmployeeRegister (void);
+bool gncEmployeeRegister (void);
 gchar *gncEmployeeNextID (QofBook *book);
 
 #define gncEmployeeSetGUID(E,G) qof_instance_set_guid(QOF_INSTANCE(E),(G))

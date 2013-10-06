@@ -26,12 +26,12 @@
 
 #include "io-gncxml-gen.h"
 
-gboolean
+bool
 gnc_xml_parse_file(sixtp *top_parser, const char *filename,
-                   gxpf_callback callback, gpointer parsedata,
-                   gpointer bookdata)
+                   gxpf_callback callback, void* parsedata,
+                   void* bookdata)
 {
-    gpointer parse_result = NULL;
+    void* parse_result = NULL;
     gxpf_data gpdata;
 
     gpdata.cb = callback;

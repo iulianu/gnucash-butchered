@@ -129,7 +129,7 @@ struct QofInstanceReference
 
 /** \brief Flag indicating a partial QofBook.
 
-When set in the book data with a gboolean value of TRUE,
+When set in the book data with a bool value of TRUE,
 the flag denotes that only a backend that supports partial
 books can be used to save this session.
 */

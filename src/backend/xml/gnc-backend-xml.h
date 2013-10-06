@@ -67,7 +67,7 @@ struct FileBackend_struct
 
     XMLFileRetentionType file_retention_type;
     int file_retention_days;
-    gboolean file_compression;
+    bool file_compression;
 };
 
 typedef struct FileBackend_struct FileBackend;

@@ -28,7 +28,7 @@
 #include <glib.h>
 #include "sixtp.h"
 
-typedef gboolean (*gxpf_callback)(const char *tag, gpointer parsedata,
+typedef bool (*gxpf_callback)(const char *tag, gpointer parsedata,
                                   gpointer data);
 
 struct gxpf_data_struct
@@ -40,7 +40,7 @@ struct gxpf_data_struct
 
 typedef struct gxpf_data_struct gxpf_data;
 
-gboolean
+bool
 gnc_xml_parse_file(sixtp *top_parser, const char *filename,
                    gxpf_callback callback, gpointer parsedata,
                    gpointer bookdata);

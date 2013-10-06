@@ -96,11 +96,11 @@ dom_tree_to_integer_kvp_value(xmlNodePtr node)
     return ret;
 }
 
-gboolean
+bool
 dom_tree_to_integer(xmlNodePtr node, gint64 *daint)
 {
     gchar *text;
-    gboolean ret;
+    bool ret;
 
     text = dom_tree_to_text(node);
 
@@ -111,10 +111,10 @@ dom_tree_to_integer(xmlNodePtr node, gint64 *daint)
     return ret;
 }
 
-gboolean
+bool
 dom_tree_to_guint16(xmlNodePtr node, guint16 *i)
 {
-    gboolean ret;
+    bool ret;
     guint j = 0;
 
     ret = dom_tree_to_guint(node, &j);
@@ -122,11 +122,11 @@ dom_tree_to_guint16(xmlNodePtr node, guint16 *i)
     return ret;
 }
 
-gboolean
+bool
 dom_tree_to_guint(xmlNodePtr node, guint *i)
 {
     gchar *text, *endptr;
-    gboolean ret;
+    bool ret;
 
     text = dom_tree_to_text(node);
     /* In spite of the strange string_to_gint64 function, I'm just
@@ -138,8 +138,8 @@ dom_tree_to_guint(xmlNodePtr node, guint *i)
     return ret;
 }
 
-gboolean
-dom_tree_to_boolean(xmlNodePtr node, gboolean* b)
+bool
+dom_tree_to_boolean(xmlNodePtr node, bool* b)
 {
     gchar* text;
 
@@ -264,7 +264,7 @@ dom_tree_to_gdate_kvp_value (xmlNodePtr node)
     return ret;
 }
 
-gboolean
+bool
 string_to_binary(const gchar *str,  void **v, guint64 *data_len)
 {
     guint64 str_len;
@@ -428,7 +428,7 @@ dom_tree_to_kvp_value(xmlNodePtr node)
     return ret;
 }
 
-gboolean
+bool
 dom_tree_to_kvp_frame_given(xmlNodePtr node, kvp_frame *frame)
 {
     xmlNodePtr mark;
@@ -582,8 +582,8 @@ dom_tree_to_timespec(xmlNodePtr node)
        and no more than one of each.  Order is irrelevant. */
 
     Timespec ret;
-    gboolean seen_s = FALSE;
-    gboolean seen_ns = FALSE;
+    bool seen_s = FALSE;
+    bool seen_ns = FALSE;
     xmlNodePtr n;
 
 
@@ -672,7 +672,7 @@ dom_tree_to_gdate(xmlNodePtr node)
        into a GDate.  If the xml is invalid, returns NULL. */
 
     GDate *ret;
-    gboolean seen_date = FALSE;
+    bool seen_date = FALSE;
     xmlNodePtr n;
 
     /* creates an invalid date */
@@ -851,10 +851,10 @@ dom_tree_handlers_reset(struct dom_tree_handler *handlers)
     }
 }
 
-static inline gboolean
+static inline bool
 dom_tree_handlers_all_gotten_p(struct dom_tree_handler *handlers)
 {
-    gboolean ret = TRUE;
+    bool ret = TRUE;
     for (; handlers->tag != NULL; handlers++)
     {
         if (handlers->required && ! handlers->gotten)
@@ -868,7 +868,7 @@ dom_tree_handlers_all_gotten_p(struct dom_tree_handler *handlers)
 }
 
 
-static inline gboolean
+static inline bool
 gnc_xml_set_data(const gchar* tag, xmlNodePtr node, gpointer item,
                  struct dom_tree_handler *handlers)
 {
@@ -892,12 +892,12 @@ gnc_xml_set_data(const gchar* tag, xmlNodePtr node, gpointer item,
     return TRUE;
 }
 
-gboolean
+bool
 dom_tree_generic_parse(xmlNodePtr node, struct dom_tree_handler *handlers,
                        gpointer data)
 {
     xmlNodePtr achild;
-    gboolean successful = TRUE;
+    bool successful = TRUE;
 
     dom_tree_handlers_reset(handlers);
 
@@ -924,7 +924,7 @@ dom_tree_generic_parse(xmlNodePtr node, struct dom_tree_handler *handlers,
     return successful;
 }
 
-gboolean
+bool
 dom_tree_valid_timespec (Timespec *ts, const xmlChar *name)
 {
 

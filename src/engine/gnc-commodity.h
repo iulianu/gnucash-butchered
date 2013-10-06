@@ -65,7 +65,7 @@ class gnc_commodity_namespace : public QofInstance
 {
 public:
     gchar      * name;
-    gboolean     iso4217;
+    bool     iso4217;
     GHashTable * cm_table;
     GList      * cm_list;
     
@@ -131,7 +131,7 @@ enum QuoteSourceType
  *
  *  @return TRUE is F::Q is installed properly.
  */
-gboolean gnc_quote_source_fq_installed (void);
+bool gnc_quote_source_fq_installed (void);
 
 /** Update gnucash internal tables based on what Finance::Quote
  *  sources are installed.  Sources that have been explicitly coded
@@ -163,7 +163,7 @@ gint gnc_quote_source_num_entries(QuoteSourceType type);
  *
  *  @return A pointer to the newly created quote source.
  */
-gnc_quote_source *gnc_quote_source_add_new(const char * name, gboolean supported);
+gnc_quote_source *gnc_quote_source_add_new(const char * name, bool supported);
 
 /** Given the internal (gnucash or F::Q) name of a quote source, find
  *  the data structure identified by this name.
@@ -196,7 +196,7 @@ gnc_quote_source *gnc_quote_source_lookup_by_ti(QuoteSourceType type, gint index
  *
  *  @return TRUE if the user's computer supports this quote source.
  */
-gboolean gnc_quote_source_get_supported (const gnc_quote_source *source);
+bool gnc_quote_source_get_supported (const gnc_quote_source *source);
 
 /** Given a gnc_quote_source data structure, return the type of this
  *  particular quote source. (SINGLE, MULTI, UNKNOWN)
@@ -425,7 +425,7 @@ int     gnc_commodity_get_fraction(const gnc_commodity * cm);
  *  @return TRUE if quotes should be pulled for this commodity, FALSE
  *  otherwise.
  */
-gboolean    gnc_commodity_get_quote_flag(const gnc_commodity *cm);
+bool    gnc_commodity_get_quote_flag(const gnc_commodity *cm);
 
 /** Retrieve the automatic price quote source for the specified
  *  commodity.  This will be a pointer to a null terminated string of
@@ -538,7 +538,7 @@ void  gnc_commodity_set_fraction(gnc_commodity * cm, int smallest_fraction);
  *  otherwise.
  */
 void  gnc_commodity_user_set_quote_flag(gnc_commodity *cm,
-                                        const gboolean flag);
+                                        const bool flag);
 
 /** Set the automatic price quote flag for the specified commodity.
  *  This flag indicates whether stock quotes should be retrieved for
@@ -549,7 +549,7 @@ void  gnc_commodity_user_set_quote_flag(gnc_commodity *cm,
  *  @param flag TRUE if quotes should be pulled for this commodity, FALSE
  *  otherwise.
  */
-void  gnc_commodity_set_quote_flag(gnc_commodity *cm, const gboolean flag);
+void  gnc_commodity_set_quote_flag(gnc_commodity *cm, const bool flag);
 
 /** Set the automatic price quote source for the specified commodity.
  *  This should be a pointer to a null terminated string of the form
@@ -611,13 +611,13 @@ gnc_commodity_decrement_usage_count(gnc_commodity *cm);
  *  exchanges, may have different fullnames, and may have different
  *  fractions.
  */
-gboolean gnc_commodity_equiv(const gnc_commodity * a, const gnc_commodity * b);
+bool gnc_commodity_equiv(const gnc_commodity * a, const gnc_commodity * b);
 
 /** This routine returns TRUE if the two commodities are equal.
  *  Commodities are equal if they have the same namespace, mnemonic,
  *  fullname, exchange private code and fraction.
  */
-gboolean gnc_commodity_equal(const gnc_commodity * a, const gnc_commodity * b);
+bool gnc_commodity_equal(const gnc_commodity * a, const gnc_commodity * b);
 
 /** This routine returns 0 if the two commodities are equal, 1 otherwise.
  *  Commodities are equal if they have the same namespace, mnemonic,
@@ -646,14 +646,14 @@ int gnc_commodity_compare_void(const void * a, const void * b);
  *  @param commodity_namespace The string to check.
  *
  *  @return TRUE if the string indicates an ISO currency, FALSE otherwise. */
-gboolean gnc_commodity_namespace_is_iso(const char *commodity_namespace);
+bool gnc_commodity_namespace_is_iso(const char *commodity_namespace);
 
 /** Checks to see if the specified commodity is an ISO 4217 recognized currency.
  *
  *  @param cm The commodity to check.
  *
  *  @return TRUE if the commodity represents a currency, FALSE otherwise. */
-gboolean gnc_commodity_is_iso(const gnc_commodity * cm);
+bool gnc_commodity_is_iso(const gnc_commodity * cm);
 
 /** Checks to see if the specified commodity is an ISO 4217 recognized
  * currency or a legacy currency.
@@ -661,7 +661,7 @@ gboolean gnc_commodity_is_iso(const gnc_commodity * cm);
  *  @param cm The commodity to check.
  *
  *  @return TRUE if the commodity represents a currency, FALSE otherwise. */
-gboolean gnc_commodity_is_currency(const gnc_commodity *cm);
+bool gnc_commodity_is_currency(const gnc_commodity *cm);
 
 /** @} */
 
@@ -737,7 +737,7 @@ void gnc_commodity_table_remove(gnc_commodity_table * table,
  *  @param table A pointer to the commodity table.
  *
  *  @param book Unused. */
-gboolean gnc_commodity_table_add_default_data(gnc_commodity_table *table, QofBook *book);
+bool gnc_commodity_table_add_default_data(gnc_commodity_table *table, QofBook *book);
 
 /** @} */
 /* ---------------------------------------------------------- */
@@ -887,8 +887,8 @@ CommodityList * gnc_commodity_table_get_quotable_commodities(
  *
  *  @param user_data A pointer that is passed into the function
  *  unchanged by the table walk routine. */
-gboolean gnc_commodity_table_foreach_commodity(const gnc_commodity_table * table,
-        gboolean (*f)(gnc_commodity *cm,
+bool gnc_commodity_table_foreach_commodity(const gnc_commodity_table * table,
+        bool (*f)(gnc_commodity *cm,
                       gpointer user_data),
         gpointer user_data);
 /** @} */
@@ -917,7 +917,7 @@ gnc_commodity * gnc_commodity_obtain_twin (const gnc_commodity *findlike, QofBoo
  * It is an internal routine for registering the gncObject for the
  * commodity table.
  */
-gboolean gnc_commodity_table_register (void);
+bool gnc_commodity_table_register (void);
 
 void gnc_commodity_begin_edit (gnc_commodity *cm);
 void gnc_commodity_commit_edit (gnc_commodity *cm);

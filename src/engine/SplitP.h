@@ -158,7 +158,7 @@ gnc_numeric xaccSplitsComputeValue (GList *splits, const Split * skip_me,
                                     const gnc_commodity * base_currency);
 
 /* Code to register Split type with the engine */
-gboolean xaccSplitRegister (void);
+bool xaccSplitRegister (void);
 
 /* The xaccSplitDetermineGainStatus() routine will analyze the
  *   the split, and try to set the internal status flags
@@ -237,11 +237,11 @@ void         DxaccSplitSetShareAmount (Split *split, double amount);
 /* Structure for accessing static functions for testing */
 typedef struct
 {
-    gboolean (*xaccSplitEqualCheckBal) (const char *tag, gnc_numeric a,
+    bool (*xaccSplitEqualCheckBal) (const char *tag, gnc_numeric a,
 					gnc_numeric b);
     int (*get_currency_denom) (const Split *s);
     int (*get_commodity_denom) (const Split *s);
-    gboolean (*get_corr_account_split) (const Split *sa, const Split **retval);
+    bool (*get_corr_account_split) (const Split *sa, const Split **retval);
 } SplitTestFunctions;
 
 SplitTestFunctions* _utest_split_fill_functions (void);

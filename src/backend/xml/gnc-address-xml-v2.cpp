@@ -94,7 +94,7 @@ struct address_pdata
     GncAddress *address;
 };
 
-static gboolean
+static bool
 set_string(xmlNodePtr node, GncAddress* addr,
            void (*func)(GncAddress *addr, const char *txt))
 {
@@ -108,7 +108,7 @@ set_string(xmlNodePtr node, GncAddress* addr,
     return TRUE;
 }
 
-static gboolean
+static bool
 address_name_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     struct address_pdata *pdata = addr_pdata;
@@ -116,7 +116,7 @@ address_name_handler (xmlNodePtr node, gpointer addr_pdata)
     return set_string(node, pdata->address, gncAddressSetName);
 }
 
-static gboolean
+static bool
 address_addr1_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     struct address_pdata *pdata = addr_pdata;
@@ -124,7 +124,7 @@ address_addr1_handler (xmlNodePtr node, gpointer addr_pdata)
     return set_string(node, pdata->address, gncAddressSetAddr1);
 }
 
-static gboolean
+static bool
 address_addr2_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     struct address_pdata *pdata = addr_pdata;
@@ -132,7 +132,7 @@ address_addr2_handler (xmlNodePtr node, gpointer addr_pdata)
     return set_string(node, pdata->address, gncAddressSetAddr2);
 }
 
-static gboolean
+static bool
 address_addr3_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     struct address_pdata *pdata = addr_pdata;
@@ -140,7 +140,7 @@ address_addr3_handler (xmlNodePtr node, gpointer addr_pdata)
     return set_string(node, pdata->address, gncAddressSetAddr3);
 }
 
-static gboolean
+static bool
 address_addr4_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     struct address_pdata *pdata = addr_pdata;
@@ -148,7 +148,7 @@ address_addr4_handler (xmlNodePtr node, gpointer addr_pdata)
     return set_string(node, pdata->address, gncAddressSetAddr4);
 }
 
-static gboolean
+static bool
 address_phone_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     struct address_pdata *pdata = addr_pdata;
@@ -156,7 +156,7 @@ address_phone_handler (xmlNodePtr node, gpointer addr_pdata)
     return set_string(node, pdata->address, gncAddressSetPhone);
 }
 
-static gboolean
+static bool
 address_fax_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     struct address_pdata *pdata = addr_pdata;
@@ -164,7 +164,7 @@ address_fax_handler (xmlNodePtr node, gpointer addr_pdata)
     return set_string(node, pdata->address, gncAddressSetFax);
 }
 
-static gboolean
+static bool
 address_email_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     struct address_pdata *pdata = addr_pdata;
@@ -172,7 +172,7 @@ address_email_handler (xmlNodePtr node, gpointer addr_pdata)
     return set_string(node, pdata->address, gncAddressSetEmail);
 }
 
-static gboolean
+static bool
 address_slots_handler (xmlNodePtr node, gpointer addr_pdata)
 {
     return TRUE;
@@ -192,11 +192,11 @@ static struct dom_tree_handler address_handlers_v2[] =
     { NULL, 0, 0, 0 }
 };
 
-gboolean
+bool
 gnc_dom_tree_to_address (xmlNodePtr node, GncAddress *address)
 {
     struct address_pdata addr_pdata;
-    gboolean successful;
+    bool successful;
 
     addr_pdata.address = address;
 
@@ -211,7 +211,7 @@ gnc_dom_tree_to_address (xmlNodePtr node, GncAddress *address)
     return successful;
 }
 
-static gboolean
+static bool
 address_ns(FILE *out)
 {
     g_return_val_if_fail(out, FALSE);

@@ -87,7 +87,7 @@ GncVendor::~GncVendor()
 
 //
 ///** Does this object refer to a specific object */
-//static gboolean
+//static bool
 //impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
 //{
 //    GncVendor* v;
@@ -262,7 +262,7 @@ void gncVendorSetCurrency (GncVendor *vendor, gnc_commodity *currency)
     gncVendorCommitEdit (vendor);
 }
 
-void gncVendorSetActive (GncVendor *vendor, gboolean active)
+void gncVendorSetActive (GncVendor *vendor, bool active)
 {
     if (!vendor) return;
     if (active == vendor->active) return;
@@ -272,7 +272,7 @@ void gncVendorSetActive (GncVendor *vendor, gboolean active)
     gncVendorCommitEdit (vendor);
 }
 
-void gncVendorSetTaxTableOverride (GncVendor *vendor, gboolean override)
+void gncVendorSetTaxTableOverride (GncVendor *vendor, bool override)
 {
     if (!vendor) return;
     if (vendor->taxtable_override == override) return;
@@ -379,13 +379,13 @@ gnc_commodity * gncVendorGetCurrency (const GncVendor *vendor)
     return vendor->currency;
 }
 
-gboolean gncVendorGetActive (const GncVendor *vendor)
+bool gncVendorGetActive (const GncVendor *vendor)
 {
     if (!vendor) return FALSE;
     return vendor->active;
 }
 
-gboolean gncVendorGetTaxTableOverride (const GncVendor *vendor)
+bool gncVendorGetTaxTableOverride (const GncVendor *vendor)
 {
     if (!vendor) return FALSE;
     return vendor->taxtable_override;
@@ -480,7 +480,7 @@ int gncVendorCompare (const GncVendor *a, const GncVendor *b)
     return(strcmp(a->name, b->name));
 }
 
-gboolean gncVendorEqual(const GncVendor *a, const GncVendor *b)
+bool gncVendorEqual(const GncVendor *a, const GncVendor *b)
 {
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL ||  b == NULL) return FALSE;
@@ -552,7 +552,7 @@ gboolean gncVendorEqual(const GncVendor *a, const GncVendor *b)
     return TRUE;
 }
 
-gboolean
+bool
 gncVendorIsDirty (const GncVendor *vendor)
 {
     if (!vendor) return FALSE;
@@ -643,7 +643,7 @@ static QofObject gncVendorDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncVendorRegister (void)
+bool gncVendorRegister (void)
 {
     static QofParam params[] =
     {

@@ -32,11 +32,11 @@
 /* This static indicates the debugging module that this .o belongs to.  */
 static QofLogModule log_module = GNC_MOD_PRICE;
 
-static gboolean add_price(GNCPriceDB *db, GNCPrice *p);
-static gboolean remove_price(GNCPriceDB *db, GNCPrice *p, gboolean cleanup);
+static bool add_price(GNCPriceDB *db, GNCPrice *p);
+static bool remove_price(GNCPriceDB *db, GNCPrice *p, bool cleanup);
 static GNCPrice *lookup_nearest_in_time(GNCPriceDB *db, const gnc_commodity *c,
                                         const gnc_commodity *currency,
-                                        Timespec t, gboolean sameday);
+                                        Timespec t, bool sameday);
 
 /* ==================================================================== */
 /* GNCPrice functions
@@ -381,7 +381,7 @@ gnc_price_get_currency(const GNCPrice *p)
     return p->currency;
 }
 
-gboolean
+bool
 gnc_price_equal (const GNCPrice *p1, const GNCPrice *p2)
 {
     Timespec ts1;
@@ -447,7 +447,7 @@ compare_prices_by_date(gconstpointer a, gconstpointer b)
 typedef struct
 {
     GNCPrice* pPrice;
-    gboolean isDupl;
+    bool isDupl;
 } PriceListIsDuplStruct;
 
 static void
@@ -470,12 +470,12 @@ price_list_is_duplicate( gpointer data, gpointer user_data )
     pStruct->isDupl = TRUE;
 }
 
-gboolean
-gnc_price_list_insert(PriceList **prices, GNCPrice *p, gboolean check_dupl)
+bool
+gnc_price_list_insert(PriceList **prices, GNCPrice *p, bool check_dupl)
 {
     GList *result_list;
     PriceListIsDuplStruct* pStruct;
-    gboolean isDupl;
+    bool isDupl;
 
     if (!prices || !p) return FALSE;
     gnc_price_ref(p);
@@ -502,7 +502,7 @@ gnc_price_list_insert(PriceList **prices, GNCPrice *p, gboolean check_dupl)
     return TRUE;
 }
 
-gboolean
+bool
 gnc_price_list_remove(PriceList **prices, GNCPrice *p)
 {
     GList *result_list;
@@ -534,7 +534,7 @@ gnc_price_list_destroy(PriceList *prices)
     g_list_free(prices);
 }
 
-gboolean
+bool
 gnc_price_list_equal(PriceList *prices1, PriceList *prices2)
 {
     GList *n1, *n2;
@@ -666,7 +666,7 @@ gnc_pricedb_destroy(GNCPriceDB *db)
 }
 
 void
-gnc_pricedb_set_bulk_update(GNCPriceDB *db, gboolean bulk_update)
+gnc_pricedb_set_bulk_update(GNCPriceDB *db, bool bulk_update)
 {
     db->bulk_update = bulk_update;
 }
@@ -705,7 +705,7 @@ gnc_pricedb_get_db(QofBook *book)
 
 /* ==================================================================== */
 
-static gboolean
+static bool
 num_prices_helper (GNCPrice *p, gpointer user_data)
 {
     guint *count = user_data;
@@ -733,7 +733,7 @@ gnc_pricedb_get_num_prices(GNCPriceDB *db)
 
 typedef struct
 {
-    gboolean equal;
+    bool equal;
     GNCPriceDB *db2;
     gnc_commodity *commodity;
 } GNCPriceDBEqualData;
@@ -770,7 +770,7 @@ pricedb_equal_foreach_currencies_hash (gpointer key, gpointer val,
                           equal_data);
 }
 
-gboolean
+bool
 gnc_pricedb_equal (GNCPriceDB *db1, GNCPriceDB *db2)
 {
     GNCPriceDBEqualData equal_data;
@@ -797,7 +797,7 @@ gnc_pricedb_equal (GNCPriceDB *db1, GNCPriceDB *db2)
 /* The add_price() function is a utility that only manages the
  * dual hash table instertion */
 
-static gboolean
+static bool
 add_price(GNCPriceDB *db, GNCPrice *p)
 {
     /* This function will use p, adding a ref, so treat p as read-only
@@ -872,7 +872,7 @@ add_price(GNCPriceDB *db, GNCPrice *p)
 
 /* the gnc_pricedb_add_price() function will use p, adding a ref, so
    treat p as read-only if this function succeeds. (Huh ???) */
-gboolean
+bool
 gnc_pricedb_add_price(GNCPriceDB *db, GNCPrice *p)
 {
     if (!db || !p) return FALSE;
@@ -902,8 +902,8 @@ gnc_pricedb_add_price(GNCPriceDB *db, GNCPrice *p)
  * from the double-hash tables.
  */
 
-static gboolean
-remove_price(GNCPriceDB *db, GNCPrice *p, gboolean cleanup)
+static bool
+remove_price(GNCPriceDB *db, GNCPrice *p, bool cleanup)
 {
     GList *price_list;
     gnc_commodity *commodity;
@@ -979,10 +979,10 @@ remove_price(GNCPriceDB *db, GNCPrice *p, gboolean cleanup)
     return TRUE;
 }
 
-gboolean
+bool
 gnc_pricedb_remove_price(GNCPriceDB *db, GNCPrice *p)
 {
-    gboolean rc;
+    bool rc;
     if (!db || !p) return FALSE;
     ENTER ("db=%p, pr=%p dirty=%d destroying=%d",
            db, p, qof_instance_get_dirty_flag(p),
@@ -1008,12 +1008,12 @@ typedef struct
 {
     GNCPriceDB *db;
     Timespec cutoff;
-    gboolean delete_user;
-    gboolean delete_last;
+    bool delete_user;
+    bool delete_last;
     GSList *list;
 } remove_info;
 
-static gboolean
+static bool
 check_one_price_date (GNCPrice *price, gpointer user_data)
 {
     remove_info *data = user_data;
@@ -1083,11 +1083,11 @@ pricedb_remove_foreach_currencies_hash (gpointer key,
 }
 
 
-gboolean
+bool
 gnc_pricedb_remove_old_prices(GNCPriceDB *db,
                               Timespec cutoff,
-                              gboolean delete_user,
-                              gboolean delete_last)
+                              bool delete_user,
+                              bool delete_last)
 {
     remove_info data;
     GSList *item;
@@ -1247,7 +1247,7 @@ hash_values_helper(gpointer key, gpointer value, gpointer data)
     *l = g_list_concat(*l, g_list_copy (value));
 }
 
-gboolean
+bool
 gnc_pricedb_has_prices(GNCPriceDB *db,
                        const gnc_commodity *commodity,
                        const gnc_commodity *currency)
@@ -1476,7 +1476,7 @@ lookup_nearest_in_time(GNCPriceDB *db,
                        const gnc_commodity *c,
                        const gnc_commodity *currency,
                        Timespec t,
-                       gboolean sameday)
+                       bool sameday)
 {
     GList *price_list;
     GNCPrice *current_price = NULL;
@@ -2081,8 +2081,8 @@ gnc_pricedb_convert_balance_nearest_price(GNCPriceDB *pdb,
 
 typedef struct
 {
-    gboolean ok;
-    gboolean (*func)(GNCPrice *p, gpointer user_data);
+    bool ok;
+    bool (*func)(GNCPrice *p, gpointer user_data);
     gpointer user_data;
 } GNCPriceDBForeachData;
 
@@ -2109,9 +2109,9 @@ pricedb_foreach_currencies_hash(gpointer key, gpointer val, gpointer user_data)
     g_hash_table_foreach(currencies_hash, pricedb_foreach_pricelist, user_data);
 }
 
-static gboolean
+static bool
 unstable_price_traversal(GNCPriceDB *db,
-                         gboolean (*f)(GNCPrice *p, gpointer user_data),
+                         bool (*f)(GNCPrice *p, gpointer user_data),
                          gpointer user_data)
 {
     GNCPriceDBForeachData foreach_data;
@@ -2157,13 +2157,13 @@ compare_kvpairs_by_commodity_key(gconstpointer a, gconstpointer b)
                        gnc_commodity_get_mnemonic(cb));
 }
 
-static gboolean
+static bool
 stable_price_traversal(GNCPriceDB *db,
-                       gboolean (*f)(GNCPrice *p, gpointer user_data),
+                       bool (*f)(GNCPrice *p, gpointer user_data),
                        gpointer user_data)
 {
     GSList *currency_hashes = NULL;
-    gboolean ok = TRUE;
+    bool ok = TRUE;
     GSList *i = NULL;
 
     if (!db || !f) return FALSE;
@@ -2211,11 +2211,11 @@ stable_price_traversal(GNCPriceDB *db,
     return ok;
 }
 
-gboolean
+bool
 gnc_pricedb_foreach_price(GNCPriceDB *db,
-                          gboolean (*f)(GNCPrice *p, gpointer user_data),
+                          bool (*f)(GNCPrice *p, gpointer user_data),
                           gpointer user_data,
-                          gboolean stable_order)
+                          bool stable_order)
 {
     ENTER ("db=%p f=%p", db, f);
     if (stable_order)
@@ -2236,7 +2236,7 @@ typedef struct
     gnc_commodity *new_c;
 } GNCPriceFixupData;
 
-static gboolean
+static bool
 add_price_to_list (GNCPrice *p, gpointer data)
 {
     GList **list = data;
@@ -2339,7 +2339,7 @@ gnc_price_print(GNCPrice *p, FILE *f, int indent)
     g_free(istr);
 }
 
-static gboolean
+static bool
 print_pricedb_adapter(GNCPrice *p, gpointer user_data)
 {
     FILE *f = (FILE *) user_data;
@@ -2515,7 +2515,7 @@ static QofObject pricedb_object_def =
     DI(.version_cmp       = ) NULL,
 };
 
-gboolean
+bool
 gnc_pricedb_register (void)
 {
     static QofParam params[] =

@@ -198,7 +198,7 @@ gnc_lot_get_book (GNCLot *lot)
 
 /* ============================================================= */
 
-gboolean
+bool
 gnc_lot_is_closed (GNCLot *lot)
 {
     LotPrivate* priv;
@@ -537,7 +537,7 @@ static QofObject gncLotDesc =
 };
 
 
-gboolean gnc_lot_register (void)
+bool gnc_lot_register (void)
 {
     static const QofParam params[] =
     {

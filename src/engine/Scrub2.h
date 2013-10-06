@@ -97,8 +97,8 @@ void xaccLotScrubDoubleBalance (GNCLot *lot);
  *  The xaccScrubMergeLotSubSplits() routine does the same, except
  *    that it does it for all of the splits in the lot.
  */
-gboolean xaccScrubMergeSubSplits (Split *split);
-gboolean xaccScrubMergeLotSubSplits (GNCLot *lot);
+bool xaccScrubMergeSubSplits (Split *split);
+bool xaccScrubMergeLotSubSplits (GNCLot *lot);
 
 #endif /* XACC_SCRUB2_H */
 /** @} */

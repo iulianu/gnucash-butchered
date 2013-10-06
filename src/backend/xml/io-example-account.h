@@ -38,14 +38,14 @@ struct GncExampleAccount_struct
     Account *root;
     gchar *short_description;
     gchar *long_description;
-    gboolean exclude_from_select_all;
-    gboolean start_selected;
+    bool exclude_from_select_all;
+    bool start_selected;
 };
 typedef struct GncExampleAccount_struct GncExampleAccount;
 
 void gnc_destroy_example_account(GncExampleAccount *gea);
 
-gboolean gnc_write_example_account(GncExampleAccount *gea,
+bool gnc_write_example_account(GncExampleAccount *gea,
                                    const gchar *filename);
 GncExampleAccount *gnc_read_example_account(const gchar *filename);
 

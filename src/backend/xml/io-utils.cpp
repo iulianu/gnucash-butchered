@@ -45,17 +45,17 @@ static const gchar *emacs_trailer =
     "<!-- End:             -->\n";
 
 
-gboolean
+bool
 write_emacs_trailer(FILE *out)
 {
     return fprintf(out, "%s", emacs_trailer) >= 0;
 }
 
-static gboolean
+static bool
 write_one_account(FILE *out,
                   Account *account,
                   sixtp_gdv2 *gd,
-                  gboolean allow_incompat)
+                  bool allow_incompat)
 {
     xmlNodePtr accnode;
 
@@ -73,12 +73,12 @@ write_one_account(FILE *out,
     return TRUE;
 }
 
-gboolean
+bool
 write_account_tree(FILE *out, Account *root, sixtp_gdv2 *gd)
 {
     GList *descendants, *node;
-    gboolean allow_incompat = TRUE;
-    gboolean success = TRUE;
+    bool allow_incompat = TRUE;
+    bool success = TRUE;
 
     if (allow_incompat)
         if (!write_one_account(out, root, gd, allow_incompat))
@@ -98,7 +98,7 @@ write_account_tree(FILE *out, Account *root, sixtp_gdv2 *gd)
     return success;
 }
 
-gboolean
+bool
 write_accounts(FILE *out, QofBook *book, sixtp_gdv2 *gd)
 {
     return write_account_tree(out, gnc_book_get_root_account(book), gd);

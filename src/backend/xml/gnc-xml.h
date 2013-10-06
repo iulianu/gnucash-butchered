@@ -32,8 +32,8 @@
 #include "gnc-xml-helper.h"
 #include "sixtp.h"
 
-xmlNodePtr gnc_account_dom_tree_create(Account *act, gboolean exporting,
-                                       gboolean allow_incompat);
+xmlNodePtr gnc_account_dom_tree_create(Account *act, bool exporting,
+                                       bool allow_incompat);
 sixtp* gnc_account_sixtp_parser_create(void);
 
 xmlNodePtr gnc_book_dom_tree_create(QofBook *book);

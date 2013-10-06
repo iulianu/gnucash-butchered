@@ -84,9 +84,9 @@ public:
     /* the current instance-count of the SX. */
     gint            instance_num;
 
-    gboolean        enabled;
-    gboolean        autoCreateOption;
-    gboolean        autoCreateNotify;
+    bool        enabled;
+    bool        autoCreateOption;
+    bool        autoCreateNotify;
     gint            advanceCreateDays;
     gint            advanceRemindDays;
 
@@ -137,7 +137,7 @@ void xaccSchedXactionSetName( SchedXaction *sx, const gchar *newName );
 const GDate* xaccSchedXactionGetStartDate(const SchedXaction *sx );
 void xaccSchedXactionSetStartDate( SchedXaction *sx, const GDate* newStart );
 
-int xaccSchedXactionHasEndDate( const SchedXaction *sx );
+bool xaccSchedXactionHasEndDate( const SchedXaction *sx );
 /**
  * Returns invalid date when there is no end-date specified.
 */
@@ -154,7 +154,7 @@ void xaccSchedXactionSetLastOccurDate( SchedXaction *sx, const GDate* newLastOcc
  * Returns true if the scheduled transaction has a defined number of
  * occurrences, false if not.
 */
-gboolean xaccSchedXactionHasOccurDef( const SchedXaction *sx );
+bool xaccSchedXactionHasOccurDef( const SchedXaction *sx );
 gint xaccSchedXactionGetNumOccur( const SchedXaction *sx );
 /**
  * Set to '0' to turn off number-of-occurrences definition.
@@ -186,15 +186,15 @@ void gnc_sx_set_instance_count( SchedXaction *sx, gint instanceNum );
 GList *xaccSchedXactionGetSplits( const SchedXaction *sx );
 void xaccSchedXactionSetSplits( SchedXaction *sx, GList *newSplits );
 
-gboolean xaccSchedXactionGetEnabled( const SchedXaction *sx );
-void xaccSchedXactionSetEnabled( SchedXaction *sx, gboolean newEnabled );
+bool xaccSchedXactionGetEnabled( const SchedXaction *sx );
+void xaccSchedXactionSetEnabled( SchedXaction *sx, bool newEnabled );
 
 void xaccSchedXactionGetAutoCreate( const SchedXaction *sx,
-                                    /*@ out @*/ gboolean *outAutoCreate,
-                                    /*@ out @*/ gboolean *outNotify );
+                                    /*@ out @*/ bool *outAutoCreate,
+                                    /*@ out @*/ bool *outNotify );
 void xaccSchedXactionSetAutoCreate( SchedXaction *sx,
-                                    gboolean newAutoCreate,
-                                    gboolean newNotify );
+                                    bool newAutoCreate,
+                                    bool newNotify );
 
 gint xaccSchedXactionGetAdvanceCreation( const SchedXaction *sx );
 void xaccSchedXactionSetAdvanceCreation( SchedXaction *sx, gint createDays );
@@ -295,7 +295,7 @@ GList *gnc_sx_get_defer_instances( SchedXaction *sx );
 #define GNC_SX_REM_OCCUR             "sx-remaining-num"
 
 /** \brief QOF registration. */
-gboolean SXRegister (void);
+bool SXRegister (void);
 
 /** \deprecated */
 #define xaccSchedXactionIsDirty(X) qof_instance_is_dirty (QOF_INSTANCE(X))

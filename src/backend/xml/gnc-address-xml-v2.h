@@ -25,7 +25,7 @@
 
 #include "gncAddress.h"
 
-gboolean   gnc_dom_tree_to_address (xmlNodePtr node, GncAddress *address);
+bool   gnc_dom_tree_to_address (xmlNodePtr node, GncAddress *address);
 xmlNodePtr gnc_address_to_dom_tree (const char *tag, GncAddress *addr);
 void gnc_address_xml_initialize (void);
 

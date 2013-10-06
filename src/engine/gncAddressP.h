@@ -37,7 +37,7 @@ public:
 
     QofBook *	book;
     QofInstance * parent;
-    gboolean	dirty;
+    bool	dirty;
     char *	name;
     char *	addr1;
     char *	addr2;
@@ -51,6 +51,6 @@ public:
     virtual ~GncAddress();
 };
 
-gboolean gncAddressRegister (void);
+bool gncAddressRegister (void);
 
 #endif /* GNC_ADDRESSP_H_ */

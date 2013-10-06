@@ -127,7 +127,7 @@ void gnc_lot_get_balance_before (const GNCLot *, const Split *,
  *    routine is faster than using gnc_lot_get_balance() because
  *    once the balance goes to zero, this fact is cached.
  */
-gboolean gnc_lot_is_closed (GNCLot *);
+bool gnc_lot_is_closed (GNCLot *);
 
 /** The gnc_lot_get_earliest_split() routine is a convenience routine
  *    that helps identify the date this lot was opened.   It simply

@@ -40,16 +40,16 @@ public:
     GncAddress *    addr;
     gnc_commodity * currency;
     GncTaxTable*    taxtable;
-    gboolean        taxtable_override;
+    bool        taxtable_override;
     GncTaxIncluded  taxincluded;
-    gboolean        active;
+    bool        active;
     GList *         jobs;
     
     GncVendor();
     virtual ~GncVendor();
 };
 
-gboolean gncVendorRegister (void);
+bool gncVendorRegister (void);
 gchar *gncVendorNextID (QofBook *book);
 
 #define gncVendorSetGUID(V,G) qof_instance_set_guid(QOF_INSTANCE(V),(G))

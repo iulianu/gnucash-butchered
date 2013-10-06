@@ -41,13 +41,13 @@ GList* dom_tree_freqSpec_to_recurrences(xmlNodePtr node, QofBook *book);
 Recurrence* dom_tree_to_recurrence(xmlNodePtr node);
 
 Timespec dom_tree_to_timespec(xmlNodePtr node);
-gboolean dom_tree_valid_timespec(Timespec *ts, const xmlChar *name);
+bool dom_tree_valid_timespec(Timespec *ts, const xmlChar *name);
 GDate* dom_tree_to_gdate(xmlNodePtr node);
 gnc_numeric* dom_tree_to_gnc_numeric(xmlNodePtr node);
-gchar * dom_tree_to_text(xmlNodePtr tree);
-gboolean string_to_binary(const gchar *str,  void **v, guint64 *data_len);
+char * dom_tree_to_text(xmlNodePtr tree);
+bool string_to_binary(const char *str,  void **v, uint64_t *data_len);
 
-gboolean dom_tree_to_kvp_frame_given(xmlNodePtr node, kvp_frame *frame);
+bool dom_tree_to_kvp_frame_given(xmlNodePtr node, kvp_frame *frame);
 
 kvp_frame* dom_tree_to_kvp_frame(xmlNodePtr node);
 kvp_value* dom_tree_to_kvp_value(xmlNodePtr node);
@@ -62,10 +62,10 @@ kvp_value* dom_tree_to_list_kvp_value(xmlNodePtr node);
 kvp_value* dom_tree_to_frame_kvp_value(xmlNodePtr node);
 kvp_value* dom_tree_to_gdate_kvp_value (xmlNodePtr node);
 
-gboolean dom_tree_to_integer(xmlNodePtr node, gint64 *daint);
-gboolean dom_tree_to_guint16(xmlNodePtr node, guint16 *i);
-gboolean dom_tree_to_guint(xmlNodePtr node, guint *i);
-gboolean dom_tree_to_boolean(xmlNodePtr node, gboolean* b);
+bool dom_tree_to_integer(xmlNodePtr node, int64_t *daint);
+bool dom_tree_to_guint16(xmlNodePtr node, uint16_t *i);
+bool dom_tree_to_guint(xmlNodePtr node, unsigned int *i);
+bool dom_tree_to_boolean(xmlNodePtr node, bool* b);
 
 /* higher level structures */
 Account* dom_tree_to_account(xmlNodePtr node, QofBook *book);
@@ -78,15 +78,15 @@ struct dom_tree_handler
 {
     const char *tag;
 
-    gboolean (*handler) (xmlNodePtr, gpointer data);
+    bool (*handler) (xmlNodePtr, void* data);
 
     int required;
     int gotten;
 };
 
-gboolean dom_tree_generic_parse(xmlNodePtr node,
+bool dom_tree_generic_parse(xmlNodePtr node,
                                 struct dom_tree_handler *handlers,
-                                gpointer data);
+                                void * data);
 
 
 #endif /* _SIXTP_DOM_PARSERS_H_ */

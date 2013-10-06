@@ -87,11 +87,11 @@
 
 static QofLogModule log_module = GNC_MOD_BACKEND;
 
-static gboolean save_may_clobber_data (QofBackend *bend);
+static bool save_may_clobber_data (QofBackend *bend);
 
 /* ================================================================= */
 
-static gboolean
+static bool
 gnc_xml_be_get_file_lock (FileBackend *be)
 {
     struct stat statbuf;
@@ -229,8 +229,8 @@ gnc_xml_be_get_file_lock (FileBackend *be)
 
 static void
 xml_session_begin(QofBackend *be_start, QofSession *session,
-                  const char *book_id, gboolean ignore_lock,
-                  gboolean create, gboolean force)
+                  const char *book_id, bool ignore_lock,
+                  bool create, bool force)
 {
     FileBackend *be = (FileBackend*) be_start;
 
@@ -435,7 +435,7 @@ xml_destroy_backend(QofBackend *be)
 /* The variable buf_size must be a compile-time constant */
 #define buf_size 1024
 
-static gboolean
+static bool
 copy_file(const char *orig, const char *bkup)
 {
     char buf[buf_size];
@@ -492,10 +492,10 @@ copy_file(const char *orig, const char *bkup)
 
 /* ================================================================= */
 
-static gboolean
+static bool
 gnc_int_link_or_make_backup(FileBackend *be, const char *orig, const char *bkup)
 {
-    gboolean copy_success = FALSE;
+    bool copy_success = FALSE;
     int err_ret =
 #ifdef HAVE_LINK
         link (orig, bkup)
@@ -533,7 +533,7 @@ gnc_int_link_or_make_backup(FileBackend *be, const char *orig, const char *bkup)
 static QofBookFileType
 gnc_xml_be_determine_file_type(const char *path)
 {
-    gboolean with_encoding;
+    bool with_encoding;
     QofBookFileType v2type;
 
     v2type = gnc_is_xml_data_file_v2(path, &with_encoding);
@@ -559,7 +559,7 @@ gnc_xml_be_determine_file_type(const char *path)
     return GNC_BOOK_NOT_OURS;
 }
 
-static gboolean
+static bool
 gnc_determine_file_type (const char *uri)
 {
     struct stat sbuf;
@@ -567,7 +567,7 @@ gnc_determine_file_type (const char *uri)
     FILE *t;
     gchar *filename;
     QofBookFileType xml_type;
-    gboolean result;
+    bool result;
 
     if (!uri)
     {
@@ -616,10 +616,10 @@ det_exit:
     return result;
 }
 
-static gboolean
+static bool
 gnc_xml_be_backup_file(FileBackend *be)
 {
-    gboolean bkup_ret;
+    bool bkup_ret;
     char *timestamp;
     char *backup;
     const char *datafile;
@@ -659,11 +659,11 @@ gnc_xml_be_backup_file(FileBackend *be)
 
 /* ================================================================= */
 
-static gboolean
+static bool
 gnc_xml_be_write_to_file(FileBackend *fbe,
                          QofBook *book,
                          const gchar *datafile,
-                         gboolean make_backup)
+                         bool make_backup)
 {
     QofBackend *be = &fbe->be;
     char *tmp_name;
@@ -911,7 +911,7 @@ gnc_xml_be_remove_old_files(FileBackend *be)
             gchar *stamp_start = name + strlen(be->fullpath);
             gchar *expression = g_strdup_printf ("^\\.[[:digit:]]{14}(\\%s|\\%s|\\.xac)$",
                                                  GNC_DATAFILE_EXT, GNC_LOGFILE_EXT);
-            gboolean got_date_stamp = FALSE;
+            bool got_date_stamp = FALSE;
 
             if (regcomp(&pattern, expression, REG_EXTENDED | REG_ICASE) != 0)
                 PWARN("Cannot compile regex for date stamp");
@@ -1100,7 +1100,7 @@ static void
 gnc_xml_be_load_from_file (QofBackend *bend, QofBook *book, QofBackendLoadType loadType)
 {
     QofBackendError error;
-    gboolean rc;
+    bool rc;
     FileBackend *be = (FileBackend *) bend;
 
     if (loadType != LOAD_TYPE_INITIAL_LOAD) return;
@@ -1168,7 +1168,7 @@ gnc_xml_be_load_from_file (QofBackend *bend, QofBook *book, QofBackendLoadType l
 
 /* ---------------------------------------------------------------------- */
 
-static gboolean
+static bool
 save_may_clobber_data (QofBackend *bend)
 {
     struct stat statbuf;

@@ -647,10 +647,10 @@ xaccAccountDestroy (Account *acc)
 /********************************************************************\
 \********************************************************************/
 
-static gboolean
+static bool
 xaccAcctChildrenEqual(const GList *na,
                       const GList *nb,
-                      gboolean check_guids)
+                      bool check_guids)
 {
     if ((!na && nb) || (na && !nb))
     {
@@ -689,8 +689,8 @@ xaccAcctChildrenEqual(const GList *na,
     return(TRUE);
 }
 
-gboolean
-xaccAccountEqual(const Account *aa, const Account *ab, gboolean check_guids)
+bool
+xaccAccountEqual(const Account *aa, const Account *ab, bool check_guids)
 {
     AccountPrivate *priv_aa, *priv_ab;
 
@@ -938,7 +938,7 @@ gnc_account_set_balance_dirty (Account *acc)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 gnc_account_insert_split (Account *acc, Split *s)
 {
     AccountPrivate *priv;
@@ -976,7 +976,7 @@ gnc_account_insert_split (Account *acc, Split *s)
     return TRUE;
 }
 
-gboolean
+bool
 gnc_account_remove_split (Account *acc, Split *s)
 {
     AccountPrivate *priv;
@@ -1004,7 +1004,7 @@ gnc_account_remove_split (Account *acc, Split *s)
 }
 
 void
-xaccAccountSortSplits (Account *acc, gboolean force)
+xaccAccountSortSplits (Account *acc, bool force)
 {
     AccountPrivate *priv;
 
@@ -1726,7 +1726,7 @@ xaccAccountGetCommoditySCU (const Account * acc)
 }
 
 void
-xaccAccountSetNonStdSCU (Account *acc, gboolean flag)
+xaccAccountSetNonStdSCU (Account *acc, bool flag)
 {
     AccountPrivate *priv;
 
@@ -1742,7 +1742,7 @@ xaccAccountSetNonStdSCU (Account *acc, gboolean flag)
     xaccAccountCommitEdit(acc);
 }
 
-gboolean
+bool
 xaccAccountGetNonStdSCU (const Account * acc)
 {
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(acc), 0);
@@ -1905,7 +1905,7 @@ gnc_account_get_root (Account *acc)
     return acc;
 }
 
-gboolean
+bool
 gnc_account_is_root (const Account *account)
 {
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(account), FALSE);
@@ -2576,7 +2576,7 @@ xaccAccountGetBalanceAsOfDate (Account *acc, time64 date)
     AccountPrivate *priv;
     GList   *lp;
     Timespec ts, trans_ts;
-    gboolean found = FALSE;
+    bool found = FALSE;
     gnc_numeric balance;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(acc), gnc_numeric_zero());
@@ -2841,7 +2841,7 @@ static gnc_numeric
 xaccAccountGetXxxBalanceInCurrencyRecursive (const Account *acc,
         xaccGetBalanceFn fn,
         const gnc_commodity *report_commodity,
-        gboolean include_children)
+        bool include_children)
 {
     gnc_numeric balance;
 
@@ -2877,7 +2877,7 @@ xaccAccountGetXxxBalanceInCurrencyRecursive (const Account *acc,
 static gnc_numeric
 xaccAccountGetXxxBalanceAsOfDateInCurrencyRecursive (
     Account *acc, time64 date, xaccGetBalanceAsOfDateFn fn,
-    gnc_commodity *report_commodity, gboolean include_children)
+    gnc_commodity *report_commodity, bool include_children)
 {
     gnc_numeric balance;
 
@@ -2914,7 +2914,7 @@ xaccAccountGetXxxBalanceAsOfDateInCurrencyRecursive (
 gnc_numeric
 xaccAccountGetBalanceInCurrency (const Account *acc,
                                  const gnc_commodity *report_commodity,
-                                 gboolean include_children)
+                                 bool include_children)
 {
     gnc_numeric rc;
     rc = xaccAccountGetXxxBalanceInCurrencyRecursive (
@@ -2927,7 +2927,7 @@ xaccAccountGetBalanceInCurrency (const Account *acc,
 gnc_numeric
 xaccAccountGetClearedBalanceInCurrency (const Account *acc,
                                         const gnc_commodity *report_commodity,
-                                        gboolean include_children)
+                                        bool include_children)
 {
     return xaccAccountGetXxxBalanceInCurrencyRecursive (
                acc, xaccAccountGetClearedBalance, report_commodity,
@@ -2937,7 +2937,7 @@ xaccAccountGetClearedBalanceInCurrency (const Account *acc,
 gnc_numeric
 xaccAccountGetReconciledBalanceInCurrency (const Account *acc,
         const gnc_commodity *report_commodity,
-        gboolean include_children)
+        bool include_children)
 {
     return xaccAccountGetXxxBalanceInCurrencyRecursive (
                acc, xaccAccountGetReconciledBalance, report_commodity,
@@ -2947,7 +2947,7 @@ xaccAccountGetReconciledBalanceInCurrency (const Account *acc,
 gnc_numeric
 xaccAccountGetPresentBalanceInCurrency (const Account *acc,
                                         const gnc_commodity *report_commodity,
-                                        gboolean include_children)
+                                        bool include_children)
 {
     return xaccAccountGetXxxBalanceInCurrencyRecursive (
                acc, xaccAccountGetPresentBalance, report_commodity,
@@ -2958,7 +2958,7 @@ gnc_numeric
 xaccAccountGetProjectedMinimumBalanceInCurrency (
     const Account *acc,
     const gnc_commodity *report_commodity,
-    gboolean include_children)
+    bool include_children)
 {
     return xaccAccountGetXxxBalanceInCurrencyRecursive (
                acc, xaccAccountGetProjectedMinimumBalance, report_commodity,
@@ -2968,7 +2968,7 @@ xaccAccountGetProjectedMinimumBalanceInCurrency (
 gnc_numeric
 xaccAccountGetBalanceAsOfDateInCurrency(
     Account *acc, time64 date, gnc_commodity *report_commodity,
-    gboolean include_children)
+    bool include_children)
 {
     return xaccAccountGetXxxBalanceAsOfDateInCurrencyRecursive (
                acc, date, xaccAccountGetBalanceAsOfDate, report_commodity,
@@ -2977,7 +2977,7 @@ xaccAccountGetBalanceAsOfDateInCurrency(
 
 gnc_numeric
 xaccAccountGetBalanceChangeForPeriod (Account *acc, time64 t1, time64 t2,
-				      gboolean recurse)
+				      bool recurse)
 {
     gnc_numeric b1, b2;
 
@@ -3020,7 +3020,7 @@ xaccAccountGetLotList (const Account *acc)
 
 LotList *
 xaccAccountFindOpenLots (const Account *acc,
-                         gboolean (*match_func)(GNCLot *lot,
+                         bool (*match_func)(GNCLot *lot,
                                  gpointer user_data),
                          gpointer user_data, GCompareFunc sort_func)
 {
@@ -3077,8 +3077,8 @@ xaccAccountForEachLot(const Account *acc,
 /********************************************************************\
 \********************************************************************/
 
-/* These functions use interchange gint64 and gboolean.  Is that right? */
-gboolean
+/* These functions use interchange gint64 and bool.  Is that right? */
+bool
 xaccAccountGetTaxRelated (const Account *acc)
 {
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(acc), FALSE);
@@ -3087,7 +3087,7 @@ xaccAccountGetTaxRelated (const Account *acc)
 }
 
 void
-xaccAccountSetTaxRelated (Account *acc, gboolean tax_related)
+xaccAccountSetTaxRelated (Account *acc, bool tax_related)
 {
     KvpValue *new_value;
 
@@ -3191,7 +3191,7 @@ xaccAccountSetTaxUSCopyNumber (Account *acc, gint64 copy_number)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccAccountGetPlaceholder (const Account *acc)
 {
     const char *str;
@@ -3204,7 +3204,7 @@ xaccAccountGetPlaceholder (const Account *acc)
 }
 
 void
-xaccAccountSetPlaceholder (Account *acc, gboolean val)
+xaccAccountSetPlaceholder (Account *acc, bool val)
 {
 //    g_return_if_fail(GNC_IS_ACCOUNT(acc));
     if(!acc) return;
@@ -3242,7 +3242,7 @@ xaccAccountGetDescendantPlaceholder (const Account *acc)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccAccountGetHidden (const Account *acc)
 {
     const char *str;
@@ -3255,7 +3255,7 @@ xaccAccountGetHidden (const Account *acc)
 }
 
 void
-xaccAccountSetHidden (Account *acc, gboolean val)
+xaccAccountSetHidden (Account *acc, bool val)
 {
 //    g_return_if_fail(GNC_IS_ACCOUNT(acc));
     if(!acc) return;
@@ -3267,7 +3267,7 @@ xaccAccountSetHidden (Account *acc, gboolean val)
     xaccAccountCommitEdit (acc);
 }
 
-gboolean
+bool
 xaccAccountIsHidden (const Account *acc)
 {
     AccountPrivate *priv;
@@ -3290,7 +3290,7 @@ xaccAccountIsHidden (const Account *acc)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccAccountHasAncestor (const Account *acc, const Account * ancestor)
 {
     const Account *parent;
@@ -3352,7 +3352,7 @@ xaccAccountTypeEnumAsString(GNCAccountType type)
 #define GNC_RETURN_ON_MATCH(x) \
   if(g_strcmp0(#x, (str)) == 0) { *type = ACCT_TYPE_ ## x; return(TRUE); }
 
-gboolean
+bool
 xaccAccountStringToType(const char* str, GNCAccountType *type)
 {
 
@@ -3390,7 +3390,7 @@ GNCAccountType
 xaccAccountStringToEnum(const char* str)
 {
     GNCAccountType type;
-    gboolean rc;
+    bool rc;
     rc = xaccAccountStringToType(str, &type);
     if (FALSE == rc) return ACCT_TYPE_INVALID;
     return type;
@@ -3482,7 +3482,7 @@ xaccParentAccountTypesCompatibleWith (GNCAccountType type)
     }
 }
 
-gboolean
+bool
 xaccAccountTypesCompatible (GNCAccountType parent_type,
                             GNCAccountType child_type)
 {
@@ -3501,7 +3501,7 @@ xaccAccountTypesValid(void)
     return mask;
 }
 
-gboolean
+bool
 xaccAccountIsPriced(const Account *acc)
 {
     AccountPrivate *priv;
@@ -3517,7 +3517,7 @@ xaccAccountIsPriced(const Account *acc)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccAccountGetReconcileLastDate (const Account *acc, time64 *last_date)
 {
     KvpValue *v;
@@ -3553,7 +3553,7 @@ xaccAccountSetReconcileLastDate (Account *acc, time64 last_date)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccAccountGetReconcileLastInterval (const Account *acc,
                                      int *months, int *days)
 {
@@ -3601,7 +3601,7 @@ xaccAccountSetReconcileLastInterval (Account *acc, int months, int days)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccAccountGetReconcilePostponeDate (const Account *acc, time64 *postpone_date)
 {
     KvpValue *v;
@@ -3638,7 +3638,7 @@ xaccAccountSetReconcilePostponeDate (Account *acc, time64 postpone_date)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccAccountGetReconcilePostponeBalance (const Account *acc,
                                         gnc_numeric *balance)
 {
@@ -3694,8 +3694,8 @@ xaccAccountClearReconcilePostpone (Account *acc)
  * xfer option is enabled for this account, and return that value.
  * If it is not defined for the account, return the default value.
  */
-gboolean
-xaccAccountGetAutoInterestXfer (const Account *acc, gboolean default_value)
+bool
+xaccAccountGetAutoInterestXfer (const Account *acc, bool default_value)
 {
     const char *str = NULL;
     if (!acc) return default_value;
@@ -3709,7 +3709,7 @@ xaccAccountGetAutoInterestXfer (const Account *acc, gboolean default_value)
 \********************************************************************/
 
 void
-xaccAccountSetAutoInterestXfer (Account *acc, gboolean option)
+xaccAccountSetAutoInterestXfer (Account *acc, bool option)
 {
     if (!acc) return;
 
@@ -3823,7 +3823,7 @@ dxaccAccountGetQuoteTZ(const Account *acc)
 \********************************************************************/
 
 void
-xaccAccountSetReconcileChildrenStatus(Account *acc, gboolean status)
+xaccAccountSetReconcileChildrenStatus(Account *acc, bool status)
 {
     if (!acc) return;
 
@@ -3839,7 +3839,7 @@ xaccAccountSetReconcileChildrenStatus(Account *acc, gboolean status)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccAccountGetReconcileChildrenStatus(const Account *acc)
 {
     /* access the account's kvp-data for status and return that, if no value
@@ -4044,7 +4044,7 @@ xaccAccountBeginStagedTransactionTraversals (const Account *account)
     xaccSplitsBeginStagedTransactionTraversals(priv->splits);
 }
 
-gboolean
+bool
 xaccTransactionTraverse (Transaction *trans, int stage)
 {
     if (trans == NULL) return FALSE;
@@ -4218,7 +4218,7 @@ static QofObject account_object_def =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean xaccAccountRegister (void)
+bool xaccAccountRegister (void)
 {
     static QofParam params[] =
     {

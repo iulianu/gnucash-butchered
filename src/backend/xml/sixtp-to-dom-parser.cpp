@@ -35,7 +35,7 @@ static xmlNsPtr global_namespace = NULL;
 
 /* Don't pass anything in the data_for_children value to this
    function.  It'll cause a segfault */
-static gboolean dom_start_handler(
+static bool dom_start_handler(
     GSList* sibling_data, gpointer parent_data, gpointer global_data,
     gpointer *data_for_children, gpointer *result, const gchar *tag,
     gchar **attrs)
@@ -82,7 +82,7 @@ dom_fail_handler(gpointer data_for_children,
     if (*result) xmlFreeNode(*result);
 }
 
-static gboolean dom_chars_handler(
+static bool dom_chars_handler(
     GSList *sibling_data, gpointer parent_data, gpointer global_data,
     gpointer *result, const char *text, int length)
 {

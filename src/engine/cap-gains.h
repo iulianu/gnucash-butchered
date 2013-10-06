@@ -104,7 +104,7 @@ gnc_numeric xaccSplitGetCapGains(Split *);
  *    TRUE if this is a trading account, else it returns
  *    FALSE.
  */
-gboolean xaccAccountHasTrades (const Account *);
+bool xaccAccountHasTrades (const Account *);
 
 /** The xaccAccountFindEarliestOpenLot() method is a handy
  *   utility routine for finding the earliest open lot in
@@ -180,7 +180,7 @@ Split * xaccSplitGetGainsSourceSplit (const Split *);
  *  policies should be 'easy'; read the source luke.
  */
 
-gboolean xaccSplitAssign (Split *split);
+bool xaccSplitAssign (Split *split);
 
 /** The xaccSplitAssignToLot() routine will fit the indicated split
  *    into the indicated lot, with the goal of closing the lot, or

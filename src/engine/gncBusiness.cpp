@@ -53,7 +53,7 @@ static void get_list_cb (QofInstance *inst, gpointer user_data)
 
 
 GList * gncBusinessGetList (QofBook *book, const char *type_name,
-                            gboolean all_including_inactive)
+                            bool all_including_inactive)
 {
     struct _get_list_userdata data;
     data.result = NULL;
@@ -82,7 +82,7 @@ static void get_ownerlist_cb (QofInstance *inst, gpointer user_data)
 }
 
 GList * gncBusinessGetOwnerList (QofBook *book, const char *type_name,
-                                 gboolean all_including_inactive)
+                                 bool all_including_inactive)
 {
     struct _get_list_userdata data;
     data.result = NULL;

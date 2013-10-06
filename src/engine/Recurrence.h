@@ -137,7 +137,7 @@ void recurrenceNthInstance(const Recurrence *r, guint n, GDate *date);
 
 /* Get a time coresponding to the beginning (or end if 'end' is true)
    of the nth instance of the recurrence. Also zero-based. */
-time64 recurrenceGetPeriodTime(const Recurrence *r, guint n, gboolean end);
+time64 recurrenceGetPeriodTime(const Recurrence *r, guint n, bool end);
 
 /**
  * @return the amount that an Account's value changed between the beginning
@@ -161,9 +161,9 @@ gchar *recurrenceToString(const Recurrence *r);
 gchar *recurrenceListToString(const GList *rlist);
 
 /** @return True if the recurrence list is a common "semi-monthly" recurrence. **/
-gboolean recurrenceListIsSemiMonthly(GList *recurrences);
+bool recurrenceListIsSemiMonthly(GList *recurrences);
 /** @return True if the recurrence list is a common "weekly" recurrence. **/
-gboolean recurrenceListIsWeeklyMultiple(const GList *recurrences);
+bool recurrenceListIsWeeklyMultiple(const GList *recurrences);
 
 /**
  * Pretty-print an intentionally-short summary of the period of a (GList of)

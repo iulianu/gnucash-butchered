@@ -55,13 +55,13 @@ static QofLogModule log_module = GNC_MOD_LOT;
  * This routine returns TRUE if cap gains are possible.
  */
 
-static inline gboolean
+static inline bool
 gains_possible (GNCLot *lot)
 {
     SplitList *node;
     Account *acc;
     Split *split;
-    gboolean comeq;
+    bool comeq;
     gnc_commodity *acc_commodity;
 
     acc = gnc_lot_get_account (lot);
@@ -81,12 +81,12 @@ gains_possible (GNCLot *lot)
  * happen is we'll end up with an empty, closed lot ... ?
  */
 
-gboolean
+bool
 xaccScrubLot (GNCLot *lot)
 {
-    gboolean splits_deleted = FALSE;
+    bool splits_deleted = FALSE;
     gnc_numeric lot_baln;
-    gboolean opening_baln_is_pos, lot_baln_is_pos;
+    bool opening_baln_is_pos, lot_baln_is_pos;
     Account *acc;
     GNCPolicy *pcy;
 

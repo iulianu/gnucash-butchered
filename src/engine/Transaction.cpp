@@ -185,7 +185,7 @@ check_open (const Transaction *trans)
 }
 /********************************************************************\
 \********************************************************************/
-gboolean
+bool
 xaccTransStillHasSplit(const Transaction *trans, const Split *s)
 {
     return (s->parent == trans && !qof_instance_get_destroying(s));
@@ -493,10 +493,10 @@ xaccTransCopyOnto(const Transaction *from_trans, Transaction *to_trans)
 \********************************************************************/
 void
 xaccTransCopyFromClipBoard(const Transaction *from_trans, Transaction *to_trans,
-                           const Account *from_acc, Account *to_acc, gboolean no_date)
+                           const Account *from_acc, Account *to_acc, bool no_date)
 {
     Timespec ts = {0,0};
-    gboolean change_accounts = FALSE;
+    bool change_accounts = FALSE;
     GList *node;
 
     if (!from_trans || !to_trans)
@@ -604,14 +604,14 @@ compare_split_guids (gconstpointer a, gconstpointer b)
     return guid_compare (xaccSplitGetGUID (sa), xaccSplitGetGUID (sb));
 }
 
-gboolean
+bool
 xaccTransEqual(const Transaction *ta, const Transaction *tb,
-               gboolean check_guids,
-               gboolean check_splits,
-               gboolean check_balances,
-               gboolean assume_ordered)
+               bool check_guids,
+               bool check_splits,
+               bool check_balances,
+               bool assume_ordered)
 {
-    gboolean same_book;
+    bool same_book;
 
     if (!ta && !tb) return TRUE; /* Arguable.  FALSE may be better. */
 
@@ -761,7 +761,7 @@ Returns true if the transaction should include trading account splits if
 it involves more than one commodity.
 \********************************************************************/
 
-gboolean xaccTransUseTradingAccounts(const Transaction *trans)
+bool xaccTransUseTradingAccounts(const Transaction *trans)
 {
     return qof_book_use_trading_accounts(qof_instance_get_book (trans));
 }
@@ -806,7 +806,7 @@ xaccTransGetImbalance (const Transaction * trans)
        imbal_list is used to compute the imbalance. */
     MonetaryList *imbal_list = NULL;
     gnc_numeric imbal_value = gnc_numeric_zero();
-    gboolean trading_accts;
+    bool trading_accts;
 
     if (!trans) return imbal_list;
 
@@ -869,11 +869,11 @@ xaccTransGetImbalance (const Transaction * trans)
     return imbal_list;
 }
 
-gboolean
+bool
 xaccTransIsBalanced (const Transaction *trans)
 {
     MonetaryList *imbal_list;
-    gboolean result;
+    bool result;
     gnc_numeric imbal = gnc_numeric_zero();
     gnc_numeric imbal_trading = gnc_numeric_zero();
     
@@ -943,7 +943,7 @@ xaccTransGetAccountAmount (const Transaction *trans, const Account *acc)
 }
 
 /*################## Added for Reg2 #################*/
-gboolean
+bool
 xaccTransGetRateForCommodity(const Transaction *trans,
                              const gnc_commodity *split_com,
                              const Split *split, gnc_numeric *rate)
@@ -995,7 +995,7 @@ xaccTransGetAccountConvRate(const Transaction *txn, const Account *acc)
     gnc_numeric amount, value, convrate;
     GList *splits;
     Split *s;
-    gboolean found_acc_match = FALSE;
+    bool found_acc_match = FALSE;
     gnc_commodity *acc_commod = xaccAccountGetCommodity(acc);
 
     /* We need to compute the conversion rate into _this account_.  So,
@@ -1179,7 +1179,7 @@ static void
 do_destroy (Transaction *trans)
 {
     SplitList *node;
-    gboolean shutting_down = qof_book_shutting_down(qof_instance_get_book(trans));
+    bool shutting_down = qof_book_shutting_down(qof_instance_get_book(trans));
 
     /* If there are capital-gains transactions associated with this,
      * they need to be destroyed too unless we're shutting down in
@@ -1236,7 +1236,7 @@ void xaccDisableDataScrubbing(void)
 }
 
 /* Check for an implicitly deleted transaction */
-static gboolean was_trans_emptied(Transaction *trans)
+static bool was_trans_emptied(Transaction *trans)
 {
     FOR_EACH_SPLIT(trans, return FALSE);
     return TRUE;
@@ -1535,7 +1535,7 @@ xaccTransRollbackEdit (Transaction *trans)
     LEAVE ("trans addr=%p\n", trans);
 }
 
-gboolean
+bool
 xaccTransIsOpen (const Transaction *trans)
 {
     return trans ? (0 < qof_instance_get_editlevel(trans)) : FALSE;
@@ -1822,7 +1822,7 @@ xaccTransSetNotes (Transaction *trans, const char *notes)
 }
 
 void
-xaccTransSetIsClosingTxn (Transaction *trans, gboolean is_closing)
+xaccTransSetIsClosingTxn (Transaction *trans, bool is_closing)
 {
     if (!trans) return;
     xaccTransBeginEdit(trans);
@@ -1892,7 +1892,7 @@ xaccTransGetNotes (const Transaction *trans)
            kvp_frame_get_string (trans->kvp_data, trans_notes_str) : NULL;
 }
 
-gboolean
+bool
 xaccTransGetIsClosingTxn (const Transaction *trans)
 {
     return trans ?
@@ -2011,12 +2011,12 @@ xaccTransGetReadOnly (const Transaction *trans)
                trans->kvp_data, TRANS_READ_ONLY_REASON) : NULL;
 }
 
-gboolean xaccTransIsReadonlyByPostedDate(const Transaction *trans)
+bool xaccTransIsReadonlyByPostedDate(const Transaction *trans)
 {
     GDate *threshold_date;
     GDate trans_date;
     const QofBook *book = xaccTransGetBook (trans);
-    gboolean result;
+    bool result;
     g_assert(trans);
 
     if (!qof_book_uses_autoreadonly(book))
@@ -2048,11 +2048,11 @@ gboolean xaccTransIsReadonlyByPostedDate(const Transaction *trans)
 
 /*################## Added for Reg2 #################*/
 
-gboolean xaccTransInFutureByPostedDate (const Transaction *trans)
+bool xaccTransInFutureByPostedDate (const Transaction *trans)
 {
     GDate date_now;
     GDate trans_date;
-    gboolean result;
+    bool result;
     g_assert(trans);
 
     trans_date = xaccTransGetDatePostedGDate (trans);
@@ -2069,7 +2069,7 @@ gboolean xaccTransInFutureByPostedDate (const Transaction *trans)
 
 /*################## Added for Reg2 #################*/
 
-gboolean
+bool
 xaccTransHasReconciledSplitsByAccount (const Transaction *trans,
                                        const Account *account)
 {
@@ -2098,14 +2098,14 @@ xaccTransHasReconciledSplitsByAccount (const Transaction *trans,
     return FALSE;
 }
 
-gboolean
+bool
 xaccTransHasReconciledSplits (const Transaction *trans)
 {
     return xaccTransHasReconciledSplitsByAccount (trans, NULL);
 }
 
 
-gboolean
+bool
 xaccTransHasSplitsInStateByAccount (const Transaction *trans,
                                     const char state,
                                     const Account *account)
@@ -2128,7 +2128,7 @@ xaccTransHasSplitsInStateByAccount (const Transaction *trans,
     return FALSE;
 }
 
-gboolean
+bool
 xaccTransHasSplitsInState (const Transaction *trans, const char state)
 {
     return xaccTransHasSplitsInStateByAccount (trans, state, NULL);
@@ -2191,7 +2191,7 @@ xaccTransVoid(Transaction *trans, const char *reason)
     xaccTransCommitEdit(trans);
 }
 
-gboolean
+bool
 xaccTransGetVoidStatus(const Transaction *trans)
 {
     g_return_val_if_fail(trans, FALSE);
@@ -2364,7 +2364,7 @@ restart:
         xaccSplitDetermineGainStatus(s);
         if (s->gains & GAINS_STATUS_ADIRTY)
         {
-            gboolean altered = FALSE;
+            bool altered = FALSE;
             s->gains &= ~GAINS_STATUS_ADIRTY;
             if (s->lot)
                 altered = xaccScrubLot(s->lot);
@@ -2438,13 +2438,13 @@ static QofObject trans_object_def =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-static gboolean
+static bool
 trans_is_balanced_p (const Transaction *trans)
 {
     return trans ? xaccTransIsBalanced(trans) : FALSE;
 }
 
-gboolean xaccTransRegister (void)
+bool xaccTransRegister (void)
 {
     static QofParam params[] =
     {

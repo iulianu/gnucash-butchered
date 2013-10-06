@@ -386,7 +386,7 @@ recurrenceNthInstance(const Recurrence *r, guint n, GDate *date)
 }
 
 time64
-recurrenceGetPeriodTime(const Recurrence *r, guint period_num, gboolean end)
+recurrenceGetPeriodTime(const Recurrence *r, guint period_num, bool end)
 {
     GDate date;
     recurrenceNthInstance(r, period_num + (end ? 1 : 0), &date);
@@ -536,7 +536,7 @@ recurrenceWeekendAdjustFromString(const gchar *str)
     return -1;
 }
 
-gboolean
+bool
 recurrenceListIsSemiMonthly(GList *recurrences)
 {
     if (g_list_length(recurrences) != 2)
@@ -565,7 +565,7 @@ recurrenceListIsSemiMonthly(GList *recurrences)
     return TRUE;
 }
 
-gboolean
+bool
 recurrenceListIsWeeklyMultiple(const GList *recurrences)
 {
     const GList *r_iter;

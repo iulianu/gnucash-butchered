@@ -52,7 +52,7 @@
  *    i.e. for splits to be deleted.  This routine returns true if
  *    any splits were deleted.
  */
-gboolean xaccScrubLot (GNCLot *lot);
+bool xaccScrubLot (GNCLot *lot);
 
 /** The xaccAccountScrubLots() routine makes sure that every split
  *    in the account is assigned to a lot, and that then, every

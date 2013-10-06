@@ -44,7 +44,7 @@ typedef int ssize_t;
 extern const gchar *gnc_v2_xml_version_string;        /* see io-gncxml-v2.cpp */
 
 /************************************************************************/
-gboolean
+bool
 is_child_result_from_node_named(sixtp_child_result *cr, const char *tag)
 {
     return((cr->type == SIXTP_CHILD_RESULT_NODE)
@@ -160,7 +160,7 @@ sixtp_new(void)
 }
 
 sixtp*
-sixtp_set_any(sixtp *tochange, int cleanup, ...)
+sixtp_set_any(sixtp *tochange, bool cleanup, ...)
 {
     va_list ap;
     sixtp_handler_type type;
@@ -303,7 +303,7 @@ sixtp_destroy(sixtp *sp)
 
 /***********************************************************************/
 
-gboolean
+bool
 sixtp_add_sub_parser(sixtp *parser, const gchar* tag, sixtp *sub_parser)
 {
     g_return_val_if_fail(parser, FALSE);
@@ -320,7 +320,7 @@ sixtp_add_sub_parser(sixtp *parser, const gchar* tag, sixtp *sub_parser)
  * cleanup things we haven't looked at on an error condition
  */
 sixtp*
-sixtp_add_some_sub_parsers(sixtp *tochange, int cleanup, ...)
+sixtp_add_some_sub_parsers(sixtp *tochange, bool cleanup, ...)
 {
     int have_error;
     va_list ap;
@@ -390,7 +390,7 @@ sixtp_sax_start_handler(void *user_data,
     sixtp *current_parser = NULL;
     sixtp *next_parser = NULL;
     gchar *next_parser_tag = NULL;
-    gboolean lookup_success = FALSE;
+    bool lookup_success = FALSE;
     sixtp_stack_frame *new_frame = NULL;
 
     current_frame = (sixtp_stack_frame *) pdata->stack->data;
@@ -680,7 +680,7 @@ sixtp_handle_catastrophe(sixtp_sax_data *sax_data)
     }
 }
 
-static gboolean
+static bool
 gnc_bad_xml_end_handler(gpointer data_for_children,
                         GSList* data_from_children, GSList* sibling_data,
                         gpointer parent_data, gpointer global_data,
@@ -689,7 +689,7 @@ gnc_bad_xml_end_handler(gpointer data_for_children,
     return TRUE;
 }
 
-static gboolean
+static bool
 sixtp_parse_file_common(sixtp *sixtp,
                         xmlParserCtxtPtr xml_context,
                         gpointer data_for_top_level,
@@ -732,14 +732,14 @@ sixtp_parse_file_common(sixtp *sixtp,
     }
 }
 
-gboolean
+bool
 sixtp_parse_file(sixtp *sixtp,
                  const char *filename,
                  gpointer data_for_top_level,
                  gpointer global_data,
                  gpointer *parse_result)
 {
-    gboolean ret;
+    bool ret;
     xmlParserCtxtPtr context;
 
 #ifdef G_OS_WIN32
@@ -761,7 +761,7 @@ sixtp_parse_file(sixtp *sixtp,
     return ret;
 }
 
-gboolean
+bool
 sixtp_parse_buffer(sixtp *sixtp,
                    char *bufp,
                    int bufsz,
@@ -769,14 +769,14 @@ sixtp_parse_buffer(sixtp *sixtp,
                    gpointer global_data,
                    gpointer *parse_result)
 {
-    gboolean ret;
+    bool ret;
     xmlParserCtxtPtr context = xmlCreateMemoryParserCtxt( bufp, bufsz );
     ret = sixtp_parse_file_common(sixtp, context, data_for_top_level,
                                   global_data, parse_result);
     return ret;
 }
 
-gboolean
+bool
 sixtp_parse_push (sixtp *sixtp,
                   sixtp_push_handler push_handler,
                   gpointer push_user_data,
@@ -828,7 +828,7 @@ sixtp_parse_push (sixtp *sixtp,
 }
 
 /***********************************************************************/
-static gboolean
+static bool
 eat_whitespace(char **cursor)
 {
     while (**cursor && isspace(**cursor))
@@ -846,7 +846,7 @@ eat_whitespace(char **cursor)
     }
 }
 
-static gboolean
+static bool
 search_for(unsigned char marker, char **cursor)
 {
     while (**cursor && **cursor != marker)
@@ -866,7 +866,7 @@ search_for(unsigned char marker, char **cursor)
 }
 
 QofBookFileType
-gnc_is_our_xml_file(const char *filename, gboolean *with_encoding)
+gnc_is_our_xml_file(const char *filename, bool *with_encoding)
 {
     FILE *f = NULL;
     char first_chunk[256];
@@ -894,7 +894,7 @@ gnc_is_our_xml_file(const char *filename, gboolean *with_encoding)
 }
 
 QofBookFileType
-gnc_is_our_first_xml_chunk(char *chunk, gboolean *with_encoding)
+gnc_is_our_first_xml_chunk(char *chunk, bool *with_encoding)
 {
     char *cursor = NULL;
     size_t n;

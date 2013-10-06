@@ -144,7 +144,7 @@ void xaccTransSetVersion (Transaction*, gint32);
 gint32 xaccTransGetVersion (const Transaction*);
 
 /* Code to register Transaction type with the engine */
-gboolean xaccTransRegister (void);
+bool xaccTransRegister (void);
 
 /* The xaccTransactionGetBackend() subroutine will find the
  *    persistent-data storage backend associated with this

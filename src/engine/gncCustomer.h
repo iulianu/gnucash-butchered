@@ -45,9 +45,9 @@ taxincluded, active and jobs are identical to ::GncVendor.
 @param	GncAddress *    addr;
 @param	gnc_commodity * currency;
 @param	GncTaxTable*    taxtable;
-@param	gboolean        taxtable_override;
+@param	bool        taxtable_override;
 @param	GncTaxIncluded  taxincluded;
-@param	gboolean        active;
+@param	bool        active;
 @param	GList *         jobs;
 @param	gnc_numeric     credit;
 @param	gnc_numeric     discount;
@@ -85,7 +85,7 @@ void gncCustomerSetDiscount (GncCustomer *customer, gnc_numeric discount);
 void gncCustomerSetCredit (GncCustomer *customer, gnc_numeric credit);
 void gncCustomerSetCurrency (GncCustomer *customer, gnc_commodity *currency);
 
-void gncCustomerSetTaxTableOverride (GncCustomer *customer, gboolean override);
+void gncCustomerSetTaxTableOverride (GncCustomer *customer, bool override);
 void gncCustomerSetTaxTable (GncCustomer *customer, GncTaxTable *table);
 
 void gncCustomerAddJob (GncCustomer *customer, GncJob *job);
@@ -118,7 +118,7 @@ gnc_numeric gncCustomerGetDiscount (const GncCustomer *customer);
 gnc_numeric gncCustomerGetCredit (const GncCustomer *customer);
 gnc_commodity * gncCustomerGetCurrency (const GncCustomer *customer);
 
-gboolean gncCustomerGetTaxTableOverride (const GncCustomer *customer);
+bool gncCustomerGetTaxTableOverride (const GncCustomer *customer);
 GncTaxTable* gncCustomerGetTaxTable (const GncCustomer *customer);
 
 /** @} */
@@ -145,10 +145,10 @@ int gncCustomerCompare (const GncCustomer *a, const GncCustomer *b);
 #define gncCustomerLookupDirect(g,b) gncCustomerLookup((b), &(g))
 
 /** Test support function, used in gets-dbi-business-stuff.c */
-gboolean gncCustomerEqual(const GncCustomer *a, const GncCustomer *b);
+bool gncCustomerEqual(const GncCustomer *a, const GncCustomer *b);
 
-GList * gncCustomerGetJoblist (const GncCustomer *customer, gboolean show_all);
-gboolean gncCustomerIsDirty (GncCustomer *customer);
+GList * gncCustomerGetJoblist (const GncCustomer *customer, bool show_all);
+bool gncCustomerIsDirty (GncCustomer *customer);
 
 #endif /* GNC_CUSTOMER_H_ */
 /** @} */

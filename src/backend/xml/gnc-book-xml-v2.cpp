@@ -64,7 +64,7 @@ static QofLogModule log_module = GNC_MOD_IO;
 static void
 append_account_tree (xmlNodePtr parent,
                      Account *account,
-                     gboolean allow_incompat)
+                     bool allow_incompat)
 {
     GList *children, *node;
 
@@ -151,7 +151,7 @@ gnc_book_dom_tree_create(QofBook *book)
 /* same as above, but we write out directly.  Only handle the guid
  * and slots, everything else is handled elsewhere */
 
-gboolean
+bool
 write_book_parts(FILE *out, QofBook *book)
 {
     xmlNodePtr domnode;
@@ -183,7 +183,7 @@ write_book_parts(FILE *out, QofBook *book)
 
 /* ================================================================ */
 
-static gboolean
+static bool
 book_id_handler(xmlNodePtr node, gpointer book_pdata)
 {
     QofBook *book = book_pdata;
@@ -196,7 +196,7 @@ book_id_handler(xmlNodePtr node, gpointer book_pdata)
     return TRUE;
 }
 
-static gboolean
+static bool
 book_slots_handler (xmlNodePtr node, gpointer book_pdata)
 {
     QofBook *book = book_pdata;
@@ -219,7 +219,7 @@ static struct dom_tree_handler book_handlers_v2[] =
     { NULL, 0, 0, 0 }
 };
 
-static gboolean
+static bool
 gnc_book_end_handler(gpointer data_for_children,
                      GSList* data_from_children, GSList* sibling_data,
                      gpointer parent_data, gpointer global_data,
@@ -247,7 +247,7 @@ gnc_book_end_handler(gpointer data_for_children,
     return book != NULL;
 }
 
-static gboolean
+static bool
 gnc_book_id_end_handler(gpointer data_for_children,
                         GSList* data_from_children, GSList* sibling_data,
                         gpointer parent_data, gpointer global_data,
@@ -269,7 +269,7 @@ gnc_book_id_end_handler(gpointer data_for_children,
     return successful;
 }
 
-static gboolean
+static bool
 gnc_book_slots_end_handler(gpointer data_for_children,
                            GSList* data_from_children, GSList* sibling_data,
                            gpointer parent_data, gpointer global_data,

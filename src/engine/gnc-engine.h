@@ -236,7 +236,7 @@ void gnc_engine_init_static(int argc, char ** argv);
 void gnc_engine_shutdown (void);
 
 /** check the engine is fully initialized */
-gboolean gnc_engine_is_initialized(void);
+bool gnc_engine_is_initialized(void);
 
 /** enable default log modules */
 void gnc_log_default(void);

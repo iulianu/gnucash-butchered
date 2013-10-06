@@ -158,12 +158,12 @@ Transaction * xaccTransClone (const Transaction *t);
  * up splits by GncGUID, and is required for checking duplicated
  * transactions because all the splits have new GUIDs.
  */
-gboolean xaccTransEqual(const Transaction *ta,
+bool xaccTransEqual(const Transaction *ta,
                         const Transaction *tb,
-                        gboolean check_guids,
-                        gboolean check_splits,
-                        gboolean check_balances,
-                        gboolean assume_ordered);
+                        bool check_guids,
+                        bool check_splits,
+                        bool check_balances,
+                        bool assume_ordered);
 
 /** The xaccTransBeginEdit() method must be called before any changes
     are made to a transaction or any of its component splits.  If
@@ -190,7 +190,7 @@ void          xaccTransRollbackEdit (Transaction *trans);
     hard to imagine legitimate uses (but it is used by
     the import/export code for reasons I can't understand.)
  */
-gboolean      xaccTransIsOpen (const Transaction *trans);
+bool      xaccTransIsOpen (const Transaction *trans);
 
 /** The xaccTransLookup() subroutine will return the
     transaction associated with the given id, or NULL
@@ -230,7 +230,7 @@ void xaccTransCopyOnto(const Transaction *from_trans, Transaction *to_trans);
  *   in from_acc (or at least claimed to be) will end up in to_acc.
  */
 void xaccTransCopyFromClipBoard(const Transaction *from_trans, Transaction *to_trans,
-                           const Account *from_acc, Account *to_acc, gboolean no_date);
+                           const Account *from_acc, Account *to_acc, bool no_date);
 
 /*################## Added for Reg2 #################*/
 
@@ -263,7 +263,7 @@ guint gnc_book_count_transactions(QofBook *book);
 
 /** Determine whether this transaction should use commodity trading accounts
  */
-gboolean xaccTransUseTradingAccounts(const Transaction *trans);
+bool xaccTransUseTradingAccounts(const Transaction *trans);
 
 /** Sorts the splits in a transaction, putting the debits first,
  *  followed by the credits.
@@ -309,10 +309,10 @@ const char *  xaccTransGetNotes (const Transaction *trans);
 
 
 /** Sets whether or not this transaction is a "closing transaction" */
-void          xaccTransSetIsClosingTxn (Transaction *trans, gboolean is_closing);
+void          xaccTransSetIsClosingTxn (Transaction *trans, bool is_closing);
 
 /** Returns whether this transaction is a "closing transaction" */
-gboolean      xaccTransGetIsClosingTxn (const Transaction *trans);
+bool      xaccTransGetIsClosingTxn (const Transaction *trans);
 
 
 /** Add a split to the transaction
@@ -342,7 +342,7 @@ int xaccTransGetSplitIndex(const Transaction *trans, const Split *split);
     this list when you are done with it. */
 /*@ dependent @*/
 SplitList *   xaccTransGetSplitList (const Transaction *trans);
-gboolean      xaccTransStillHasSplit(const Transaction *trans, const Split *s);
+bool      xaccTransStillHasSplit(const Transaction *trans, const Split *s);
 
 /** Set the transaction to be ReadOnly by setting a non-NULL value as "reason".
  *
@@ -359,12 +359,12 @@ const char *  xaccTransGetReadOnly (const Transaction *trans);
 /** Returns TRUE if this Transaction is read-only because its posted-date is
  * older than the "auto-readonly" threshold of this book. See
  * qof_book_uses_autofreeze() and qof_book_get_autofreeze_gdate(). */
-gboolean xaccTransIsReadonlyByPostedDate(const Transaction *trans);
+bool xaccTransIsReadonlyByPostedDate(const Transaction *trans);
 
 /*################## Added for Reg2 #################*/
 
 /** Returns TRUE if this Transaction's posted-date is in the future */
-gboolean xaccTransInFutureByPostedDate (const Transaction *trans);
+bool xaccTransInFutureByPostedDate (const Transaction *trans);
 
 /*################## Added for Reg2 #################*/
 
@@ -372,15 +372,15 @@ gboolean xaccTransInFutureByPostedDate (const Transaction *trans);
 int           xaccTransCountSplits (const Transaction *trans);
 
 /** FIXME: document me */
-gboolean      xaccTransHasReconciledSplits (const Transaction *trans);
+bool      xaccTransHasReconciledSplits (const Transaction *trans);
 /** FIXME: document me */
-gboolean      xaccTransHasReconciledSplitsByAccount (const Transaction *trans,
+bool      xaccTransHasReconciledSplitsByAccount (const Transaction *trans,
         const Account *account);
 
 /** FIXME: document me */
-gboolean      xaccTransHasSplitsInState (const Transaction *trans, const char state);
+bool      xaccTransHasSplitsInState (const Transaction *trans, const char state);
 /** FIXME: document me */
-gboolean      xaccTransHasSplitsInStateByAccount (const Transaction *trans,
+bool      xaccTransHasSplitsInStateByAccount (const Transaction *trans,
         const char state,
         const Account *account);
 
@@ -425,7 +425,7 @@ MonetaryList *xaccTransGetImbalance (const Transaction * trans);
 
 /** Returns true if the transaction is balanced according to the rules
  * currently in effect. */
-gboolean xaccTransIsBalanced(const Transaction * trans);
+bool xaccTransIsBalanced(const Transaction * trans);
 
 /** The xaccTransGetAccountValue() method returns the total value applied
  *  to a particular account.  In some cases there may be multiple Splits
@@ -443,7 +443,7 @@ gnc_numeric xaccTransGetAccountAmount (const Transaction *trans,
 /*################## Added for Reg2 #################*/
 /* Gets the amt/val rate, i.e. rate from the transaction currency to
    the 'split_com' */
-gboolean
+bool
 xaccTransGetRateForCommodity(const Transaction *trans,
                              const gnc_commodity *split_com,
                              const Split *split_to_exclude, gnc_numeric *rate);
@@ -653,7 +653,7 @@ Transaction * xaccTransGetReversedBy(const Transaction *trans);
  *  @return TRUE if the transaction is void, FALSE otherwise. Also
  *  returns FALSE upon an error.
  */
-gboolean xaccTransGetVoidStatus(const Transaction *transaction);
+bool xaccTransGetVoidStatus(const Transaction *transaction);
 
 /** Returns the user supplied textual reason why a transaction was
  *  voided.

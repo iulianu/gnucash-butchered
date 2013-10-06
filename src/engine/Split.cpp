@@ -340,7 +340,7 @@ void mark_split (Split *s)
 /*
  * Helper routine for xaccSplitEqual.
  */
-static gboolean
+static bool
 xaccSplitEqualCheckBal (const char *tag, gnc_numeric a, gnc_numeric b)
 {
     char *str_a, *str_b;
@@ -362,13 +362,13 @@ xaccSplitEqualCheckBal (const char *tag, gnc_numeric a, gnc_numeric b)
 /********************************************************************
  * xaccSplitEqual
  ********************************************************************/
-gboolean
+bool
 xaccSplitEqual(const Split *sa, const Split *sb,
-               gboolean check_guids,
-               gboolean check_balances,
-               gboolean check_txn_splits)
+               bool check_guids,
+               bool check_balances,
+               bool check_txn_splits)
 {
-    gboolean same_book;
+    bool same_book;
 
     if (!sa && !sb) return TRUE; /* Arguable. FALSE is better, methinks */
 
@@ -1055,7 +1055,7 @@ xaccSplitConvertAmount (const Split *split, const Account * account)
 /********************************************************************\
 \********************************************************************/
 
-gboolean
+bool
 xaccSplitDestroy (Split *split)
 {
     Account *acc;
@@ -1090,7 +1090,7 @@ xaccSplitOrder (const Split *sa, const Split *sb)
     int retval;
     int comp;
     char *da, *db;
-    gboolean action_for_num;
+    bool action_for_num;
 
     if (sa == sb) return 0;
     /* nothing is always less than something */
@@ -1168,14 +1168,14 @@ xaccSplitOrderDateOnly (const Split *sa, const Split *sb)
     return -1;
 }
 
-static gboolean
+static bool
 get_corr_account_split(const Split *sa, const Split **retval)
 {
 
     const Split *current_split;
     GList *node;
     gnc_numeric sa_value, current_value;
-    gboolean sa_value_positive, current_value_positive, seen_one = FALSE;
+    bool sa_value_positive, current_value_positive, seen_one = FALSE;
 
     *retval = NULL;
     g_return_val_if_fail(sa, FALSE);
@@ -1649,7 +1649,7 @@ xaccSplitGetOtherSplit (const Split *split)
     int count, num_splits;
     Split *other = NULL;
     KvpValue *sva;
-    gboolean trading_accts;
+    bool trading_accts;
 
     if (!split) return NULL;
     trans = split->parent;
@@ -1808,7 +1808,7 @@ qofSplitSetAccount(Split *s, QofInstance *ent)
     xaccSplitSetAccount(s, acc);
 }
 
-gboolean xaccSplitRegister (void)
+bool xaccSplitRegister (void)
 {
     static const QofParam params[] =
     {

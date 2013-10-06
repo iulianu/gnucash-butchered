@@ -38,13 +38,13 @@ public:
     char *        name;
     char *        desc;
     GncOwner      owner;
-    gboolean      active;
+    bool      active;
     
     GncJob();
     virtual ~GncJob();
 };
 
-gboolean gncJobRegister (void);
+bool gncJobRegister (void);
 gchar *gncJobNextID (QofBook *book);
 
 #define gncJobSetGUID(E,G) qof_instance_set_guid(QOF_INSTANCE(E),(G))

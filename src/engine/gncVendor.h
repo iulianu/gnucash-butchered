@@ -55,8 +55,8 @@ void gncVendorSetNotes (GncVendor *vendor, const char *notes);
 void gncVendorSetTerms (GncVendor *vendor, GncBillTerm *terms);
 void gncVendorSetTaxIncluded (GncVendor *vendor, GncTaxIncluded taxincl);
 void gncVendorSetCurrency (GncVendor *vendor, gnc_commodity *currency);
-void gncVendorSetActive (GncVendor *vendor, gboolean active);
-void gncVendorSetTaxTableOverride (GncVendor *vendor, gboolean override);
+void gncVendorSetActive (GncVendor *vendor, bool active);
+void gncVendorSetTaxTableOverride (GncVendor *vendor, bool override);
 void gncVendorSetTaxTable (GncVendor *vendor, GncTaxTable *table);
 
 /** @} */
@@ -78,9 +78,9 @@ const char * gncVendorGetNotes (const GncVendor *vendor);
 GncBillTerm * gncVendorGetTerms (const GncVendor *vendor);
 GncTaxIncluded gncVendorGetTaxIncluded (const GncVendor *vendor);
 gnc_commodity * gncVendorGetCurrency (const GncVendor *vendor);
-gboolean gncVendorGetActive (const GncVendor *vendor);
+bool gncVendorGetActive (const GncVendor *vendor);
 
-gboolean gncVendorGetTaxTableOverride (const GncVendor *vendor);
+bool gncVendorGetTaxTableOverride (const GncVendor *vendor);
 GncTaxTable* gncVendorGetTaxTable (const GncVendor *vendor);
 
 /** @} */
@@ -117,8 +117,8 @@ static inline GncVendor * gncVendorLookup (const QofBook *book, const GncGUID *g
 #define gncVendorRetGUID(X) (X ? *(qof_instance_get_guid (QOF_INSTANCE(X))) : *(guid_null()))
 #define gncVendorLookupDirect(G,B) gncVendorLookup((B),&(G))
 /** Test support function, used by test-dbi-business-stuff.cpp */
-gboolean gncVendorEqual(const GncVendor *a, const GncVendor *b);
-gboolean gncVendorIsDirty (const GncVendor *vendor);
+bool gncVendorEqual(const GncVendor *a, const GncVendor *b);
+bool gncVendorIsDirty (const GncVendor *vendor);
 #endif /* GNC_VENDOR_H_ */
 /** @} */
 /** @} */

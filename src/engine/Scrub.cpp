@@ -350,7 +350,7 @@ xaccTransScrubCurrencyFromSplits(Transaction *trans)
 
         /* Found a common currency for the splits, and the transaction is not
            in that currency */
-        gboolean trans_was_open;
+        bool trans_was_open;
 
         PINFO ("transaction in wrong currency");
 
@@ -1247,10 +1247,10 @@ xaccAccountTreeScrubCommodities (Account *acc)
 
 /* ================================================================ */
 
-static gboolean
+static bool
 check_quote_source (gnc_commodity *com, gpointer data)
 {
-    gboolean *commodity_has_quote_src = (gboolean *)data;
+    bool *commodity_has_quote_src = (bool *)data;
     if (com && !gnc_commodity_is_iso(com))
         *commodity_has_quote_src |= gnc_commodity_get_quote_flag(com);
     return TRUE;
@@ -1261,7 +1261,7 @@ move_quote_source (Account *account, gpointer data)
 {
     gnc_commodity *com;
     gnc_quote_source *quote_source;
-    gboolean new_style = GPOINTER_TO_INT(data);
+    bool new_style = GPOINTER_TO_INT(data);
     const char *source, *tz;
 
     com = xaccAccountGetCommodity(account);
@@ -1294,7 +1294,7 @@ move_quote_source (Account *account, gpointer data)
 void
 xaccAccountTreeScrubQuoteSources (Account *root, gnc_commodity_table *table)
 {
-    gboolean new_style = FALSE;
+    bool new_style = FALSE;
     ENTER(" ");
 
     if (!root || !table)
@@ -1347,7 +1347,7 @@ xaccAccountScrubKvp (Account *account)
 Account *
 xaccScrubUtilityGetOrMakeAccount (Account *root, gnc_commodity * currency,
                                   const char *accname, GNCAccountType acctype,
-                                  gboolean placeholder)
+                                  bool placeholder)
 {
     Account * acc;
 

@@ -75,7 +75,7 @@ void mark_employee (GncEmployee *employee)
 /* ============================================================== */
 
 ///** Does this object refer to a specific object */
-//static gboolean
+//static bool
 //impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
 //{
 //    GncEmployee* emp;
@@ -262,7 +262,7 @@ void gncEmployeeSetCurrency (GncEmployee *employee, gnc_commodity *currency)
     gncEmployeeCommitEdit (employee);
 }
 
-void gncEmployeeSetActive (GncEmployee *employee, gboolean active)
+void gncEmployeeSetActive (GncEmployee *employee, bool active)
 {
     if (!employee) return;
     if (active == employee->active) return;
@@ -367,7 +367,7 @@ gnc_commodity * gncEmployeeGetCurrency (const GncEmployee *employee)
     return employee->currency;
 }
 
-gboolean gncEmployeeGetActive (const GncEmployee *employee)
+bool gncEmployeeGetActive (const GncEmployee *employee)
 {
     if (!employee) return FALSE;
     return employee->active;
@@ -379,7 +379,7 @@ Account * gncEmployeeGetCCard (const GncEmployee *employee)
     return employee->ccard_acc;
 }
 
-gboolean gncEmployeeIsDirty (const GncEmployee *employee)
+bool gncEmployeeIsDirty (const GncEmployee *employee)
 {
     if (!employee) return FALSE;
     return (qof_instance_get_dirty_flag(employee)
@@ -429,7 +429,7 @@ int gncEmployeeCompare (const GncEmployee *a, const GncEmployee *b)
     return(strcmp(a->username, b->username));
 }
 
-gboolean gncEmployeeEqual(const GncEmployee* a, const GncEmployee* b)
+bool gncEmployeeEqual(const GncEmployee* a, const GncEmployee* b)
 {
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL ) return FALSE;
@@ -582,7 +582,7 @@ static QofObject gncEmployeeDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncEmployeeRegister (void)
+bool gncEmployeeRegister (void)
 {
     static QofParam params[] =
     {

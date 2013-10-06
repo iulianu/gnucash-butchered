@@ -106,7 +106,7 @@ gncTaxIncludedTypeToString (GncTaxIncluded type)
 #undef GNC_RETURN_ENUM_AS_STRING
 #define GNC_RETURN_ON_MATCH(s,x) \
   if(g_strcmp0((s), (str)) == 0) { *type = x; return(TRUE); }
-gboolean
+bool
 gncAmountStringToType (const char *str, GncAmountType *type)
 {
     GNC_RETURN_ON_MATCH ("VALUE", GNC_AMT_TYPE_VALUE);
@@ -117,7 +117,7 @@ gncAmountStringToType (const char *str, GncAmountType *type)
     return(FALSE);
 }
 
-gboolean
+bool
 gncTaxIncludedStringToType (const char *str, GncTaxIncluded *type)
 {
     GNC_RETURN_ON_MATCH ("YES", GNC_TAXINCLUDED_YES);
@@ -225,7 +225,7 @@ gncTaxTableRemoveChild (GncTaxTable *table, const GncTaxTable *child)
 //}
 //
 ///** Does this object refer to a specific object */
-//static gboolean
+//static bool
 //impl_refers_to_object(const QofInstance* inst, const QofInstance* ref)
 //{
 //    GncTaxTable* tt;
@@ -581,7 +581,7 @@ static GncTaxTable *gncTaxTableCopy (const GncTaxTable *table)
     return t;
 }
 
-GncTaxTable *gncTaxTableReturnChild (GncTaxTable *table, gboolean make_new)
+GncTaxTable *gncTaxTableReturnChild (GncTaxTable *table, bool make_new)
 {
     GncTaxTable *child = NULL;
 
@@ -622,7 +622,7 @@ Timespec gncTaxTableLastModified (const GncTaxTable *table)
     return table->modtime;
 }
 
-gboolean gncTaxTableGetInvisible (const GncTaxTable *table)
+bool gncTaxTableGetInvisible (const GncTaxTable *table)
 {
     if (!table) return FALSE;
     return table->invisible;
@@ -683,7 +683,7 @@ int gncTaxTableCompare (const GncTaxTable *a, const GncTaxTable *b)
     return g_strcmp0 (a->name, b->name);
 }
 
-gboolean gncTaxTableEntryEqual(const GncTaxTableEntry *a, const GncTaxTableEntry *b)
+bool gncTaxTableEntryEqual(const GncTaxTableEntry *a, const GncTaxTableEntry *b)
 {
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
@@ -709,7 +709,7 @@ gboolean gncTaxTableEntryEqual(const GncTaxTableEntry *a, const GncTaxTableEntry
     return TRUE;
 }
 
-gboolean gncTaxTableEqual(const GncTaxTable *a, const GncTaxTable *b)
+bool gncTaxTableEqual(const GncTaxTable *a, const GncTaxTable *b)
 {
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
@@ -881,7 +881,7 @@ static QofObject gncTaxTableDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncTaxTableRegister (void)
+bool gncTaxTableRegister (void)
 {
     static QofParam params[] =
     {

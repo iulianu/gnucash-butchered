@@ -66,7 +66,7 @@ business_core_init(void)
     gncVendorRegister ();
 }
 
-gboolean
+bool
 cashobjects_register(void)
 {
     g_return_val_if_fail(gnc_commodity_table_register(), FALSE);

@@ -139,12 +139,12 @@ sxtg_book_end (QofBook *book)
 //    gnc_book_set_template_root (book, NULL);
 }
 
-static gboolean
+static bool
 sxtg_is_dirty(const QofCollection *col)
 {
     Account *root;
     GList *descendants, *node;
-    gboolean dirty = FALSE;
+    bool dirty = FALSE;
 
     root = gnc_collection_get_template_root(col);
     descendants = gnc_account_get_descendants(root);
@@ -284,7 +284,7 @@ book_sxns_mark_saved(QofCollection *col)
                    NULL);
 }
 
-static gboolean
+static bool
 book_sxlist_notsaved(const QofCollection *col)
 {
     GList *sxlist;
@@ -337,7 +337,7 @@ static QofObject sxtt_object_def =
     DI(.version_cmp       = ) NULL,
 };
 
-gboolean
+bool
 gnc_sxtt_register (void)
 {
     if (!qof_object_register(&sxes_object_def))

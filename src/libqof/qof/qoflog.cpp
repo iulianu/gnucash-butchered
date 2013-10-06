@@ -130,7 +130,7 @@ log4glib_handler(const char     *log_domain,
 void
 qof_log_init_filename(const char* log_filename)
 {
-    gboolean warn_about_missing_permission = FALSE;
+    bool warn_about_missing_permission = FALSE;
     if (log_table == NULL)
         log_table = g_hash_table_new_full(g_str_hash, g_str_equal,
                                           g_free, NULL);

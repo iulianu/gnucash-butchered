@@ -44,6 +44,6 @@ SchedXactions* gnc_collection_get_schedxactions(const QofCollection *col);
 /* Associate the given template root account with a book */
 void gnc_book_set_template_root (QofBook *book, Account *templateRoot);
 
-gboolean gnc_sxtt_register (void);
+bool gnc_sxtt_register (void);
 
 #endif /* GNC_SX_BOOK_P_H */

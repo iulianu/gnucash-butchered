@@ -30,7 +30,7 @@
 
 #include "gncOwner.h"
 
-gboolean gncOwnerRegister (void);
+bool gncOwnerRegister (void);
 
 
 #endif /* GNC_OWNERP_H_ */

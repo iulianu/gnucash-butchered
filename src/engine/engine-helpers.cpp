@@ -84,7 +84,7 @@ gnc_transaction_set_date(Transaction *t, Timespec ts)
 const char *
 gnc_get_num_action (const Transaction *trans, const Split *split)
 {
-    gboolean num_action = qof_book_use_split_action_for_num_field
+    bool num_action = qof_book_use_split_action_for_num_field
                            (qof_session_get_book(gnc_get_current_session ()));
 
     if (trans && !split)
@@ -110,7 +110,7 @@ gnc_get_num_action (const Transaction *trans, const Split *split)
 const char *
 gnc_get_action_num (const Transaction *trans, const Split *split)
 {
-    gboolean num_action = qof_book_use_split_action_for_num_field
+    bool num_action = qof_book_use_split_action_for_num_field
                            (qof_session_get_book(gnc_get_current_session ()));
 
     if (trans && !split)
@@ -142,7 +142,7 @@ void
 gnc_set_num_action (Transaction *trans, Split *split,
                     const char *num, const char *action)
 {
-    gboolean num_action = qof_book_use_split_action_for_num_field
+    bool num_action = qof_book_use_split_action_for_num_field
                            (qof_session_get_book(gnc_get_current_session ()));
 
     if (trans && num && !split && !action)
@@ -201,7 +201,7 @@ bo_call_hook (GHook *hook, gpointer data)
 /** Calls registered callbacks when num_field_source book option changes so that
   * registers/reports can update themselves */
 void
-gnc_book_option_num_field_source_change (gboolean num_action)
+gnc_book_option_num_field_source_change (bool num_action)
 {
     GHookList *hook_list;
     const gchar *key = OPTION_NAME_NUM_FIELD_SOURCE;

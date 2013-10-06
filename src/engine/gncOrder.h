@@ -55,7 +55,7 @@ void gncOrderSetDateOpened (GncOrder *order, Timespec date);
 void gncOrderSetDateClosed (GncOrder *order, Timespec date);
 void gncOrderSetNotes (GncOrder *order, const char *notes);
 void gncOrderSetReference (GncOrder *order, const char *reference);
-void gncOrderSetActive (GncOrder *order, gboolean active);
+void gncOrderSetActive (GncOrder *order, bool active);
 
 /* Add an Entry to the Order */
 void gncOrderAddEntry (GncOrder *order, GncEntry *entry);
@@ -69,7 +69,7 @@ Timespec gncOrderGetDateOpened (const GncOrder *order);
 Timespec gncOrderGetDateClosed (const GncOrder *order);
 const char * gncOrderGetNotes (const GncOrder *order);
 const char * gncOrderGetReference (const GncOrder *order);
-gboolean gncOrderGetActive (const GncOrder *order);
+bool gncOrderGetActive (const GncOrder *order);
 
 /* Get the list Entries */
 GList * gncOrderGetEntries (GncOrder *order);
@@ -78,7 +78,7 @@ void gncOrderBeginEdit (GncOrder *order);
 void gncOrderCommitEdit (GncOrder *order);
 int gncOrderCompare (const GncOrder *a, const GncOrder *b);
 
-gboolean gncOrderIsClosed (const GncOrder *order);
+bool gncOrderIsClosed (const GncOrder *order);
 
 /** Return a pointer to the instance gncOrder that is identified
  *  by the guid, and is residing in the book. Returns NULL if the

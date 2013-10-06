@@ -66,10 +66,10 @@ typedef enum
  */
 
 const char * gncEntryDiscountHowToString (GncDiscountHow how);
-gboolean gncEntryDiscountStringToHow (const char *str, GncDiscountHow *how);
+bool gncEntryDiscountStringToHow (const char *str, GncDiscountHow *how);
 
 const char * gncEntryPaymentTypeToString (GncEntryPaymentType type);
-gboolean gncEntryPaymentStringToType (const char *str, GncEntryPaymentType *type);
+bool gncEntryPaymentStringToType (const char *str, GncEntryPaymentType *type);
 
 /** @name Create/Destroy Functions
  @{ */
@@ -103,15 +103,15 @@ void gncEntrySetQuantity (GncEntry *entry, gnc_numeric quantity);
  *  sign-reversed compared to how the quantity is written on the
  *  actual credit note (and hence how the ledger and reports show it
  *  to the user). */
-void gncEntrySetDocQuantity (GncEntry *entry, gnc_numeric quantity, gboolean is_cn);
+void gncEntrySetDocQuantity (GncEntry *entry, gnc_numeric quantity, bool is_cn);
 /** @} */
 
 /** @name Customer Invoices
  @{ */
 void gncEntrySetInvAccount (GncEntry *entry, Account *acc);
 void gncEntrySetInvPrice (GncEntry *entry, gnc_numeric price);
-void gncEntrySetInvTaxable (GncEntry *entry, gboolean taxable);
-void gncEntrySetInvTaxIncluded (GncEntry *entry, gboolean tax_included);
+void gncEntrySetInvTaxable (GncEntry *entry, bool taxable);
+void gncEntrySetInvTaxIncluded (GncEntry *entry, bool tax_included);
 void gncEntrySetInvTaxTable (GncEntry *entry, GncTaxTable *table);
 void gncEntrySetInvDiscount (GncEntry *entry, gnc_numeric discount);
 void gncEntrySetInvDiscountType (GncEntry *entry, GncAmountType type);
@@ -124,10 +124,10 @@ void qofEntrySetInvDiscHow  (GncEntry *entry, const char *type);
  @{ */
 void gncEntrySetBillAccount (GncEntry *entry, Account *acc);
 void gncEntrySetBillPrice (GncEntry *entry, gnc_numeric price);
-void gncEntrySetBillTaxable (GncEntry *entry, gboolean taxable);
-void gncEntrySetBillTaxIncluded (GncEntry *entry, gboolean tax_included);
+void gncEntrySetBillTaxable (GncEntry *entry, bool taxable);
+void gncEntrySetBillTaxIncluded (GncEntry *entry, bool tax_included);
 void gncEntrySetBillTaxTable (GncEntry *entry, GncTaxTable *table);
-void gncEntrySetBillable (GncEntry *entry, gboolean billable);
+void gncEntrySetBillable (GncEntry *entry, bool billable);
 void gncEntrySetBillTo (GncEntry *entry, GncOwner *billto);
 /** @} */
 
@@ -160,7 +160,7 @@ gnc_numeric gncEntryGetQuantity (const GncEntry *entry);
  *  sign-reversed compared to how the quantity is written on the
  *  actual credit note (and hence how the ledger and reports show it
  *  to the user). */
-gnc_numeric gncEntryGetDocQuantity (const GncEntry *entry, gboolean is_cn);
+gnc_numeric gncEntryGetDocQuantity (const GncEntry *entry, bool is_cn);
 /** @} */
 
 /** @name Customer Invoices
@@ -172,8 +172,8 @@ GncAmountType gncEntryGetInvDiscountType (const GncEntry *entry);
 GncDiscountHow gncEntryGetInvDiscountHow (const GncEntry *entry);
 char* qofEntryGetInvDiscType (const GncEntry *entry);
 char* qofEntryGetInvDiscHow (const GncEntry *entry);
-gboolean gncEntryGetInvTaxable (const GncEntry *entry);
-gboolean gncEntryGetInvTaxIncluded (const GncEntry *entry);
+bool gncEntryGetInvTaxable (const GncEntry *entry);
+bool gncEntryGetInvTaxIncluded (const GncEntry *entry);
 GncTaxTable * gncEntryGetInvTaxTable (const GncEntry *entry);
 /** @} */
 
@@ -181,10 +181,10 @@ GncTaxTable * gncEntryGetInvTaxTable (const GncEntry *entry);
  @{ */
 Account * gncEntryGetBillAccount (const GncEntry *entry);
 gnc_numeric gncEntryGetBillPrice (const GncEntry *entry);
-gboolean gncEntryGetBillTaxable (const GncEntry *entry);
-gboolean gncEntryGetBillTaxIncluded (const GncEntry *entry);
+bool gncEntryGetBillTaxable (const GncEntry *entry);
+bool gncEntryGetBillTaxIncluded (const GncEntry *entry);
 GncTaxTable * gncEntryGetBillTaxTable (const GncEntry *entry);
-gboolean gncEntryGetBillable (const GncEntry *entry);
+bool gncEntryGetBillable (const GncEntry *entry);
 GncOwner *gncEntryGetBillTo (GncEntry *entry);
 
 GncEntryPaymentType gncEntryGetBillPayment (const GncEntry* entry);
@@ -228,17 +228,17 @@ void gncEntryCopy (const GncEntry *src, GncEntry *dest);
  @{
 */
 typedef GList AccountValueList;
-gnc_numeric gncEntryGetDocValue (GncEntry *entry, gboolean round, gboolean is_cust_doc, gboolean is_cn);
-gnc_numeric gncEntryGetDocTaxValue (GncEntry *entry, gboolean round, gboolean is_cust_doc, gboolean is_cn);
+gnc_numeric gncEntryGetDocValue (GncEntry *entry, bool round, bool is_cust_doc, bool is_cn);
+gnc_numeric gncEntryGetDocTaxValue (GncEntry *entry, bool round, bool is_cust_doc, bool is_cn);
 /** Careful: the returned list is NOT owned by the entry and should be freed by the caller */
-AccountValueList * gncEntryGetDocTaxValues (GncEntry *entry, gboolean is_cust_doc, gboolean is_cn);
-gnc_numeric gncEntryGetDocDiscountValue (GncEntry *entry, gboolean round, gboolean is_cust_doc, gboolean is_cn);
+AccountValueList * gncEntryGetDocTaxValues (GncEntry *entry, bool is_cust_doc, bool is_cn);
+gnc_numeric gncEntryGetDocDiscountValue (GncEntry *entry, bool round, bool is_cust_doc, bool is_cn);
 
-gnc_numeric gncEntryGetBalValue (GncEntry *entry, gboolean round, gboolean is_cust_doc);
-gnc_numeric gncEntryGetBalTaxValue (GncEntry *entry, gboolean round, gboolean is_cust_doc);
+gnc_numeric gncEntryGetBalValue (GncEntry *entry, bool round, bool is_cust_doc);
+gnc_numeric gncEntryGetBalTaxValue (GncEntry *entry, bool round, bool is_cust_doc);
 /** Careful: the returned list is NOT owned by the entry and should be freed by the caller */
-AccountValueList * gncEntryGetBalTaxValues (GncEntry *entry, gboolean is_cust_doc);
-gnc_numeric gncEntryGetBalDiscountValue (GncEntry *entry, gboolean round, gboolean is_cust_doc);
+AccountValueList * gncEntryGetBalTaxValues (GncEntry *entry, bool is_cust_doc);
+gnc_numeric gncEntryGetBalDiscountValue (GncEntry *entry, bool round, bool is_cust_doc);
 
 /** Compute the Entry value, tax_value, and discount_value, based on
  * the quantity, price, discount, tax_-table, and types.  The value is
@@ -253,7 +253,7 @@ gnc_numeric gncEntryGetBalDiscountValue (GncEntry *entry, gboolean round, gboole
  * destroyed automatically, so use it quickly.
  */
 void gncEntryComputeValue (gnc_numeric qty, gnc_numeric price,
-                           const GncTaxTable *tax_table, gboolean tax_included,
+                           const GncTaxTable *tax_table, bool tax_included,
                            gnc_numeric discount, GncAmountType discount_type,
                            GncDiscountHow discount_how, int SCU,
                            /* return values */
@@ -277,7 +277,7 @@ static inline GncEntry * gncEntryLookup (const QofBook *book, const GncGUID *gui
     QOF_BOOK_RETURN_ENTITY(book, guid, GNC_ID_ENTRY, GncEntry);
 }
 
-gboolean gncEntryIsOpen (const GncEntry *entry);
+bool gncEntryIsOpen (const GncEntry *entry);
 void gncEntryBeginEdit (GncEntry *entry);
 void gncEntryCommitEdit (GncEntry *entry);
 int gncEntryCompare (const GncEntry *a, const GncEntry *b);

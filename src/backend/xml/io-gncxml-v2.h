@@ -70,7 +70,7 @@ struct sixtp_gdv2
     load_counter counter;
     countCallbackFn countCallback;
     QofBePercentageFunc gui_display_fn;
-    gboolean exporting;
+    bool exporting;
 };
 
 /**
@@ -104,11 +104,11 @@ typedef struct
     const char *	type_name;	/* The XML tag for this type */
 
     sixtp *	(*create_parser) (void);
-    gboolean	(*add_item)(sixtp_gdv2 *, gpointer obj);
+    bool	(*add_item)(sixtp_gdv2 *, gpointer obj);
     int	      (*get_count) (QofBook *);
-    gboolean	(*write) (FILE*, QofBook*);
+    bool	(*write) (FILE*, QofBook*);
     void		(*scrub) (QofBook *);
-    gboolean	(*ns) (FILE*);
+    bool	(*ns) (FILE*);
 } GncXmlDataType_t;
 
 /**
@@ -128,26 +128,26 @@ typedef struct
 void run_callback(sixtp_gdv2 *data, const char *type);
 
 /** read in an account group from a file */
-gboolean qof_session_load_from_xml_file_v2(FileBackend *, QofBook *, QofBookFileType);
+bool qof_session_load_from_xml_file_v2(FileBackend *, QofBook *, QofBookFileType);
 
 /* write all book info to a file */
-gboolean gnc_book_write_to_xml_filehandle_v2(QofBook *book, FILE *fh);
-gboolean gnc_book_write_to_xml_file_v2(QofBook *book, const char *filename, gboolean compress);
+bool gnc_book_write_to_xml_filehandle_v2(QofBook *book, FILE *fh);
+bool gnc_book_write_to_xml_file_v2(QofBook *book, const char *filename, bool compress);
 
 /** write just the commodities and accounts to a file */
-gboolean gnc_book_write_accounts_to_xml_filehandle_v2(QofBackend *be, QofBook *book, FILE *fh);
-gboolean gnc_book_write_accounts_to_xml_file_v2(QofBackend * be, QofBook *book,
+bool gnc_book_write_accounts_to_xml_filehandle_v2(QofBackend *be, QofBook *book, FILE *fh);
+bool gnc_book_write_accounts_to_xml_file_v2(QofBackend * be, QofBook *book,
         const char *filename);
 
 /** The is_gncxml_file() routine checks to see if the first few
  * chars of the file look like gnc-xml data.
  */
-QofBookFileType gnc_is_xml_data_file_v2(const gchar *name, gboolean *with_encoding);
+QofBookFileType gnc_is_xml_data_file_v2(const gchar *name, bool *with_encoding);
 
 /** Write a name-space declaration for the provided namespace data type
  * within the GNC XML namespace at http://www.gnucash.org/XML.
  */
-gboolean gnc_xml2_write_namespace_decl (FILE *out, const char *xml_namespace);
+bool gnc_xml2_write_namespace_decl (FILE *out, const char *xml_namespace);
 
 
 typedef struct
@@ -186,7 +186,7 @@ gint gnc_xml2_find_ambiguous(
  *
  * @param subst hash table with keys and values of type gchar*
  */
-gboolean gnc_xml2_parse_with_subst (
+bool gnc_xml2_parse_with_subst (
     FileBackend *fbe, QofBook *book, GHashTable *subst);
 
 #endif /* __IO_GNCXML_V2_H__ */

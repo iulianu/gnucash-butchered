@@ -1261,7 +1261,7 @@ gnc_sx_instance_model_effect_change(GncSxInstanceModel *model,
         for (instance_iter = instances->instance_list; instance_iter != NULL; instance_iter = instance_iter->next)
         {
             GncSxInstance *inst = (GncSxInstance*)instance_iter->data;
-            gboolean sx_is_auto_create;
+            bool sx_is_auto_create;
 
             xaccSchedXactionGetAutoCreate(inst->parent->sx, &sx_is_auto_create, NULL);
             if (auto_create_only && !sx_is_auto_create)
@@ -1430,7 +1430,7 @@ gnc_sx_instance_model_summarize(GncSxInstanceModel *model, GncSxSummary *summary
     for (sx_iter = model->sx_instance_list; sx_iter != NULL; sx_iter = sx_iter->next)
     {
         GncSxInstances *instances = (GncSxInstances*)sx_iter->data;
-        gboolean sx_is_auto_create = FALSE, sx_notify = FALSE;
+        bool sx_is_auto_create = FALSE, sx_notify = FALSE;
         xaccSchedXactionGetAutoCreate(instances->sx, &sx_is_auto_create, &sx_notify);
         for (inst_iter = instances->instance_list; inst_iter != NULL; inst_iter = inst_iter->next)
         {

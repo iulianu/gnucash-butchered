@@ -39,7 +39,7 @@ class GncInvoice : public QofInstance
 public:
     char          *id;
     char          *notes;
-    gboolean      active;
+    bool      active;
 
     char          *billing_id;
     char          *printname;
@@ -64,7 +64,7 @@ public:
     virtual ~GncInvoice();
 };
 
-gboolean gncInvoiceRegister (void);
+bool gncInvoiceRegister (void);
 gchar *gncInvoiceNextID (QofBook *book, const GncOwner *owner);
 void gncInvoiceSetPostedAcc (GncInvoice *invoice, Account *acc);
 void gncInvoiceSetPostedTxn (GncInvoice *invoice, Transaction *txn);

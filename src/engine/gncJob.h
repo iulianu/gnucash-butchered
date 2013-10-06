@@ -51,7 +51,7 @@ void gncJobSetID (GncJob *job, const char *id);
 void gncJobSetName (GncJob *job, const char *jobname);
 void gncJobSetReference (GncJob *job, const char *owner_reference);
 void gncJobSetOwner (GncJob *job, GncOwner *owner);
-void gncJobSetActive (GncJob *job, gboolean active);
+void gncJobSetActive (GncJob *job, bool active);
 
 /** @} */
 void gncJobBeginEdit (GncJob *job);
@@ -65,7 +65,7 @@ const char * gncJobGetID (const GncJob *job);
 const char * gncJobGetName (const GncJob *job);
 const char * gncJobGetReference (const GncJob *job);
 GncOwner   * gncJobGetOwner (GncJob *job);
-gboolean     gncJobGetActive (const GncJob *job);
+bool     gncJobGetActive (const GncJob *job);
 
 /** @} */
 
@@ -83,7 +83,7 @@ static inline GncJob * gncJobLookup (const QofBook *book, const GncGUID *guid)
 /* Other functions */
 
 int gncJobCompare (const GncJob *a, const GncJob *b);
-gboolean gncJobEqual(const GncJob *a, const GncJob *b);
+bool gncJobEqual(const GncJob *a, const GncJob *b);
 
 #define JOB_ID          "id"
 #define JOB_NAME        "name"

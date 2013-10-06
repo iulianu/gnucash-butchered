@@ -44,21 +44,21 @@ public:
     gint64          refcount;
     GncTaxTable *   parent;       /* if non-null, we are an immutable child */
     GncTaxTable *   child;        /* if non-null, we have not changed */
-    gboolean        invisible;
+    bool        invisible;
     GList *         children;     /* list of children for disconnection */
     
     GncTaxTable();
     virtual ~GncTaxTable() {}
 };
 
-gboolean gncTaxTableRegister (void);
+bool gncTaxTableRegister (void);
 
 void gncTaxTableSetParent (GncTaxTable *table, GncTaxTable *parent);
 void gncTaxTableSetChild (GncTaxTable *table, GncTaxTable *child);
 void gncTaxTableSetRefcount (GncTaxTable *table, gint64 refcount);
 void gncTaxTableMakeInvisible (GncTaxTable *table);
 
-gboolean gncTaxTableGetInvisible (const GncTaxTable *table);
+bool gncTaxTableGetInvisible (const GncTaxTable *table);
 
 GncTaxTable* gncTaxTableEntryGetTable( const GncTaxTableEntry* entry );
 

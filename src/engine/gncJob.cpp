@@ -223,7 +223,7 @@ void gncJobSetOwner (GncJob *job, GncOwner *owner)
     gncJobCommitEdit (job);
 }
 
-void gncJobSetActive (GncJob *job, gboolean active)
+void gncJobSetActive (GncJob *job, bool active)
 {
     if (!job) return;
     if (active == job->active) return;
@@ -299,7 +299,7 @@ GncOwner * gncJobGetOwner (GncJob *job)
     return &(job->owner);
 }
 
-gboolean gncJobGetActive (const GncJob *job)
+bool gncJobGetActive (const GncJob *job)
 {
     if (!job) return FALSE;
     return job->active;
@@ -326,7 +326,7 @@ int gncJobCompare (const GncJob * a, const GncJob *b)
     return (g_strcmp0(a->id, b->id));
 }
 
-gboolean gncJobEqual(const GncJob * a, const GncJob *b)
+bool gncJobEqual(const GncJob * a, const GncJob *b)
 {
     if (a == NULL && b == NULL) return TRUE;
     if (a == NULL || b == NULL) return FALSE;
@@ -392,7 +392,7 @@ static QofObject gncJobDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean gncJobRegister (void)
+bool gncJobRegister (void)
 {
     static QofParam params[] =
     {

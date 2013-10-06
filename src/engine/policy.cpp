@@ -50,7 +50,7 @@ DirectionPolicyGetSplit (GNCPolicy *pcy, GNCLot *lot, short reverse)
     Split *split;
     SplitList *node;
     gnc_commodity *common_currency;
-    gboolean want_positive;
+    bool want_positive;
     gnc_numeric baln;
     Split *osplit;
     Transaction *otrans;
@@ -89,8 +89,8 @@ DirectionPolicyGetSplit (GNCPolicy *pcy, GNCLot *lot, short reverse)
     }
     while (node)
     {
-        gboolean is_match;
-        gboolean is_positive;
+        bool is_match;
+        bool is_positive;
         Timespec this_ts;
         split = node->data;
         if (split->lot) goto donext;
@@ -161,7 +161,7 @@ FIFOPolicyGetLotOpening (GNCPolicy *pcy,
     if (ret_currency) *ret_currency = opening_split->parent->common_currency;
 }
 
-static gboolean
+static bool
 FIFOPolicyIsOpeningSplit (GNCPolicy *pcy, GNCLot *lot, Split *split)
 {
     Split *opening_split;
@@ -225,7 +225,7 @@ LIFOPolicyGetLotOpening (GNCPolicy *pcy,
 }
 
 /* This routine is actually identical to FIFO... */
-G_GNUC_UNUSED static gboolean
+G_GNUC_UNUSED static bool
 LIFOPolicyIsOpeningSplit (GNCPolicy *pcy, GNCLot *lot, Split *split)
 {
     Split *opening_split;

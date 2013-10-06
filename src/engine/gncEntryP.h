@@ -44,8 +44,8 @@ public:
     /* customer invoice data */
     Account *	i_account;
     gnc_numeric 	i_price;
-    gboolean	i_taxable;
-    gboolean	i_taxincluded;
+    bool	i_taxable;
+    bool	i_taxincluded;
     GncTaxTable *	i_tax_table;
     gnc_numeric 	i_discount;
     GncAmountType	i_disc_type;
@@ -54,10 +54,10 @@ public:
     /* vendor bill data */
     Account *	b_account;
     gnc_numeric 	b_price;
-    gboolean	b_taxable;
-    gboolean	b_taxincluded;
+    bool	b_taxable;
+    bool	b_taxincluded;
     GncTaxTable *	b_tax_table;
-    gboolean	billable;
+    bool	billable;
     GncOwner	billto;
 
     /* employee bill data */
@@ -69,7 +69,7 @@ public:
     GncInvoice *	bill;
 
     /* CACHED VALUES */
-    gboolean	values_dirty;
+    bool	values_dirty;
 
     /* customer invoice */
     gnc_numeric	i_value;
@@ -93,12 +93,12 @@ public:
     virtual ~GncEntry() {}
 };
 
-gboolean gncEntryRegister (void);
+bool gncEntryRegister (void);
 void gncEntrySetGUID (GncEntry *entry, const GncGUID *guid);
 void gncEntrySetOrder (GncEntry *entry, GncOrder *order);
 void gncEntrySetInvoice (GncEntry *entry, GncInvoice *invoice);
 void gncEntrySetBill (GncEntry *entry, GncInvoice *bill);
-void gncEntrySetDirty (GncEntry *entry, gboolean dirty);
+void gncEntrySetDirty (GncEntry *entry, bool dirty);
 
 #define gncEntrySetGUID(E,G) qof_instance_set_guid(QOF_INSTANCE(E),(G))
 

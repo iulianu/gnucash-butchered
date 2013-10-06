@@ -147,35 +147,36 @@ struct customer_pdata
     QofBook *book;
 };
 
-static gboolean
+static bool
 set_string(xmlNodePtr node, GncCustomer* cust,
            void (*func)(GncCustomer *cust, const char *txt))
 {
     char* txt = dom_tree_to_text(node);
-    g_return_val_if_fail(txt, FALSE);
+//    g_return_val_if_fail(txt, false);
+    if(!txt) return false;
 
     func(cust, txt);
 
     g_free(txt);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 set_boolean(xmlNodePtr node, GncCustomer* cust,
-            void (*func)(GncCustomer* cust, gboolean b))
+            void (*func)(GncCustomer* cust, bool b))
 {
     gint64 val;
-    gboolean ret;
+    bool ret;
 
     ret = dom_tree_to_integer(node, &val);
     if (ret)
-        func(cust, (gboolean)val);
+        func(cust, (bool)val);
 
     return ret;
 }
 
-static gboolean
+static bool
 customer_name_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -183,7 +184,7 @@ customer_name_handler (xmlNodePtr node, gpointer cust_pdata)
     return set_string(node, pdata->customer, gncCustomerSetName);
 }
 
-static gboolean
+static bool
 customer_guid_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -191,7 +192,8 @@ customer_guid_handler (xmlNodePtr node, gpointer cust_pdata)
     GncCustomer *cust;
 
     guid = dom_tree_to_guid(node);
-    g_return_val_if_fail(guid, FALSE);
+    if(!guid) return false;
+//    g_return_val_if_fail(guid, FALSE);
     cust = gncCustomerLookup (pdata->book, guid);
     if (cust)
     {
@@ -206,10 +208,10 @@ customer_guid_handler (xmlNodePtr node, gpointer cust_pdata)
 
     g_free(guid);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 customer_id_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -217,7 +219,7 @@ customer_id_handler (xmlNodePtr node, gpointer cust_pdata)
     return set_string(node, pdata->customer, gncCustomerSetID);
 }
 
-static gboolean
+static bool
 customer_notes_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -225,7 +227,7 @@ customer_notes_handler (xmlNodePtr node, gpointer cust_pdata)
     return set_string(node, pdata->customer, gncCustomerSetNotes);
 }
 
-static gboolean
+static bool
 customer_terms_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -233,16 +235,17 @@ customer_terms_handler (xmlNodePtr node, gpointer cust_pdata)
     GncBillTerm *term;
 
     guid = dom_tree_to_guid(node);
-    g_return_val_if_fail (guid, FALSE);
+//    g_return_val_if_fail (guid, FALSE);
+    if(!guid) return false;
     term = gnc_billterm_xml_find_or_create(pdata->book, guid);
     g_assert(term);
     g_free (guid);
     gncCustomerSetTerms (pdata->customer, term);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 customer_addr_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -250,7 +253,7 @@ customer_addr_handler (xmlNodePtr node, gpointer cust_pdata)
     return gnc_dom_tree_to_address (node, gncCustomerGetAddr(pdata->customer));
 }
 
-static gboolean
+static bool
 customer_shipaddr_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -260,16 +263,17 @@ customer_shipaddr_handler (xmlNodePtr node, gpointer cust_pdata)
 }
 
 
-static gboolean
+static bool
 customer_taxincluded_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
     GncTaxIncluded type;
     char *str;
-    gboolean ret;
+    bool ret;
 
     str = dom_tree_to_text (node);
-    g_return_val_if_fail (str, FALSE);
+//    g_return_val_if_fail (str, FALSE);
+    if(!str) return false;
 
     ret = gncTaxIncludedStringToType (str, &type);
     g_free (str);
@@ -280,58 +284,61 @@ customer_taxincluded_handler (xmlNodePtr node, gpointer cust_pdata)
     return ret;
 }
 
-static gboolean
+static bool
 customer_active_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
     return set_boolean (node, pdata->customer, gncCustomerSetActive);
 }
 
-static gboolean
+static bool
 customer_discount_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
     gnc_numeric *val;
 
     val = dom_tree_to_gnc_numeric(node);
-    g_return_val_if_fail(val, FALSE);
+//    g_return_val_if_fail(val, FALSE);
+    if(!val) return false;
 
     gncCustomerSetDiscount(pdata->customer, *val);
     g_free (val);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 customer_credit_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
     gnc_numeric *val;
 
     val = dom_tree_to_gnc_numeric(node);
-    g_return_val_if_fail(val, FALSE);
+//    g_return_val_if_fail(val, FALSE);
+    if(!val) return false;
 
     gncCustomerSetCredit(pdata->customer, *val);
     g_free (val);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 customer_currency_handler (xmlNodePtr node, gpointer customer_pdata)
 {
     struct customer_pdata *pdata = customer_pdata;
     gnc_commodity *com;
 
     com = dom_tree_to_commodity_ref(node, pdata->book);
-    g_return_val_if_fail (com, FALSE);
+//    g_return_val_if_fail (com, FALSE);
+    if(!com) return false;
 
     gncCustomerSetCurrency (pdata->customer, com);
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 customer_taxtable_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -339,7 +346,8 @@ customer_taxtable_handler (xmlNodePtr node, gpointer cust_pdata)
     GncTaxTable *taxtable;
 
     guid = dom_tree_to_guid (node);
-    g_return_val_if_fail (guid, FALSE);
+//    g_return_val_if_fail (guid, FALSE);
+    if(!guid) return false;
     taxtable = gncTaxTableLookup (pdata->book, guid);
     if (!taxtable)
     {
@@ -353,17 +361,17 @@ customer_taxtable_handler (xmlNodePtr node, gpointer cust_pdata)
 
     gncCustomerSetTaxTable (pdata->customer, taxtable);
     g_free(guid);
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 customer_taxtableoverride_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
     return set_boolean (node, pdata->customer, gncCustomerSetTaxTableOverride);
 }
 
-static gboolean
+static bool
 customer_slots_handler (xmlNodePtr node, gpointer cust_pdata)
 {
     struct customer_pdata *pdata = cust_pdata;
@@ -396,7 +404,7 @@ static GncCustomer*
 dom_tree_to_customer (xmlNodePtr node, QofBook *book)
 {
     struct customer_pdata cust_pdata;
-    gboolean successful;
+    bool successful;
 
     cust_pdata.customer = gncCustomerCreate(book);
     cust_pdata.book = book;
@@ -417,7 +425,7 @@ dom_tree_to_customer (xmlNodePtr node, QofBook *book)
     return cust_pdata.customer;
 }
 
-static gboolean
+static bool
 gnc_customer_end_handler(gpointer data_for_children,
                          GSList* data_from_children, GSList* sibling_data,
                          gpointer parent_data, gpointer global_data,
@@ -431,17 +439,18 @@ gnc_customer_end_handler(gpointer data_for_children,
 
     if (parent_data)
     {
-        return TRUE;
+        return true;
     }
 
     /* OK.  For some messed up reason this is getting called again with a
        NULL tag.  So we ignore those cases */
     if (!tag)
     {
-        return TRUE;
+        return true;
     }
 
-    g_return_val_if_fail(tree, FALSE);
+//    g_return_val_if_fail(tree, FALSE);
+    if(!tree) return false;
 
     cust = dom_tree_to_customer(tree, book);
     if (cust != NULL)
@@ -460,7 +469,7 @@ customer_sixtp_parser_create(void)
     return sixtp_dom_parser_new(gnc_customer_end_handler, NULL, NULL);
 }
 
-static gboolean
+static bool
 customer_should_be_saved (GncCustomer *customer)
 {
     const char *id;
@@ -468,9 +477,9 @@ customer_should_be_saved (GncCustomer *customer)
     /* make sure this is a valid customer before we save it -- should have an ID */
     id = gncCustomerGetID (customer);
     if (id == NULL || *id == '\0')
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 
 static void
@@ -508,14 +517,14 @@ xml_add_customer (QofInstance * cust_p, gpointer out_p)
         return;
 }
 
-static gboolean
+static bool
 customer_write (FILE *out, QofBook *book)
 {
     qof_object_foreach_sorted (_GNC_MOD_NAME, book, xml_add_customer, (gpointer) out);
     return ferror(out) == 0;
 }
 
-static gboolean
+static bool
 customer_ns(FILE *out)
 {
     g_return_val_if_fail(out, FALSE);

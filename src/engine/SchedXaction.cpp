@@ -303,7 +303,7 @@ xaccSchedXactionSetStartDate( SchedXaction *sx, const GDate* newStart )
     gnc_sx_commit_edit(sx);
 }
 
-gboolean
+bool
 xaccSchedXactionHasEndDate( const SchedXaction *sx )
 {
     return sx != NULL && g_date_valid( &sx->end_date );
@@ -356,7 +356,7 @@ xaccSchedXactionSetLastOccurDate(SchedXaction *sx, const GDate* new_last_occur)
     gnc_sx_commit_edit(sx);
 }
 
-gboolean
+bool
 xaccSchedXactionHasOccurDef( const SchedXaction *sx )
 {
     return ( xaccSchedXactionGetNumOccur( sx ) != 0 );
@@ -409,7 +409,7 @@ gint gnc_sx_get_num_occur_daterange(const SchedXaction *sx, const GDate* start_d
 {
     gint result = 0;
     SXTmpStateData *tmpState;
-    gboolean countFirstDate;
+    bool countFirstDate;
 
     /* SX still active? If not, return now. */
     if ((xaccSchedXactionHasOccurDef(sx)
@@ -480,14 +480,14 @@ gint gnc_sx_get_num_occur_daterange(const SchedXaction *sx, const GDate* start_d
     return result;
 }
 
-gboolean
+bool
 xaccSchedXactionGetEnabled( const SchedXaction *sx )
 {
     return sx->enabled;
 }
 
 void
-xaccSchedXactionSetEnabled( SchedXaction *sx, gboolean newEnabled)
+xaccSchedXactionSetEnabled( SchedXaction *sx, bool newEnabled)
 {
     gnc_sx_begin_edit(sx);
     sx->enabled = newEnabled;
@@ -497,8 +497,8 @@ xaccSchedXactionSetEnabled( SchedXaction *sx, gboolean newEnabled)
 
 void
 xaccSchedXactionGetAutoCreate( const SchedXaction *sx,
-                               gboolean *outAutoCreate,
-                               gboolean *outNotify )
+                               bool *outAutoCreate,
+                               bool *outNotify )
 {
     if (outAutoCreate != NULL)
         *outAutoCreate = sx->autoCreateOption;
@@ -509,8 +509,8 @@ xaccSchedXactionGetAutoCreate( const SchedXaction *sx,
 
 void
 xaccSchedXactionSetAutoCreate( SchedXaction *sx,
-                               gboolean newAutoCreate,
-                               gboolean newNotify )
+                               bool newAutoCreate,
+                               bool newNotify )
 {
 
     gnc_sx_begin_edit(sx);
@@ -987,7 +987,7 @@ static QofObject SXDesc =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-gboolean
+bool
 SXRegister(void)
 {
     static QofParam params[] =

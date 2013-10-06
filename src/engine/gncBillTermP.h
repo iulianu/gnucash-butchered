@@ -49,21 +49,21 @@ public:
     gint64          refcount;
     GncBillTerm *   parent;      /* if non-null, we are an immutable child */
     GncBillTerm *   child;       /* if non-null, we have not changed */
-    gboolean        invisible;
+    bool        invisible;
     GList *         children;    /* list of children for disconnection */
     
     GncBillTerm();
     virtual ~GncBillTerm();
 };
 
-gboolean gncBillTermRegister (void);
+bool gncBillTermRegister (void);
 
 void gncBillTermSetParent (GncBillTerm *term, GncBillTerm *parent);
 void gncBillTermSetChild (GncBillTerm *term, GncBillTerm *child);
 void gncBillTermSetRefcount (GncBillTerm *term, gint64 refcount);
 void gncBillTermMakeInvisible (GncBillTerm *term);
 
-gboolean gncBillTermGetInvisible (const GncBillTerm *term);
+bool gncBillTermGetInvisible (const GncBillTerm *term);
 
 #define gncBillTermSetGUID(E,G) qof_instance_set_guid(QOF_INSTANCE(E),(G))
 

@@ -71,14 +71,14 @@ gnc_engine_init_part2()
 {
     gchar *pkglibdir;
     const gchar *builddir = g_getenv ("GNC_BUILDDIR");
-    gboolean uninstalled = (g_getenv ("GNC_UNINSTALLED") != NULL
+    bool uninstalled = (g_getenv ("GNC_UNINSTALLED") != NULL
                             && builddir != NULL);
 
     static struct
     {
         const gchar* subdir;
         const gchar* lib;
-        gboolean required;
+        bool required;
     } libs[] =
     {
 #if defined( HAVE_DBI_DBI_H )
@@ -175,7 +175,7 @@ gnc_engine_add_init_hook(gnc_engine_init_hook_t h)
     engine_init_hooks = g_list_append(engine_init_hooks, (gpointer)h);
 }
 
-gboolean
+bool
 gnc_engine_is_initialized (void)
 {
     return (engine_is_initialized == 1) ? TRUE : FALSE;
