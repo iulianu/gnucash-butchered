@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include <glib.h>
+#include <algorithm>
 
 #include "gnc-xml-helper.h"
 #include "Account.h"
@@ -1198,16 +1199,14 @@ ledger_data_end_handler(gpointer data_for_children,
 {
 
     Account *ra = (Account *) data_for_children;
-    GList *descendants;
 
     g_return_val_if_fail(ra, FALSE);
 
     /* commit all accounts, this completes the BeginEdit started when the
      * account_end_handler finished reading the account.
      */
-    descendants = gnc_account_get_descendants(ra);
-    g_list_foreach(descendants, (GFunc)xaccAccountCommitEdit, NULL);
-    g_list_free(descendants);
+    AccountList_t descendants = gnc_account_get_descendants(ra);
+    std::for_each(descendants.begin(), descendants.end(), xaccAccountCommitEdit);
 
     xaccLogEnable();
 

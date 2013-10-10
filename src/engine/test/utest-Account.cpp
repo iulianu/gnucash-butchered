@@ -32,7 +32,7 @@
 #include "../Transaction.h"
 #include "../TransactionP.h"
 #include "../gnc-lot.h"
-
+#include <algorithm>
 
 static const gchar *suitename = "/engine/Account";
 void test_suite_account (void);
@@ -419,21 +419,21 @@ gchar *gnc_account_name_violations_errmsg (const gchar *separator, GList* invali
 static void
 test_gnc_account_name_violations_errmsg ()
 {
-    GList *badnames = NULL, *nonames = NULL, *node = NULL;
     gchar *separator = ":", *message, *validation_message, *account_list = NULL;
-    /* FUT wants to free the strings, so we alloc them */
-    badnames = g_list_prepend (badnames, g_strdup ("Foo:bar"));
-    badnames = g_list_prepend (badnames, g_strdup ("baz"));
-    badnames = g_list_prepend (badnames, g_strdup ("waldo:pepper"));
+    std::list<std::string> badnames;
+    badnames.push_front("Foo:bar");
+    badnames.push_front("baz");
+    badnames.push_front("waldo:pepper");
+    std::list<std::string> nonames;
     message = gnc_account_name_violations_errmsg (separator, nonames);
-    for (node = badnames; node; node = g_list_next (node))
+    for ( std::list<std::string>::const_iterator node = badnames.begin(); node != badnames.end(); node++ )
     {
         if (!account_list)
-            account_list = g_strdup (node->data);
+            account_list = g_strdup (node->c_str());
         else
         {
             gchar *tmp_list = g_strconcat ( account_list, "\n",
-                                            node->data, NULL);
+                                            node->c_str(), NULL);
             g_free (account_list);
             account_list = tmp_list;
         }
@@ -461,7 +461,6 @@ test_gnc_account_list_name_violations (Fixture *fixture, gconstpointer pData)
     gchar *log_domain = "gnc.engine";
     gchar *msg = "gnc_account_list_name_violations: assertion `separator != NULL' failed";
     TestErrorStruct check = { log_level, log_domain, msg, 0 };
-    GList *results, *res_iter;
     gchar *sep = ":";
     QofBook *book = gnc_account_get_book (fixture->acct);
     /* Because of GLib bug 653052, we have to set the logging user_data to
@@ -469,18 +468,15 @@ test_gnc_account_list_name_violations (Fixture *fixture, gconstpointer pData)
      */
     GLogFunc oldlogger = g_log_set_default_handler ((GLogFunc)test_null_handler, &check);
     g_test_log_set_fatal_handler ((GTestLogFatalFunc)test_checked_handler, &check);
-    g_assert (gnc_account_list_name_violations (NULL, NULL) == NULL);
+    g_assert (gnc_account_list_name_violations (NULL, NULL).empty());
     g_assert_cmpint (check.hits, ==, 1);
-    g_assert (gnc_account_list_name_violations (book, NULL) == NULL);
+    g_assert (gnc_account_list_name_violations (book, NULL).empty());
     g_assert_cmpint (check.hits, ==, 2);
-    g_assert (gnc_account_list_name_violations (NULL, sep) == NULL);
+    g_assert (gnc_account_list_name_violations (NULL, sep).empty());
     g_log_set_default_handler (oldlogger, NULL);
-    results = gnc_account_list_name_violations (book, sep);
-    g_assert_cmpuint (g_list_length (results), == , 2);
+    std::list<std::string> results = gnc_account_list_name_violations (book, sep);
+    g_assert_cmpuint (results.size(), == , 2);
     g_assert_cmpint (check.hits, ==, 2);
-    for (res_iter = results; res_iter; res_iter = g_list_next (res_iter))
-        test_free (res_iter->data);
-    g_list_free (results);
 }
 /* mark_account
 void
@@ -600,7 +596,7 @@ test_gnc_account_create_and_destroy (void)
     g_assert (!hide);
     g_assert (!hold);
     g_assert (gnc_account_get_parent (acc) == NULL);
-    g_assert (gnc_account_get_children (acc) == NULL);
+    g_assert (gnc_account_get_children (acc).empty());
     g_assert (xaccAccountGetLotList (acc) == NULL);
     g_assert (xaccAccountGetSplitList (acc) == NULL);
     g_free (name);
@@ -795,11 +791,11 @@ test_xaccFreeAccountChildren (Fixture *fixture, gconstpointer pData)
 {
     Account *root = gnc_account_get_root (fixture->acct);
     AccountPrivate *priv = fixture->func->get_private (root);
-    g_assert_cmpuint (g_list_length (priv->children), > , 0);
+    g_assert_cmpuint (priv->children.size(), > , 0);
     fixture->func->xaccFreeAccountChildren (root);
     /* We'd like to check for the child actually having been freed, but
      * there's not good way to do that. */
-    g_assert_cmpuint (g_list_length (priv->children), == , 0);
+    g_assert_cmpuint (priv->children.size(), == , 0);
     qof_book_destroy (gnc_account_get_book (root));
     /* No need to unref the root account, qof_book_destroy did that. */
 //    g_free (fixture->func);
@@ -873,7 +869,7 @@ test_xaccFreeAccount (Fixture *fixture, gconstpointer pData)
     }
     xaccAccountSetCommodity (parent, commodity);
     /* Check that we've got children, lots, and splits to remove */
-    g_assert (p_priv->children != NULL);
+    g_assert (! p_priv->children.empty());
     g_assert (p_priv->lots != NULL);
     g_assert (p_priv->splits != NULL);
     g_assert (p_priv->parent != NULL);
@@ -983,7 +979,7 @@ test_xaccAccountCommitEdit (Fixture *fixture, gconstpointer pData)
     }
     xaccAccountSetCommodity (parent, commodity);
     /* Check that we've got children, lots, and splits to remove */
-    g_assert (p_priv->children != NULL);
+    g_assert (! p_priv->children.empty());
     g_assert (p_priv->lots != NULL);
     g_assert (p_priv->splits != NULL);
     g_assert (p_priv->parent != NULL);
@@ -999,7 +995,7 @@ test_xaccAccountCommitEdit (Fixture *fixture, gconstpointer pData)
     /* Make sure that the account didn't get destroyed */
     test_signal_assert_hits (sig1, 1);
     test_signal_assert_hits (sig2, 0);
-    g_assert (p_priv->children != NULL);
+    g_assert (! p_priv->children.empty());
     g_assert (p_priv->lots != NULL);
     g_assert (p_priv->splits != NULL);
     g_assert (p_priv->parent != NULL);
@@ -1469,7 +1465,9 @@ test_gnc_account_append_remove_child (Fixture *fixture, gconstpointer pData)
     g_assert_cmpint (check_err.hits, ==, 0);
     g_assert (qof_instance_get_dirty (QOF_INSTANCE (froot)));
     g_assert (qof_instance_get_dirty (QOF_INSTANCE (account)));
-    g_assert (g_list_find (frpriv->children, account));
+    AccountList_t children = frpriv->children;
+    AccountList_t::const_iterator pos = std::find(children.begin(), children.end(), account);
+    g_assert (pos != children.end());
     g_assert (qof_collection_lookup_entity (
                   qof_book_get_collection (fbook, GNC_ID_ACCOUNT),
                   acct_guid));
@@ -1491,8 +1489,10 @@ test_gnc_account_append_remove_child (Fixture *fixture, gconstpointer pData)
                   qof_book_get_collection (book, GNC_ID_ACCOUNT),
                   acct_guid));
     g_assert (qof_instance_get_dirty (QOF_INSTANCE (fixture->acct)));
-    g_assert (g_list_find (frpriv->children, account) == NULL);
-    g_assert (g_list_find (apriv->children, account));
+    AccountList_t::const_iterator frpriv_pos = std::find(frpriv->children.begin(), frpriv->children.end(), account);
+    g_assert (frpriv_pos == frpriv->children.end());
+    AccountList_t::const_iterator apriv_pos = std::find(apriv->children.begin(), apriv->children.end(), account);
+    g_assert (apriv_pos != apriv->children.end());
 
     test_signal_free (sig1);
     test_signal_free (sig2);
@@ -1512,7 +1512,8 @@ test_gnc_account_append_remove_child (Fixture *fixture, gconstpointer pData)
 
     gnc_account_remove_child (fixture->acct, account);
     g_assert (gnc_account_get_parent (account) == NULL);
-    g_assert (g_list_find (apriv->children, account) == NULL);
+    apriv_pos = std::find(apriv->children.begin(), apriv->children.end(), account);
+    g_assert (apriv_pos == apriv->children.end());
     test_signal_assert_hits (sig1, 1);
     test_signal_assert_hits (sig2, 1);
     g_assert_cmpint (check_warn.hits, ==, 1);
@@ -1596,14 +1597,13 @@ static void
 test_gnc_account_get_descendants (Fixture *fixture, gconstpointer pData)
 {
 
-    GList *list = gnc_account_get_descendants (
+    AccountList_t list = gnc_account_get_descendants (
                       gnc_account_get_root (fixture->acct));
-    g_assert (list != NULL);
-    g_assert_cmpuint (g_list_length (list), == , 34);
-    g_assert_cmpint (g_list_index (list, fixture->acct), == , 33);
-    g_list_free (list);
+    g_assert (!list.empty());
+    g_assert_cmpuint (list.size(), == , 34);
+    g_assert_cmpint (list_index_of (list, fixture->acct), == , 33);
     list = gnc_account_get_descendants (fixture->acct);
-    g_assert (list == NULL);
+    g_assert (list.empty());
 }
 /* gnc_account_get_descendants_sorted
 GList *
@@ -1611,13 +1611,12 @@ gnc_account_get_descendants_sorted (const Account *account)// C: 6 in 4 SCM: 62 
 static void
 test_gnc_account_get_descendants_sorted (Fixture *fixture, gconstpointer pData)
 {
-    GList *list = gnc_account_get_descendants_sorted (
+    AccountList_t list = gnc_account_get_descendants_sorted (
                       gnc_account_get_root (fixture->acct));
-    g_assert (list != NULL);
-    g_list_foreach (list, print_account, NULL);
-    g_assert_cmpuint (g_list_length (list), == , 34);
-    g_assert_cmpint (g_list_index (list, fixture->acct), == , 10);
-    g_list_free (list);
+    g_assert (!list.empty());
+//    g_list_foreach (list, print_account, NULL);
+    g_assert_cmpuint (list.size(), == , 34);
+    g_assert_cmpint (list_index_of (list, fixture->acct), == , 10);
 }
 /* gnc_account_lookup_by_name
 Account *

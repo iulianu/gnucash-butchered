@@ -424,13 +424,10 @@ gnc_ledger_display_gl (void)
      *         -- jsled */
     {
         Account *tRoot;
-        GList *al;
-
+        
         tRoot = gnc_book_get_template_root( gnc_get_current_book() );
-        al = gnc_account_get_descendants( tRoot );
+        AccountList_t al = gnc_account_get_descendants( tRoot );
         xaccQueryAddAccountMatch( query, al, QOF_GUID_MATCH_NONE, QOF_QUERY_AND );
-        g_list_free (al);
-        al = NULL;
         tRoot = NULL;
     }
 
@@ -623,7 +620,6 @@ gnc_ledger_display_make_query (GNCLedgerDisplay *ld,
                                SplitRegisterType type)
 {
     Account *leader;
-    GList *accounts;
 
     if (!ld)
         return;
@@ -656,17 +652,14 @@ gnc_ledger_display_make_query (GNCLedgerDisplay *ld,
 
     leader = gnc_ledger_display_leader (ld);
 
+    AccountList_t accounts;
     if (ld->ld_type == LD_SUBACCOUNT)
         accounts = gnc_account_get_descendants (leader);
-    else
-        accounts = NULL;
 
-    accounts = g_list_prepend (accounts, leader);
+    accounts.push_front(leader);
 
     xaccQueryAddAccountMatch (ld->query, accounts,
                               QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
-
-    g_list_free (accounts);
 }
 
 /* Opens up a ledger window for an arbitrary query. */

@@ -139,17 +139,16 @@ gnc_ui_accounts_recurse (Account *parent, GList **currency_list,
     GNCCurrencyAcc *euro_accum = NULL;
     GNCCurrencyAcc *grand_total_accum = NULL;
     GNCCurrencyAcc *non_curr_accum = NULL;
-    GList *children, *node;
     gboolean non_currency = FALSE;
     Timespec end_timespec;
     Timespec start_timespec;
 
     if (parent == NULL) return;
 
-    children = gnc_account_get_children(parent);
-    for (node = children; node; node = g_list_next(node))
+    AccountList_t children = gnc_account_get_children(parent);
+    for (AccountList_t::iterator node = children.begin(); node != children.end(); node++)
     {
-        Account *account = node->data;
+        Account *account = *node;
 
         account_type = xaccAccountGetType(account);
         account_currency = xaccAccountGetCommodity(account);
@@ -320,7 +319,6 @@ gnc_ui_accounts_recurse (Account *parent, GList **currency_list,
             break;
         }
     }
-    g_list_free(children);
 }
 
 static char*

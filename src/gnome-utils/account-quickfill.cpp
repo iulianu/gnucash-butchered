@@ -82,7 +82,7 @@ shared_quickfill_destroy (QofBook *book, gpointer key, gpointer user_data)
 
 typedef struct find_data
 {
-    GList *accounts;
+    AccountList_t accounts;
     GList *refs;
 } find_data;
 
@@ -95,17 +95,16 @@ shared_quickfill_find_accounts (GtkTreeModel *model,
     Account *account = NULL;
     find_data *data = user_data;
     GtkTreeRowReference* ref;
-    GList *tmp;
 
     gtk_tree_model_get(model, iter, ACCOUNT_POINTER, &account, -1);
-    for (tmp = data->accounts; tmp; tmp = g_list_next(tmp))
+    for (AccountList_t::iterator it = data->accounts.begin(); it != data->accounts.end(); it++)
     {
-        if (tmp->data == account)
+        if (*it == account)
         {
             ref = gtk_tree_row_reference_new(model, path);
             data->refs = g_list_append(data->refs, ref);
-            data->accounts = g_list_remove_link(data->accounts, tmp);
-            return (data->accounts == NULL);
+            data->accounts.erase(it);
+            return (data->accounts.empty());
         }
     }
 
@@ -243,7 +242,8 @@ listen_for_account_events  (QofInstance *entity,  QofEventId event_type,
     const char *match_str;
     Account *account;
     GtkTreeIter iter;
-    find_data data = { 0 };
+    find_data data;
+    data.refs = NULL;
     GtkTreePath *path;
     GList *tmp;
 
@@ -282,7 +282,7 @@ listen_for_account_events  (QofInstance *entity,  QofEventId event_type,
         /* Find the account (and all its descendants) in the model.  The
          * full name of all these accounts has changed. */
         data.accounts = gnc_account_get_descendants(account);
-        data.accounts = g_list_prepend(data.accounts, account);
+        data.accounts.push_front(account);
         gtk_tree_model_foreach(GTK_TREE_MODEL(qfb->list_store),
                                shared_quickfill_find_accounts, &data);
 
@@ -322,9 +322,9 @@ listen_for_account_events  (QofInstance *entity,  QofEventId event_type,
         /* Any accounts that weren't found in the tree are accounts that
          * were hidden but have now become visible. Add them to the list
          * store. */
-        for (tmp = data.accounts; tmp; tmp = g_list_next(tmp))
+        for (AccountList_t::iterator it = data.accounts.begin(); it != data.accounts.end(); it++)
         {
-            account = tmp->data;
+            account = *it;
             if (qfb->dont_add_cb)
             {
                 if (qfb->dont_add_cb(account, qfb->dont_add_data))
@@ -347,7 +347,8 @@ listen_for_account_events  (QofInstance *entity,  QofEventId event_type,
         gnc_quickfill_remove(qfb->qf, name, QUICKFILL_ALPHA);
 
         /* Does the account exist in the model? */
-        data.accounts = g_list_append(NULL, account);
+        data.accounts.clear();
+        data.accounts.push_back(account);
         gtk_tree_model_foreach(GTK_TREE_MODEL(qfb->list_store),
                                shared_quickfill_find_accounts, &data);
 
@@ -396,8 +397,6 @@ listen_for_account_events  (QofInstance *entity,  QofEventId event_type,
         break;
     }
 
-    if (data.accounts)
-        g_list_free(data.accounts);
     if (data.refs)
         g_list_free(data.refs);
     g_free(name);

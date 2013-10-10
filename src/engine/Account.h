@@ -47,6 +47,32 @@
 #include "qof.h"
 #include "gnc-engine.h"
 #include "policy.h"
+#include <list>
+#include <string>
+
+/** Iulian TODO */
+/* ----> */
+#include <iterator>
+
+/** Function for compatibility with g_list_index */
+template<typename T>
+int list_index_of(const std::list<T> & list, const T& el)
+{
+    typename std::list<T>::const_iterator beg = list.begin();
+    typename std::list<T>::const_iterator end = list.end();
+    typename std::list<T>::const_iterator pos = find(beg, end, el);
+    if(pos != end)
+    {
+        return std::distance(beg, pos);
+    }
+    else
+    {
+        return -1;
+    }
+}
+/* <---- */
+
+typedef std::list<Account*> AccountList_t;
 
 typedef gnc_numeric (*xaccGetBalanceFn)( const Account *account );
 
@@ -246,7 +272,7 @@ void gnc_book_set_root_account(QofBook *book, Account *root);
  *          This message string should be freed with g_free when no longer
  *          needed.
  */
-gchar *gnc_account_name_violations_errmsg (const gchar *separator, GList* invalid_account_names);
+char *gnc_account_name_violations_errmsg (const char *separator, const std::list<std::string> & invalid_account_names);
 
 /** Runs through all the accounts and returns a list of account names
  *  that contain the provided separator character. This can be used to
@@ -258,7 +284,7 @@ gchar *gnc_account_name_violations_errmsg (const gchar *separator, GList* invali
  *  @return A GList of invalid account names. Should be freed with g_list_free
  *          if no longer needed.
  */
-GList *gnc_account_list_name_violations (QofBook *book, const gchar *separator);
+std::list<std::string> gnc_account_list_name_violations (QofBook *book, const char *separator);
 
 /* ------------------ */
 
@@ -652,12 +678,12 @@ bool gnc_account_is_root (const Account *account);
  *  @return A GList of account pointers, or NULL if there are no
  *  children accounts. It is the callers responsibility to free any returned
  *  list with the g_list_free() function. */
-GList *gnc_account_get_children (const Account *account);
+AccountList_t gnc_account_get_children (const Account *account);
 
 /** This routine returns a GList of all children accounts of the specified
  *  account, ordered by xaccAccountOrder().  \sa gnc_account_get_children()
  */
-GList *gnc_account_get_children_sorted (const Account *account);
+AccountList_t gnc_account_get_children_sorted (const Account *account);
 
 /** Return the number of children of the specified account.  The
  *  returned number does not include the account itself.
@@ -665,7 +691,7 @@ GList *gnc_account_get_children_sorted (const Account *account);
  *  @param account The account to query.
  *
  *  @return The number of children of the specified account. */
-gint gnc_account_n_children (const Account *account);
+int gnc_account_n_children (const Account *account);
 
 /** Return the index of the specified child within the list of the
  *  parent's children.  The first child index is 0.  This function
@@ -678,7 +704,7 @@ gint gnc_account_n_children (const Account *account);
  *
  *  @return The index of the child account within the specified
  *  parent, or -1. */
-gint gnc_account_child_index (const Account *parent, const Account *child);
+int gnc_account_child_index (const Account *parent, const Account *child);
 
 /** Return the n'th child account of the specified parent account.  If
  *  the parent account is not specified or the child index number is
@@ -690,7 +716,7 @@ gint gnc_account_child_index (const Account *parent, const Account *child);
  *  returned.
  *
  *  @return A pointer to the specified child account, or NULL */
-Account *gnc_account_nth_child (const Account *parent, gint num);
+Account *gnc_account_nth_child (const Account *parent, int num);
 
 /** This routine returns a flat list of all of the accounts that are
  *  descendants of the specified account.  This includes not only the
@@ -707,7 +733,7 @@ Account *gnc_account_nth_child (const Account *parent, gint num);
  *  @return A GList of account pointers, or NULL if there are no
  *  descendants. It is the callers responsibility to free any returned
  *  list with the g_list_free() function. */
-GList * gnc_account_get_descendants (const Account *account);
+AccountList_t gnc_account_get_descendants (const Account *account);
 
 /** This function returns a GList containing all the descendants of
  *  the specified account, sorted at each level.  This includes not
@@ -727,7 +753,7 @@ GList * gnc_account_get_descendants (const Account *account);
  *  @return A GList of account pointers, or NULL if there are no
  *  descendants. It is the callers responsibility to free any returned
  *  list with the g_list_free() function. */
-GList *gnc_account_get_descendants_sorted (const Account *account);
+AccountList_t gnc_account_get_descendants_sorted (const Account *account);
 
 /** Return the number of descendants of the specified account.  The
  *  returned number does not include the account itself.
@@ -735,7 +761,7 @@ GList *gnc_account_get_descendants_sorted (const Account *account);
  *  @param account The account to query.
  *
  *  @return The number of descendants of the specified account. */
-gint gnc_account_n_descendants (const Account *account);
+int gnc_account_n_descendants (const Account *account);
 
 /** Return the number of levels of this account below the root
  *  account.
@@ -743,7 +769,7 @@ gint gnc_account_n_descendants (const Account *account);
  *  @param account The account to query.
  *
  *  @return The number of levels below the root. */
-gint gnc_account_get_current_depth (const Account *account);
+int gnc_account_get_current_depth (const Account *account);
 
 /** Return the number of levels of descendants accounts below the
  *  specified account.  The returned number does not include the
@@ -907,7 +933,7 @@ GNCAccountType xaccAccountStringToEnum (const char* str);
 const char * xaccAccountGetTypeStr (GNCAccountType type);
 
 /** Return the bitmask of parent account types compatible with a given type. */
-guint32 xaccParentAccountTypesCompatibleWith (GNCAccountType type);
+uint32_t xaccParentAccountTypesCompatibleWith (GNCAccountType type);
 
 /** Return TRUE if accounts of type parent_type can have accounts
  * of type child_type as children. */
@@ -916,7 +942,7 @@ bool xaccAccountTypesCompatible (GNCAccountType parent_type,
 
 /** Returns the bitmask of the account type enums that are valid.  Deprecated and
  *  root account types are stripped. */
-guint32 xaccAccountTypesValid(void);
+uint32_t xaccAccountTypesValid(void);
 
 
 /** @} */

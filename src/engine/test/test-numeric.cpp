@@ -27,9 +27,9 @@
 #include <ctype.h>
 #include <glib.h>
 #include "cashobjects.h"
-#include "test-stuff.h"
 #include "test-engine-stuff.h"
 #include "gnc-numeric.h"
+#include "test-stuff.h"
 
 #define NREPS 2000
 

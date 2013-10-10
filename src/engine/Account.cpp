@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <typeinfo>
+#include <algorithm>
 
 #include "AccountP.h"
 #include "Split.h"
@@ -97,24 +98,20 @@ gnc_set_account_separator (const gchar *separator)
     account_separator[count] = '\0';
 }
 
-gchar *gnc_account_name_violations_errmsg (const gchar *separator, GList* invalid_account_names)
+char *gnc_account_name_violations_errmsg (const char *separator, const std::list<std::string> & invalid_account_names)
 {
-    GList *node;
     gchar *message = NULL;
     gchar *account_list = NULL;
 
-    if ( !invalid_account_names )
-        return NULL;
-
-    for ( node = invalid_account_names;  node; node = g_list_next(node))
+    for ( std::list<std::string>::const_iterator node = invalid_account_names.begin(); node != invalid_account_names.end(); node++ )
     {
         if ( !account_list )
-            account_list = node->data;
+            account_list = node->c_str();
         else
         {
             gchar *tmp_list = NULL;
 
-            tmp_list = g_strconcat (account_list, "\n", node->data, NULL );
+            tmp_list = g_strconcat (account_list, "\n", node->c_str(), NULL );
             g_free ( account_list );
             account_list = tmp_list;
         }
@@ -134,33 +131,30 @@ gchar *gnc_account_name_violations_errmsg (const gchar *separator, GList* invali
     return message;
 }
 
-GList *gnc_account_list_name_violations (QofBook *book, const gchar *separator)
+std::list<std::string>
+gnc_account_list_name_violations (QofBook *book, const char *separator)
 {
     Account *root_account = gnc_book_get_root_account(book);
-    GList   *accounts, *node;
-    GList   *invalid_list = NULL;
+    
+    std::list<std::string> invalid_list;
 
-    g_return_val_if_fail (separator != NULL, NULL);
+//    g_return_val_if_fail (separator != NULL, NULL);
+    if(!separator) return invalid_list; // empty list
 
     if (root_account == NULL)
-        return NULL;
+        return invalid_list; //empty list
 
-    accounts = gnc_account_get_descendants (root_account);
-    for (node = accounts; node; node = g_list_next(node))
+    AccountList_t accounts = gnc_account_get_descendants (root_account);
+    for (AccountList_t::const_iterator node = accounts.begin(); node != accounts.end(); node++)
     {
-        Account *acct      = (Account*)node->data;
+        Account *acct      = *node;
         gchar   *acct_name = g_strdup ( xaccAccountGetName ( acct ) );
 
         if ( g_strstr_len ( acct_name, -1, separator ) )
-            invalid_list = g_list_prepend ( invalid_list, (gpointer) acct_name );
+            invalid_list.push_front(acct_name);
         else
             g_free ( acct_name );
     }
-    if (accounts != NULL)
-    {
-        g_list_free(accounts);
-    }
-
     return invalid_list;
 }
 
@@ -187,7 +181,6 @@ Account::Account()
 {
     priv = new AccountPrivate;
     priv->parent   = NULL;
-    priv->children = NULL;
 
     priv->accountName = CACHE_INSERT("");
     priv->accountCode = CACHE_INSERT("");
@@ -391,7 +384,7 @@ xaccCloneAccount(const Account *from, QofBook *book)
 \********************************************************************/
 
 static void
-xaccFreeOneChildAccount (Account *acc, gpointer dummy)
+xaccFreeOneChildAccount (Account *acc)
 {
     /* FIXME: this code is kind of hacky.  actually, all this code
      * seems to assume that the account edit levels are all 1. */
@@ -404,18 +397,11 @@ static void
 xaccFreeAccountChildren (Account *acc)
 {
     AccountPrivate *priv;
-    GList *children;
 
     /* Copy the list since it will be modified */
     priv = GET_PRIVATE(acc);
-    children = g_list_copy(priv->children);
-    g_list_foreach(children, (GFunc)xaccFreeOneChildAccount, NULL);
-    g_list_free(children);
-
-    /* The foreach should have removed all the children already. */
-    if (priv->children)
-        g_list_free(priv->children);
-    priv->children = NULL;
+    AccountList_t children = priv->children;
+    std::for_each(children.begin(), children.end(), xaccFreeOneChildAccount);
 }
 
 /* The xaccFreeAccount() routine releases memory associated with the
@@ -434,7 +420,7 @@ xaccFreeAccount (Account *acc)
     priv = GET_PRIVATE(acc);
     qof_event_gen (acc, QOF_EVENT_DESTROY, NULL);
 
-    if (priv->children)
+    if (! priv->children.empty())
     {
         PERR (" instead of calling xaccFreeAccount(), please call \n"
               " xaccAccountBeginEdit(); xaccAccountDestroy(); \n");
@@ -491,7 +477,6 @@ xaccFreeAccount (Account *acc)
      * pointers are pointing here. */
 
     priv->parent = NULL;
-    priv->children = NULL;
 
     priv->balance  = gnc_numeric_zero();
     priv->cleared_balance = gnc_numeric_zero();
@@ -648,20 +633,19 @@ xaccAccountDestroy (Account *acc)
 \********************************************************************/
 
 static bool
-xaccAcctChildrenEqual(const GList *na,
-                      const GList *nb,
+xaccAcctChildrenEqual(const AccountList_t & children_a,
+                      const AccountList_t & children_b,
                       bool check_guids)
 {
-    if ((!na && nb) || (na && !nb))
+    AccountList_t::const_iterator na, nb;
+    
+    for(na = children_a.begin(),
+        nb = children_b.begin();
+            na != children_a.end() && nb != children_b.end();
+            na++, nb++)
     {
-        PWARN ("only one has accounts");
-        return(FALSE);
-    }
-
-    while (na && nb)
-    {
-        Account *aa = na->data;
-        Account *ab = nb->data;
+        Account *aa = *na;
+        Account *ab = *nb;
 
         if (!xaccAccountEqual(aa, ab, check_guids))
         {
@@ -675,12 +659,9 @@ xaccAcctChildrenEqual(const GList *na,
 
             return(FALSE);
         }
-
-        na = na->next;
-        nb = nb->next;
     }
 
-    if (na || nb)
+    if (na != children_a.end() || nb != children_b.end())
     {
         PWARN ("different numbers of accounts");
         return(FALSE);
@@ -1092,16 +1073,16 @@ void
 xaccClearMarkDown (Account *acc, short val)
 {
     AccountPrivate *priv;
-    GList *node;
 
 //    g_return_if_fail(GNC_IS_ACCOUNT(acc));
     if(!acc) return;
 
     priv = GET_PRIVATE(acc);
     priv->mark = val;
-    for (node = priv->children; node; node = node->next)
+    for (AccountList_t::iterator node = priv->children.begin();
+            node != priv->children.end(); node++)
     {
-        xaccClearMarkDown(node->data, val);
+        xaccClearMarkDown(*node, val);
     }
 }
 
@@ -1433,6 +1414,11 @@ xaccAccountOrder (const Account *aa, const Account *ab)
 
     /* guarantee a stable sort */
     return qof_instance_guid_compare(aa, ab);
+}
+
+static bool xaccAccountOrderStrictWeak(const Account *aa, const Account *ab)
+{
+    return xaccAccountOrder(aa, ab) < 0;
 }
 
 static int
@@ -1828,7 +1814,7 @@ gnc_account_append_child (Account *new_parent, Account *child)
         }
     }
     cpriv->parent = new_parent;
-    ppriv->children = g_list_append(ppriv->children, child);
+    ppriv->children.push_back(child);
     qof_instance_set_dirty(new_parent);
     qof_instance_set_dirty(child);
 
@@ -1866,9 +1852,9 @@ gnc_account_remove_child (Account *parent, Account *child)
 
     /* Gather event data */
     ed.node = parent;
-    ed.idx = g_list_index(ppriv->children, child);
+    ed.idx = list_index_of(ppriv->children, child);
 
-    ppriv->children = g_list_remove(ppriv->children, child);
+    ppriv->children.remove(child);
 
     /* Now send the event. */
     qof_event_gen(child, QOF_EVENT_REMOVE, &ed);
@@ -1913,70 +1899,73 @@ gnc_account_is_root (const Account *account)
     return (GET_PRIVATE(account)->parent == NULL);
 }
 
-GList *
+AccountList_t
 gnc_account_get_children (const Account *account)
 {
+    AccountList_t children;
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(account), NULL);
-    if(!account) return NULL;
-    return g_list_copy(GET_PRIVATE(account)->children);
+    if(!account) return children; // empty list
+    children = GET_PRIVATE(account)->children;
+    return children;
 }
 
-GList *
+AccountList_t
 gnc_account_get_children_sorted (const Account *account)
 {
-    AccountPrivate *priv;
+    AccountList_t children;
 
     /* errors */
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(account), NULL);
-    if(!account) return NULL;
+    if(!account) return children; // empty list
 
-    /* optimizations */
-    priv = GET_PRIVATE(account);
-    if (!priv->children)
-        return NULL;
-    return g_list_sort(g_list_copy(priv->children), (GCompareFunc)xaccAccountOrder);
+    AccountPrivate *priv = GET_PRIVATE(account);
+    children = priv->children;
+    children.sort(xaccAccountOrderStrictWeak);
+    return children;
 }
 
-gint
+int
 gnc_account_n_children (const Account *account)
 {
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(account), 0);
     if(!account) return 0;
-    return g_list_length(GET_PRIVATE(account)->children);
+    return GET_PRIVATE(account)->children.size();
 }
 
-gint
+int
 gnc_account_child_index (const Account *parent, const Account *child)
 {
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(parent), -1);
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(child), -1);
     if(!parent) return -1;
     if(!child) return -1;
-    return g_list_index(GET_PRIVATE(parent)->children, child);
+    return list_index_of(GET_PRIVATE(parent)->children, const_cast<Account*>(child));
 }
 
 Account *
-gnc_account_nth_child (const Account *parent, gint num)
+gnc_account_nth_child (const Account *parent, int num)
 {
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(parent), NULL);
     if(!parent) return NULL;
-    return g_list_nth_data(GET_PRIVATE(parent)->children, num);
+    AccountList_t::iterator pos = GET_PRIVATE(parent)->children.begin();
+    std::advance(pos, num);
+    return *pos;
 }
 
-gint
+int
 gnc_account_n_descendants (const Account *account)
 {
     AccountPrivate *priv;
-    GList *node;
     gint count = 0;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(account), 0);
     if(!account) return 0;
 
     priv = GET_PRIVATE(account);
-    for (node = priv->children; node; node = g_list_next(node))
+    for (AccountList_t::const_iterator node = priv->children.begin(); 
+            node != priv->children.end(); node++)
     {
-        count += gnc_account_n_descendants(node->data) + 1;
+        count += gnc_account_n_descendants(*node) + 1;
     }
     return count;
 }
@@ -2001,75 +1990,69 @@ gnc_account_get_current_depth (const Account *account)
     return depth;
 }
 
-gint
+int
 gnc_account_get_tree_depth (const Account *account)
 {
     AccountPrivate *priv;
-    GList *node;
     gint depth = 0, child_depth;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(account), 0);
     if(!account) return 0;
 
     priv = GET_PRIVATE(account);
-    if (!priv->children)
+    if (priv->children.empty())
         return 1;
 
-    for (node = priv->children; node; node = g_list_next(node))
+    for (AccountList_t::const_iterator node = priv->children.begin(); 
+            node != priv->children.end(); node++)
     {
-        child_depth = gnc_account_get_tree_depth(node->data);
+        child_depth = gnc_account_get_tree_depth(*node);
         depth = MAX(depth, child_depth);
     }
     return depth + 1;
 }
 
-GList *
+AccountList_t
 gnc_account_get_descendants (const Account *account)
 {
     AccountPrivate *priv;
-    GList *child, *descendants;
-
+    AccountList_t descendants;
+    
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(account), NULL);
-    if(!account) return NULL;
+    if(!account) return descendants; // empty list
 
     priv = GET_PRIVATE(account);
-    if (!priv->children)
-        return NULL;
-
-    descendants = NULL;
-    for (child = priv->children; child; child = g_list_next(child))
+    for (AccountList_t::const_iterator child = priv->children.begin();
+            child != priv->children.end(); child++)
     {
-        descendants = g_list_append(descendants, child->data);
-        descendants = g_list_concat(descendants,
-                                    gnc_account_get_descendants(child->data));
+        descendants.push_back(*child);
+        AccountList_t subdescs = gnc_account_get_descendants(*child);
+        descendants.insert( descendants.end(), subdescs.begin(), subdescs.end() );
     }
     return descendants;
 }
 
-GList *
+AccountList_t
 gnc_account_get_descendants_sorted (const Account *account)
 {
     AccountPrivate *priv;
-    GList *child, *children, *descendants;
+    AccountList_t descendants;
 
     /* errors */
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(account), NULL);
-    if(!account) return NULL;
+    if(!account) return descendants; // empty list
 
-    /* optimizations */
     priv = GET_PRIVATE(account);
-    if (!priv->children)
-        return NULL;
 
-    descendants = NULL;
-    children = g_list_sort(g_list_copy(priv->children), (GCompareFunc)xaccAccountOrder);
-    for (child = children; child; child = g_list_next(child))
+    AccountList_t children = priv->children;
+    children.sort(xaccAccountOrderStrictWeak);
+    for (AccountList_t::const_iterator child = children.begin();
+            child != children.end(); child++)
     {
-        descendants = g_list_append(descendants, child->data);
-        descendants = g_list_concat(descendants,
-                                    gnc_account_get_descendants_sorted(child->data));
+        descendants.push_back(*child);
+        AccountList_t subdescs = gnc_account_get_descendants_sorted(*child);
+        descendants.insert(descendants.end(), subdescs.begin(), subdescs.end());
     }
-    g_list_free(children);
     return descendants;
 }
 
@@ -2078,7 +2061,6 @@ gnc_account_lookup_by_name (const Account *parent, const char * name)
 {
     AccountPrivate *cpriv, *ppriv;
     Account *child, *result;
-    GList *node;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(parent), NULL);
 //    g_return_val_if_fail(name, NULL);
@@ -2087,9 +2069,10 @@ gnc_account_lookup_by_name (const Account *parent, const char * name)
 
     /* first, look for accounts hanging off the current node */
     ppriv = GET_PRIVATE(parent);
-    for (node = ppriv->children; node; node = node->next)
+    for (AccountList_t::iterator node = ppriv->children.begin();
+            node != ppriv->children.end(); node++)
     {
-        child = node->data;
+        child = *node;
         cpriv = GET_PRIVATE(child);
         if (g_strcmp0(cpriv->accountName, name) == 0)
             return child;
@@ -2097,9 +2080,10 @@ gnc_account_lookup_by_name (const Account *parent, const char * name)
 
     /* if we are still here, then we haven't found the account yet.
      * Recursively search each of the child accounts next */
-    for (node = ppriv->children; node; node = node->next)
+    for (node = ppriv->children.begin();
+            node != ppriv->children.end(); node++)
     {
-        child = node->data;
+        child = *node;
         result = gnc_account_lookup_by_name (child, name);
         if (result)
             return result;
@@ -2113,7 +2097,6 @@ gnc_account_lookup_by_code (const Account *parent, const char * code)
 {
     AccountPrivate *cpriv, *ppriv;
     Account *child, *result;
-    GList *node;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(parent), NULL);
 //    g_return_val_if_fail(code, NULL);
@@ -2122,9 +2105,10 @@ gnc_account_lookup_by_code (const Account *parent, const char * code)
 
     /* first, look for accounts hanging off the current node */
     ppriv = GET_PRIVATE(parent);
-    for (node = ppriv->children; node; node = node->next)
+    for (AccountList_t::iterator node = ppriv->children.begin();
+            node != ppriv->children.end(); node++)
     {
-        child = node->data;
+        child = *node;
         cpriv = GET_PRIVATE(child);
         if (g_strcmp0(cpriv->accountCode, code) == 0)
             return child;
@@ -2132,9 +2116,10 @@ gnc_account_lookup_by_code (const Account *parent, const char * code)
 
     /* if we are still here, then we haven't found the account yet.
      * Recursively search each of the child accounts next */
-    for (node = ppriv->children; node; node = node->next)
+    for (node = ppriv->children.begin();
+            node != ppriv->children.end(); node++)
     {
-        child = node->data;
+        child = *node;
         result = gnc_account_lookup_by_code (child, code);
         if (result)
             return result;
@@ -2149,11 +2134,10 @@ gnc_account_lookup_by_code (const Account *parent, const char * code)
 
 static Account *
 gnc_account_lookup_by_full_name_helper (const Account *parent,
-                                        gchar **names)
+                                        char **names)
 {
     const AccountPrivate *priv, *ppriv;
     Account *found;
-    GList *node;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(parent), NULL);
 //    g_return_val_if_fail(names, NULL);
@@ -2162,9 +2146,10 @@ gnc_account_lookup_by_full_name_helper (const Account *parent,
 
     /* Look for the first name in the children. */
     ppriv = GET_PRIVATE(parent);
-    for (node = ppriv->children; node; node = node->next)
+    for (AccountList_t::const_iterator node = ppriv->children.begin();
+            node != ppriv->children.end(); node++)
     {
-        Account *account = node->data;
+        Account *account = *node;
 
         priv = GET_PRIVATE(account);
         if (g_strcmp0(priv->accountName, names[0]) == 0)
@@ -2175,7 +2160,7 @@ gnc_account_lookup_by_full_name_helper (const Account *parent,
                 return account;
 
             /* No children?  We're done. */
-            if (!priv->children)
+            if (priv->children.empty())
                 return NULL;
 
             /* There's stuff left to search for.  Search recursively. */
@@ -2193,12 +2178,12 @@ gnc_account_lookup_by_full_name_helper (const Account *parent,
 
 Account *
 gnc_account_lookup_by_full_name (const Account *any_acc,
-                                 const gchar *name)
+                                 const char *name)
 {
     const AccountPrivate *rpriv;
     const Account *root;
     Account *found;
-    gchar **names;
+    char **names;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(any_acc), NULL);
 //    g_return_val_if_fail(name, NULL);
@@ -2224,7 +2209,6 @@ gnc_account_foreach_child (const Account *acc,
                            gpointer user_data)
 {
     const AccountPrivate *priv;
-    GList *node;
 
 //    g_return_if_fail(GNC_IS_ACCOUNT(acc));
 //    g_return_if_fail(thunk);
@@ -2232,9 +2216,10 @@ gnc_account_foreach_child (const Account *acc,
     if(!thunk) return;
 
     priv = GET_PRIVATE(acc);
-    for (node = priv->children; node; node = node->next)
+    for (AccountList_t::const_iterator node = priv->children.begin();
+            node != priv->children.end(); node++)
     {
-        thunk (node->data, user_data);
+        thunk (*node, user_data);
     }
 }
 
@@ -2244,7 +2229,6 @@ gnc_account_foreach_descendant (const Account *acc,
                                 gpointer user_data)
 {
     const AccountPrivate *priv;
-    GList *node;
     Account *child;
 
 //    g_return_if_fail(GNC_IS_ACCOUNT(acc));
@@ -2253,9 +2237,10 @@ gnc_account_foreach_descendant (const Account *acc,
     if(!thunk) return;
 
     priv = GET_PRIVATE(acc);
-    for (node = priv->children; node; node = node->next)
+    for (AccountList_t::const_iterator node = priv->children.begin();
+            node != priv->children.end(); node++)
     {
-        child = node->data;
+        child = *node;
         thunk(child, user_data);
         gnc_account_foreach_descendant(child, thunk, user_data);
     }
@@ -2267,7 +2252,6 @@ gnc_account_foreach_descendant_until (const Account *acc,
                                       gpointer user_data)
 {
     const AccountPrivate *priv;
-    GList *node;
     Account *child;
     gpointer result;
 
@@ -2277,9 +2261,10 @@ gnc_account_foreach_descendant_until (const Account *acc,
     if(!thunk) return;
 
     priv = GET_PRIVATE(acc);
-    for (node = priv->children; node; node = node->next)
+    for (AccountList_t::const_iterator node = priv->children.begin();
+            node != priv->children.end(); node++)
     {
-        child = node->data;
+        child = *node;
         result = thunk(child, user_data);
         if (result)
             return(result);
@@ -3219,7 +3204,6 @@ xaccAccountSetPlaceholder (Account *acc, bool val)
 GNCPlaceholderType
 xaccAccountGetDescendantPlaceholder (const Account *acc)
 {
-    GList *descendants, *node;
     GNCPlaceholderType ret = PLACEHOLDER_NONE;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(acc), PLACEHOLDER_NONE);
@@ -3227,15 +3211,15 @@ xaccAccountGetDescendantPlaceholder (const Account *acc)
     
     if (xaccAccountGetPlaceholder(acc)) return PLACEHOLDER_THIS;
 
-    descendants = gnc_account_get_descendants(acc);
-    for (node = descendants; node; node = node->next)
-        if (xaccAccountGetPlaceholder((Account *) node->data))
+    AccountList_t descendants = gnc_account_get_descendants(acc);
+    for (AccountList_t::const_iterator node = descendants.begin();
+            node != descendants.end(); node++)
+        if (xaccAccountGetPlaceholder(*node))
         {
             ret = PLACEHOLDER_CHILD;
             break;
         }
 
-    g_list_free(descendants);
     return ret;
 }
 
@@ -3922,7 +3906,6 @@ void
 gnc_account_join_children (Account *to_parent, Account *from_parent)
 {
     AccountPrivate *from_priv;
-    GList *children, *node;
 
     /* errors */
 //    g_return_if_fail(GNC_IS_ACCOUNT(to_parent));
@@ -3932,14 +3915,13 @@ gnc_account_join_children (Account *to_parent, Account *from_parent)
 
     /* optimizations */
     from_priv = GET_PRIVATE(from_parent);
-    if (!from_priv->children)
+    if (from_priv->children.empty())
         return;
 
     ENTER (" ");
-    children = g_list_copy(from_priv->children);
-    for (node = children; node; node = g_list_next(node))
-        gnc_account_append_child(to_parent, node->data);
-    g_list_free(children);
+    for (AccountList_t::const_iterator node = from_priv->children.begin();
+            node != from_priv->children.end(); node++)
+        gnc_account_append_child(to_parent, *node);
     LEAVE (" ");
 }
 /********************************************************************\
@@ -3949,20 +3931,22 @@ void
 gnc_account_merge_children (Account *parent)
 {
     AccountPrivate *ppriv, *priv_a, *priv_b;
-    GList *node_a, *node_b, *work, *worker;
 
 //    g_return_if_fail(GNC_IS_ACCOUNT(parent));
     if(!parent) return;
 
     ppriv = GET_PRIVATE(parent);
-    for (node_a = ppriv->children; node_a; node_a = node_a->next)
+    for (AccountList_t::iterator node_a = ppriv->children.begin();
+            node_a != ppriv->children.end(); node_a++)
     {
-        Account *acc_a = node_a->data;
+        Account *acc_a = *node_a;
 
         priv_a = GET_PRIVATE(acc_a);
-        for (node_b = node_a->next; node_b; node_b = g_list_next(node_b))
+        AccountList_t::iterator node_b = node_a;
+        node_b++;
+        for (; node_b != ppriv->children.end(); node_b++)
         {
-            Account *acc_b = node_b->data;
+            Account *acc_b = *node_b;
 
             priv_b = GET_PRIVATE(acc_b);
             if (0 != null_strcmp(priv_a->accountName, priv_b->accountName))
@@ -3983,12 +3967,11 @@ gnc_account_merge_children (Account *parent)
                 continue;
 
             /* consolidate children */
-            if (priv_b->children)
+            if (! priv_b->children.empty())
             {
-                work = g_list_copy(priv_b->children);
-                for (worker = work; worker; worker = g_list_next(worker))
-                    gnc_account_append_child (acc_a, (Account *)worker->data);
-                g_list_free(work);
+                for (AccountList_t::iterator worker = priv_b->children.begin();
+                        worker != priv_b->children.end(); worker++)
+                    gnc_account_append_child (acc_a, *worker);
 
                 qof_event_gen (acc_a, QOF_EVENT_MODIFY, NULL);
                 qof_event_gen (acc_b, QOF_EVENT_MODIFY, NULL);
@@ -4003,7 +3986,7 @@ gnc_account_merge_children (Account *parent)
 
             /* move back one before removal. next iteration around the loop
              * will get the node after node_b */
-            node_b = g_list_previous(node_b);
+            node_b--;
 
             /* The destroy function will remove from list -- node_a is ok,
              * it's before node_b */
@@ -4064,7 +4047,7 @@ static void do_one_split (Split *s, gpointer data)
     trans->marker = 0;
 }
 
-static void do_one_account (Account *account, gpointer data)
+static void do_one_account (Account *account)
 {
     AccountPrivate *priv = GET_PRIVATE(account);
     g_list_foreach(priv->splits, (GFunc)do_one_split, NULL);
@@ -4074,11 +4057,8 @@ static void do_one_account (Account *account, gpointer data)
 void
 gnc_account_tree_begin_staged_transaction_traversals (Account *account)
 {
-    GList *descendants;
-
-    descendants = gnc_account_get_descendants(account);
-    g_list_foreach(descendants, (GFunc)do_one_account, NULL);
-    g_list_free(descendants);
+    AccountList_t descendants = gnc_account_get_descendants(account);
+    std::for_each(descendants.begin(), descendants.end(), do_one_account);
 }
 
 int
@@ -4128,7 +4108,7 @@ gnc_account_tree_staged_transaction_traversal (const Account *acc,
         void *cb_data)
 {
     const AccountPrivate *priv;
-    GList *acc_p, *split_p;
+    GList *split_p;
     Transaction *trans;
     Split *s;
     int retval;
@@ -4137,9 +4117,10 @@ gnc_account_tree_staged_transaction_traversal (const Account *acc,
 
     /* depth first traversal */
     priv = GET_PRIVATE(acc);
-    for (acc_p = priv->children; acc_p; acc_p = g_list_next(acc_p))
+    for (AccountList_t::const_iterator acc_p = priv->children.begin();
+            acc_p != priv->children.end(); acc_p++)
     {
-        retval = gnc_account_tree_staged_transaction_traversal(acc_p->data, stage,
+        retval = gnc_account_tree_staged_transaction_traversal(*acc_p, stage,
                  thunk, cb_data);
         if (retval) return retval;
     }

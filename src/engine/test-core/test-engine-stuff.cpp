@@ -158,15 +158,26 @@ do_bork (void)
 
 /* ========================================================== */
 /* GList stuff */
-
 static gpointer
 get_random_list_element (GList *list)
 {
     g_return_val_if_fail (list, NULL);
-
+ 
     return g_list_nth_data (list,
                             get_random_int_in_range (0,
                                     g_list_length (list) - 1));
+}
+
+template <typename T>
+static T*
+get_random_list_element (std::list<T*> & list)
+{
+    g_return_val_if_fail (!list.empty(), NULL);
+
+    int random_idx = get_random_int_in_range (0, list.size() - 1);
+    typename std::list<T*>::iterator pos = list.begin();
+    std::advance(pos, random_idx);
+    return *pos;
 }
 
 static kvp_value* get_random_kvp_value_depth (int type, gint depth);
@@ -916,14 +927,14 @@ get_random_account_tree (QofBook *book)
  *   routines get tested.
  */
 static void
-add_random_splits(QofBook *book, Transaction *trn, GList *account_list)
+add_random_splits(QofBook *book, Transaction *trn, AccountList_t account_list)
 {
     Account *acc, *bcc;
     Split *s;
     gnc_numeric val;
 
     /* Gotta have at least two different accounts */
-    if (1 >= g_list_length (account_list)) return;
+    if (1 >= account_list.size()) return;
 
     acc = get_random_list_element (account_list);
     xaccTransBeginEdit(trn);
@@ -965,7 +976,7 @@ struct TransInfo
 void
 make_random_changes_to_transaction_and_splits (QofBook *book,
         Transaction *trans,
-        GList *accounts)
+        AccountList_t & accounts)
 {
     GList *splits;
     GList *node;
@@ -973,7 +984,7 @@ make_random_changes_to_transaction_and_splits (QofBook *book,
 
     g_return_if_fail (book);
     g_return_if_fail (trans);
-    g_return_if_fail (accounts);
+    g_return_if_fail (!accounts.empty());
 
     xaccTransBeginEdit (trans);
 
@@ -1063,19 +1074,18 @@ make_random_changes_to_level (QofBook *book, Account *parent)
 {
     Account *new_account;
     Account *account;
-    GList *accounts;
     GList *transes;
     GList *splits;
     GList *node;
 
     g_return_if_fail (parent && book);
 
-    accounts = gnc_account_get_descendants (parent);
+    AccountList_t accounts = gnc_account_get_descendants (parent);
 
     /* Add a new account */
     new_account = get_random_account (book);
 
-    if (get_random_boolean () || !accounts)
+    if (get_random_boolean () || accounts.empty())
         gnc_account_append_child (parent, new_account);
     else
     {
@@ -1084,16 +1094,15 @@ make_random_changes_to_level (QofBook *book, Account *parent)
         gnc_account_append_child (account, new_account);
     }
 
-    g_list_free (accounts);
     accounts = gnc_account_get_descendants (parent);
 
     /* Add some new transactions */
     add_random_transactions_to_book (book, get_random_int_in_range (1, 6));
 
     /* Mess with the accounts */
-    for (node = accounts; node; node = node->next)
+    for (AccountList_t::iterator it = accounts.begin(); it != accounts.end(); it++)
     {
-        Account *account = node->data;
+        Account *account = *it;
 
         if (get_random_boolean ())
             make_random_changes_to_account (book, account);
@@ -1147,12 +1156,11 @@ make_random_changes_to_level (QofBook *book, Account *parent)
     xaccAccountDestroy (account);
 
     g_list_free (splits);
-    g_list_free (accounts);
 
     accounts = gnc_account_get_descendants (parent);
 
     /* move some accounts around */
-    if (accounts && (g_list_length (accounts) > 1))
+    if (accounts.size() > 1)
     {
         int i = get_random_int_in_range (1, 4);
 
@@ -1184,8 +1192,6 @@ make_random_changes_to_level (QofBook *book, Account *parent)
             gnc_account_append_child (a2, a1);
         }
     }
-
-    g_list_free (accounts);
 }
 
 Account*
@@ -1420,20 +1426,20 @@ trn_add_ran_timespec(Transaction *trn, void (*func)(Transaction*,
 Transaction *
 get_random_transaction_with_currency(QofBook *book,
                                      gnc_commodity *currency,
-                                     GList *account_list)
+                                     const AccountList_t &account_list)
 {
     Transaction* trans;
     KvpFrame *f;
     gint num;
     gchar *numstr;
 
-    if (!account_list)
+    if (account_list.empty())
     {
         account_list = gnc_account_get_descendants (gnc_book_get_root_account (book));
     }
 
     /* Gotta have at least two different accounts */
-    if (1 >= g_list_length (account_list))
+    if (1 >= account_list.size())
     {
         failure_args("engine-stuff", __FILE__, __LINE__,
                      "get_random_transaction_with_currency: account_list too short");
@@ -1487,7 +1493,7 @@ get_random_transaction (QofBook *book)
     Transaction *ret;
 
     g_return_val_if_fail(book, NULL);
-    ret = get_random_transaction_with_currency (book, NULL, NULL);
+    ret = get_random_transaction_with_currency (book, NULL, AccountList_t());
     if (!ret)
     {
         failure_args("engine-stuff", __FILE__, __LINE__,
@@ -1923,14 +1929,13 @@ void
 add_random_transactions_to_book (QofBook *book, gint num_transactions)
 {
     gnc_commodity_table *table;
-    GList *accounts;
 
     if (num_transactions <= 0) return;
 
     g_return_if_fail (book);
 
-    accounts = gnc_account_get_descendants (gnc_book_get_root_account (book));
-    g_return_if_fail (accounts);
+    AccountList_t accounts = gnc_account_get_descendants (gnc_book_get_root_account (book));
+    g_return_if_fail (!accounts.empty());
 
     table = gnc_commodity_table_get_table (book);
 
@@ -1941,7 +1946,6 @@ add_random_transactions_to_book (QofBook *book, gint num_transactions)
         com = get_random_commodity_from_table (table);
         get_random_transaction_with_currency (book, com, accounts);
     }
-    g_list_free (accounts);
 }
 
 void
@@ -2128,38 +2132,36 @@ make_trans_query (Transaction *trans, TestQueryTypes query_types)
 
     if (query_types & ACCOUNT_QT)
     {
-        GList * list;
         GList * node;
 
         /* QOF_GUID_MATCH_ALL */
-        list = NULL;
+        AccountList_t list;
         for (node = xaccTransGetSplitList (trans); node; node = node->next)
         {
             Split * split = node->data;
-            list = g_list_prepend (list, xaccSplitGetAccount (split));
+            list.push_front(xaccSplitGetAccount (split));
         }
         xaccQueryAddAccountMatch (q, list, QOF_GUID_MATCH_ALL, QOF_QUERY_AND);
-        g_list_free (list);
 
         /* QOF_GUID_MATCH_NONE */
-        list = NULL;
-        list = g_list_prepend (list, get_random_guid ());
-        list = g_list_prepend (list, get_random_guid ());
-        list = g_list_prepend (list, get_random_guid ());
-        xaccQueryAddAccountGUIDMatch (q, list, QOF_GUID_MATCH_NONE, QOF_QUERY_AND);
+        GList * guidList = NULL;
+        guidList = g_list_prepend (guidList, get_random_guid ());
+        guidList = g_list_prepend (guidList, get_random_guid ());
+        guidList = g_list_prepend (guidList, get_random_guid ());
+        xaccQueryAddAccountGUIDMatch (q, guidList, QOF_GUID_MATCH_NONE, QOF_QUERY_AND);
 
         /* QOF_GUID_MATCH_ANY */
         {
             GncGUID * guid = get_random_guid ();
             *guid = *xaccAccountGetGUID (a);
-            list = g_list_prepend (list, guid);
+            guidList = g_list_prepend (guidList, guid);
         }
-        xaccQueryAddAccountGUIDMatch (q, list, QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
+        xaccQueryAddAccountGUIDMatch (q, guidList, QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
 
-        for (node = list; node; node = node->next)
+        for (node = guidList; node; node = node->next)
             delete (GncGUID*)(node->data);
 //            g_free (node->data);
-        g_list_free (list);
+        g_list_free (guidList);
     }
 
     if (query_types & GUID_QT)

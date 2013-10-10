@@ -70,7 +70,6 @@ gnc_split_register_get_rbaln (VirtualLocation virt_loc, gpointer user_data, gboo
     Account *account = NULL;
     Transaction *trans;
     GList *node, *child;
-    GList *children = NULL;
     int i, row;
 
     balance = gnc_numeric_zero();
@@ -92,10 +91,11 @@ gnc_split_register_get_rbaln (VirtualLocation virt_loc, gpointer user_data, gboo
            well defined balance, return zero. */
         return balance;
 
+    AccountList_t children;
     if (subaccounts)
     {
         children = gnc_account_get_descendants(account);
-        children = g_list_append(children, account);
+        children.push_back(account);
     }
 
     /* Get the row number we're on, then start with the first row. */
@@ -120,9 +120,10 @@ gnc_split_register_get_rbaln (VirtualLocation virt_loc, gpointer user_data, gboo
                  * from the lead account or one of the subaccounts. */
                 account = xaccSplitGetAccount (secondary);
 
-                for (child = children; child; child = child->next)
+                for (AccountList_t::const_iterator child = children.begin(); 
+                        child != children.end(); child++)
                 {
-                    if (account == child->data)
+                    if (account == *child)
                     {
                         balance = gnc_numeric_add_fixed(balance, xaccSplitGetAmount(secondary));
                         break;
@@ -137,9 +138,6 @@ gnc_split_register_get_rbaln (VirtualLocation virt_loc, gpointer user_data, gboo
         }
         virt_loc.vcell_loc.virt_row += i;
     }
-
-    if (subaccounts)
-        g_list_free(children);
 
     return balance;
 }
@@ -1500,7 +1498,6 @@ gnc_split_register_get_mxfrm_help (VirtualLocation virt_loc,
 static gnc_numeric
 get_trans_total_amount_subaccounts (SplitRegister *reg, Transaction *trans)
 {
-    GList *children, *child;
     Account *parent;
     gnc_numeric total = gnc_numeric_zero();
 
@@ -1511,15 +1508,14 @@ get_trans_total_amount_subaccounts (SplitRegister *reg, Transaction *trans)
            has no account then we have no way of picking out the desired splits,
            return zero. */
         return total;
-    children = gnc_account_get_descendants(parent);
-    children = g_list_append(children, parent);
+    AccountList_t children = gnc_account_get_descendants(parent);
+    children.push_back(parent);
 
-    for (child = children; child; child = child->next)
+    for (AccountList_t::const_iterator child = children.begin(); 
+            child != children.end(); child++)
     {
-        total = gnc_numeric_add_fixed(total, xaccTransGetAccountAmount(trans, child->data));
+        total = gnc_numeric_add_fixed(total, xaccTransGetAccountAmount(trans, *child));
     }
-
-    g_list_free(children);
 
     return total;
 }

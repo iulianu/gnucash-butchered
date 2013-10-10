@@ -488,15 +488,13 @@ gnc_ui_to_account(AccountWindow *aw)
 static void
 set_children_types (Account *account, GNCAccountType type)
 {
-    GList *children, *iter;
-
-    children = gnc_account_get_children(account);
-    if (children == NULL)
+    AccountList_t children = gnc_account_get_children(account);
+    if (children.empty())
         return;
 
-    for (iter = children; iter; iter = iter->next)
+    for (AccountList_t::iterator iter = children.begin(); iter != children.end(); iter++)
     {
-        account = iter->data;
+        account = *iter;
         if (type == xaccAccountGetType(account))
             continue;
 
@@ -509,7 +507,6 @@ set_children_types (Account *account, GNCAccountType type)
 
         set_children_types (account, type);
     }
-    g_list_free(children);
 }
 
 static void
@@ -1632,22 +1629,22 @@ gnc_split_account_name (QofBook *book, const char *in_name, Account **base_accou
 {
     Account *root, *account;
     gchar **names, **ptr, **out_names;
-    GList *list, *node;
 
     root = gnc_book_get_root_account (book);
-    list = gnc_account_get_children(root);
+    AccountList_t list = gnc_account_get_children(root);
     names = g_strsplit(in_name, gnc_get_account_separator_string(), -1);
 
     for (ptr = names; *ptr; ptr++)
     {
         /* Stop if there are no children at the current level. */
-        if (list == NULL)
+        if (list.empty())
             break;
 
         /* Look for the first name in the children. */
-        for (node = list; node; node = g_list_next(node))
+        AccountList_t::iterator node;
+        for (node = list.begin(); node != list.end(); node++)
         {
-            account = node->data;
+            account = *node;
 
             if (g_strcmp0(xaccAccountGetName (account), *ptr) == 0)
             {
@@ -1658,17 +1655,14 @@ gnc_split_account_name (QofBook *book, const char *in_name, Account **base_accou
         }
 
         /* Was there a match?  If no, stop the traversal. */
-        if (node == NULL)
+        if (node == list.end())
             break;
 
-        g_list_free(list);
         list = gnc_account_get_children (account);
     }
 
     out_names = g_strdupv(ptr);
     g_strfreev(names);
-    if (list)
-        g_list_free(list);
     return out_names;
 }
 
@@ -1924,7 +1918,6 @@ gnc_account_renumber_response_cb (GtkDialog *dialog,
                                   gint response,
                                   RenumberDialog *data)
 {
-    GList *children, *tmp;
     gchar *str;
     gchar *prefix;
     gint interval, num_digits, i;
@@ -1932,21 +1925,21 @@ gnc_account_renumber_response_cb (GtkDialog *dialog,
     if (response == GTK_RESPONSE_OK)
     {
         gtk_widget_hide(data->dialog);
-        children = gnc_account_get_children(data->parent);
+        AccountList_t children = gnc_account_get_children(data->parent);
         prefix = gtk_editable_get_chars(GTK_EDITABLE(data->prefix), 0, -1);
         interval =
             gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(data->interval));
         num_digits = log10(data->num_children * interval) + 1;
 
         gnc_set_busy_cursor (NULL, TRUE);
-        for (tmp = children, i = 1; tmp; tmp = g_list_next(tmp), i += 1)
+        AccountList_t::iterator tmp;
+        for (tmp = children.begin(), i = 1; tmp != children.end(); tmp++, i += 1)
         {
             str = g_strdup_printf("%s-%0*d", prefix, num_digits, interval * i);
-            xaccAccountSetCode(tmp->data, str);
+            xaccAccountSetCode(*tmp, str);
             g_free(str);
         }
         gnc_unset_busy_cursor (NULL);
-        g_list_free(children);
     }
 
     gtk_widget_destroy(data->dialog);

@@ -229,15 +229,15 @@ xaccQueryGetLots (QofQuery * q, query_txn_match_t runtype)
  *******************************************************************/
 
 void
-xaccQueryAddAccountMatch(QofQuery *q, AccountList *acct_list,
+xaccQueryAddAccountMatch(QofQuery *q, const AccountList_t & acct_list,
                          QofGuidMatch how, QofQueryOp op)
 {
     GList *list = NULL;
 
     if (!q) return;
-    for (; acct_list; acct_list = acct_list->next)
+    for (AccountList_t::const_iterator it = acct_list.begin(); it != acct_list.end(); it++)
     {
-        Account *acc = acct_list->data;
+        Account *acc = *it;
         const GncGUID *guid;
 
         if (!acc)

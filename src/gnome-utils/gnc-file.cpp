@@ -631,7 +631,6 @@ gnc_post_file_open (const char * filename, gboolean is_readonly)
 {
     QofSession *current_session, *new_session;
     QofBook *new_book;
-    GList *invalid_account_names;
     gboolean uh_oh = FALSE;
     char * newfile;
     QofBackendError io_err = ERR_BACKEND_NO_ERR;
@@ -983,9 +982,9 @@ RESTART:
     /* Check for account names that may contain the current separator character
      * and inform the user if there are any */
     new_book = gnc_get_current_book();
-    invalid_account_names = gnc_account_list_name_violations ( new_book,
+    std::list<std::string> invalid_account_names = gnc_account_list_name_violations ( new_book,
                             gnc_get_account_separator_string() );
-    if ( invalid_account_names )
+    if ( ! invalid_account_names.empty() )
     {
         gchar *message = gnc_account_name_violations_errmsg ( gnc_get_account_separator_string(),
                          invalid_account_names );

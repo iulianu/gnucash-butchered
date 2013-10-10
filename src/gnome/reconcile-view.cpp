@@ -28,6 +28,7 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
+#include <algorithm>
 
 #include "gnc-date.h"
 #include "qof.h"
@@ -142,7 +143,6 @@ gnc_reconcile_view_new (Account *account, GNCReconcileViewType type,
     GNCReconcileView *view;
     GtkListStore     *liststore;
     gboolean          include_children, auto_check;
-    GList            *accounts = NULL;
     GList            *splits;
     Query            *query;
 
@@ -167,15 +167,14 @@ gnc_reconcile_view_new (Account *account, GNCReconcileViewType type,
     qof_query_set_book (query, gnc_get_current_book ());
 
     include_children = xaccAccountGetReconcileChildrenStatus (account);
+    AccountList_t accounts;
     if (include_children)
         accounts = gnc_account_get_descendants (account);
 
     /* match the account */
-    accounts = g_list_prepend (accounts, account);
+    accounts.push_front(account);
 
     xaccQueryAddAccountMatch (query, accounts, QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
-
-    g_list_free (accounts);
 
     /* limit the matches to CREDITs and DEBITs only, depending on the type */
     if (type == RECLIST_CREDIT)
@@ -327,7 +326,7 @@ gnc_reconcile_view_toggle_split (GNCReconcileView *view, Split *split)
 static void
 gnc_reconcile_view_toggle_children (Account *account, GNCReconcileView *view, Split *split)
 {
-    GList       *child_accounts, *node;
+    GList *node;
     Transaction *transaction;
 
     /*
@@ -337,8 +336,8 @@ gnc_reconcile_view_toggle_children (Account *account, GNCReconcileView *view, Sp
      *
      * For each of these splits toggle them all to the same state.
      */
-    child_accounts = gnc_account_get_descendants (account);
-    child_accounts = g_list_prepend (child_accounts, account);
+    AccountList_t child_accounts = gnc_account_get_descendants (account);
+    child_accounts.push_front(account);
     transaction = xaccSplitGetParent (split);
     for (node = xaccTransGetSplitList (transaction); node; node = node->next)
     {
@@ -351,7 +350,8 @@ gnc_reconcile_view_toggle_children (Account *account, GNCReconcileView *view, Sp
         if (other_split == split)
             continue;
         /* Check this 'other' account in in the same hierarchy */
-        if (!g_list_find (child_accounts, other_account))
+        if (std::find(child_accounts.begin(), child_accounts.end(), other_account)
+                == child_accounts.end())
             continue;
         /* Search our sibling view for this split first.  We search the
          * sibling list first because that it where it is most likely to be.
@@ -367,7 +367,6 @@ gnc_reconcile_view_toggle_children (Account *account, GNCReconcileView *view, Sp
         }
         gnc_reconcile_view_toggle_split (current_view, other_split);
     }
-    g_list_free (child_accounts);
 }
 
 

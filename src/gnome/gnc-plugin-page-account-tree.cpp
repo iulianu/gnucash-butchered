@@ -1368,13 +1368,10 @@ gnc_plugin_page_account_tree_cmd_delete_account (GtkAction *action, GncPluginPag
             xaccAccountBeginEdit (account);
             if (NULL != saa)
             {
-                GList *acct_list, *ptr;
-
                 xaccAccountBeginEdit (saa);
-                acct_list = gnc_account_get_children(account);
-                for (ptr = acct_list; ptr; ptr = g_list_next(ptr))
-                    gnc_account_append_child (saa, ptr->data);
-                g_list_free(acct_list);
+                AccountList_t acct_list = gnc_account_get_children(account);
+                for (AccountList_t::iterator ptr = acct_list.begin(); ptr != acct_list.end(); ptr++)
+                    gnc_account_append_child (saa, *ptr);
                 xaccAccountCommitEdit (saa);
             }
             else if (NULL != sta)

@@ -120,9 +120,7 @@ static void
 remove_clicked (CommoditiesDialog *cd)
 {
     GNCPriceDB *pdb;
-    GList *node;
     GList *prices;
-    GList *accounts;
     gboolean can_delete;
     gnc_commodity *commodity;
     GtkWidget *dialog;
@@ -133,12 +131,13 @@ remove_clicked (CommoditiesDialog *cd)
     if (commodity == NULL)
         return;
 
-    accounts = gnc_account_get_descendants (gnc_book_get_root_account(cd->book));
+    AccountList_t accounts = gnc_account_get_descendants (gnc_book_get_root_account(cd->book));
     can_delete = TRUE;
 
-    for (node = accounts; node; node = node->next)
+    for (AccountList_t::const_iterator node = accounts.begin(); 
+            node != accounts.end(); node++)
     {
-        Account *account = node->data;
+        Account *account = *node;
 
         if (commodity == xaccAccountGetCommodity (account))
         {
@@ -156,10 +155,8 @@ remove_clicked (CommoditiesDialog *cd)
                                 "not delete it.");
 
         gnc_warning_dialog (cd->dialog, "%s", message);
-        g_list_free (accounts);
         return;
     }
-    g_list_free (accounts);
 
     pdb = gnc_pricedb_get_db (cd->book);
     prices = gnc_pricedb_get_prices(pdb, commodity, NULL);
@@ -196,7 +193,7 @@ remove_clicked (CommoditiesDialog *cd)
         gnc_commodity_table *ct;
 
         ct = gnc_commodity_table_get_table (cd->book);
-        for (node = prices; node; node = node->next)
+        for (GList *node = prices; node; node = node->next)
             gnc_pricedb_remove_price(pdb, node->data);
 
         gnc_commodity_table_remove (ct, commodity);

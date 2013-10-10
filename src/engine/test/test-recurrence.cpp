@@ -24,9 +24,9 @@
 #include <stdlib.h>
 #include <glib.h>
 
-#include "test-stuff.h"
 #include "Recurrence.h"
 #include "gnc-engine.h"
+#include "test-stuff.h"
 
 static QofBook *book;
 

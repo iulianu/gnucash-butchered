@@ -1548,7 +1548,6 @@ recn_set_watches (RecnWindow *recnData)
 {
     gboolean include_children;
     Account *account;
-    GList *accounts = NULL;
 
     gnc_gui_component_clear_watches (recnData->component_id);
 
@@ -1559,15 +1558,19 @@ recn_set_watches (RecnWindow *recnData)
     account = recn_get_account (recnData);
 
     include_children = xaccAccountGetReconcileChildrenStatus(account);
+    AccountList_t accounts;
     if (include_children)
         accounts = gnc_account_get_descendants(account);
 
     /* match the account */
-    accounts = g_list_prepend (accounts, account);
+    accounts.push_front(account);
 
-    g_list_foreach(accounts, recn_set_watches_one_account, recnData);
-
-    g_list_free (accounts);
+    for(AccountList_t::iterator it = accounts.begin();
+            it != accounts.end();
+            it++)
+    {
+        recn_set_watches_one_account(*it, recnData);
+    }
 }
 
 

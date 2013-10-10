@@ -31,26 +31,23 @@
 #include "test-engine-stuff.h"
 #include "test-stuff.h"
 
-static gboolean
+static bool
 account_tree_has_book (Account *parent, QofBook *book)
 {
-    GList *children, *node;
-
     if (!parent)
         return (book == NULL);
 
     if (gnc_account_get_book(parent) != book)
-        return FALSE;
+        return false;
 
-    children = gnc_account_get_children(parent);
-    for (node = children; node; node = node->next)
+    AccountList_t children = gnc_account_get_children(parent);
+    for (AccountList_t::const_iterator it = children.begin(); it != children.end(); it++)
     {
-        if (!account_tree_has_book (node->data, book))
-            return FALSE;
+        if (!account_tree_has_book (*it, book))
+            return false;
     }
-    g_list_free(children);
 
-    return TRUE;
+    return true;
 }
 
 

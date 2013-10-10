@@ -98,7 +98,7 @@ LotList     * xaccQueryGetLots(QofQuery * q, query_txn_match_t type);
  *  match-adding API
  *******************************************************************/
 
-void xaccQueryAddAccountMatch(QofQuery *, AccountList *,
+void xaccQueryAddAccountMatch(QofQuery *, const AccountList_t &,
                               QofGuidMatch how, QofQueryOp op);
 
 void xaccQueryAddAccountGUIDMatch(QofQuery *, AccountGUIDList *,

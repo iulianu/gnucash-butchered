@@ -129,7 +129,6 @@ gnc_account_separator_prefs_cb (GConfEntry *unused, GtkWidget *dialog)
 {
     GtkWidget *label, *image;
     gchar *sample;
-    GList *invalid_account_names;
     QofBook *book;
 
     label = g_object_get_data(G_OBJECT(dialog), "sample_account");
@@ -151,9 +150,9 @@ gnc_account_separator_prefs_cb (GConfEntry *unused, GtkWidget *dialog)
     image = g_object_get_data(G_OBJECT(dialog), "separator_error");
     DEBUG("Separator Error Image pointer is %p", image );
     book = gnc_get_current_book();
-    invalid_account_names = gnc_account_list_name_violations ( book,
+    std::list<std::string> invalid_account_names = gnc_account_list_name_violations ( book,
                             gnc_get_account_separator_string() );
-    if ( invalid_account_names )
+    if ( ! invalid_account_names.empty() )
     {
         gchar *message = gnc_account_name_violations_errmsg ( gnc_get_account_separator_string(),
                          invalid_account_names );
@@ -164,8 +163,6 @@ gnc_account_separator_prefs_cb (GConfEntry *unused, GtkWidget *dialog)
     }
     else
         gtk_widget_hide (GTK_WIDGET(image));
-
-    g_list_free ( invalid_account_names );
 }
 
 

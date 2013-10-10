@@ -96,7 +96,7 @@ struct AccountPrivate
      * hierarchy, of accounts that have sub-accounts ("detail accounts").
      */
     Account *parent;    /* back-pointer to parent */
-    GList *children;    /* list of sub-accounts */
+    AccountList_t children;    /* list of sub-accounts */
 
     /* protected data - should only be set by backends */
     gnc_numeric starting_balance;
@@ -131,7 +131,6 @@ struct AccountPrivate
         commodity_scu = 0;
         non_standard_scu = false;
         parent = NULL;
-        children = NULL;
         starting_balance = gnc_numeric_zero();
         starting_cleared_balance = gnc_numeric_zero();
         starting_reconciled_balance = gnc_numeric_zero();

@@ -2514,7 +2514,6 @@ gnc_tree_model_split_reg_update_account_list (GncTreeModelSplitReg *model)
     Account *root;
     Account *acc;
     GtkTreeIter iter;
-    GList *accts, *ptr;
     gboolean valid;
     const gchar *name;
     gchar *fname;
@@ -2527,11 +2526,12 @@ gnc_tree_model_split_reg_update_account_list (GncTreeModelSplitReg *model)
 
     root = gnc_book_get_root_account (gnc_get_current_book());
 /*FIXME This does not look sorted to me, need to look at this */
-    accts = gnc_account_get_descendants_sorted (root);
+    AccountList_t accts = gnc_account_get_descendants_sorted (root);
 
-    for (ptr = accts, i = 0; ptr; ptr = g_list_next (ptr), i++)
+    AccountList_t::iterator ptr;
+    for (ptr = accts.begin(), i = 0; ptr != accts.end(); ptr++, i++)
     {
-        acc = ptr->data;
+        acc = *ptr;
 
         if(!(acc == model->priv->anchor))
         {
@@ -2542,7 +2542,6 @@ gnc_tree_model_split_reg_update_account_list (GncTreeModelSplitReg *model)
             g_free (fname);
         }
     }
-    g_list_free (accts);
 }
 
 

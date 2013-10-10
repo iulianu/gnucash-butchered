@@ -28,6 +28,7 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <typeinfo>
+#include <algorithm>
 
 #include "dialog-account.h"
 #include "GNCId.h"
@@ -181,7 +182,7 @@ gnc_account_sel_init (GNCAccountSel *gas)
 typedef struct
 {
     GNCAccountSel *gas;
-    GList **outList;
+    AccountList_t *outList;
 } account_filter_data;
 
 static
@@ -194,7 +195,7 @@ gas_populate_list( GNCAccountSel *gas )
     GtkTreeIter iter;
     GtkEntry *entry;
     gint i, active = -1;
-    GList *accts, *ptr, *filteredAccts;
+    AccountList_t filteredAccts;
     gchar *currentSel, *name;
 
     entry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(gas->combo)));
@@ -204,19 +205,20 @@ gas_populate_list( GNCAccountSel *gas )
     g_signal_handlers_block_by_func( gas->combo, combo_changed_cb , gas );
 
     root = gnc_book_get_root_account( gnc_get_current_book() );
-    accts = gnc_account_get_descendants_sorted( root );
+    AccountList_t accts = gnc_account_get_descendants_sorted( root );
 
-    filteredAccts   = NULL;
     atnd.gas        = gas;
     atnd.outList    = &filteredAccts;
 
-    g_list_foreach( accts, gas_filter_accounts, (gpointer)&atnd );
-    g_list_free( accts );
+    for(AccountList_t::iterator it = accts.begin(); it != accts.end(); it++)
+        gas_filter_accounts(*it, (gpointer)&atnd);
+    
 
     gtk_list_store_clear(gas->store);
-    for (ptr = filteredAccts, i = 0; ptr; ptr = g_list_next(ptr), i++)
+    AccountList_t::iterator ptr;
+    for (ptr = filteredAccts.begin(), i = 0; ptr != filteredAccts.end(); ptr++, i++)
     {
-        acc = ptr->data;
+        acc = *ptr;
         name = gnc_account_get_full_name(acc);
         gtk_list_store_append(gas->store, &iter);
         gtk_list_store_set(gas->store, &iter,
@@ -237,7 +239,6 @@ gas_populate_list( GNCAccountSel *gas )
 
     g_signal_handlers_unblock_by_func( gas->combo, combo_changed_cb , gas );
 
-    g_list_free( filteredAccts );
     if ( currentSel )
     {
         g_free( currentSel );
@@ -279,7 +280,7 @@ gas_filter_accounts( gpointer data, gpointer user_data )
     }
 
 
-    *atnd->outList = g_list_append( *atnd->outList, a );
+    atnd->outList->push_back( a );
 }
 
 

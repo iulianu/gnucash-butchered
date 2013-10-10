@@ -49,20 +49,19 @@ determine_merge_disposition(Account *existing_root, Account *new_acct)
 void
 account_trees_merge(Account *existing_root, Account *new_accts_root)
 {
-    GList *accounts, *node;
     g_return_if_fail(new_accts_root != NULL);
     g_return_if_fail(existing_root != NULL);
 
     /* since we're have a chance of mutating the list (via
      * gnc_account_add_child) while we're iterating over it, iterate
      * over a copy. */
-    accounts = gnc_account_get_children(new_accts_root);
-    for (node = accounts; node; node = g_list_next(node))
+    AccountList_t accounts = gnc_account_get_children(new_accts_root);
+    for (AccountList_t::iterator node = accounts.begin(); node != accounts.end(); node++)
     {
-        Account *existing_named, *new_acct;
+        Account *existing_named;
         const char *name;
 
-        new_acct = (Account*)node->data;
+        Account * new_acct = *node;
         name = xaccAccountGetName(new_acct);
         existing_named = gnc_account_lookup_by_name(existing_root, name);
         switch (determine_account_merge_disposition(existing_named, new_acct))
@@ -77,5 +76,4 @@ account_trees_merge(Account *existing_root, Account *new_accts_root)
             break;
         }
     }
-    g_list_free(accounts);
 }

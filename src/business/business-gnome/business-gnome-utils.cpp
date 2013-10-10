@@ -317,7 +317,6 @@ gnc_account_select_combo_fill (GtkWidget *combo, QofBook *book,
 {
     GtkListStore *store;
     GtkTreeIter iter;
-    GList *list, *node;
     const gchar *text;
 
     g_return_val_if_fail (combo && GTK_IS_COMBO_BOX(combo), NULL);
@@ -328,16 +327,16 @@ gnc_account_select_combo_fill (GtkWidget *combo, QofBook *book,
     text = gtk_entry_get_text(GTK_ENTRY (gtk_bin_get_child(GTK_BIN (GTK_COMBO_BOX(combo)))));
 
     g_object_set_data (G_OBJECT(combo), "book", book);
-    list = gnc_account_get_descendants (gnc_book_get_root_account (book));
+    AccountList_t list = gnc_account_get_descendants (gnc_book_get_root_account (book));
 
     /* Clear the existing list */
     store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(combo)));
     gtk_list_store_clear(store);
 
     /* Add the account names to the combo box */
-    for (node = list; node; node = node->next)
+    for (AccountList_t::iterator node = list.begin(); node != list.end(); node++)
     {
-        Account *account = node->data;
+        Account *account = *node;
         char *name;
 
         /* Only present accounts of the appropriate type */
@@ -369,8 +368,6 @@ gnc_account_select_combo_fill (GtkWidget *combo, QofBook *book,
         g_free(name);
     }
     gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
-
-    g_list_free (list);
 
     gnc_cbwe_set_by_string(GTK_COMBO_BOX(combo), text);
 

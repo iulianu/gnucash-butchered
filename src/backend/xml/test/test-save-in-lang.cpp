@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "test-stuff.h"
 #include "test-engine-stuff.h"
 #include "test-file-stuff.h"
+#include "test-stuff.h"
 
 #include "gnc-engine.h"
 #include "TransLog.h"

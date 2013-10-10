@@ -48,7 +48,7 @@ Split* get_random_split(QofBook *book, Account *account, Transaction *trn);
 Transaction* get_random_transaction(QofBook *book);
 Transaction* get_random_transaction_with_currency(QofBook *book,
         gnc_commodity *currency,
-        GList *account_list);
+        const AccountList_t & account_list);
 gnc_commodity* get_random_commodity(QofBook *book);
 const char *get_random_commodity_namespace(void);
 

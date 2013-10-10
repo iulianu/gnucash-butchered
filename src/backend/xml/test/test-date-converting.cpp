@@ -1,7 +1,6 @@
 
 #include "config.h"
 
-#include "test-stuff.h"
 #include "test-engine-stuff.h"
 #include "test-file-stuff.h"
 
@@ -9,6 +8,7 @@
 
 #include "sixtp-utils.h"
 #include "sixtp-dom-generators.h"
+#include "test-stuff.h"
 
 #define GNC_V2_STRING "gnc-v2"
 const gchar *gnc_v2_xml_version_string = GNC_V2_STRING;

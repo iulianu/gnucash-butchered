@@ -76,25 +76,23 @@ write_one_account(FILE *out,
 bool
 write_account_tree(FILE *out, Account *root, sixtp_gdv2 *gd)
 {
-    GList *descendants, *node;
-    bool allow_incompat = TRUE;
-    bool success = TRUE;
+    bool allow_incompat = true;
+    bool success = true;
 
     if (allow_incompat)
         if (!write_one_account(out, root, gd, allow_incompat))
-            return FALSE;
+            return false;
 
-    descendants = gnc_account_get_descendants(root);
-    for (node = descendants; node; node = g_list_next(node))
+    AccountList_t descendants = gnc_account_get_descendants(root);
+    for (AccountList_t::iterator node = descendants.begin(); node != descendants.end(); node++)
     {
-        if (!write_one_account(out, node->data, gd, allow_incompat))
+        if (!write_one_account(out, *node, gd, allow_incompat))
         {
-            success = FALSE;
+            success = false;
             break;
         }
     }
 
-    g_list_free(descendants);
     return success;
 }
 

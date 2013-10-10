@@ -9,8 +9,8 @@
 
 #include "gnc-date.h"
 #include "gnc-module.h"
-#include "test-stuff.h"
 #include "test-engine-stuff.h"
+#include "test-stuff.h"
 
 
 static gboolean

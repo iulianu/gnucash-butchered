@@ -196,25 +196,20 @@ gnc_ui_account_get_balance_as_of_date (Account *account,
 
     if (include_children)
     {
-        GList *children, *node;
+        AccountList_t children = gnc_account_get_descendants(account);
 
-        children = gnc_account_get_descendants(account);
-
-        for (node = children; node; node = node->next)
+        for (AccountList_t::iterator node = children.begin(); node != children.end(); node++)
         {
-            Account *child;
             gnc_commodity *child_currency;
             gnc_numeric child_balance;
 
-            child = node->data;
+            Account * child = *node;
             child_currency = xaccAccountGetCommodity (child);
             child_balance = xaccAccountGetBalanceAsOfDate (child, date);
             child_balance = xaccAccountConvertBalanceToCurrency (child,
                             child_balance, child_currency, currency);
             balance = gnc_numeric_add_fixed (balance, child_balance);
         }
-
-        g_list_free(children);
     }
 
     /* reverse sign if needed */

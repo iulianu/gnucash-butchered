@@ -124,8 +124,6 @@ fill_account_list (StockSplitInfo *info, Account *selected_account)
     GtkListStore *list;
     GtkTreeIter iter;
     GtkTreePath *path;
-    GList *accounts;
-    GList *node;
     gint rows = 0;
     gchar *full_name;
 
@@ -134,10 +132,10 @@ fill_account_list (StockSplitInfo *info, Account *selected_account)
 
     gtk_list_store_clear (list);
 
-    accounts = gnc_account_get_descendants_sorted (gnc_get_current_root_account ());
-    for (node = accounts; node; node = node->next)
+    AccountList_t accounts = gnc_account_get_descendants_sorted (gnc_get_current_root_account ());
+    for (AccountList_t::iterator node = accounts.begin(); node != accounts.end(); node++)
     {
-        Account *account = node->data;
+        Account *account = *node;
         GNCPrintAmountInfo print_info;
         const gnc_commodity *commodity;
         gnc_numeric balance;
@@ -176,7 +174,6 @@ fill_account_list (StockSplitInfo *info, Account *selected_account)
 
         rows++;
     }
-    g_list_free(accounts);
 
     if (reference)
     {

@@ -40,6 +40,7 @@
 
 #include "gnc-engine.h"
 #include "Account.h"
+#include "AccountP.h"
 #include "Split.h"
 #include "SchedXaction.h"
 #include "SX-book.h"
@@ -143,20 +144,20 @@ static bool
 sxtg_is_dirty(const QofCollection *col)
 {
     Account *root;
-    GList *descendants, *node;
-    bool dirty = FALSE;
+    bool dirty = false;
 
     root = gnc_collection_get_template_root(col);
-    descendants = gnc_account_get_descendants(root);
-    for (node = descendants; node; node = g_list_next(node))
+    std::list<Account*> descendants = gnc_account_get_descendants(root);
+    for (std::list<Account*>::const_iterator node = descendants.begin(); 
+            node != descendants.end(); node++)
     {
-        if (qof_instance_is_dirty(node->data))
+        const Account * acc = *node;
+        if (qof_instance_is_dirty(acc))
         {
-            dirty = TRUE;
+            dirty = true;
             break;
         }
     }
-    g_list_free(descendants);
 
     return dirty;
 }
@@ -165,14 +166,14 @@ static void
 sxtg_mark_clean(QofCollection *col)
 {
     Account *root;
-    GList *descendants;
 
     root = gnc_collection_get_template_root(col);
     qof_collection_mark_clean(col);
 
-    descendants = gnc_account_get_descendants(root);
-    g_list_foreach(descendants, (GFunc)qof_instance_mark_clean, NULL);
-    g_list_free(descendants);
+    std::list<Account*> descendants = gnc_account_get_descendants(root);
+    for (std::list<Account*>::iterator node = descendants.begin(); 
+            node != descendants.end(); node++)
+        qof_instance_mark_clean(*node);
 }
 
 /* A C++ compiler doesn't have C99 "designated initializers"

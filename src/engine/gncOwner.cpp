@@ -1099,7 +1099,7 @@ gncOwnerGetBalanceInCurrency (const GncOwner *owner,
                               const gnc_commodity *report_currency)
 {
     gnc_numeric balance = gnc_numeric_zero ();
-    GList *acct_list, *acct_node, *acct_types, *lot_list = NULL, *lot_node;
+    GList  *acct_types, *lot_list = NULL, *lot_node;
     QofBook *book;
     gnc_commodity *owner_currency;
     GNCPriceDB *pdb;
@@ -1108,14 +1108,15 @@ gncOwnerGetBalanceInCurrency (const GncOwner *owner,
 
     /* Get account list */
     book       = qof_instance_get_book (qofOwnerGetOwner (owner));
-    acct_list  = gnc_account_get_descendants (gnc_book_get_root_account (book));
+    std::list<Account*> acct_list  = gnc_account_get_descendants (gnc_book_get_root_account (book));
     acct_types = gncOwnerGetAccountTypesList (owner);
     owner_currency = gncOwnerGetCurrency (owner);
 
     /* For each account */
-    for (acct_node = acct_list; acct_node; acct_node = acct_node->next)
+    for (std::list<Account*>::iterator acct_node = acct_list.begin();
+            acct_node != acct_list.end(); acct_node++)
     {
-        Account *account = acct_node->data;
+        Account *account = *acct_node;
 
         /* Check if this account can have lots for the owner, otherwise skip to next */
         if (g_list_index (acct_types, (gpointer)xaccAccountGetType (account))

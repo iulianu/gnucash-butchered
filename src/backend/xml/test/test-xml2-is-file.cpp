@@ -4,9 +4,9 @@
 
 #include "io-gncxml-v2.h"
 
-#include "test-stuff.h"
 #include "test-engine-stuff.h"
 #include "test-file-stuff.h"
+#include "test-stuff.h"
 
 #define FILENAME "Money95bank_fr.gml2"
 

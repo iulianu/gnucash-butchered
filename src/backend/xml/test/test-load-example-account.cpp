@@ -37,9 +37,9 @@
 
 #include "io-example-account.h"
 
-#include "test-stuff.h"
 #include "test-engine-stuff.h"
 #include "test-file-stuff.h"
+#include "test-stuff.h"
 
 static const gchar *da_ending = ".gnucash-xea";
 

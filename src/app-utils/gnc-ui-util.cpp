@@ -200,9 +200,9 @@ gnc_is_new_book (void)
 {
     return ((!gnc_current_session_exist() ||
                             (gnc_current_session_exist() &&
-                                !gnc_account_get_children(
+                                gnc_account_get_children(
                                     gnc_book_get_root_account(
-                                        gnc_get_current_book()))))
+                                        gnc_get_current_book())).empty()))
                             ? TRUE : FALSE);
 }
 
@@ -296,23 +296,20 @@ gnc_account_lookup_for_register(const Account *base_account, const char *name)
 char *
 gnc_ui_account_get_tax_info_sub_acct_string (const Account *account)
 {
-    GList *descendant, *account_descendants;
-
     if (!account)
         return NULL;
 
-    account_descendants = gnc_account_get_descendants (account);
-    if (account_descendants)
+    AccountList_t account_descendants = gnc_account_get_descendants (account);
+    if (! account_descendants.empty())
     {
         gint sub_acct_tax_number = 0;
-        for (descendant = account_descendants; descendant;
-                descendant = g_list_next(descendant))
+        for (AccountList_t::iterator descendant = account_descendants.begin(); 
+                descendant != account_descendants.end();
+                descendant++ )
         {
-            if (xaccAccountGetTaxRelated (descendant->data))
+            if (xaccAccountGetTaxRelated (*descendant))
                 sub_acct_tax_number++;
         }
-        g_list_free (account_descendants);
-        g_list_free (descendant);
         /* Translators: This and the following strings appear on
          * the account tab if the Tax Info column is displayed,
          * i.e. if the user wants to record the tax form number

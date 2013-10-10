@@ -30,9 +30,9 @@
 #include <ctype.h>
 #include <glib.h>
 #include "cashobjects.h"
-#include "test-stuff.h"
 #include "test-engine-stuff.h"
 #include "qof.h"
+#include "test-stuff.h"
 
 #define NENT 50123
 

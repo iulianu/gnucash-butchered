@@ -187,13 +187,10 @@ gnc_ui_find_transactions_dialog_create(GNCLedgerDisplay * orig_ledg)
          */
         {
             Account *tRoot;
-            GList *al;
-
+            
             tRoot = gnc_book_get_template_root( gnc_get_current_book() );
-            al = gnc_account_get_descendants( tRoot );
+            AccountList_t al = gnc_account_get_descendants( tRoot );
             xaccQueryAddAccountMatch( start_q, al, QOF_GUID_MATCH_NONE, QOF_QUERY_AND );
-            g_list_free (al);
-            al = NULL;
             tRoot = NULL;
         }
 
