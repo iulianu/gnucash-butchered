@@ -58,7 +58,6 @@ gncinclude_HEADERS = \
   Account.h \
   FreqSpec.h \
   Recurrence.h \
-  GNCId.h \
   SchedXaction.h \
   SX-book.h \
   SX-ttinfo.h \

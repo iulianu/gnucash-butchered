@@ -52,7 +52,6 @@
 // query
 #include "Query.h"
 #include "qof.h"
-#include "GNCId.h"
 #include "gncIDSearch.h"
 #include "dialog-bi-import.h"
 #include "dialog-bi-import-helper.h"

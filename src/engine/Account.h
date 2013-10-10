@@ -250,7 +250,6 @@ void gnc_book_set_root_account(QofBook *book, Account *root);
 
 /** @deprecated */
 #define xaccAccountGetGUID(X)     qof_entity_get_guid(QOF_INSTANCE(X))
-#define xaccAccountReturnGUID(X) (X ? *(qof_entity_get_guid(QOF_INSTANCE(X))) : *(guid_null()))
 
 /** The xaccAccountLookup() subroutine will return the
  *    account associated with the given id, or NULL

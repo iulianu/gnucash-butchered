@@ -31,7 +31,6 @@
 #include <algorithm>
 
 #include "dialog-account.h"
-#include "GNCId.h"
 #include "gnc-account-sel.h"
 #include "gnc-commodity.h"
 #include "gnc-exp-parser.h"

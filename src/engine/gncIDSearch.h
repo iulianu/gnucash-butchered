@@ -31,9 +31,6 @@
 //#include "gncCustomer.h"
 #include "gncInvoice.h"
 #include "gncBusiness.h"
-// query
-#include "GNCId.h"
-
 
 #ifndef GNC_invoice_import_invoice_import_H
 #define GNC_invoice_import_invoice_import_H

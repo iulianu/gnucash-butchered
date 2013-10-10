@@ -23,8 +23,6 @@
 #ifndef _GNCSEARCH_PARAM_H
 #define _GNCSEARCH_PARAM_H
 
-#include "GNCId.h"
-
 #define GNC_TYPE_SEARCH_PARAM	 (gnc_search_param_get_type ())
 #define GNC_SEARCH_PARAM(o)	 (G_TYPE_CHECK_INSTANCE_CAST ((o), GNC_TYPE_SEARCH_PARAM, GNCSearchParam))
 #define GNCSEARCH_PARAM_CLASS(k) (G_TYPE_CHECK_CLASS_CAST ((k), GNC_TYPE_SEARCH_PARAM, GNCSearchParamClass)
