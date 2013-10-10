@@ -1968,14 +1968,14 @@ test_xaccAccountGetPresentBalance (Fixture *fixture, gconstpointer pData)
 LotList *
 xaccAccountFindOpenLots (const Account *acc,// C: 24 in 13 */
 
-static gboolean
-bogus_lot_match_func_true (GNCLot *lot, gpointer p_data)
+static bool
+bogus_lot_match_func_true (GNCLot *lot, void* p_data)
 {
     return TRUE;
 }
 
-static gboolean
-bogus_lot_match_func_false (GNCLot *lot, gpointer p_data)
+static bool
+bogus_lot_match_func_false (GNCLot *lot, void* p_data)
 {
     return FALSE;
 }

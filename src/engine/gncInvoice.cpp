@@ -1514,7 +1514,7 @@ struct lotmatch
 };
 
 static bool
-gnc_lot_match_owner_balancing (GNCLot *lot, gpointer user_data)
+gnc_lot_match_owner_balancing (GNCLot *lot, void* user_data)
 {
     struct lotmatch *lm = user_data;
     GncOwner owner_def;

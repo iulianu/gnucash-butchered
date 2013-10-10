@@ -836,7 +836,7 @@ tt_act_handler( xmlNodePtr node, gpointer data )
             xaccAccountSetCommodity( acc, com );
         }
 
-        txd->accts = g_list_append( txd->accts, acc );
+        txd->accts.push_back( acc );
     }
 
     return TRUE;
@@ -887,7 +887,6 @@ gnc_template_transaction_end_handler(gpointer data_for_children,
     gnc_template_xaction_data txd;
 
     txd.book = book;
-    txd.accts = NULL;
     txd.transactions = NULL;
 
     /* the DOM tree will have an account tree [the template
@@ -923,15 +922,10 @@ gnc_template_transaction_end_handler(gpointer data_for_children,
     }
 
     /* cleanup */
-    for ( n = txd.accts; n; n = n->next )
-    {
-        n->data = NULL;
-    }
     for ( n = txd.transactions; n; n = n->next )
     {
         n->data = NULL;
     }
-    g_list_free( txd.accts );
     g_list_free( txd.transactions );
 
     xmlFreeNode( tree );

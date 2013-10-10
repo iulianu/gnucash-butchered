@@ -37,6 +37,7 @@
 #include "gnc-backend-xml.h"
 
 #include "sixtp.h"
+#include "Account.h"
 
 typedef struct
 {
@@ -119,7 +120,7 @@ typedef struct
  **/
 typedef struct
 {
-    AccountList	*accts;
+    AccountList_t accts;
     TransList	*transactions;
     QofBook *book;
 } gnc_template_xaction_data;

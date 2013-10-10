@@ -83,8 +83,8 @@ typedef gnc_numeric (*xaccGetBalanceInCurrencyFn) (
 typedef gnc_numeric (*xaccGetBalanceAsOfDateFn) (
     Account *account, time64 date);
 
-typedef void (*AccountCb)(Account *a, gpointer data);
-typedef gpointer (*AccountCb2)(Account *a, gpointer data);
+typedef void (*AccountCb)(Account *a, void* data);
+typedef void* (*AccountCb2)(Account *a, void* data);
 
 /* --- type macros --- */
 // TODO still needed by gnc-budget-view.cpp
@@ -240,9 +240,9 @@ int xaccAccountOrder (const Account *account_1, const Account *account_2);
  *
  *  @return The character to use.
  */
-const gchar *gnc_get_account_separator_string (void);
-gunichar gnc_get_account_separator (void);
-void gnc_set_account_separator (const gchar *separator);
+const char *gnc_get_account_separator_string (void);
+wchar_t gnc_get_account_separator (void);
+void gnc_set_account_separator (const char *separator);
 
 /*@ dependent @*/
 Account *gnc_book_get_root_account(QofBook *book);
@@ -430,7 +430,7 @@ void xaccAccountSortSplits (Account *acc, bool force);
  * hack alert -- since it breaks the rule of string allocation, maybe this
  * routine should not be in this library, but some utility library?
  */
-gchar * gnc_account_get_full_name (const Account *account);
+char * gnc_account_get_full_name (const Account *account);
 
 /** Set a string that identifies the Finance::Quote backend that
  *  should be used to retrieve online prices.  See price-quotes.scm
@@ -778,7 +778,7 @@ int gnc_account_get_current_depth (const Account *account);
  *  @param account The account to query.
  *
  *  @return The number of levels of descendants. */
-gint gnc_account_get_tree_depth (const Account *account);
+int gnc_account_get_tree_depth (const Account *account);
 
 /** @name ForEach
  @{
@@ -797,7 +797,7 @@ gint gnc_account_get_tree_depth (const Account *account);
  *
  *  @param user_data This data will be passed to each call of func. */
 void gnc_account_foreach_child (const Account *account,
-                                AccountCb func, /*@ null @*/ gpointer user_data);
+                                AccountCb func, /*@ null @*/ void * user_data);
 
 /** This method will traverse all children of this accounts and their
  *  descendants, calling 'func' on each account.  This function
@@ -813,7 +813,7 @@ void gnc_account_foreach_child (const Account *account,
  *
  *  @param user_data This data will be passed to each call of func. */
 void gnc_account_foreach_descendant (const Account *account,
-                                     AccountCb func, /*@ null @*/ gpointer user_data);
+                                     AccountCb func, /*@ null @*/ void * user_data);
 
 /** This method will traverse all children of this accounts and their
  *  descendants, calling 'func' on each account.  Traversal will stop
@@ -830,8 +830,8 @@ void gnc_account_foreach_descendant (const Account *account,
  *  gpointer.
  *
  *  @param user_data This data will be passed to each call of func. */
-gpointer gnc_account_foreach_descendant_until (const Account *account,
-        AccountCb2 func, /*@ null @*/ gpointer user_data);
+void * gnc_account_foreach_descendant_until (const Account *account,
+        AccountCb2 func, /*@ null @*/ void * user_data);
 
 
 /** @} */
@@ -1003,7 +1003,7 @@ void xaccAccountMoveAllSplits (Account *accfrom, Account *accto);
  * it will not traverse transactions present only in the remote
  * database.
  */
-gint xaccAccountForEachTransaction(const Account *account,
+int xaccAccountForEachTransaction(const Account *account,
                                    TransactionCallback proc,
                                    void *data);
 
@@ -1046,9 +1046,9 @@ LotList* xaccAccountGetLotList (const Account *account);
  *    will be returned.  There is no guaranteed order over which
  *    the Lots will be traversed.
  */
-gpointer xaccAccountForEachLot(
+void* xaccAccountForEachLot(
     const Account *acc,
-    gpointer (*proc)(GNCLot *lot, gpointer user_data), /*@ null @*/ gpointer user_data);
+    void* (*proc)(GNCLot *lot, void* user_data), /*@ null @*/ void* user_data);
 
 
 /** Find a list of open lots that match the match_func.  Sort according
@@ -1058,8 +1058,8 @@ gpointer xaccAccountForEachLot(
  */
 LotList * xaccAccountFindOpenLots (const Account *acc,
                                    bool (*match_func)(GNCLot *lot,
-                                           gpointer user_data),
-                                   /*@ null @*/ gpointer user_data, GCompareFunc sort_func);
+                                           void* user_data),
+                                   /*@ null @*/ void* user_data, GCompareFunc sort_func);
 
 /** @} */
 /* ------------------ */

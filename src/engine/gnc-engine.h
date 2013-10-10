@@ -195,8 +195,6 @@ class GNCLot;
 class GNCPrice;
 typedef struct gnc_quote_source_s    gnc_quote_source;
 
-/** GList of Account */
-typedef GList                  AccountList;
 /** GList of GNCLots */
 typedef GList                  LotList;
 /** GList of Split */

@@ -44,8 +44,8 @@
 static QofLogModule log_module = GNC_MOD_ACCOUNT;
 
 /* The Canonical Account Separator.  Pre-Initialized. */
-static gchar account_separator[8] = ".";
-static gunichar account_uc_separator = ':';
+static char account_separator[8] = ".";
+static wchar_t account_uc_separator = ':';
 
 #define GET_PRIVATE(o)  \
    (o->priv)
@@ -67,26 +67,26 @@ static void xaccAccountBringUpToDate (Account *acc);
  * Args: none                                                       *
  * Returns: account separator character                             *
  \*******************************************************************/
-const gchar *
+const char *
 gnc_get_account_separator_string (void)
 {
     return account_separator;
 }
 
-gunichar
+wchar_t
 gnc_get_account_separator (void)
 {
     return account_uc_separator;
 }
 
 void
-gnc_set_account_separator (const gchar *separator)
+gnc_set_account_separator (const char *separator)
 {
-    gunichar uc;
-    gint count;
+    wchar_t uc;
+    int count;
 
     uc = g_utf8_get_char_validated(separator, -1);
-    if ((uc == (gunichar) - 2) || (uc == (gunichar) - 1) || g_unichar_isalnum(uc))
+    if ((uc == (wchar_t) - 2) || (uc == (wchar_t) - 1) || g_unichar_isalnum(uc))
     {
         account_uc_separator = ':';
         strcpy(account_separator, ":");

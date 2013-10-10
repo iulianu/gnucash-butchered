@@ -292,7 +292,6 @@ static bool
 add_template_transaction_local( sixtp_gdv2 *data,
                                 gnc_template_xaction_data *txd )
 {
-    GList *n;
     Account *acctRoot = NULL;
     QofBook *book;
 
@@ -301,14 +300,15 @@ add_template_transaction_local( sixtp_gdv2 *data,
     /* expect a struct of: */
     /* . template accounts. */
     /* . transactions in those accounts. */
-    for ( n = txd->accts; n; n = n->next )
+    for ( AccountList_t::iterator n = txd->accts.begin(); 
+            n != txd->accts.end(); n++ )
     {
-        if ( gnc_account_get_parent( (Account*)n->data ) == NULL )
+        if ( gnc_account_get_parent(*n) == NULL )
         {
-            if ( xaccAccountGetType( (Account*)n->data ) == ACCT_TYPE_ROOT )
+            if ( xaccAccountGetType(*n) == ACCT_TYPE_ROOT )
             {
                 /* replace the gnc_book_init-created root account */
-                gnc_book_set_template_root(book, (Account *)n->data);
+                gnc_book_set_template_root(book, *n);
             }
             else
             {
@@ -316,13 +316,13 @@ add_template_transaction_local( sixtp_gdv2 *data,
                    account and this is a top level account.  Make it a child
                    of the template root account. */
                 acctRoot = gnc_book_get_template_root(book);
-                gnc_account_append_child( acctRoot, (Account*)n->data );
+                gnc_account_append_child( acctRoot, *n );
             }
         }
 
     }
 
-    for ( n = txd->transactions; n; n = n->next )
+    for ( GList* n = txd->transactions; n; n = n->next )
     {
         /* insert transactions into accounts */
         add_transaction_local( data, (Transaction*)n->data );
