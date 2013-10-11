@@ -158,10 +158,10 @@ gnc_schedXaction_dom_tree_create(SchedXaction *sx)
     {
         xmlNodePtr schedule_node = xmlNewNode(NULL,
                                               BAD_CAST "sx:schedule");
-        GList *schedule = gnc_sx_get_schedule(sx);
-        for (; schedule != NULL; schedule = schedule->next)
+        RecurrenceList_t schedule = gnc_sx_get_schedule(sx);
+        for (RecurrenceList_t::const_iterator it = schedule.begin(); it != schedule.end(); it++)
         {
-            xmlAddChild(schedule_node, recurrence_to_dom_tree("gnc:recurrence", (Recurrence*)schedule->data));
+            xmlAddChild(schedule_node, recurrence_to_dom_tree("gnc:recurrence", *it));
         }
         xmlAddChild(ret, schedule_node);
     }
@@ -371,15 +371,13 @@ sx_end_handler( xmlNodePtr node, gpointer sx_pdata )
 }
 
 static void
-_fixup_recurrence_start_dates(const GDate *sx_start_date, GList *schedule)
+_fixup_recurrence_start_dates(const GDate *sx_start_date, RecurrenceList_t &schedule)
 {
-    GList *iter;
-    for (iter = schedule; iter != NULL; iter = iter->next)
+    for (RecurrenceList_t::iterator it = schedule.begin(); it != schedule.end(); it++)
     {
-        Recurrence *r;
         GDate start, next;
 
-        r = (Recurrence*)iter->data;
+        Recurrence *r = *it;
 
         start = *sx_start_date;
         g_date_subtract_days(&start, 1);
@@ -407,11 +405,11 @@ _fixup_recurrence_start_dates(const GDate *sx_start_date, GList *schedule)
                       recurrenceGetWeekendAdjust(r));
     }
 
-    if (g_list_length(schedule) == 1
-            && recurrenceGetPeriodType((Recurrence*)g_list_nth_data(schedule, 0)) == PERIOD_ONCE)
+    if (schedule.size() == 1
+            && recurrenceGetPeriodType(*(schedule.begin())) == PERIOD_ONCE)
     {
         char date_buf[128];
-        Recurrence *fixup = (Recurrence*)g_list_nth_data(schedule, 0);
+        Recurrence *fixup = *(schedule.begin());
         g_date_strftime(date_buf, 127, "%x", sx_start_date);
         recurrenceSet(fixup, 1, PERIOD_ONCE, sx_start_date, WEEKEND_ADJ_NONE);
         g_debug("fixed up period=ONCE Recurrence to date [%s]", date_buf);
@@ -423,12 +421,11 @@ sx_freqspec_handler( xmlNodePtr node, gpointer sx_pdata )
 {
     struct sx_pdata *pdata = sx_pdata;
     SchedXaction *sx = pdata->sx;
-    GList *schedule;
     gchar* debug_str;
 
     g_return_val_if_fail( node, FALSE );
 
-    schedule = dom_tree_freqSpec_to_recurrences(node, pdata->book);
+    RecurrenceList_t schedule = dom_tree_freqSpec_to_recurrences(node, pdata->book);
     gnc_sx_set_schedule(sx, schedule);
     debug_str = recurrenceListToString(schedule);
     g_debug("parsed from freqspec [%s]", debug_str);
@@ -443,14 +440,14 @@ sx_freqspec_handler( xmlNodePtr node, gpointer sx_pdata )
 static gboolean
 sx_schedule_recurrence_handler(xmlNodePtr node, gpointer parsing_data)
 {
-    GList **schedule = (GList**)parsing_data;
+    RecurrenceList_t *schedule = reinterpret_cast<RecurrenceList_t*>(parsing_data);
     gchar* sched_str;
     Recurrence *r = dom_tree_to_recurrence(node);
     g_return_val_if_fail(r, FALSE);
     sched_str = recurrenceToString(r);
     g_debug("parsed recurrence [%s]", sched_str);
     g_free(sched_str);
-    *schedule = g_list_append(*schedule, r);
+    schedule->push_back(r);
     return TRUE;
 }
 
@@ -464,7 +461,7 @@ static gboolean
 sx_recurrence_handler(xmlNodePtr node, gpointer _pdata)
 {
     struct sx_pdata *parsing_data = _pdata;
-    GList *schedule = NULL;
+    RecurrenceList_t schedule;
     gchar* debug_str;
 
     g_return_val_if_fail(node, FALSE);

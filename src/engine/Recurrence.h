@@ -43,6 +43,7 @@
 #include <glib.h>
 #include "Account.h"
 #include "gnc-numeric.h"
+#include <list>
 
 typedef enum
 {
@@ -73,12 +74,13 @@ struct Recurrence
 {
     GDate start;         /* First date in the recurrence; specifies phase. */
     PeriodType ptype;    /* see PeriodType enum */
-    guint16 mult;        /* a period multiplier */
+    uint16_t mult;        /* a period multiplier */
     WeekendAdjust wadj;  /* see WeekendAdjust enum */
     
     Recurrence();
 };
 
+typedef std::list<Recurrence*> RecurrenceList_t;
 
 /* recurrenceSet() will enforce internal consistency by overriding
    inconsistent inputs so that 'r' will _always_ end up being a valid
@@ -103,12 +105,12 @@ struct Recurrence
            date's day-of-week is used.
 
 */
-void recurrenceSet(Recurrence *r, guint16 mult, PeriodType pt,
+void recurrenceSet(Recurrence *r, uint16_t mult, PeriodType pt,
                    const GDate *date, WeekendAdjust wadj);
 
 /* get the fields */
 PeriodType recurrenceGetPeriodType(const Recurrence *r);
-guint recurrenceGetMultiplier(const Recurrence *r);
+unsigned int recurrenceGetMultiplier(const Recurrence *r);
 GDate recurrenceGetDate(const Recurrence *r);
 WeekendAdjust recurrenceGetWeekendAdjust(const Recurrence *r);
 
@@ -133,37 +135,37 @@ void recurrenceNextInstance(const Recurrence *r, const GDate *refDate,
                             GDate *nextDate);
 
 /* Zero-based.  n == 1 gets the instance after the start date. */
-void recurrenceNthInstance(const Recurrence *r, guint n, GDate *date);
+void recurrenceNthInstance(const Recurrence *r, unsigned int n, GDate *date);
 
 /* Get a time coresponding to the beginning (or end if 'end' is true)
    of the nth instance of the recurrence. Also zero-based. */
-time64 recurrenceGetPeriodTime(const Recurrence *r, guint n, bool end);
+time64 recurrenceGetPeriodTime(const Recurrence *r, unsigned int n, bool end);
 
 /**
  * @return the amount that an Account's value changed between the beginning
  * and end of the nth instance of the Recurrence.
  **/
 gnc_numeric recurrenceGetAccountPeriodValue(const Recurrence *r,
-        Account *acct, guint n);
+        Account *acct, unsigned int n);
 
 /** @return the earliest of the next occurances -- a "composite" recurrence **/
-void recurrenceListNextInstance(const GList *r, const GDate *refDate,
+void recurrenceListNextInstance(const RecurrenceList_t & r, const GDate *refDate,
                                 GDate *nextDate);
 
 /* These four functions are only for xml storage, not user presentation. */
-gchar *recurrencePeriodTypeToString(PeriodType pt);
+char *recurrencePeriodTypeToString(PeriodType pt);
 PeriodType recurrencePeriodTypeFromString(const gchar *str);
-gchar *recurrenceWeekendAdjustToString(WeekendAdjust wadj);
-WeekendAdjust recurrenceWeekendAdjustFromString(const gchar *str);
+char *recurrenceWeekendAdjustToString(WeekendAdjust wadj);
+WeekendAdjust recurrenceWeekendAdjustFromString(const char *str);
 
 /* For debugging.  Caller owns the returned string.  Not intl. */
-gchar *recurrenceToString(const Recurrence *r);
-gchar *recurrenceListToString(const GList *rlist);
+char *recurrenceToString(const Recurrence *r);
+char *recurrenceListToString(const RecurrenceList_t &rlist);
 
 /** @return True if the recurrence list is a common "semi-monthly" recurrence. **/
-bool recurrenceListIsSemiMonthly(GList *recurrences);
+bool recurrenceListIsSemiMonthly(const RecurrenceList_t &recurrences);
 /** @return True if the recurrence list is a common "weekly" recurrence. **/
-bool recurrenceListIsWeeklyMultiple(const GList *recurrences);
+bool recurrenceListIsWeeklyMultiple(const RecurrenceList_t &recurrences);
 
 /**
  * Pretty-print an intentionally-short summary of the period of a (GList of)
@@ -177,12 +179,12 @@ bool recurrenceListIsWeeklyMultiple(const GList *recurrences);
  *
  * @return A caller-owned string.
  **/
-gchar *recurrenceListToCompactString(GList *recurrence_list);
+char *recurrenceListToCompactString(const RecurrenceList_t &recurrence_list);
 
 /** @return integer representing the relationship between @a a and @a b, with the semantics of qsort. **/
-int recurrenceCmp(Recurrence *a, Recurrence *b);
-int recurrenceListCmp(GList *a, GList *b);
+int recurrenceCmp(const Recurrence *a, const Recurrence *b);
+int recurrenceListCmp(const RecurrenceList_t &a, const RecurrenceList_t &b);
 
-void recurrenceListFree(GList **recurrence);
+void recurrenceListFree(RecurrenceList_t &recurrence);
 
 #endif  /* RECURRENCE_H */

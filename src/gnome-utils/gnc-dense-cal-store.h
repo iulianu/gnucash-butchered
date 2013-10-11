@@ -28,6 +28,7 @@
 #include <glib-object.h>
 #include "gnc-dense-cal-model.h"
 #include "gnc-dense-cal.h"
+#include "Recurrence.h"
 
 G_BEGIN_DECLS
 
@@ -49,9 +50,9 @@ void gnc_dense_cal_store_clear(GncDenseCalStore *model);
 void gnc_dense_cal_store_update_name(GncDenseCalStore *model, gchar* name);
 void gnc_dense_cal_store_update_info(GncDenseCalStore *model, gchar* info);
 
-void gnc_dense_cal_store_update_recurrences_no_end(GncDenseCalStore *model, GDate *start, GList *recurrences);
-void gnc_dense_cal_store_update_recurrences_count_end(GncDenseCalStore *model, GDate *start, GList *recurrences, int num_occur);
-void gnc_dense_cal_store_update_recurrences_date_end(GncDenseCalStore *model, GDate *start, GList *recurrences, GDate *end_date);
+void gnc_dense_cal_store_update_recurrences_no_end(GncDenseCalStore *model, GDate *start, RecurrenceList_t &recurrences);
+void gnc_dense_cal_store_update_recurrences_count_end(GncDenseCalStore *model, GDate *start, RecurrenceList_t &recurrences, int num_occur);
+void gnc_dense_cal_store_update_recurrences_date_end(GncDenseCalStore *model, GDate *start, RecurrenceList_t &recurrences, GDate *end_date);
 
 G_END_DECLS
 

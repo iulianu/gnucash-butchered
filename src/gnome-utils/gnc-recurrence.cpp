@@ -489,31 +489,29 @@ static void removeClicked(GtkButton *b, gpointer data)
 
 
 void
-gnc_recurrence_comp_set_list(GncRecurrenceComp *grc, const GList *rlist)
+gnc_recurrence_comp_set_list(GncRecurrenceComp *grc, const RecurrenceList_t &rlist)
 {
-    const GList *iter;
-
     g_return_if_fail(grc);
 
     while (grc->num_rec > 0)
         removeRecurrence(grc);
 
-    for (iter = rlist; iter; iter = iter->next)
+    for (RecurrenceList_t::const_iterator it = rlist.begin(); it != rlist.end(); it++)
     {
         GncRecurrence *gr = GNC_RECURRENCE(gnc_recurrence_new());
 
-        gnc_recurrence_set(gr, (Recurrence *)iter->data);
+        gnc_recurrence_set(gr, *it);
         addRecurrence(grc, gr);
     }
 }
 
 
-GList *
+RecurrenceList_t
 gnc_recurrence_comp_get_list(GncRecurrenceComp *grc)
 {
-    GList *rlist = NULL, *children;
+    GList *children;
     gint i;
-
+    RecurrenceList_t rlist;
 
     children = gtk_container_get_children(GTK_CONTAINER(grc->vbox));
     for (i = 0; i < g_list_length(children); i++)
@@ -522,7 +520,7 @@ gnc_recurrence_comp_get_list(GncRecurrenceComp *grc)
         const Recurrence *r;
         gr = GNC_RECURRENCE(g_list_nth_data(children, i));
         r = gnc_recurrence_get(gr);
-        rlist = g_list_append(rlist, (gpointer)r);
+        rlist.push_back(r);
     }
     g_list_free(children);
     return rlist;

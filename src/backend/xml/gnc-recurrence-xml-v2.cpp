@@ -113,7 +113,7 @@ dom_tree_to_recurrence(xmlNodePtr node)
     gboolean successful;
     Recurrence *r;
 
-    r = g_new(Recurrence, 1);
+    r = new Recurrence;//g_new(Recurrence, 1);
     /* In case the file doesn't have a weekend adjustment element */
     r->wadj = WEEKEND_ADJ_NONE;
     successful = dom_tree_generic_parse (node, recurrence_dom_handlers, r);
@@ -121,7 +121,7 @@ dom_tree_to_recurrence(xmlNodePtr node)
     {
         PERR ("failed to parse recurrence node");
         xmlElemDump(stdout, NULL, node);
-        g_free(r);
+        delete r;//g_free(r);
         r = NULL;
     }
     return r;

@@ -329,9 +329,7 @@ static void test_use()
 {
     Recurrence *r = new Recurrence;
 
-//    r = g_new(Recurrence, 1);
     do_test(r != NULL, "allocation");
-//    g_free(r);
     delete r;
 }
 

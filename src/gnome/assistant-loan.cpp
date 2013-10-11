@@ -89,7 +89,7 @@ typedef struct RepayOptData_
     Account *to;
     Account *from; /* If NULL { If throughEscrowP, then through escrowAcct };
                         * else: undefined. */
-    GList *schedule;
+    RecurrenceList_t schedule;
     /* If NULL, part of repayment; otherwise: defined
      * here. */
     GDate *startDate;
@@ -179,7 +179,7 @@ typedef struct LoanData_
     float interestRate;
     IRateType rateType;
     LoanType type;
-    GList *loan_schedule;
+    RecurrenceList_t  loan_schedule;
     GDate *startDate;
     GDate *varStartDate;
     int numPer;
@@ -192,7 +192,7 @@ typedef struct LoanData_
     Account *repPriAcct;
     Account *repIntAcct;
     Account *escrowAcct;
-    GList *repayment_schedule;
+    RecurrenceList_t repayment_schedule;
     GDate *repStartDate;
 
     int repayOptCount;
@@ -292,7 +292,7 @@ typedef struct toCreateSX_
     /** The start, last-occurred and end dates. */
     GDate start, last, end;
     /** The SX schedule */
-    GList *schedule;
+    RecurrenceList_t schedule;
     /** The current 'instance-num' count. */
     gint instNum;
     /** The main/source transaction being created. */
@@ -397,7 +397,7 @@ loan_assistant_window_destroy_cb( GtkObject *object, gpointer user_data )
 
         g_date_free( ldd->ld.startDate );
         g_date_free( ldd->ld.varStartDate );
-        recurrenceListFree(&ldd->ld.loan_schedule);
+        recurrenceListFree(ldd->ld.loan_schedule);
 
         if ( ldd->ld.repMemo )
             g_free( ldd->ld.repMemo );
@@ -413,8 +413,8 @@ loan_assistant_window_destroy_cb( GtkObject *object, gpointer user_data )
             if ( rod->startDate )
                 g_date_free( rod->startDate );
 
-            if (rod->schedule != NULL)
-                recurrenceListFree(&rod->schedule);
+            if (!rod->schedule.empty())
+                recurrenceListFree(rod->schedule);
 
             g_free( ldd->ld.repayOpts[i] );
             g_free( ldd->repayOptsUI[i] );
@@ -801,7 +801,7 @@ gnc_loan_assistant_create( LoanAssistantData *ldd )
         {
             GtkHBox *hbox;
             hbox = GTK_HBOX(gtk_builder_get_object(builder, "type_freq_hbox"));
-            ldd->prmVarGncFreq = GNC_FREQUENCY(gnc_frequency_new( NULL, NULL ));
+            ldd->prmVarGncFreq = GNC_FREQUENCY(gnc_frequency_new( RecurrenceList_t(), NULL ));
             gtk_box_pack_start( GTK_BOX(hbox) , GTK_WIDGET(ldd->prmVarGncFreq), TRUE, FALSE, 0 );
             g_signal_connect (ldd->prmVarGncFreq, "changed",
                               G_CALLBACK (loan_info_page_valid_cb), ldd);
@@ -809,13 +809,13 @@ gnc_loan_assistant_create( LoanAssistantData *ldd )
         {
             GtkHBox *hbox;
             hbox = GTK_HBOX(gtk_builder_get_object(builder, "freq_frame_hbox"));
-            ldd->repGncFreq = GNC_FREQUENCY(gnc_frequency_new( NULL, NULL ));
+            ldd->repGncFreq = GNC_FREQUENCY(gnc_frequency_new( RecurrenceList_t(), NULL ));
             gtk_box_pack_start( GTK_BOX(hbox) , GTK_WIDGET(ldd->repGncFreq), TRUE, FALSE, 0 );
             g_signal_connect (ldd->repGncFreq, "changed",
                               G_CALLBACK (loan_rep_page_valid_cb), ldd);
         }
 
-        ldd->payGncFreq = GNC_FREQUENCY(gnc_frequency_new( NULL, NULL ));
+        ldd->payGncFreq = GNC_FREQUENCY(gnc_frequency_new( RecurrenceList_t(), NULL ));
         gtk_container_add( GTK_CONTAINER(ldd->payFreqAlign), GTK_WIDGET(ldd->payGncFreq) );
         g_signal_connect (ldd->payGncFreq, "changed",
                           G_CALLBACK (loan_pay_page_valid_cb), ldd);
@@ -905,12 +905,12 @@ loan_assistant_data_init( LoanAssistantData *ldd )
     ldd->ld.startDate = g_date_new();
     ldd->ld.varStartDate = g_date_new();
     gnc_gdate_set_time64( ldd->ld.startDate, gnc_time (NULL) );
-    ldd->ld.loan_schedule = NULL;
-    ldd->ld.repayment_schedule = NULL;
+    ldd->ld.loan_schedule.clear();
+    ldd->ld.repayment_schedule.clear();
     {
-        Recurrence *r = g_new0(Recurrence, 1);
+        Recurrence *r = new Recurrence;//g_new0(Recurrence, 1);
         recurrenceSet(r, 1, PERIOD_MONTH, ldd->ld.startDate, WEEKEND_ADJ_NONE);
-        ldd->ld.repayment_schedule = g_list_append(ldd->ld.repayment_schedule, r);
+        ldd->ld.repayment_schedule.push_back(r);
     }
 
     ldd->ld.repMemo = g_strdup( _("Loan") );
@@ -940,7 +940,7 @@ loan_assistant_data_init( LoanAssistantData *ldd )
         optData->amount         = 0.0;
         optData->throughEscrowP = REPAY_DEFAULTS[i].escrowDefault;
         optData->specSrcAcctP   = REPAY_DEFAULTS[i].specSrcAcctDefault;
-        optData->schedule       = NULL;
+        optData->schedule.clear();
         optData->startDate      = NULL;
     }
 }
@@ -1078,9 +1078,9 @@ loan_info_page_save( GtkAssistant *assistant, gpointer user_data )
 
     if ( ldd->ld.type != GNC_FIXED )
     {
-        recurrenceListFree(&ldd->ld.loan_schedule);
+        recurrenceListFree(ldd->ld.loan_schedule);
         gnc_frequency_save_to_recurrence(ldd->prmVarGncFreq,
-                                         &ldd->ld.loan_schedule,
+                                         ldd->ld.loan_schedule,
                                          ldd->ld.varStartDate);
     }
 
@@ -1405,9 +1405,9 @@ loan_rep_page_save( GtkAssistant *assistant, gpointer user_data )
     ldd->ld.repIntAcct =
         gnc_account_sel_get_account( ldd->repIntToGAS );
 
-    recurrenceListFree(&ldd->ld.repayment_schedule);
+    recurrenceListFree(ldd->ld.repayment_schedule);
     gnc_frequency_save_to_recurrence(ldd->repGncFreq,
-                                     &ldd->ld.repayment_schedule,
+                                     ldd->ld.repayment_schedule,
                                      ldd->ld.repStartDate);
 }
 
@@ -1605,12 +1605,12 @@ loan_pay_freq_toggle_cb( GtkToggleButton *tb, gpointer user_data )
 
     if ( rod->FreqUniq )
     {
-        if ( rod->schedule == NULL )
+        if ( rod->schedule.empty() )
         {
-            Recurrence *r = g_new0(Recurrence, 1);
+            Recurrence *r = new Recurrence;//g_new0(Recurrence, 1);
 
             recurrenceSet(r, 1, PERIOD_MONTH, ldd->ld.startDate, WEEKEND_ADJ_NONE);
-            rod->schedule = g_list_append(rod->schedule, r);
+            rod->schedule.push_back(r);
         }
         if ( rod->startDate == NULL )
         {
@@ -1623,9 +1623,9 @@ loan_pay_freq_toggle_cb( GtkToggleButton *tb, gpointer user_data )
     }
     else
     {
-        if (rod->schedule)
+        if (!rod->schedule.empty())
         {
-            recurrenceListFree(&rod->schedule);
+            recurrenceListFree(rod->schedule);
         }
         if ( rod->startDate )
         {
@@ -1761,10 +1761,10 @@ loan_pay_complete( GtkAssistant *assistant, gpointer user_data )
         {
             rod->startDate = g_date_new();
         }
-        recurrenceListFree(&rod->schedule);
-        gnc_frequency_save_to_recurrence(ldd->payGncFreq, &rod->schedule, rod->startDate);
+        recurrenceListFree(rod->schedule);
+        gnc_frequency_save_to_recurrence(ldd->payGncFreq, rod->schedule, rod->startDate);
 
-        if (! rod->schedule )
+        if (rod->schedule.empty())
         {
             return FALSE;
         }
@@ -2120,7 +2120,7 @@ loan_rev_recalc_schedule( LoanAssistantData *ldd )
     {
         int i;
         GDate curDate, nextDate;
-        GList *schedule;
+        RecurrenceList_t schedule;
 
         for ( i = 0; i < ldd->ld.repayOptCount; i++ )
         {
@@ -2128,7 +2128,7 @@ loan_rev_recalc_schedule( LoanAssistantData *ldd )
                 continue;
 
             schedule
-            = ( ldd->ld.repayOpts[i]->schedule != NULL
+            = ( !(ldd->ld.repayOpts[i]->schedule.empty())
                 ? ldd->ld.repayOpts[i]->schedule
                 : ldd->ld.repayment_schedule );
 
@@ -2521,7 +2521,7 @@ loan_get_ipmt_formula( LoanAssistantData *ldd, GString *gstr )
 /******************* Scheduled Transaction Functions ********************/
 
 static int
-ld_calc_sx_instance_num(GDate *start_date, GList *schedule)
+ld_calc_sx_instance_num(GDate *start_date, const RecurrenceList_t &schedule)
 {
     int instance_count;
     GDate next_date, today;
@@ -3053,7 +3053,7 @@ loan_create_sxes( LoanAssistantData *ldd )
             continue;
 
         tcSX = paymentSX;
-        if ( rod->schedule != NULL )
+        if ( ! rod->schedule.empty() )
         {
             tcSX = g_new0( toCreateSX, 1 );
             gstr = g_string_new( ldd->ld.repMemo );
@@ -3071,7 +3071,7 @@ loan_create_sxes( LoanAssistantData *ldd )
              * Assistant. */
             tcSX->instNum =
                 ld_calc_sx_instance_num(&tcSX->start, rod->schedule);
-            rod->schedule = NULL;
+            rod->schedule.clear();
             tcSX->mainTxn = gnc_ttinfo_malloc();
             gnc_ttinfo_set_currency( tcSX->mainTxn,
                                      gnc_default_currency() );

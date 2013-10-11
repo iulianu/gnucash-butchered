@@ -176,7 +176,7 @@ gnc_dense_cal_store_update_info(GncDenseCalStore *model, gchar *info)
 }
 
 static void
-gdcs_generic_update_recurrences(GncDenseCalStore *trans, GDate *start, GList *recurrences)
+gdcs_generic_update_recurrences(GncDenseCalStore *trans, GDate *start, RecurrenceList_t &recurrences)
 {
     int i;
     GDate date, next;
@@ -211,14 +211,14 @@ gdcs_generic_update_recurrences(GncDenseCalStore *trans, GDate *start, GList *re
 }
 
 void
-gnc_dense_cal_store_update_recurrences_no_end(GncDenseCalStore *model, GDate *start, GList *recurrences)
+gnc_dense_cal_store_update_recurrences_no_end(GncDenseCalStore *model, GDate *start, RecurrenceList_t &recurrences)
 {
     model->end_type = NEVER_END;
     gdcs_generic_update_recurrences(model, start, recurrences);
 }
 
 void
-gnc_dense_cal_store_update_recurrences_count_end(GncDenseCalStore *model, GDate *start, GList *recurrences, int num_occur)
+gnc_dense_cal_store_update_recurrences_count_end(GncDenseCalStore *model, GDate *start, RecurrenceList_t &recurrences, int num_occur)
 {
     model->end_type = END_AFTER_N_OCCS;
     model->n_occurrences = num_occur;
@@ -226,7 +226,7 @@ gnc_dense_cal_store_update_recurrences_count_end(GncDenseCalStore *model, GDate 
 }
 
 void
-gnc_dense_cal_store_update_recurrences_date_end(GncDenseCalStore *model, GDate *start, GList *recurrences, GDate *end_date)
+gnc_dense_cal_store_update_recurrences_date_end(GncDenseCalStore *model, GDate *start, RecurrenceList_t &recurrences, GDate *end_date)
 {
     model->end_type = END_ON_DATE;
     model->end_date = *end_date;

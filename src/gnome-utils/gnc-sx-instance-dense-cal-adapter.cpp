@@ -215,13 +215,12 @@ gsidca_get_info(GncDenseCalModel *model, guint tag)
 {
     GncSxInstanceDenseCalAdapter *adapter = GNC_SX_INSTANCE_DENSE_CAL_ADAPTER(model);
     // g_list_find(instances->sxes, {sx_to_tag, tag}).get_freq_spec().get_freq_str();
-    GList *schedule;
     gchar *schedule_str;
     GncSxInstances *insts
     = (GncSxInstances*)g_list_find_custom(adapter->instances->sx_instance_list, GUINT_TO_POINTER(tag), gsidca_find_sx_with_tag)->data;
     if (insts == NULL)
         return NULL;
-    schedule = gnc_sx_get_schedule(insts->sx);
+    RecurrenceList_t schedule = gnc_sx_get_schedule(insts->sx);
     schedule_str = recurrenceListToCompactString(schedule);
     return schedule_str;
 }

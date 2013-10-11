@@ -346,7 +346,7 @@ gnc_sql_recurrence_load( GncSqlBackend* be, const GncGUID* guid )
             {
                 g_warning( "More than 1 recurrence found: first one used" );
             }
-            r = g_new0( Recurrence, 1 );
+            r = new Recurrence;//g_new0( Recurrence, 1 );
             g_assert( r != NULL );
             load_recurrence( be, gnc_sql_result_get_first_row( result ), r );
         }
@@ -376,7 +376,7 @@ gnc_sql_recurrence_load_list( GncSqlBackend* be, const GncGUID* guid )
 
         while ( row != NULL )
         {
-            Recurrence* pRecurrence = g_new0( Recurrence, 1 );
+            Recurrence* pRecurrence = new Recurrence;//g_new0( Recurrence, 1 );
             g_assert( pRecurrence != NULL );
             load_recurrence( be, row, pRecurrence );
             list = g_list_append( list, pRecurrence );

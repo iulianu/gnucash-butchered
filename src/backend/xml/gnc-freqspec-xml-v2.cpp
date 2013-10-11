@@ -97,7 +97,7 @@ typedef struct
     QofBook         *book;            /* Book we're loading into. */
 
     Recurrence *recurrence;
-    GList *recurrence_list;
+    RecurrenceList_t recurrence_list;
 
     /* fields used in the union of unions... :) */
     GDate                 once_day;     /* once */
@@ -115,8 +115,7 @@ fspd_init( fsParseData *fspd )
 {
     fspd->list    = NULL;
     fspd->book    = NULL;
-    fspd->recurrence = g_new0(Recurrence, 1);
-    fspd->recurrence_list = NULL;
+    fspd->recurrence = new Recurrence;//g_new0(Recurrence, 1);
     fspd->uift = UIFREQ_NONE;
     fspd->interval
     = fspd->offset
@@ -260,21 +259,19 @@ fs_weekend_adj_handler( xmlNodePtr node, gpointer data )
 }
 
 static
-gboolean
+bool
 fs_subelement_handler( xmlNodePtr node, gpointer data )
 {
     fsParseData *fspd = data;
-    GList *recurrences;
 
-    recurrences = dom_tree_freqSpec_to_recurrences(node, fspd->book);
-    if (recurrences == NULL)
-        return FALSE;
+    RecurrenceList_t recurrences = dom_tree_freqSpec_to_recurrences(node, fspd->book);
+    if (recurrences.empty())
+        return false;
 
     {
-        GList *r_iter;
-        for (r_iter = recurrences; r_iter != NULL; r_iter = r_iter->next)
+        for (RecurrenceList_t::iterator it = recurrences.begin(); it != recurrences.end(); it++)
         {
-            Recurrence *r = (Recurrence*)r_iter->data;
+            Recurrence *r = *it;
             GDate recurrence_date;
             if (fspd->uift == UIFREQ_SEMI_MONTHLY)
             {
@@ -282,10 +279,10 @@ fs_subelement_handler( xmlNodePtr node, gpointer data )
                 recurrence_date = recurrenceGetDate(r);
                 recurrenceSet(r, recurrenceGetMultiplier(r), PERIOD_MONTH, &recurrence_date, recurrenceGetWeekendAdjust(r));
             }
-            fspd->recurrence_list = g_list_append(fspd->recurrence_list, r);
+            fspd->recurrence_list.push_back(r);
         }
     }
-    return TRUE;
+    return true;
 }
 
 struct dom_tree_handler fs_union_dom_handlers[] =
@@ -501,15 +498,15 @@ common_parse(fsParseData *fspd, xmlNodePtr node, QofBook *book)
     }
 }
 
-GList*
+RecurrenceList_t
 dom_tree_freqSpec_to_recurrences(xmlNodePtr node, QofBook *book)
 {
     fsParseData        fspd;
     fspd_init( &fspd );
     common_parse(&fspd, node, book);
-    if (fspd.recurrence_list == NULL)
+    if (fspd.recurrence_list.empty())
     {
-        fspd.recurrence_list = g_list_append(fspd.recurrence_list, fspd.recurrence);
+        fspd.recurrence_list.push_back(fspd.recurrence);
     }
     return fspd.recurrence_list;
 }

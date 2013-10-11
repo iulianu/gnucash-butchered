@@ -29,6 +29,7 @@
 #include "gnc-engine.h"
 #include "gnc-gdate-utils.h"
 #include "Account.h"
+#include <algorithm>
 
 #define LOG_MOD "gnc.engine.recurrence"
 static QofLogModule log_module = LOG_MOD;
@@ -414,24 +415,23 @@ recurrenceGetAccountPeriodValue(const Recurrence *r, Account *acc, guint n)
 }
 
 void
-recurrenceListNextInstance(const GList *rlist, const GDate *ref, GDate *next)
+recurrenceListNextInstance(const RecurrenceList_t &rlist, const GDate *ref, GDate *next)
 {
-    const GList *iter;
     GDate nextSingle;  /* The next date for an individual recurrence */
 
     g_date_clear(next, 1);
 
     // empty rlist = no recurrence
-    if (rlist == NULL)
+    if (rlist.empty())
     {
         return;
     }
 
     g_return_if_fail(ref && next && g_date_valid(ref));
 
-    for (iter = rlist; iter; iter = iter->next)
+    for (RecurrenceList_t::const_iterator iter = rlist.begin(); iter != rlist.end(); iter++)
     {
-        const Recurrence *r = iter->data;
+        const Recurrence *r = *iter;
 
         recurrenceNextInstance(r, ref, &nextSingle);
         if (!g_date_valid(&nextSingle)) continue;
@@ -474,27 +474,26 @@ done:
 
 /* caller owns the returned memory */
 gchar *
-recurrenceListToString(const GList *r)
+recurrenceListToString(const RecurrenceList_t &r)
 {
-    const GList *iter;
     GString *str;
     gchar *s;
 
     str = g_string_new("");
-    if (r == NULL)
+    if (r.empty())
     {
         g_string_append(str, _("None"));
     }
     else
     {
-        for (iter = r; iter; iter = iter->next)
+        for (RecurrenceList_t::const_iterator iter = r.begin(); iter != r.end(); iter++)
         {
-            if (iter != r)
+            if (iter != r.begin())
             {
                 /* translators: " + " is an separator in a list of string-representations of recurrence frequencies */
                 g_string_append(str, _(" + "));
             }
-            s = recurrenceToString((Recurrence *)iter->data);
+            s = recurrenceToString(*iter);
             g_string_append(str, s);
             g_free(s);
         }
@@ -509,7 +508,7 @@ recurrencePeriodTypeToString(PeriodType pt)
 }
 
 PeriodType
-recurrencePeriodTypeFromString(const gchar *str)
+recurrencePeriodTypeFromString(const char *str)
 {
     int i;
 
@@ -526,7 +525,7 @@ recurrenceWeekendAdjustToString(WeekendAdjust wadj)
 }
 
 WeekendAdjust
-recurrenceWeekendAdjustFromString(const gchar *str)
+recurrenceWeekendAdjustFromString(const char *str)
 {
     int i;
 
@@ -537,15 +536,15 @@ recurrenceWeekendAdjustFromString(const gchar *str)
 }
 
 bool
-recurrenceListIsSemiMonthly(GList *recurrences)
+recurrenceListIsSemiMonthly(const RecurrenceList_t &recurrences)
 {
-    if (g_list_length(recurrences) != 2)
-        return FALSE;
+    if (recurrences.size() != 2)
+        return false;
 
     // should be a "semi-monthly":
     {
-        Recurrence *first = (Recurrence*)g_list_nth_data(recurrences, 0);
-        Recurrence *second = (Recurrence*)g_list_nth_data(recurrences, 1);
+        const Recurrence *first = *(recurrences.begin());
+        const Recurrence *second = *(++ recurrences.begin());
         PeriodType first_period, second_period;
         first_period = recurrenceGetPeriodType(first);
         second_period = recurrenceGetPeriodType(second);
@@ -566,13 +565,11 @@ recurrenceListIsSemiMonthly(GList *recurrences)
 }
 
 bool
-recurrenceListIsWeeklyMultiple(const GList *recurrences)
+recurrenceListIsWeeklyMultiple(const RecurrenceList_t &recurrences)
 {
-    const GList *r_iter;
-
-    for (r_iter = recurrences; r_iter != NULL; r_iter = r_iter->next)
+    for (RecurrenceList_t::const_iterator it = recurrences.begin(); it != recurrences.end(); it++)
     {
-        Recurrence *r = (Recurrence*)r_iter->data;
+        Recurrence *r = *it;
         if (recurrenceGetPeriodType(r) != PERIOD_WEEK)
         {
             return FALSE;
@@ -582,14 +579,14 @@ recurrenceListIsWeeklyMultiple(const GList *recurrences)
 }
 
 static void
-_weekly_list_to_compact_string(GList *rs, GString *buf)
+_weekly_list_to_compact_string(const RecurrenceList_t &rs, GString *buf)
 {
     int dow_idx;
     char dow_present_bits = 0;
     int multiplier = -1;
-    for (; rs != NULL; rs = rs->next)
+    for (RecurrenceList_t::const_iterator it = rs.begin(); it != rs.end(); it++)
     {
-        Recurrence *r = (Recurrence*)rs->data;
+        const Recurrence *r = *it;
         GDate date = recurrenceGetDate(r);
         GDateWeekday dow = g_date_get_weekday(&date);
         if (dow == G_DATE_BAD_WEEKDAY)
@@ -666,18 +663,18 @@ _monthly_append_when(Recurrence *r, GString *buf)
     }
 }
 
-gchar*
-recurrenceListToCompactString(GList *rs)
+char*
+recurrenceListToCompactString(const RecurrenceList_t &rs)
 {
     GString *buf = g_string_sized_new(16);
 
-    if (g_list_length(rs) == 0)
+    if (rs.empty())
     {
         g_string_printf(buf, "%s", _("None"));
         goto rtn;
     }
 
-    if (g_list_length(rs) > 1)
+    if (rs.size() > 1)
     {
         if (recurrenceListIsWeeklyMultiple(rs))
         {
@@ -686,8 +683,8 @@ recurrenceListToCompactString(GList *rs)
         else if (recurrenceListIsSemiMonthly(rs))
         {
             Recurrence *first, *second;
-            first = (Recurrence*)g_list_nth_data(rs, 0);
-            second = (Recurrence*)g_list_nth_data(rs, 1);
+            first = *(rs.begin());
+            second = *(++ rs.begin());
             if (recurrenceGetMultiplier(first) != recurrenceGetMultiplier(second))
             {
                 g_warning("lying about non-equal semi-monthly recurrence multiplier: %d vs. %d",
@@ -709,12 +706,12 @@ recurrenceListToCompactString(GList *rs)
         else
         {
             /* translators: %d is the number of Recurrences in the list. */
-            g_string_printf(buf, _("Unknown, %d-size list."), g_list_length(rs));
+            g_string_printf(buf, _("Unknown, %d-size list."), rs.size());
         }
     }
     else
     {
-        Recurrence *r = (Recurrence*)g_list_nth_data(rs, 0);
+        Recurrence *r = *(rs.begin());
         guint multiplier = recurrenceGetMultiplier(r);
 
         switch (recurrenceGetPeriodType(r))
@@ -822,7 +819,7 @@ static int cmp_monthly_order_indexes[] =
 };
 
 int
-recurrenceCmp(Recurrence *a, Recurrence *b)
+recurrenceCmp(const Recurrence *a, const Recurrence *b)
 {
     PeriodType period_a, period_b;
     int a_order_index, b_order_index;
@@ -857,26 +854,34 @@ recurrenceCmp(Recurrence *a, Recurrence *b)
 
     return a_mult - b_mult;
 }
+bool inline recurrenceCmpStrictWeak(const Recurrence *a, const Recurrence *b)
+{
+    return recurrenceCmp(a, b) < 0;
+}
 
 int
-recurrenceListCmp(GList *a, GList *b)
+recurrenceListCmp(const RecurrenceList_t &a, const RecurrenceList_t &b)
 {
     Recurrence *most_freq_a, *most_freq_b;
 
-    g_return_val_if_fail(g_list_length(a) != 0 && g_list_length(b) != 0, 0);
-    g_return_val_if_fail(g_list_length(a) != 0, -1);
-    g_return_val_if_fail(g_list_length(b) != 0, 1);
+    g_return_val_if_fail( (!a.empty()) && (!b.empty()), 0);
+    g_return_val_if_fail( (!a.empty()), -1);
+    g_return_val_if_fail( (!b.empty()), 1);
 
-    most_freq_a = (Recurrence*)g_list_nth_data(g_list_sort(a, (GCompareFunc)recurrenceCmp), 0);
-    most_freq_b = (Recurrence*)g_list_nth_data(g_list_sort(b, (GCompareFunc)recurrenceCmp), 0);
+    RecurrenceList_t sorted_a = a;
+    sorted_a.sort(recurrenceCmpStrictWeak);
+    RecurrenceList_t sorted_b = b;
+    sorted_b.sort(recurrenceCmpStrictWeak);
+    most_freq_a = *(sorted_a.begin());
+    most_freq_b = *(sorted_b.begin());
 
     return recurrenceCmp(most_freq_a, most_freq_b);
 }
 
 void
-recurrenceListFree(GList **recurrences)
+recurrenceListFree(RecurrenceList_t &recurrences)
 {
-    g_list_foreach(*recurrences, (GFunc)g_free, NULL);
-    g_list_free(*recurrences);
-    *recurrences = NULL;
+    for(RecurrenceList_t::iterator it = recurrences.begin(); it != recurrences.end(); it++)
+        delete *it;
+    recurrences.clear();
 }

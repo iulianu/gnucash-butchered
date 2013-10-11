@@ -280,7 +280,7 @@ sxftd_add_template_trans(SXFromTransInfo *sxfti)
 
 
 static void
-sxftd_update_schedule( SXFromTransInfo *sxfti, GDate *date, GList **recurrences)
+sxftd_update_schedule( SXFromTransInfo *sxfti, GDate *date, RecurrenceList_t &recurrences)
 {
     gint index;
 
@@ -293,19 +293,19 @@ sxftd_update_schedule( SXFromTransInfo *sxfti, GDate *date, GList **recurrences)
     {
     case FREQ_DAILY:
     {
-        Recurrence *r = g_new0(Recurrence, 1);
+        Recurrence *r = new Recurrence;//g_new0(Recurrence, 1);
         recurrenceSet(r, 1, PERIOD_DAY, date, WEEKEND_ADJ_NONE);
-        *recurrences = g_list_append(*recurrences, r);
+        recurrences.push_back(r);
     }
     break;
 
     case FREQ_WEEKLY:
     case FREQ_BIWEEKLY:
     {
-        Recurrence *r = g_new0(Recurrence, 1);
+        Recurrence *r = new Recurrence;//g_new0(Recurrence, 1);
         int mult = (index == FREQ_BIWEEKLY ? 2 : 1);
         recurrenceSet(r, mult, PERIOD_WEEK, date, WEEKEND_ADJ_NONE);
-        *recurrences = g_list_append(*recurrences, r);
+        recurrences.push_back(r);
     }
     break;
 
@@ -313,14 +313,14 @@ sxftd_update_schedule( SXFromTransInfo *sxfti, GDate *date, GList **recurrences)
     case FREQ_QUARTERLY:
     case FREQ_ANNUALLY:
     {
-        Recurrence *r = g_new0(Recurrence, 1);
+        Recurrence *r = new Recurrence;//g_new0(Recurrence, 1);
         int mult = (index == FREQ_MONTHLY
                     ? 1
                     : (index == FREQ_QUARTERLY
                        ? 3
                        : 12));
         recurrenceSet(r, mult, PERIOD_MONTH, date, recurrenceGetWeekendAdjust(r));
-        *recurrences = g_list_append(*recurrences, r);
+        recurrences.push_back(r);
     }
     break;
 
@@ -337,7 +337,7 @@ sxftd_init( SXFromTransInfo *sxfti )
     GtkWidget *w;
     const char *transName;
     gint pos;
-    GList *schedule = NULL;
+    RecurrenceList_t schedule;
     time64 start_tt;
     struct tm *tmpTm;
     GDate date, nextDate;
@@ -427,9 +427,9 @@ sxftd_init( SXFromTransInfo *sxfti )
     g_signal_connect( sxfti->freq_combo, "changed",
                       G_CALLBACK(sxftd_freq_combo_changed),
                       sxfti );
-    sxftd_update_schedule( sxfti, &date, &schedule);
+    sxftd_update_schedule( sxfti, &date, schedule);
     recurrenceListNextInstance(schedule, &date, &nextDate);
-    recurrenceListFree(&schedule);
+    recurrenceListFree(schedule);
     start_tt = gnc_time64_get_day_start_gdate (&nextDate);
     gnc_date_edit_set_time( sxfti->startDateGDE, start_tt );
 
@@ -448,7 +448,7 @@ sxftd_compute_sx(SXFromTransInfo *sxfti)
 {
     gchar *name;
     GDate date;
-    GList *schedule = NULL;
+    RecurrenceList_t schedule;
     getEndTuple end_info;
     guint sxftd_errno = 0; /* 0 == OK, > 0 means dialog needs to be run again */
 
@@ -462,7 +462,7 @@ sxftd_compute_sx(SXFromTransInfo *sxfti)
 
     gnc_gdate_set_time64( &date, gnc_date_edit_get_date( sxfti->startDateGDE ) );
 
-    sxftd_update_schedule(sxfti, &date, &schedule);
+    sxftd_update_schedule(sxfti, &date, schedule);
     if (sxftd_errno == 0)
     {
         gnc_sx_set_schedule(sx, schedule);
@@ -579,18 +579,18 @@ sxftd_freq_combo_changed( GtkWidget *w, gpointer user_data )
     GDate date, nextDate;
     time64 tmp_tt;
     struct tm *tmpTm;
-    GList *schedule = NULL;
+    RecurrenceList_t schedule;
 
     tmp_tt = xaccTransGetDate( sxfti->trans );
     gnc_gdate_set_time64 (&date, tmp_tt);
 
     g_date_clear(&nextDate, 1);
-    sxftd_update_schedule(sxfti, &date, &schedule);
+    sxftd_update_schedule(sxfti, &date, schedule);
     recurrenceListNextInstance(schedule, &date, &nextDate);
     tmp_tt = gnc_time64_get_day_start_gdate (&nextDate);
     gnc_date_edit_set_time( sxfti->startDateGDE, tmp_tt );
 
-    recurrenceListFree(&schedule);
+    recurrenceListFree(schedule);
     sxftd_update_example_cal( sxfti );
 }
 
@@ -678,7 +678,7 @@ sxftd_update_example_cal( SXFromTransInfo *sxfti )
     struct tm *tmpTm;
     time64 tmp_tt;
     GDate date, startDate, nextDate;
-    GList *schedule = NULL;
+    RecurrenceList_t schedule;
     getEndTuple get;
 
     get = sxftd_get_end_info( sxfti );
@@ -686,7 +686,7 @@ sxftd_update_example_cal( SXFromTransInfo *sxfti )
     tmp_tt = gnc_date_edit_get_date( sxfti->startDateGDE );
     gnc_gdate_set_time64 (&date, tmp_tt);
 
-    sxftd_update_schedule(sxfti, &date, &schedule);
+    sxftd_update_schedule(sxfti, &date, schedule);
 
     /* go one day before what's in the box so we can get the correct start
      * date. */
@@ -734,7 +734,7 @@ sxftd_update_example_cal( SXFromTransInfo *sxfti )
     gnc_dense_cal_set_month( sxfti->example_cal, g_date_get_month( &startDate ) );
     gnc_dense_cal_set_year( sxfti->example_cal, g_date_get_year( &startDate ) );
 
-    recurrenceListFree(&schedule);
+    recurrenceListFree(schedule);
 }
 
 

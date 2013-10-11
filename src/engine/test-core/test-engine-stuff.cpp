@@ -2216,8 +2216,8 @@ add_sx(gchar *name, const GDate *start, const GDate *end, const GDate *last_occu
     if (last_occur != NULL)
         xaccSchedXactionSetLastOccurDate(sx, last_occur);
     {
-        GList *recurrences = NULL;
-        recurrences = g_list_append(recurrences, r);
+        RecurrenceList_t recurrences;
+        recurrences.push_back(r);
         gnc_sx_set_schedule(sx, recurrences);
     }
 

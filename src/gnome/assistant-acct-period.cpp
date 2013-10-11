@@ -78,7 +78,7 @@ typedef struct
     char * earliest_str;
     GDate closing_date;
     GDate prev_closing_date;
-    GList *period;
+    RecurrenceList_t period;
     int close_status;
 
 } AcctPeriodInfo;
@@ -214,7 +214,7 @@ ap_assistant_destroy_cb (GtkObject *object, gpointer data)
     gnc_unregister_gui_component_by_data (ASSISTANT_ACCT_PERIOD_CM_CLASS, info);
 
     // do we need gnc_frequency_destroy or is this automatic ??
-    recurrenceListFree(&info->period);
+    recurrenceListFree(info->period);
     g_free (info->earliest_str);
     g_free (info);
 }
@@ -281,8 +281,8 @@ ap_assistant_menu_prepare (GtkAssistant *assistant, gpointer user_data)
 
     /* Pull info from widget, push into freq spec */
     //gnc_frequency_save_state (info->period_menu, info->period, &info->closing_date);
-    recurrenceListFree(&info->period);
-    gnc_frequency_save_to_recurrence(info->period_menu, &info->period, &info->closing_date);
+    recurrenceListFree(info->period);
+    gnc_frequency_save_to_recurrence(info->period_menu, info->period, &info->closing_date);
 
     /* Count the number of periods that would be generated. */
     g_date_clear (&period_begin, 1);
@@ -358,8 +358,8 @@ ap_assistant_book_prepare (GtkAssistant *assistant, gpointer user_data)
 
     /* Pull info from widget, push into freq spec */
     //gnc_frequency_save_state (info->period_menu, info->period, &info->closing_date);
-    recurrenceListFree(&info->period);
-    gnc_frequency_save_to_recurrence(info->period_menu, &info->period, &info->closing_date);
+    recurrenceListFree(info->period);
+    gnc_frequency_save_to_recurrence(info->period_menu, info->period, &info->closing_date);
 
     qof_print_date_dmy_buff (close_date_str, MAX_DATE_LENGTH,
                              g_date_get_day(&info->closing_date),
@@ -445,8 +445,8 @@ ap_validate_menu (GtkAssistant *assistant, gpointer user_data)
 
     /* Pull info from widget, push into freq spec */
     //gnc_frequency_save_state (info->period_menu, info->period, &info->closing_date);
-    recurrenceListFree(&info->period);
-    gnc_frequency_save_to_recurrence(info->period_menu, &info->period, &info->closing_date);
+    recurrenceListFree(info->period);
+    gnc_frequency_save_to_recurrence(info->period_menu, info->period, &info->closing_date);
 
     if (0 <= g_date_compare(&info->prev_closing_date, &info->closing_date))
     {
@@ -509,7 +509,7 @@ ap_assistant_finish (GtkAssistant *assistant, gpointer user_data)
 	    gnc_time64_get_day_end_gdate (&info->closing_date))
         {
             /* Load up the GUI for the next closing period. */
-            gnc_frequency_setup_recurrence (info->period_menu, NULL,
+            gnc_frequency_setup_recurrence (info->period_menu, RecurrenceList_t(),
 					    &info->closing_date);
             /* Jump back to the Close Book page. */
             gtk_assistant_set_current_page (GTK_ASSISTANT(info->window), 1);
@@ -587,10 +587,10 @@ ap_assistant_create (AcctPeriodInfo *info)
     g_date_add_years (&info->closing_date, 1);
 
     {
-        Recurrence *r = g_new0(Recurrence, 1);
+        Recurrence *r = new Recurrence;//g_new0(Recurrence, 1);
         recurrenceSet(r, 1, PERIOD_MONTH, &info->closing_date, WEEKEND_ADJ_NONE);
-        info->period = NULL;
-        info->period = g_list_append(info->period, r);
+        info->period.clear();
+        info->period.push_back(r);
     }
 
     info->period_menu = GNC_FREQUENCY(

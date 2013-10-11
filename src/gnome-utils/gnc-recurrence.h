@@ -53,11 +53,9 @@ void gnc_recurrence_set(GncRecurrence *gr, const Recurrence *r);
 const Recurrence * gnc_recurrence_get(GncRecurrence *gr);
 
 /* "composite" recurrences */
-void gnc_recurrence_comp_set_list(GncRecurrenceComp *grc, const GList *r);
+void gnc_recurrence_comp_set_list(GncRecurrenceComp *grc, const RecurrenceList_t &r);
 
-/* The GList is newly-allocated, but the Recurrences are internally
-   owned. */
-GList * gnc_recurrence_comp_get_list(GncRecurrenceComp *grc);
+RecurrenceList_t gnc_recurrence_comp_get_list(GncRecurrenceComp *grc);
 
 /* This works, but is not used.  Kind of experimental... */
 GtkWidget * gnc_recurrence_comp_new(void);

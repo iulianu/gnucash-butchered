@@ -411,15 +411,15 @@ gnc_sxed_check_changed( GncSxEditorDialog *sxed )
     }
 
     {
-        GList *dialog_schedule = NULL;
+        RecurrenceList_t dialog_schedule;
         GDate dialog_start_date, sx_start_date;
         gchar *dialog_schedule_str, *sx_schedule_str;
         gboolean schedules_are_the_same, start_dates_are_the_same;
 
         g_date_clear(&dialog_start_date, 1);
-        gnc_frequency_save_to_recurrence(sxed->gncfreq, &dialog_schedule, &dialog_start_date);
+        gnc_frequency_save_to_recurrence(sxed->gncfreq, dialog_schedule, &dialog_start_date);
         dialog_schedule_str = recurrenceListToString(dialog_schedule);
-        recurrenceListFree(&dialog_schedule);
+        recurrenceListFree(dialog_schedule);
 
         sx_start_date = *xaccSchedXactionGetStartDate(sxed->sx);
         sx_schedule_str = recurrenceListToString(gnc_sx_get_schedule(sxed->sx));
@@ -520,7 +520,7 @@ gnc_sxed_check_consistent( GncSxEditorDialog *sxed )
     gboolean multi_commodity = FALSE;
     gnc_commodity *base_cmdty = NULL;
     gint ttVarCount, splitCount;
-    GList *schedule = NULL;
+    RecurrenceList_t schedule;
 
     /* Do checks on validity and such, interrupting the user if
      * things aren't right.
@@ -863,13 +863,13 @@ gnc_sxed_check_consistent( GncSxEditorDialog *sxed )
         }
 
         g_date_clear(&nextDate, 1);
-        gnc_frequency_save_to_recurrence(sxed->gncfreq, &schedule, &startDate);
-        if (g_list_length(schedule) > 0)
+        gnc_frequency_save_to_recurrence(sxed->gncfreq, schedule, &startDate);
+        if (schedule.size() > 0)
         {
             g_date_subtract_days(&startDate, 1);
             recurrenceListNextInstance(schedule, &startDate, &nextDate);
         }
-        recurrenceListFree(&schedule);
+        recurrenceListFree(schedule);
 
         if (!g_date_valid(&nextDate)
                 || (g_date_valid(&endDate) && (g_date_compare(&nextDate, &endDate) > 0)))
@@ -992,9 +992,9 @@ gnc_sxed_save_sx( GncSxEditorDialog *sxed )
     /* start date and freq spec */
     {
         GDate gdate;
-        GList *schedule = NULL;
+        RecurrenceList_t schedule;
 
-        gnc_frequency_save_to_recurrence(sxed->gncfreq, &schedule, &gdate);
+        gnc_frequency_save_to_recurrence(sxed->gncfreq, schedule, &gdate);
         gnc_sx_set_schedule(sxed->sx, schedule);
         {
             gchar *recurrence_str = recurrenceListToCompactString(schedule);
@@ -1582,12 +1582,12 @@ typedef enum { NO_END, DATE_END, COUNT_END } END_TYPE;
 static void
 gnc_sxed_update_cal(GncSxEditorDialog *sxed)
 {
-    GList *recurrences = NULL;
+    RecurrenceList_t recurrences;
     GDate start_date, first_date;
 
     g_date_clear(&start_date, 1);
 
-    gnc_frequency_save_to_recurrence(sxed->gncfreq, &recurrences, &start_date);
+    gnc_frequency_save_to_recurrence(sxed->gncfreq, recurrences, &start_date);
     g_date_subtract_days(&start_date, 1);
     recurrenceListNextInstance(recurrences, &start_date, &first_date);
 
@@ -1647,7 +1647,7 @@ gnc_sxed_update_cal(GncSxEditorDialog *sxed)
     }
 
 cleanup:
-    recurrenceListFree(&recurrences);
+    recurrenceListFree(recurrences);
 }
 
 

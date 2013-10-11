@@ -68,7 +68,7 @@ class SchedXaction : public QofInstance
 public:
     gchar           *name;
 
-    GList           *schedule;
+    RecurrenceList_t schedule;
 
     GDate           last_date;
 
@@ -124,9 +124,9 @@ void gnc_sx_commit_edit (SchedXaction *sx);
 
 /** @return GList<Recurrence*> **/
 /*@ dependent @*/
-GList* gnc_sx_get_schedule(const SchedXaction *sx);
+RecurrenceList_t gnc_sx_get_schedule(const SchedXaction *sx);
 /** @param[in] schedule A GList<Recurrence*> **/
-void gnc_sx_set_schedule(SchedXaction *sx, /*@ null @*//*@ only @*/ GList *schedule);
+void gnc_sx_set_schedule(SchedXaction *sx, const RecurrenceList_t &schedule);
 
 gchar *xaccSchedXactionGetName( const SchedXaction *sx );
 /**

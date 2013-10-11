@@ -26,7 +26,6 @@
 
 #include <sys/types.h>
 #include <time.h>
-#include <glib.h>
 #include "qof.h"
 #include "Account.h"
 
