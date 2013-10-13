@@ -798,7 +798,6 @@ AC_CONFIG_FILES(
   checks/Makefile
   doc/Makefile
   doc/examples/Makefile
-  intl-scm/Makefile
   packaging/Makefile
   src/Makefile
   src/app-utils/Makefile
@@ -854,8 +853,6 @@ AC_CONFIG_FILES(
   src/register/register-core/test/Makefile
   src/register/register-gnome/Makefile
   src/register/register-gnome/test/Makefile
-  src/scm/Makefile
-  src/scm/gnumeric/Makefile
   src/test-core/Makefile
   src/business/Makefile
   src/business/business-gnome/Makefile
