@@ -386,6 +386,8 @@ void xaccSplitMakeStockSplit(Split *s);
 gint xaccSplitOrder (const Split *sa, const Split *sb);
 gint xaccSplitOrderDateOnly (const Split *sa, const Split *sb);
 
+bool xaccSplitOrderStrictWeak(const Split *sa, const Split *sb);
+bool xaccSplitOrderDateOnlyStrictWeak(const Split *sa, const Split *sb);
 
 /*
  * These functions compare two splits by different criteria.

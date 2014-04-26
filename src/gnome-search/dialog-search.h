@@ -41,8 +41,8 @@ typedef struct _GNCSearchWindow GNCSearchWindow;
  * and the callback may change the value.
  */
 typedef void (*GNCSearchCallback) (gpointer *obj_p, gpointer user_data);
-typedef void (*GNCSearchResultCB) (QofQuery *query, gpointer user_data,
-                                   gpointer *result);
+//typedef void (*GNCSearchResultCB) (QofQuery *query, gpointer user_data,
+//                                   gpointer *result);
 
 /*
  * This callback will create a new item and return a handle to the
@@ -101,19 +101,19 @@ typedef struct
  * as well as into the "New" button.  If this string is NULL then
  * the dialog will use the obj_type instead.
  */
-GNCSearchWindow *
-gnc_search_dialog_create (QofIdTypeConst obj_type, const gchar *title,
-                          GList *param_list,
-                          GList *display_list,
-                          QofQuery *start_query, QofQuery *show_start_query,
-                          GNCSearchCallbackButton *callbacks,
-                          GNCSearchResultCB result_callback,
-                          GNCSearchNewItemCB new_item_cb,
-                          gpointer user_data, GNCSearchFree free_user_data,
-                          const gchar *gconf_section,
-                          const gchar *type_label);
-
-void gnc_search_dialog_destroy (GNCSearchWindow *sw);
+//GNCSearchWindow *
+//gnc_search_dialog_create (QofIdTypeConst obj_type, const gchar *title,
+//                          GList *param_list,
+//                          GList *display_list,
+//                          QofQuery *start_query, QofQuery *show_start_query,
+//                          GNCSearchCallbackButton *callbacks,
+//                          GNCSearchResultCB result_callback,
+//                          GNCSearchNewItemCB new_item_cb,
+//                          gpointer user_data, GNCSearchFree free_user_data,
+//                          const gchar *gconf_section,
+//                          const gchar *type_label);
+//
+//void gnc_search_dialog_destroy (GNCSearchWindow *sw);
 void gnc_search_dialog_raise (GNCSearchWindow *sw);
 
 /* Register an on-close signal with the Search Dialog */

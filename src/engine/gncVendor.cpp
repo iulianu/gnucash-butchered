@@ -645,41 +645,41 @@ static QofObject gncVendorDesc =
 
 bool gncVendorRegister (void)
 {
-    static QofParam params[] =
-    {
-        { VENDOR_ID, QOF_TYPE_STRING, (QofAccessFunc)gncVendorGetID, (QofSetterFunc)gncVendorSetID },
-        { VENDOR_NAME, QOF_TYPE_STRING, (QofAccessFunc)gncVendorGetName, (QofSetterFunc)gncVendorSetName },
-        { VENDOR_ADDR,    GNC_ID_ADDRESS, (QofAccessFunc)gncVendorGetAddr, (QofSetterFunc)qofVendorSetAddr },
-        { VENDOR_NOTES,   QOF_TYPE_STRING, (QofAccessFunc)gncVendorGetNotes, (QofSetterFunc)gncVendorSetNotes },
-        { VENDOR_TERMS,   GNC_ID_BILLTERM, (QofAccessFunc)gncVendorGetTerms, (QofSetterFunc)gncVendorSetTerms },
-        {
-            VENDOR_TAX_OVERRIDE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncVendorGetTaxTableOverride,
-            (QofSetterFunc)gncVendorSetTaxTableOverride
-        },
-        {
-            VENDOR_TAX_TABLE, GNC_ID_TAXTABLE, (QofAccessFunc)gncVendorGetTaxTable,
-            (QofSetterFunc)gncVendorSetTaxTable
-        },
-        {
-            VENDOR_TAX_INC, QOF_TYPE_STRING, (QofAccessFunc)qofVendorGetTaxIncluded,
-            (QofSetterFunc)qofVendorSetTaxIncluded
-        },
-        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)qof_instance_get_book, NULL },
-        { QOF_PARAM_GUID, QOF_TYPE_GUID, (QofAccessFunc)qof_instance_get_guid, NULL },
-        { QOF_PARAM_ACTIVE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncVendorGetActive, NULL },
-        { NULL },
-    };
-
-    if (!qof_choice_add_class(GNC_ID_INVOICE, GNC_ID_VENDOR, INVOICE_OWNER))
-    {
-        return FALSE;
-    }
-    if (!qof_choice_add_class(GNC_ID_JOB, GNC_ID_VENDOR, JOB_OWNER))
-    {
-        return FALSE;
-    }
-
-    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncVendorCompare, params);
+//    static QofParam params[] =
+//    {
+//        { VENDOR_ID, QOF_TYPE_STRING, (QofAccessFunc)gncVendorGetID, (QofSetterFunc)gncVendorSetID },
+//        { VENDOR_NAME, QOF_TYPE_STRING, (QofAccessFunc)gncVendorGetName, (QofSetterFunc)gncVendorSetName },
+//        { VENDOR_ADDR,    GNC_ID_ADDRESS, (QofAccessFunc)gncVendorGetAddr, (QofSetterFunc)qofVendorSetAddr },
+//        { VENDOR_NOTES,   QOF_TYPE_STRING, (QofAccessFunc)gncVendorGetNotes, (QofSetterFunc)gncVendorSetNotes },
+//        { VENDOR_TERMS,   GNC_ID_BILLTERM, (QofAccessFunc)gncVendorGetTerms, (QofSetterFunc)gncVendorSetTerms },
+//        {
+//            VENDOR_TAX_OVERRIDE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncVendorGetTaxTableOverride,
+//            (QofSetterFunc)gncVendorSetTaxTableOverride
+//        },
+//        {
+//            VENDOR_TAX_TABLE, GNC_ID_TAXTABLE, (QofAccessFunc)gncVendorGetTaxTable,
+//            (QofSetterFunc)gncVendorSetTaxTable
+//        },
+//        {
+//            VENDOR_TAX_INC, QOF_TYPE_STRING, (QofAccessFunc)qofVendorGetTaxIncluded,
+//            (QofSetterFunc)qofVendorSetTaxIncluded
+//        },
+//        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)qof_instance_get_book, NULL },
+//        { QOF_PARAM_GUID, QOF_TYPE_GUID, (QofAccessFunc)qof_instance_get_guid, NULL },
+//        { QOF_PARAM_ACTIVE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncVendorGetActive, NULL },
+//        { NULL },
+//    };
+//
+//    if (!qof_choice_add_class(GNC_ID_INVOICE, GNC_ID_VENDOR, INVOICE_OWNER))
+//    {
+//        return FALSE;
+//    }
+//    if (!qof_choice_add_class(GNC_ID_JOB, GNC_ID_VENDOR, JOB_OWNER))
+//    {
+//        return FALSE;
+//    }
+//
+//    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncVendorCompare, params);
 
     return qof_object_register (&gncVendorDesc);
 }

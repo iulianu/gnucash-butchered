@@ -101,7 +101,7 @@ void gnc_lot_remove_split (GNCLot *, Split *);
  *    either gnc_lot_add_split() or gnc_lot_remove_split() will
  *    invalidate the returned pointer.
  */
-SplitList * gnc_lot_get_split_list (const GNCLot *);
+SplitList_t gnc_lot_get_split_list (const GNCLot *);
 gint gnc_lot_count_splits (const GNCLot *);
 
 /** The gnc_lot_get_account() routine returns the account with which

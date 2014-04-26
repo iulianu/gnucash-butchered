@@ -73,7 +73,7 @@ typedef enum
 struct _vendor_select_window
 {
     QofBook *	book;
-    QofQuery *	q;
+//    QofQuery *	q;
 };
 
 struct _vendor_window
@@ -687,75 +687,75 @@ free_vendor_cb (gpointer user_data)
     struct _vendor_select_window *sw = user_data;
     g_return_if_fail (sw);
 
-    qof_query_destroy (sw->q);
+//    qof_query_destroy (sw->q);
     g_free (sw);
 }
 
 GNCSearchWindow *
 gnc_vendor_search (GncVendor *start, QofBook *book)
 {
-    QofIdType type = GNC_VENDOR_MODULE_NAME;
-    struct _vendor_select_window *sw;
-    QofQuery *q, *q2 = NULL;
-    static GList *params = NULL;
-    static GList *columns = NULL;
-    static GNCSearchCallbackButton buttons[] =
-    {
-        { N_("View/Edit Vendor"), edit_vendor_cb, NULL, TRUE},
-        { N_("Vendor's Jobs"), jobs_vendor_cb, NULL, TRUE},
-        //    { N_("Vendor Orders"), order_vendor_cb, NULL, TRUE},
-        { N_("Vendor's Bills"), invoice_vendor_cb, NULL, TRUE},
-        { N_("Pay Bill"), payment_vendor_cb, NULL, FALSE},
-        { NULL },
-    };
-    (void)order_vendor_cb;
-
-    g_return_val_if_fail (book, NULL);
-
-    /* Build parameter list in reverse order */
-    if (params == NULL)
-    {
-        params = gnc_search_param_prepend (params, _("Billing Contact"), NULL, type,
-                                           VENDOR_ADDR, ADDRESS_NAME, NULL);
-        params = gnc_search_param_prepend (params, _("Vendor ID"), NULL, type,
-                                           VENDOR_ID, NULL);
-        params = gnc_search_param_prepend (params, _("Company Name"), NULL, type,
-                                           VENDOR_NAME, NULL);
-    }
-
-    /* Build the column list in reverse order */
-    if (columns == NULL)
-    {
-        columns = gnc_search_param_prepend (columns, _("Contact"), NULL, type,
-                                            VENDOR_ADDR, ADDRESS_NAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
-                                            VENDOR_NAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("ID #"), NULL, type,
-                                            VENDOR_ID, NULL);
-    }
-
-    /* Build the queries */
-    q = qof_query_create_for (type);
-    qof_query_set_book (q, book);
-
-#if 0
-    if (start)
-    {
-        q2 = qof_query_copy (q);
-        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
-                                  gncVendorGetGUID (start), QOF_QUERY_AND);
-    }
-#endif
-
-    /* launch select dialog and return the result */
-    sw = g_new0 (struct _vendor_select_window, 1);
-    sw->book = book;
-    sw->q = q;
-
-    return gnc_search_dialog_create (type, _("Find Vendor"),
-                                     params, columns, q, q2, buttons, NULL,
-                                     new_vendor_cb, sw, free_vendor_cb,
-                                     GCONF_SECTION_SEARCH, NULL);
+//    QofIdType type = GNC_VENDOR_MODULE_NAME;
+//    struct _vendor_select_window *sw;
+//    QofQuery *q, *q2 = NULL;
+//    static GList *params = NULL;
+//    static GList *columns = NULL;
+//    static GNCSearchCallbackButton buttons[] =
+//    {
+//        { N_("View/Edit Vendor"), edit_vendor_cb, NULL, TRUE},
+//        { N_("Vendor's Jobs"), jobs_vendor_cb, NULL, TRUE},
+//        //    { N_("Vendor Orders"), order_vendor_cb, NULL, TRUE},
+//        { N_("Vendor's Bills"), invoice_vendor_cb, NULL, TRUE},
+//        { N_("Pay Bill"), payment_vendor_cb, NULL, FALSE},
+//        { NULL },
+//    };
+//    (void)order_vendor_cb;
+//
+//    g_return_val_if_fail (book, NULL);
+//
+//    /* Build parameter list in reverse order */
+//    if (params == NULL)
+//    {
+//        params = gnc_search_param_prepend (params, _("Billing Contact"), NULL, type,
+//                                           VENDOR_ADDR, ADDRESS_NAME, NULL);
+//        params = gnc_search_param_prepend (params, _("Vendor ID"), NULL, type,
+//                                           VENDOR_ID, NULL);
+//        params = gnc_search_param_prepend (params, _("Company Name"), NULL, type,
+//                                           VENDOR_NAME, NULL);
+//    }
+//
+//    /* Build the column list in reverse order */
+//    if (columns == NULL)
+//    {
+//        columns = gnc_search_param_prepend (columns, _("Contact"), NULL, type,
+//                                            VENDOR_ADDR, ADDRESS_NAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
+//                                            VENDOR_NAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("ID #"), NULL, type,
+//                                            VENDOR_ID, NULL);
+//    }
+//
+//    /* Build the queries */
+//    q = qof_query_create_for (type);
+//    qof_query_set_book (q, book);
+//
+//#if 0
+//    if (start)
+//    {
+//        q2 = qof_query_copy (q);
+//        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
+//                                  gncVendorGetGUID (start), QOF_QUERY_AND);
+//    }
+//#endif
+//
+//    /* launch select dialog and return the result */
+//    sw = g_new0 (struct _vendor_select_window, 1);
+//    sw->book = book;
+//    sw->q = q;
+//
+//    return gnc_search_dialog_create (type, _("Find Vendor"),
+//                                     params, columns, q, q2, buttons, NULL,
+//                                     new_vendor_cb, sw, free_vendor_cb,
+//                                     GCONF_SECTION_SEARCH, NULL);
 }
 
 GNCSearchWindow *

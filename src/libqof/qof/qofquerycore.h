@@ -32,180 +32,180 @@
 #ifndef QOF_QUERYCORE_H
 #define QOF_QUERYCORE_H
 
-#include "gnc-numeric.h"
-#include "gnc-date.h"
-#include "kvp_frame.h"
-#include "qofclass.h"
-
-/**
- * PREDICATE DATA TYPES: All the predicate data types are rolled up into
- * the union type PredicateData.  The "type" field specifies which type
- * the union is.
- */
-struct QofQueryPredData;
-
-/** Standard Query comparators, for how to compare objects in a predicate.
- *  Note that not all core types implement all comparators
- */
-enum QofQueryCompare
-{
-    QOF_COMPARE_LT = 1,
-    QOF_COMPARE_LTE,
-    QOF_COMPARE_EQUAL,
-    QOF_COMPARE_GT,
-    QOF_COMPARE_GTE,
-    QOF_COMPARE_NEQ
-};
-
-/** List of known core query data-types...
- *  Each core query type defines it's set of optional "comparator qualifiers".
- */
-/* Comparisons for QOF_TYPE_STRING */
-enum QofStringMatch
-{
-    QOF_STRING_MATCH_NORMAL = 1,
-    QOF_STRING_MATCH_CASEINSENSITIVE
-};
-
-/** Comparisons for QOF_TYPE_DATE
- * The QOF_DATE_MATCH_DAY comparison rounds the two time
- *     values to mid-day and then compares these rounded values.
- * The QOF_DATE_MATCH_NORMAL comparison matches the time values,
- *     down to the second.
- */
-
-enum QofDateMatch
-{
-    QOF_DATE_MATCH_NORMAL = 1,
-    QOF_DATE_MATCH_DAY
-};
-
-/** Comparisons for QOF_TYPE_NUMERIC, QOF_TYPE_DEBCRED
- *
- * XXX Should be deprecated, or at least wrapped up as a convenience
- * function,  this is based on the old bill gribble code, which assumed
- * the amount was always positive, and then specified a funds-flow
- * direction (credit, debit, or either).
- *
- * The point being that 'match credit' is equivalent to the compound
- * predicate (amount >= 0) && (amount 'op' value) while the  'match
- * debit' predicate is equivalent to (amount <= 0) && (abs(amount) 'op' value)
-*/
-
-enum QofNumericMatch
-{
-    QOF_NUMERIC_MATCH_DEBIT = 1,
-    QOF_NUMERIC_MATCH_CREDIT,
-    QOF_NUMERIC_MATCH_ANY
-};
-
-/* Comparisons for QOF_TYPE_GUID */
-enum QofGuidMatch
-{
-    /** These expect a single object and expect the
-     * QofAccessFunc returns GncGUID* */
-    QOF_GUID_MATCH_ANY = 1,
-    QOF_GUID_MATCH_NONE,
-    QOF_GUID_MATCH_NULL,
-    /** These expect a GList* of objects and calls the QofAccessFunc routine
-     * on each item in the list to obtain a GncGUID* for each object */
-    QOF_GUID_MATCH_ALL,
-    /** These expect a single object and expect the QofAccessFunc function
-     * to return a GList* of GncGUID* (the list is the property of the caller) */
-    QOF_GUID_MATCH_LIST_ANY,
-};
-
-/** A CHAR type is for a RECNCell, Comparisons for QOF_TYPE_CHAR
- *  'ANY' will match any character in the string.
- *
- * Match 'ANY' is a convenience/performance-enhanced predicate
- * for the compound statement (value==char1) || (value==char2) || etc.
- * Match 'NONE' is equivalent to
- * (value != char1) && (value != char2) && etc.
- */
-enum QofCharMatch
-{
-    QOF_CHAR_MATCH_ANY = 1,
-    QOF_CHAR_MATCH_NONE
-};
-
-/** No extended comparisons for QOF_TYPE_INT32, QOF_TYPE_INT64,
- *  QOF_TYPE_DOUBLE, QOF_TYPE_BOOLEAN, QOF_TYPE_KVP
- */
-
-/** Head of Predicate Data structures.  All PData must start like this. */
-struct QofQueryPredData
-{
-    QofType               type_name;  /* QOF_TYPE_* */
-    QofQueryCompare       how;
-    
-    QofQueryPredData();
-};
-
-/** A list of parameters (::QofIdType) used to describe a parameter to
- * use in a predicate or when sorting */
-typedef GSList QofQueryParamList;
-
-/** @name Core Data Type Predicates
-    @{ */
-QofQueryPredData *qof_query_string_predicate (QofQueryCompare how,
-        const char *str,
-        QofStringMatch options,
-        bool is_regex);
-
-QofQueryPredData *qof_query_date_predicate (QofQueryCompare how,
-        QofDateMatch options,
-        Timespec date);
-
-QofQueryPredData *qof_query_numeric_predicate (QofQueryCompare how,
-        QofNumericMatch options,
-        gnc_numeric value);
-
-QofQueryPredData *qof_query_guid_predicate (QofGuidMatch options, GList *guids);
-QofQueryPredData *qof_query_int32_predicate (QofQueryCompare how, int32_t val);
-QofQueryPredData *qof_query_int64_predicate (QofQueryCompare how, int64_t val);
-QofQueryPredData *qof_query_double_predicate (QofQueryCompare how, double val);
-QofQueryPredData *qof_query_boolean_predicate (QofQueryCompare how, bool val);
-QofQueryPredData *qof_query_char_predicate (QofCharMatch options,
-        const char *chars);
-QofQueryPredData *qof_query_collect_predicate (QofGuidMatch options,
-        QofCollection *coll);
-QofQueryPredData *qof_query_choice_predicate  (QofGuidMatch options, GList *guids);
-
-/** The qof_query_kvp_predicate() matches the object that has
- *  the value 'value' located at the path 'path'.  In a certain
- *  sense, the 'path' is handled as if it were a parameter.
- */
-QofQueryPredData *qof_query_kvp_predicate (QofQueryCompare how,
-        QofQueryParamList *path,
-        const KvpValue *value);
-
-/** Same predicate as above, except that 'path' is assumed to be
- * a string containing slash-separated pathname. */
-QofQueryPredData *qof_query_kvp_predicate_path (QofQueryCompare how,
-        const char *path,
-        const KvpValue *value);
-
-/** Copy a predicate. */
-QofQueryPredData *qof_query_core_predicate_copy (const QofQueryPredData *pdata);
-
-/** Destroy a predicate. */
-void qof_query_core_predicate_free (QofQueryPredData *pdata);
-
-/** Retrieve a predicate. */
-bool qof_query_date_predicate_get_date (const QofQueryPredData *pd, Timespec *date);
-/** Return a printable string for a core data object.  Caller needs
- *  to g_free() the returned string.
- */
-char * qof_query_core_to_string (QofType, void * object, QofParam *getter);
-
-/** Compare two parameter(strings) as if they are numbers!
- *  the two objects, a and b, are the objects being compared
- *  this_param is the QofParam for this parameter in the objects
- */
-int qof_string_number_compare_func (void * a, void * b, int options,
-                                    QofParam *this_param);
-
+//#include "gnc-numeric.h"
+//#include "gnc-date.h"
+//#include "kvp_frame.h"
+//#include "qofclass.h"
+//
+///**
+// * PREDICATE DATA TYPES: All the predicate data types are rolled up into
+// * the union type PredicateData.  The "type" field specifies which type
+// * the union is.
+// */
+//struct QofQueryPredData;
+//
+///** Standard Query comparators, for how to compare objects in a predicate.
+// *  Note that not all core types implement all comparators
+// */
+//enum QofQueryCompare
+//{
+//    QOF_COMPARE_LT = 1,
+//    QOF_COMPARE_LTE,
+//    QOF_COMPARE_EQUAL,
+//    QOF_COMPARE_GT,
+//    QOF_COMPARE_GTE,
+//    QOF_COMPARE_NEQ
+//};
+//
+///** List of known core query data-types...
+// *  Each core query type defines it's set of optional "comparator qualifiers".
+// */
+///* Comparisons for QOF_TYPE_STRING */
+//enum QofStringMatch
+//{
+//    QOF_STRING_MATCH_NORMAL = 1,
+//    QOF_STRING_MATCH_CASEINSENSITIVE
+//};
+//
+///** Comparisons for QOF_TYPE_DATE
+// * The QOF_DATE_MATCH_DAY comparison rounds the two time
+// *     values to mid-day and then compares these rounded values.
+// * The QOF_DATE_MATCH_NORMAL comparison matches the time values,
+// *     down to the second.
+// */
+//
+//enum QofDateMatch
+//{
+//    QOF_DATE_MATCH_NORMAL = 1,
+//    QOF_DATE_MATCH_DAY
+//};
+//
+///** Comparisons for QOF_TYPE_NUMERIC, QOF_TYPE_DEBCRED
+// *
+// * XXX Should be deprecated, or at least wrapped up as a convenience
+// * function,  this is based on the old bill gribble code, which assumed
+// * the amount was always positive, and then specified a funds-flow
+// * direction (credit, debit, or either).
+// *
+// * The point being that 'match credit' is equivalent to the compound
+// * predicate (amount >= 0) && (amount 'op' value) while the  'match
+// * debit' predicate is equivalent to (amount <= 0) && (abs(amount) 'op' value)
+//*/
+//
+//enum QofNumericMatch
+//{
+//    QOF_NUMERIC_MATCH_DEBIT = 1,
+//    QOF_NUMERIC_MATCH_CREDIT,
+//    QOF_NUMERIC_MATCH_ANY
+//};
+//
+///* Comparisons for QOF_TYPE_GUID */
+//enum QofGuidMatch
+//{
+//    /** These expect a single object and expect the
+//     * QofAccessFunc returns GncGUID* */
+//    QOF_GUID_MATCH_ANY = 1,
+//    QOF_GUID_MATCH_NONE,
+//    QOF_GUID_MATCH_NULL,
+//    /** These expect a GList* of objects and calls the QofAccessFunc routine
+//     * on each item in the list to obtain a GncGUID* for each object */
+//    QOF_GUID_MATCH_ALL,
+//    /** These expect a single object and expect the QofAccessFunc function
+//     * to return a GList* of GncGUID* (the list is the property of the caller) */
+//    QOF_GUID_MATCH_LIST_ANY,
+//};
+//
+///** A CHAR type is for a RECNCell, Comparisons for QOF_TYPE_CHAR
+// *  'ANY' will match any character in the string.
+// *
+// * Match 'ANY' is a convenience/performance-enhanced predicate
+// * for the compound statement (value==char1) || (value==char2) || etc.
+// * Match 'NONE' is equivalent to
+// * (value != char1) && (value != char2) && etc.
+// */
+//enum QofCharMatch
+//{
+//    QOF_CHAR_MATCH_ANY = 1,
+//    QOF_CHAR_MATCH_NONE
+//};
+//
+///** No extended comparisons for QOF_TYPE_INT32, QOF_TYPE_INT64,
+// *  QOF_TYPE_DOUBLE, QOF_TYPE_BOOLEAN, QOF_TYPE_KVP
+// */
+//
+///** Head of Predicate Data structures.  All PData must start like this. */
+//struct QofQueryPredData
+//{
+//    QofType               type_name;  /* QOF_TYPE_* */
+//    QofQueryCompare       how;
+//    
+//    QofQueryPredData();
+//};
+//
+///** A list of parameters (::QofIdType) used to describe a parameter to
+// * use in a predicate or when sorting */
+//typedef GSList QofQueryParamList;
+//
+///** @name Core Data Type Predicates
+//    @{ */
+//QofQueryPredData *qof_query_string_predicate (QofQueryCompare how,
+//        const char *str,
+//        QofStringMatch options,
+//        bool is_regex);
+//
+//QofQueryPredData *qof_query_date_predicate (QofQueryCompare how,
+//        QofDateMatch options,
+//        Timespec date);
+//
+//QofQueryPredData *qof_query_numeric_predicate (QofQueryCompare how,
+//        QofNumericMatch options,
+//        gnc_numeric value);
+//
+//QofQueryPredData *qof_query_guid_predicate (QofGuidMatch options, GList *guids);
+//QofQueryPredData *qof_query_int32_predicate (QofQueryCompare how, int32_t val);
+//QofQueryPredData *qof_query_int64_predicate (QofQueryCompare how, int64_t val);
+//QofQueryPredData *qof_query_double_predicate (QofQueryCompare how, double val);
+//QofQueryPredData *qof_query_boolean_predicate (QofQueryCompare how, bool val);
+//QofQueryPredData *qof_query_char_predicate (QofCharMatch options,
+//        const char *chars);
+//QofQueryPredData *qof_query_collect_predicate (QofGuidMatch options,
+//        QofCollection *coll);
+//QofQueryPredData *qof_query_choice_predicate  (QofGuidMatch options, GList *guids);
+//
+///** The qof_query_kvp_predicate() matches the object that has
+// *  the value 'value' located at the path 'path'.  In a certain
+// *  sense, the 'path' is handled as if it were a parameter.
+// */
+//QofQueryPredData *qof_query_kvp_predicate (QofQueryCompare how,
+//        QofQueryParamList *path,
+//        const KvpValue *value);
+//
+///** Same predicate as above, except that 'path' is assumed to be
+// * a string containing slash-separated pathname. */
+//QofQueryPredData *qof_query_kvp_predicate_path (QofQueryCompare how,
+//        const char *path,
+//        const KvpValue *value);
+//
+///** Copy a predicate. */
+//QofQueryPredData *qof_query_core_predicate_copy (const QofQueryPredData *pdata);
+//
+///** Destroy a predicate. */
+//void qof_query_core_predicate_free (QofQueryPredData *pdata);
+//
+///** Retrieve a predicate. */
+//bool qof_query_date_predicate_get_date (const QofQueryPredData *pd, Timespec *date);
+///** Return a printable string for a core data object.  Caller needs
+// *  to g_free() the returned string.
+// */
+//char * qof_query_core_to_string (QofType, void * object, QofParam *getter);
+//
+///** Compare two parameter(strings) as if they are numbers!
+// *  the two objects, a and b, are the objects being compared
+// *  this_param is the QofParam for this parameter in the objects
+// */
+//int qof_string_number_compare_func (void * a, void * b, int options,
+//                                    QofParam *this_param);
+//
 
 #endif /* QOF_QUERYCORE_H */
 /* @} */

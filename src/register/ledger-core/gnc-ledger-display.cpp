@@ -51,7 +51,7 @@ struct gnc_ledger_display
 {
     GncGUID leader;
 
-    Query *query;
+//    Query *query;
 
     GNCLedgerDisplayType ld_type;
 
@@ -75,14 +75,14 @@ static QofLogModule log_module = GNC_MOD_LEDGER;
 
 /** Declarations ****************************************************/
 static GNCLedgerDisplay *
-gnc_ledger_display_internal (Account *lead_account, Query *q,
+gnc_ledger_display_internal (Account *lead_account, /*Query *q,*/
                              GNCLedgerDisplayType ld_type,
                              SplitRegisterType reg_type,
                              SplitRegisterStyle style,
                              gboolean use_double_line,
                              gboolean is_template);
 static void gnc_ledger_display_refresh_internal (GNCLedgerDisplay *ld,
-        GList *splits);
+        SplitList_t &splits);
 
 
 /** Implementations *************************************************/
@@ -144,14 +144,14 @@ gnc_ledger_display_get_split_register (GNCLedgerDisplay *ld)
     return ld->reg;
 }
 
-Query *
-gnc_ledger_display_get_query (GNCLedgerDisplay *ld)
-{
-    if (!ld)
-        return NULL;
-
-    return ld->query;
-}
+//Query *
+//gnc_ledger_display_get_query (GNCLedgerDisplay *ld)
+//{
+//    if (!ld)
+//        return NULL;
+//
+//    return ld->query;
+//}
 
 static gboolean
 find_by_leader (gpointer find_data, gpointer user_data)
@@ -165,17 +165,17 @@ find_by_leader (gpointer find_data, gpointer user_data)
     return (account == gnc_ledger_display_leader (ld));
 }
 
-static gboolean
-find_by_query (gpointer find_data, gpointer user_data)
-{
-    Query *q = find_data;
-    GNCLedgerDisplay *ld = user_data;
-
-    if (!q || !ld)
-        return FALSE;
-
-    return ld->query == q;
-}
+//static gboolean
+//find_by_query (gpointer find_data, gpointer user_data)
+//{
+//    Query *q = find_data;
+//    GNCLedgerDisplay *ld = user_data;
+//
+//    if (!q || !ld)
+//        return FALSE;
+//
+//    return ld->query == q;
+//}
 
 static gboolean
 find_by_reg (gpointer find_data, gpointer user_data)
@@ -375,7 +375,7 @@ gnc_ledger_display_simple (Account *account)
 
     reg_type = gnc_get_reg_type (account, LD_SINGLE);
 
-    ld = gnc_ledger_display_internal (account, NULL, LD_SINGLE, reg_type,
+    ld = gnc_ledger_display_internal (account, /*NULL,*/ LD_SINGLE, reg_type,
                                       gnc_get_default_register_style(acc_type),
                                       use_double_line, FALSE);
     LEAVE("%p", ld);
@@ -394,7 +394,7 @@ gnc_ledger_display_subaccounts (Account *account)
 
     reg_type = gnc_get_reg_type (account, LD_SUBACCOUNT);
 
-    ld = gnc_ledger_display_internal (account, NULL, LD_SUBACCOUNT,
+    ld = gnc_ledger_display_internal (account, /*NULL,*/ LD_SUBACCOUNT,
                                       reg_type, REG_STYLE_JOURNAL, FALSE,
                                       FALSE);
     LEAVE("%p", ld);
@@ -405,17 +405,17 @@ gnc_ledger_display_subaccounts (Account *account)
 GNCLedgerDisplay *
 gnc_ledger_display_gl (void)
 {
-    Query *query;
+//    Query *query;
     time64 start;
     struct tm tm;
     GNCLedgerDisplay *ld;
 
     ENTER(" ");
 
-    query = qof_query_create_for(GNC_ID_SPLIT);
-
-    qof_query_set_book (query, gnc_get_current_book());
-
+//    query = qof_query_create_for(GNC_ID_SPLIT);
+//
+//    qof_query_set_book (query, gnc_get_current_book());
+//
     /* In lieu of not "mis-using" some portion of the infrastructure by writing
      * a bunch of new code, we just filter out the accounts of the template
      * transactions.  While these are in a seperate Account trees just for this
@@ -427,19 +427,19 @@ gnc_ledger_display_gl (void)
         
         tRoot = gnc_book_get_template_root( gnc_get_current_book() );
         AccountList_t al = gnc_account_get_descendants( tRoot );
-        xaccQueryAddAccountMatch( query, al, QOF_GUID_MATCH_NONE, QOF_QUERY_AND );
+//        xaccQueryAddAccountMatch( query, al, QOF_GUID_MATCH_NONE, QOF_QUERY_AND );
         tRoot = NULL;
     }
 
-    gnc_tm_get_today_start(&tm);
-    tm.tm_mon--; /* Default the register to the last month's worth of transactions. */
-    start = gnc_mktime (&tm);
-    xaccQueryAddDateMatchTT (query,
-                             TRUE, start,
-                             FALSE, 0,
-                             QOF_QUERY_AND);
+//    gnc_tm_get_today_start(&tm);
+//    tm.tm_mon--; /* Default the register to the last month's worth of transactions. */
+//    start = gnc_mktime (&tm);
+//    xaccQueryAddDateMatchTT (query,
+//                             TRUE, start,
+//                             FALSE, 0,
+//                             QOF_QUERY_AND);
 
-    ld = gnc_ledger_display_internal (NULL, query, LD_GL, GENERAL_LEDGER,
+    ld = gnc_ledger_display_internal (NULL, /*query,*/ LD_GL, GENERAL_LEDGER,
                                       REG_STYLE_JOURNAL, FALSE, FALSE);
     LEAVE("%p", ld);
     return ld;
@@ -457,7 +457,7 @@ GNCLedgerDisplay *
 gnc_ledger_display_template_gl (char *id)
 {
     QofBook *book;
-    Query *q;
+//    Query *q;
     GNCLedgerDisplay *ld;
     SplitRegister *sr;
     Account *root, *acct;
@@ -468,20 +468,20 @@ gnc_ledger_display_template_gl (char *id)
     acct = NULL;
     isTemplateModeTrue = TRUE;
 
-    q = qof_query_create_for(GNC_ID_SPLIT);
+//    q = qof_query_create_for(GNC_ID_SPLIT);
 
     book = gnc_get_current_book ();
-    qof_query_set_book (q, book);
+//    qof_query_set_book (q, book);
 
     if ( id != NULL )
     {
         root = gnc_book_get_template_root (book);
         acct = gnc_account_lookup_by_name(root, id);
         g_assert( acct );
-        xaccQueryAddSingleAccountMatch (q, acct, QOF_QUERY_AND);
+//        xaccQueryAddSingleAccountMatch (q, acct, QOF_QUERY_AND);
     }
 
-    ld = gnc_ledger_display_internal (NULL, q, LD_GL,
+    ld = gnc_ledger_display_internal (NULL, /*q,*/ LD_GL,
                                       SEARCH_LEDGER,
                                       REG_STYLE_JOURNAL,
                                       FALSE,
@@ -517,10 +517,8 @@ gnc_ledger_display_parent (void *user_data)
 }
 
 static void
-gnc_ledger_display_set_watches (GNCLedgerDisplay *ld, GList *splits)
+gnc_ledger_display_set_watches (GNCLedgerDisplay *ld, SplitList_t &splits)
 {
-    GList *node;
-
     gnc_gui_component_clear_watches (ld->component_id);
 
     gnc_gui_component_watch_entity_type (ld->component_id,
@@ -528,9 +526,9 @@ gnc_ledger_display_set_watches (GNCLedgerDisplay *ld, GList *splits)
                                          QOF_EVENT_MODIFY | QOF_EVENT_DESTROY
                                          | GNC_EVENT_ITEM_CHANGED);
 
-    for (node = splits; node; node = node->next)
+    for (SplitList_t::const_iterator it = splits.begin(); it != splits.end(); it++)
     {
-        Split *split = node->data;
+        Split *split = *it;
         Transaction *trans = xaccSplitGetParent (split);
 
         gnc_gui_component_watch_entity (ld->component_id,
@@ -545,7 +543,7 @@ refresh_handler (GHashTable *changes, gpointer user_data)
     GNCLedgerDisplay *ld = user_data;
     const EventInfo *info;
     gboolean has_leader;
-    GList *splits;
+    SplitList_t splits;
 
     ENTER("changes=%p, user_data=%p", changes, user_data);
 
@@ -584,8 +582,11 @@ refresh_handler (GHashTable *changes, gpointer user_data)
      * changed, requiring a full new query.  Similar considerations
      * needed for multi-user mode.
      */
-    splits = qof_query_run (ld->query);
-
+//    GList * results = qof_query_run (ld->query);
+//    qof_query_results_into(splits, results);
+    Account *leader = gnc_ledger_display_leader (ld);
+    splits = xaccAccountGetSplitList(leader);
+    
     gnc_ledger_display_set_watches (ld, splits);
 
     gnc_ledger_display_refresh_internal (ld, splits);
@@ -608,8 +609,8 @@ close_handler (gpointer user_data)
     gnc_split_register_destroy (ld->reg);
     ld->reg = NULL;
 
-    qof_query_destroy (ld->query);
-    ld->query = NULL;
+//    qof_query_destroy (ld->query);
+//    ld->query = NULL;
 
     g_free (ld);
 }
@@ -638,17 +639,17 @@ gnc_ledger_display_make_query (GNCLedgerDisplay *ld,
         return;
     }
 
-    qof_query_destroy (ld->query);
-    ld->query = qof_query_create_for(GNC_ID_SPLIT);
+//    qof_query_destroy (ld->query);
+//    ld->query = qof_query_create_for(GNC_ID_SPLIT);
 
     /* This is a bit of a hack. The number of splits should be
      * configurable, or maybe we should go back a time range instead
      * of picking a number, or maybe we should be able to exclude
      * based on reconciled status. Anyway, this works for now. */
-    if ((limit != 0) && (type != SEARCH_LEDGER))
-        qof_query_set_max_results (ld->query, limit);
-
-    qof_query_set_book (ld->query, gnc_get_current_book());
+//    if ((limit != 0) && (type != SEARCH_LEDGER))
+//        qof_query_set_max_results (ld->query, limit);
+//
+//    qof_query_set_book (ld->query, gnc_get_current_book());
 
     leader = gnc_ledger_display_leader (ld);
 
@@ -658,27 +659,27 @@ gnc_ledger_display_make_query (GNCLedgerDisplay *ld,
 
     accounts.push_front(leader);
 
-    xaccQueryAddAccountMatch (ld->query, accounts,
-                              QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
+//    xaccQueryAddAccountMatch (ld->query, accounts,
+//                              QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
 }
 
-/* Opens up a ledger window for an arbitrary query. */
-GNCLedgerDisplay *
-gnc_ledger_display_query (Query *query, SplitRegisterType type,
-                          SplitRegisterStyle style)
-{
-    GNCLedgerDisplay *ld;
-
-    ENTER("query=%p", query);
-
-    ld = gnc_ledger_display_internal (NULL, query, LD_GL, type, style,
-                                      FALSE, FALSE);
-    LEAVE("%p", ld);
-    return ld;
-}
+///* Opens up a ledger window for an arbitrary query. */
+//GNCLedgerDisplay *
+//gnc_ledger_display_query (Query *query, SplitRegisterType type,
+//                          SplitRegisterStyle style)
+//{
+//    GNCLedgerDisplay *ld;
+//
+//    ENTER("query=%p", query);
+//
+//    ld = gnc_ledger_display_internal (NULL, query, LD_GL, type, style,
+//                                      FALSE, FALSE);
+//    LEAVE("%p", ld);
+//    return ld;
+//}
 
 static GNCLedgerDisplay *
-gnc_ledger_display_internal (Account *lead_account, Query *q,
+gnc_ledger_display_internal (Account *lead_account, /*Query *q,*/
                              GNCLedgerDisplayType ld_type,
                              SplitRegisterType reg_type,
                              SplitRegisterStyle style,
@@ -688,7 +689,7 @@ gnc_ledger_display_internal (Account *lead_account, Query *q,
     GNCLedgerDisplay *ld;
     gint limit;
     const char *klass;
-    GList *splits;
+    SplitList_t splits;
 
     switch (ld_type)
     {
@@ -707,11 +708,11 @@ gnc_ledger_display_internal (Account *lead_account, Query *q,
             return NULL;
         }
 
-        if (q)
-        {
-            PWARN ("single-account register with external query");
-            q = NULL;
-        }
+//        if (q)
+//        {
+//            PWARN ("single-account register with external query");
+//            q = NULL;
+//        }
 
         ld = gnc_find_first_gui_component (klass, find_by_leader, lead_account);
         if (ld)
@@ -728,11 +729,11 @@ gnc_ledger_display_internal (Account *lead_account, Query *q,
             return NULL;
         }
 
-        if (q)
-        {
-            PWARN ("account register with external query");
-            q = NULL;
-        }
+//        if (q)
+//        {
+//            PWARN ("account register with external query");
+//            q = NULL;
+//        }
 
         ld = gnc_find_first_gui_component (klass, find_by_leader, lead_account);
         if (ld)
@@ -743,10 +744,10 @@ gnc_ledger_display_internal (Account *lead_account, Query *q,
     case LD_GL:
         klass = REGISTER_GL_CM_CLASS;
 
-        if (!q)
-        {
-            PWARN ("general ledger with no query");
-        }
+//        if (!q)
+//        {
+//            PWARN ("general ledger with no query");
+//        }
 
         break;
 
@@ -759,7 +760,7 @@ gnc_ledger_display_internal (Account *lead_account, Query *q,
     ld = g_new (GNCLedgerDisplay, 1);
 
     ld->leader = *xaccAccountGetGUID (lead_account);
-    ld->query = NULL;
+//    ld->query = NULL;
     ld->ld_type = ld_type;
     ld->loading = FALSE;
     ld->destroy = NULL;
@@ -769,9 +770,9 @@ gnc_ledger_display_internal (Account *lead_account, Query *q,
     limit = gnc_gconf_get_float(GCONF_GENERAL_REGISTER, "max_transactions", NULL);
 
     /* set up the query filter */
-    if (q)
-        ld->query = qof_query_copy (q);
-    else
+//    if (q)
+//        ld->query = qof_query_copy (q);
+//    else
         gnc_ledger_display_make_query (ld, limit, reg_type);
 
     ld->component_id = gnc_register_gui_component (klass,
@@ -788,42 +789,44 @@ gnc_ledger_display_internal (Account *lead_account, Query *q,
 
     gnc_split_register_set_data (ld->reg, ld, gnc_ledger_display_parent);
 
-    splits = qof_query_run (ld->query);
-
+//    GList * results = qof_query_run (ld->query);
+//    qof_query_results_into(splits, results);
+    splits = xaccAccountGetSplitList(lead_account);
+    
     gnc_ledger_display_set_watches (ld, splits);
 
     gnc_ledger_display_refresh_internal (ld, splits);
 
     return ld;
 }
-
-void
-gnc_ledger_display_set_query (GNCLedgerDisplay *ledger_display, Query *q)
-{
-    if (!ledger_display || !q)
-        return;
-
-    g_return_if_fail (ledger_display->ld_type == LD_GL);
-
-    qof_query_destroy (ledger_display->query);
-    ledger_display->query = qof_query_copy (q);
-}
-
-GNCLedgerDisplay *
-gnc_ledger_display_find_by_query (Query *q)
-{
-    if (!q)
-        return NULL;
-
-    return gnc_find_first_gui_component (REGISTER_GL_CM_CLASS, find_by_query, q);
-}
+//
+//void
+//gnc_ledger_display_set_query (GNCLedgerDisplay *ledger_display, Query *q)
+//{
+//    if (!ledger_display || !q)
+//        return;
+//
+//    g_return_if_fail (ledger_display->ld_type == LD_GL);
+//
+//    qof_query_destroy (ledger_display->query);
+//    ledger_display->query = qof_query_copy (q);
+//}
+//
+//GNCLedgerDisplay *
+//gnc_ledger_display_find_by_query (Query *q)
+//{
+//    if (!q)
+//        return NULL;
+//
+//    return gnc_find_first_gui_component (REGISTER_GL_CM_CLASS, find_by_query, q);
+//}
 
 /********************************************************************\
  * refresh only the indicated register window                       *
 \********************************************************************/
 
 static void
-gnc_ledger_display_refresh_internal (GNCLedgerDisplay *ld, GList *splits)
+gnc_ledger_display_refresh_internal (GNCLedgerDisplay *ld, SplitList_t &splits)
 {
     if (!ld || ld->loading)
         return;
@@ -856,7 +859,12 @@ gnc_ledger_display_refresh (GNCLedgerDisplay *ld)
         return;
     }
 
-    gnc_ledger_display_refresh_internal (ld, qof_query_run (ld->query));
+//    GList * results = qof_query_run (ld->query);
+    SplitList_t res_splits;
+//    qof_query_results_into(res_splits, results);
+    Account *leader = gnc_ledger_display_leader (ld);
+    res_splits = xaccAccountGetSplitList(leader);
+    gnc_ledger_display_refresh_internal (ld, res_splits);
     LEAVE(" ");
 }
 

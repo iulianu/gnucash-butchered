@@ -111,20 +111,17 @@ sxprivTransMapDelete( gpointer data, gpointer user_data )
 static void
 delete_template_trans(SchedXaction *sx)
 {
-    GList *templ_acct_splits, *curr_split_listref;
-    Split *curr_split;
-    Transaction *split_trans;
     GList *templ_acct_transactions = NULL;
 
-    templ_acct_splits
+    SplitList_t templ_acct_splits
     = xaccAccountGetSplitList(sx->template_acct);
 
-    for (curr_split_listref = templ_acct_splits;
-            curr_split_listref;
-            curr_split_listref = curr_split_listref->next)
+    for (SplitList_t::iterator curr_split_listref = templ_acct_splits.begin();
+            curr_split_listref != templ_acct_splits.end();
+            curr_split_listref++)
     {
-        curr_split = (Split *) curr_split_listref->data;
-        split_trans = xaccSplitGetParent(curr_split);
+        Split *curr_split = *curr_split_listref;
+        Transaction *split_trans = xaccSplitGetParent(curr_split);
         if (! (g_list_find(templ_acct_transactions, split_trans)))
         {
             templ_acct_transactions
@@ -715,10 +712,10 @@ gnc_sx_set_instance_count(SchedXaction *sx, gint instance_num)
     sx->instance_num = instance_num;
 }
 
-GList *
+SplitList_t
 xaccSchedXactionGetSplits( const SchedXaction *sx )
 {
-    g_return_val_if_fail( sx, NULL );
+    g_return_val_if_fail( sx, SplitList_t() );
     return xaccAccountGetSplitList(sx->template_acct);
 }
 
@@ -990,32 +987,32 @@ static QofObject SXDesc =
 bool
 SXRegister(void)
 {
-    static QofParam params[] =
-    {
-        {
-            GNC_SX_NAME, QOF_TYPE_STRING, (QofAccessFunc)xaccSchedXactionGetName,
-            (QofSetterFunc)xaccSchedXactionSetName
-        },
-        {
-            GNC_SX_START_DATE, QOF_TYPE_DATE, (QofAccessFunc)xaccSchedXactionGetStartDate,
-            (QofSetterFunc)xaccSchedXactionSetStartDate
-        },
-        {
-            GNC_SX_LAST_DATE, QOF_TYPE_DATE, (QofAccessFunc)xaccSchedXactionGetLastOccurDate,
-            (QofSetterFunc)xaccSchedXactionSetLastOccurDate
-        },
-        {
-            GNC_SX_NUM_OCCUR, QOF_TYPE_INT64, (QofAccessFunc)xaccSchedXactionGetNumOccur,
-            (QofSetterFunc)xaccSchedXactionSetNumOccur
-        },
-        {
-            GNC_SX_REM_OCCUR, QOF_TYPE_INT64, (QofAccessFunc)xaccSchedXactionGetRemOccur,
-            (QofSetterFunc)xaccSchedXactionSetRemOccur
-        },
-        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)qof_instance_get_book, NULL },
-        { QOF_PARAM_GUID, QOF_TYPE_GUID, (QofAccessFunc)qof_instance_get_guid, NULL },
-        { NULL },
-    };
-    qof_class_register(GNC_SX_ID, NULL, params);
+//    static QofParam params[] =
+//    {
+//        {
+//            GNC_SX_NAME, QOF_TYPE_STRING, (QofAccessFunc)xaccSchedXactionGetName,
+//            (QofSetterFunc)xaccSchedXactionSetName
+//        },
+//        {
+//            GNC_SX_START_DATE, QOF_TYPE_DATE, (QofAccessFunc)xaccSchedXactionGetStartDate,
+//            (QofSetterFunc)xaccSchedXactionSetStartDate
+//        },
+//        {
+//            GNC_SX_LAST_DATE, QOF_TYPE_DATE, (QofAccessFunc)xaccSchedXactionGetLastOccurDate,
+//            (QofSetterFunc)xaccSchedXactionSetLastOccurDate
+//        },
+//        {
+//            GNC_SX_NUM_OCCUR, QOF_TYPE_INT64, (QofAccessFunc)xaccSchedXactionGetNumOccur,
+//            (QofSetterFunc)xaccSchedXactionSetNumOccur
+//        },
+//        {
+//            GNC_SX_REM_OCCUR, QOF_TYPE_INT64, (QofAccessFunc)xaccSchedXactionGetRemOccur,
+//            (QofSetterFunc)xaccSchedXactionSetRemOccur
+//        },
+//        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)qof_instance_get_book, NULL },
+//        { QOF_PARAM_GUID, QOF_TYPE_GUID, (QofAccessFunc)qof_instance_get_guid, NULL },
+//        { NULL },
+//    };
+//    qof_class_register(GNC_SX_ID, NULL, params);
     return qof_object_register(&SXDesc);
 }

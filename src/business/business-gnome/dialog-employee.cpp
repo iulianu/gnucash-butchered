@@ -70,7 +70,7 @@ typedef enum
 struct _employee_select_window
 {
     QofBook *	book;
-    QofQuery *	q;
+//    QofQuery *	q;
 };
 
 struct _employee_window
@@ -690,73 +690,73 @@ free_employee_cb (gpointer user_data)
 
     g_return_if_fail (sw);
 
-    qof_query_destroy (sw->q);
+//    qof_query_destroy (sw->q);
     g_free (sw);
 }
 
 GNCSearchWindow *
 gnc_employee_search (GncEmployee *start, QofBook *book)
 {
-    QofIdType type = GNC_EMPLOYEE_MODULE_NAME;
-    struct _employee_select_window *sw;
-    QofQuery *q, *q2 = NULL;
-    static GList *params = NULL;
-    static GList *columns = NULL;
-    static GNCSearchCallbackButton buttons[] =
-    {
-        { N_("View/Edit Employee"), edit_employee_cb, NULL, TRUE},
-        { N_("Expense Vouchers"), invoice_employee_cb, NULL, TRUE},
-        { N_("Process Payment"), payment_employee_cb, NULL, FALSE},
-        { NULL },
-    };
-
-    g_return_val_if_fail (book, NULL);
-
-    /* Build parameter list in reverse order */
-    if (params == NULL)
-    {
-        params = gnc_search_param_prepend (params, _("Employee ID"), NULL, type,
-                                           EMPLOYEE_ID, NULL);
-        params = gnc_search_param_prepend (params, _("Employee Username"), NULL,
-                                           type, EMPLOYEE_USERNAME, NULL);
-        params = gnc_search_param_prepend (params, _("Employee Name"), NULL,
-                                           type, EMPLOYEE_ADDR, ADDRESS_NAME, NULL);
-    }
-
-    /* Build the column list in reverse order */
-    if (columns == NULL)
-    {
-        columns = gnc_search_param_prepend (columns, _("Username"), NULL, type,
-                                            EMPLOYEE_USERNAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("ID #"), NULL, type,
-                                            EMPLOYEE_ID, NULL);
-        columns = gnc_search_param_prepend (columns, _("Name"), NULL, type,
-                                            EMPLOYEE_ADDR, ADDRESS_NAME, NULL);
-    }
-
-    /* Build the queries */
-    q = qof_query_create_for (type);
-    qof_query_set_book (q, book);
-
-#if 0
-    if (start)
-    {
-        q2 = qof_query_copy (q);
-        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
-                                  gncEmployeeGetGUID (start), QOF_QUERY_AND);
-    }
-#endif
-
-    /* launch select dialog and return the result */
-    sw = g_new0 (struct _employee_select_window, 1);
-    sw->book = book;
-    sw->q = q;
-
-    return gnc_search_dialog_create (type, _("Find Employee"),
-                                     params, columns, q, q2,
-                                     buttons, NULL, new_employee_cb,
-                                     sw, free_employee_cb,
-                                     GCONF_SECTION_SEARCH, NULL);
+//    QofIdType type = GNC_EMPLOYEE_MODULE_NAME;
+//    struct _employee_select_window *sw;
+//    QofQuery *q, *q2 = NULL;
+//    static GList *params = NULL;
+//    static GList *columns = NULL;
+//    static GNCSearchCallbackButton buttons[] =
+//    {
+//        { N_("View/Edit Employee"), edit_employee_cb, NULL, TRUE},
+//        { N_("Expense Vouchers"), invoice_employee_cb, NULL, TRUE},
+//        { N_("Process Payment"), payment_employee_cb, NULL, FALSE},
+//        { NULL },
+//    };
+//
+//    g_return_val_if_fail (book, NULL);
+//
+//    /* Build parameter list in reverse order */
+//    if (params == NULL)
+//    {
+//        params = gnc_search_param_prepend (params, _("Employee ID"), NULL, type,
+//                                           EMPLOYEE_ID, NULL);
+//        params = gnc_search_param_prepend (params, _("Employee Username"), NULL,
+//                                           type, EMPLOYEE_USERNAME, NULL);
+//        params = gnc_search_param_prepend (params, _("Employee Name"), NULL,
+//                                           type, EMPLOYEE_ADDR, ADDRESS_NAME, NULL);
+//    }
+//
+//    /* Build the column list in reverse order */
+//    if (columns == NULL)
+//    {
+//        columns = gnc_search_param_prepend (columns, _("Username"), NULL, type,
+//                                            EMPLOYEE_USERNAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("ID #"), NULL, type,
+//                                            EMPLOYEE_ID, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Name"), NULL, type,
+//                                            EMPLOYEE_ADDR, ADDRESS_NAME, NULL);
+//    }
+//
+//    /* Build the queries */
+//    q = qof_query_create_for (type);
+//    qof_query_set_book (q, book);
+//
+//#if 0
+//    if (start)
+//    {
+//        q2 = qof_query_copy (q);
+//        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
+//                                  gncEmployeeGetGUID (start), QOF_QUERY_AND);
+//    }
+//#endif
+//
+//    /* launch select dialog and return the result */
+//    sw = g_new0 (struct _employee_select_window, 1);
+//    sw->book = book;
+//    sw->q = q;
+//
+//    return gnc_search_dialog_create (type, _("Find Employee"),
+//                                     params, columns, q, q2,
+//                                     buttons, NULL, new_employee_cb,
+//                                     sw, free_employee_cb,
+//                                     GCONF_SECTION_SEARCH, NULL);
 }
 
 GNCSearchWindow *

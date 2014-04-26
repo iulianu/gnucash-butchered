@@ -24,46 +24,51 @@
 #ifndef QOF_QUERY_P_H
 #define QOF_QUERY_P_H
 
-#include "qofquery.h"
-
-struct QofQueryTerm;
-struct QofQuerySort;
-
-/* Functions to get Query information */
-int qof_query_get_max_results (const QofQuery *q);
-
-
-/* Functions to get and look at QueryTerms */
-
-/* This returns a List of List of Query Terms.  Each list of Query
- * Terms are ANDed together, and each list of ANDed terms are ORed
- * together.  So, what is returned is the 'or' list of 'and' lists
- * of query term objects.
- *
- * Note that you should NOT modify this list in any way.  It belongs
- * to the query.
- */
-/*@ dependent @*/
-GList * qof_query_get_terms (const QofQuery *q);
-
-/*@ dependent @*/
-QofQueryParamList * qof_query_term_get_param_path (const QofQueryTerm *queryterm);
-/*@ dependent @*/
-QofQueryPredData *qof_query_term_get_pred_data (const QofQueryTerm *queryterm);
-bool qof_query_term_is_inverted (const QofQueryTerm *queryterm);
-
-
-/* Functions to get and look at QuerySorts */
-
-/* This function returns the primary, secondary, and tertiary sorts.
- * These are part of the query and should NOT be changed!
- */
-void qof_query_get_sorts (QofQuery *q, QofQuerySort **primary,
-                          QofQuerySort **secondary, QofQuerySort **tertiary);
-
-/*@ dependent @*/
-QofQueryParamList * qof_query_sort_get_param_path (const QofQuerySort *querysort);
-int  qof_query_sort_get_sort_options (const QofQuerySort *querysort);
-bool qof_query_sort_get_increasing (const QofQuerySort *querysort);
+//#include "qofquery.h"
+//#include <list>
+//
+//struct QofQueryTerm;
+//struct QofQuerySort;
+//
+///* Functions to get Query information */
+//int qof_query_get_max_results (const QofQuery *q);
+//
+//
+///* Functions to get and look at QueryTerms */
+//
+//typedef std::list<QofQueryTerm*> QofAndTermList;
+//typedef std::list<QofAndTermList> QofOrTermList;
+//typedef QofOrTermList QofTermList;
+//
+///* This returns a List of List of Query Terms.  Each list of Query
+// * Terms are ANDed together, and each list of ANDed terms are ORed
+// * together.  So, what is returned is the 'or' list of 'and' lists
+// * of query term objects.
+// *
+// * Note that you should NOT modify this list in any way.  It belongs
+// * to the query.
+// */
+///*@ dependent @*/
+//QofTermList qof_query_get_terms (const QofQuery *q);
+//
+///*@ dependent @*/
+//QofQueryParamList * qof_query_term_get_param_path (const QofQueryTerm *queryterm);
+///*@ dependent @*/
+//QofQueryPredData *qof_query_term_get_pred_data (const QofQueryTerm *queryterm);
+//bool qof_query_term_is_inverted (const QofQueryTerm *queryterm);
+//
+//
+///* Functions to get and look at QuerySorts */
+//
+///* This function returns the primary, secondary, and tertiary sorts.
+// * These are part of the query and should NOT be changed!
+// */
+//void qof_query_get_sorts (QofQuery *q, QofQuerySort **primary,
+//                          QofQuerySort **secondary, QofQuerySort **tertiary);
+//
+///*@ dependent @*/
+//QofQueryParamList * qof_query_sort_get_param_path (const QofQuerySort *querysort);
+//int  qof_query_sort_get_sort_options (const QofQuerySort *querysort);
+//bool qof_query_sort_get_increasing (const QofQuerySort *querysort);
 
 #endif /* QOF_QUERY_P_H */

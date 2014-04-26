@@ -904,8 +904,8 @@ void gnc_gen_trans_list_add_trans_with_ref_id(GNCImportMainMatcher *gui, Transac
         transaction_info = gnc_import_TransInfo_new(trans, NULL);
         gnc_import_TransInfo_set_ref_id(transaction_info, ref_id);
 
-        gnc_import_TransInfo_init_matches(transaction_info,
-                                          gui->user_settings);
+//        gnc_import_TransInfo_init_matches(transaction_info,
+//                                          gui->user_settings);
 
         model = gtk_tree_view_get_model(gui->view);
         gtk_list_store_append(GTK_LIST_STORE(model), &iter);

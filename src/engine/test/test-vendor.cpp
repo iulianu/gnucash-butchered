@@ -100,19 +100,19 @@ test_vendor (void)
         gncVendorSetGUID (vendor, &guid);
         do_test (guid_equal (&guid, qof_instance_get_guid(QOF_INSTANCE(vendor))), "guid compare");
     }
-    {
-        GList *list;
-
-        list = gncBusinessGetList (book, GNC_ID_VENDOR, TRUE);
-        do_test (list != NULL, "getList all");
-        do_test (g_list_length (list) == count, "correct length: all");
-        g_list_free (list);
-
-        list = gncBusinessGetList (book, GNC_ID_VENDOR, FALSE);
-        do_test (list != NULL, "getList active");
-        do_test (g_list_length (list) == 1, "correct length: active");
-        g_list_free (list);
-    }
+//    {
+//        GList *list;
+//
+//        list = gncBusinessGetList (book, GNC_ID_VENDOR, TRUE);
+//        do_test (list != NULL, "getList all");
+//        do_test (g_list_length (list) == count, "correct length: all");
+//        g_list_free (list);
+//
+//        list = gncBusinessGetList (book, GNC_ID_VENDOR, FALSE);
+//        do_test (list != NULL, "getList active");
+//        do_test (g_list_length (list) == 1, "correct length: active");
+//        g_list_free (list);
+//    }
     {
         const char *str = get_random_string();
         const char *res;

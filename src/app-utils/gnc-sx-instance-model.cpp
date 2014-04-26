@@ -177,26 +177,25 @@ static gint
 _get_vars_helper(Transaction *txn, void *var_hash_data)
 {
     GHashTable *var_hash = (GHashTable*)var_hash_data;
-    GList *split_list;
     kvp_frame *kvpf;
     kvp_value *kvp_val;
     Split *s;
     char *str;
     gnc_commodity *first_cmdty = NULL;
 
-    split_list = xaccTransGetSplitList(txn);
-    if (split_list == NULL)
+    SplitList_t split_list = xaccTransGetSplitList(txn);
+    if (split_list.empty())
     {
         return 1;
     }
 
-    for ( ; split_list; split_list = split_list->next)
+    for (SplitList_t::iterator it = split_list.begin() ; it != split_list.end(); it++)
     {
         gnc_commodity *split_cmdty = NULL;
         GncGUID *acct_guid;
         Account *acct;
 
-        s = (Split*)split_list->data;
+        s = *it;
         kvpf = xaccSplitGetSlots(s);
         kvp_val = kvp_frame_get_slot_path(kvpf,
                                           GNC_SX_ID,
@@ -1029,7 +1028,6 @@ static gboolean
 create_each_transaction_helper(Transaction *template_txn, void *user_data)
 {
     Transaction *new_txn;
-    GList *txn_splits, *template_splits;
     Split *copying_split;
     gnc_commodity *first_cmdty = NULL;
     gboolean err_flag = FALSE;
@@ -1063,9 +1061,9 @@ create_each_transaction_helper(Transaction *template_txn, void *user_data)
                      g_date_get_year(&creation_data->instance->date));
 
     /* the accounts and amounts are in the kvp_frames of the splits. */
-    template_splits = xaccTransGetSplitList(template_txn);
-    txn_splits = xaccTransGetSplitList(new_txn);
-    if ((template_splits == NULL) || (txn_splits == NULL))
+    SplitList_t template_splits = xaccTransGetSplitList(template_txn);
+    SplitList_t txn_splits = xaccTransGetSplitList(new_txn);
+    if ((template_splits.empty()) || (txn_splits.empty()))
     {
         g_critical("transaction w/o splits for sx [%s]",
                    xaccSchedXactionGetName(creation_data->instance->parent->sx));
@@ -1074,9 +1072,11 @@ create_each_transaction_helper(Transaction *template_txn, void *user_data)
         return FALSE;
     }
 
-    for (;
-            txn_splits && template_splits;
-            txn_splits = txn_splits->next, template_splits = template_splits->next)
+    SplitList_t::iterator txn_it;
+    SplitList_t::iterator tmpl_it;
+    for ( txn_it = txn_splits.begin(), tmpl_it = template_splits.begin();
+            txn_it != txn_splits.end() && tmpl_it != template_splits.end();
+            txn_it++, tmpl_it++)
     {
         const Split *template_split;
         Account *split_acct;
@@ -1085,8 +1085,8 @@ create_each_transaction_helper(Transaction *template_txn, void *user_data)
         /* FIXME: Ick.  This assumes that the split lists will be ordered
            identically. :( They are, but we'd rather not have to count on
            it. --jsled */
-        template_split = (Split*)template_splits->data;
-        copying_split = (Split*)txn_splits->data;
+        template_split = *tmpl_it;
+        copying_split = *txn_it;
 
         if (!_get_template_split_account(creation_data->instance->parent->sx, template_split, &split_acct, creation_data->creation_errors))
         {
@@ -1556,7 +1556,6 @@ static gboolean
 create_cashflow_helper(Transaction *template_txn, void *user_data)
 {
     SxCashflowData *creation_data = user_data;
-    GList *template_splits;
     const gnc_commodity *first_cmdty = NULL;
 
     g_debug("Evaluating txn desc [%s] for sx [%s]",
@@ -1566,22 +1565,22 @@ create_cashflow_helper(Transaction *template_txn, void *user_data)
     /* The accounts and amounts are in the kvp_frames of the
      * splits. Hence, we iterate over all splits of this
      * transaction. */
-    template_splits = xaccTransGetSplitList(template_txn);
+    SplitList_t template_splits = xaccTransGetSplitList(template_txn);
 
-    if (template_splits == NULL)
+    if (template_splits.empty())
     {
         g_critical("transaction w/o splits for sx [%s]",
                    xaccSchedXactionGetName(creation_data->sx));
         return FALSE;
     }
 
-    for (;
-            template_splits;
-            template_splits = template_splits->next)
+    for ( SplitList_t::const_iterator it = template_splits.begin();
+            it != template_splits.end();
+            it++)
     {
         Account *split_acct;
         const gnc_commodity *split_cmdty = NULL;
-        const Split *template_split = (const Split*) template_splits->data;
+        const Split *template_split = *it;
 
         /* Get the account that should be used for this split. */
         if (!_get_template_split_account(creation_data->sx, template_split, &split_acct, creation_data->creation_errors))

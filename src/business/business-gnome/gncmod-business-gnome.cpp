@@ -98,8 +98,8 @@ libgncmod_business_gnome_gnc_module_init(int refcount)
     if (refcount == 0)
     {
         /* Register the Owner search type */
-        gnc_search_core_register_type (GNC_OWNER_MODULE_NAME,
-                                       (GNCSearchCoreNew) gnc_search_owner_new);
+//        gnc_search_core_register_type (GNC_OWNER_MODULE_NAME,
+//                                       (GNCSearchCoreNew) gnc_search_owner_new);
         gnc_business_urls_initialize ();
         gnc_business_options_gnome_initialize ();
 

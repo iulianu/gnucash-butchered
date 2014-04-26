@@ -661,11 +661,12 @@ gnc_find_split_in_account_by_memo (Account *account, const char *memo,
 
     if (account == NULL) return NULL;
 
-    for (slp = g_list_last (xaccAccountGetSplitList (account));
-            slp;
-            slp = slp->prev)
+    SplitList_t slist = xaccAccountGetSplitList (account);
+    for (SplitList_t::reverse_iterator slp = slist.rbegin();
+            slp != slist.rend();
+            slp++)
     {
-        Split *split = slp->data;
+        Split *split = *slp;
         Transaction *trans = xaccSplitGetParent (split);
 
         split = gnc_find_split_in_trans_by_memo (trans, memo, unit_price);

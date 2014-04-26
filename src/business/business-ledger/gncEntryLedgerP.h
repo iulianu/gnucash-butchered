@@ -47,7 +47,7 @@ struct GncEntryLedger_s
     Table       * table;
     GncOrder    * order;
     GncInvoice  * invoice;
-    QofQuery    * query;
+//    QofQuery    * query;
 
     GncEntryLedgerType type;
 

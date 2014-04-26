@@ -111,38 +111,38 @@ GNC_SIGNALS_END
 static time64
 get_earliest_in_book (QofBook *book)
 {
-    QofQuery *q;
-    GSList *p1, *p2;
-    GList *res;
+//    QofQuery *q;
+//    GSList *p1, *p2;
+//    GList *res;
     time64 earliest;
-
-    q = qof_query_create_for(GNC_ID_SPLIT);
-    qof_query_set_max_results(q, 1);
-    qof_query_set_book (q, book);
-
-    /* Sort by transaction date */
-    p1 = g_slist_prepend (NULL, TRANS_DATE_POSTED);
-    p1 = g_slist_prepend (p1, SPLIT_TRANS);
-    p2 = g_slist_prepend (NULL, QUERY_DEFAULT_SORT);
-    qof_query_set_sort_order (q, p1, p2, NULL);
-
-    /* Reverse the sort order */
-    qof_query_set_sort_increasing (q, FALSE, FALSE, FALSE);
-
-    /* Run the query, find the earliest transaction date */
-    res = qof_query_run (q);
-
-    if (res)
-    {
-        earliest = xaccQueryGetEarliestDateFound (q);
-    }
-    else
-    {
+//
+//    q = qof_query_create_for(GNC_ID_SPLIT);
+//    qof_query_set_max_results(q, 1);
+//    qof_query_set_book (q, book);
+//
+//    /* Sort by transaction date */
+//    p1 = g_slist_prepend (NULL, TRANS_DATE_POSTED);
+//    p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//    p2 = g_slist_prepend (NULL, QUERY_DEFAULT_SORT);
+//    qof_query_set_sort_order (q, p1, p2, NULL);
+//
+//    /* Reverse the sort order */
+//    qof_query_set_sort_increasing (q, FALSE, FALSE, FALSE);
+//
+//    /* Run the query, find the earliest transaction date */
+//    res = qof_query_run (q);
+//
+//    if (res)
+//    {
+//        earliest = xaccQueryGetEarliestDateFound (q);
+//    }
+//    else
+//    {
         /* If no results, we don't want to bomb totally */
         earliest = gnc_time (NULL);
-    }
-
-    qof_query_destroy (q);
+//    }
+//
+//    qof_query_destroy (q);
     return earliest;
 }
 
@@ -154,30 +154,30 @@ get_earliest_in_book (QofBook *book)
 static int
 get_num_xactions_before_date(QofBook *book, time64 close_date)
 {
-    QofQuery *q;
-    GSList *param;
-    QofQueryPredData *pred;
-    Timespec ts;
-    GList *res, *n;
+//    QofQuery *q;
+//    GSList *param;
+//    QofQueryPredData *pred;
+//    Timespec ts;
+//    GList *res, *n;
     int cnt = 0;
 
-    q = qof_query_create_for(GNC_ID_TRANS);
-    qof_query_set_max_results(q, -1);
-    qof_query_set_book (q, book);
-
-    /* Look for transactions earlier than the closing date */
-    param = g_slist_prepend (NULL, TRANS_DATE_POSTED);
-    timespecFromTime64 (&ts, close_date);
-    pred = qof_query_date_predicate (QOF_COMPARE_LTE, QOF_DATE_MATCH_NORMAL, ts);
-    qof_query_add_term (q,  param, pred, QOF_QUERY_FIRST_TERM);
-
-    /* Run the query, find how many transactions there are */
-    res = qof_query_run (q);
-
-    cnt = 0;
-    for (n = res; n; n = n->next) cnt ++;
-
-    qof_query_destroy (q);
+//    q = qof_query_create_for(GNC_ID_TRANS);
+//    qof_query_set_max_results(q, -1);
+//    qof_query_set_book (q, book);
+//
+//    /* Look for transactions earlier than the closing date */
+//    param = g_slist_prepend (NULL, TRANS_DATE_POSTED);
+//    timespecFromTime64 (&ts, close_date);
+//    pred = qof_query_date_predicate (QOF_COMPARE_LTE, QOF_DATE_MATCH_NORMAL, ts);
+//    qof_query_add_term (q,  param, pred, QOF_QUERY_FIRST_TERM);
+//
+//    /* Run the query, find how many transactions there are */
+//    res = qof_query_run (q);
+//
+//    cnt = 0;
+//    for (n = res; n; n = n->next) cnt ++;
+//
+//    qof_query_destroy (q);
     return cnt;
 }
 

@@ -978,7 +978,7 @@ make_random_changes_to_transaction_and_splits (QofBook *book,
         Transaction *trans,
         AccountList_t & accounts)
 {
-    GList *splits;
+    SplitList_t splits;
     GList *node;
     Split *split;
 
@@ -1013,9 +1013,9 @@ make_random_changes_to_transaction_and_splits (QofBook *book,
             break;
 
         splits = xaccTransGetSplitList (trans);
-        for (node = splits; node; node = node->next)
+        for (SplitList_t::iterator it = splits.begin(); it != splits.end(); it++)
         {
-            Split *split = node->data;
+            Split *split = *it;
             Account *account;
 
             account = get_random_list_element (accounts);
@@ -1041,9 +1041,9 @@ make_random_changes_to_transaction_and_splits (QofBook *book,
 
     /* mess with the splits */
     splits = xaccTransGetSplitList (trans);
-    for (node = splits; node; node = node->next)
+    for (SplitList_t::iterator it = splits.begin(); it != splits.end(); it++)
     {
-        Split *split = node->data;
+        Split *split = *it;
 
         if (get_random_boolean ())
             make_random_changes_to_split (split);
@@ -1075,7 +1075,6 @@ make_random_changes_to_level (QofBook *book, Account *parent)
     Account *new_account;
     Account *account;
     GList *transes;
-    GList *splits;
     GList *node;
 
     g_return_if_fail (parent && book);
@@ -1136,12 +1135,11 @@ make_random_changes_to_level (QofBook *book, Account *parent)
     /* delete an account */
     account = get_random_list_element (accounts);
 
-    splits = xaccAccountGetSplitList (account);
-    splits = g_list_copy (splits);
+    SplitList_t splits = xaccAccountGetSplitList (account);
 
-    for (node = splits; node; node = node->next)
+    for (SplitList_t::iterator it = splits.begin(); it != splits.end(); it++)
     {
-        Split *split = node->data;
+        Split *split = *it;
 
         do
         {
@@ -1154,8 +1152,6 @@ make_random_changes_to_level (QofBook *book, Account *parent)
 
     xaccAccountBeginEdit (account);
     xaccAccountDestroy (account);
-
-    g_list_free (splits);
 
     accounts = gnc_account_get_descendants (parent);
 
@@ -1562,44 +1558,44 @@ free_random_guids(GList *guids)
     g_list_free (guids);
 }
 
-static QofQueryOp
-get_random_queryop(void)
-{
-    int op_num = get_random_int_in_range(1, 11);
-    QofQueryOp op = QOF_QUERY_AND;
-    /* = get_random_int_in_range (1, QOF_QUERY_XOR); */
-
-    /* Let's make it MUCH more likely to get AND and OR */
-    switch (op_num)
-    {
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-        op = QOF_QUERY_AND;
-        break;
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-        op = QOF_QUERY_OR;
-        break;
-    case 9:
-        op = QOF_QUERY_NAND;
-        break;
-    case 10:
-        op = QOF_QUERY_NOR;
-        break;
-    case 11:
-        op = QOF_QUERY_XOR;
-        break;
-    default:
-        g_assert_not_reached();
-        break;
-    };
-    if (gnc_engine_debug_random) printf ("op = %d (int was %d), ", op, op_num);
-    return op;
-}
+//static QofQueryOp
+//get_random_queryop(void)
+//{
+//    int op_num = get_random_int_in_range(1, 11);
+//    QofQueryOp op = QOF_QUERY_AND;
+//    /* = get_random_int_in_range (1, QOF_QUERY_XOR); */
+//
+//    /* Let's make it MUCH more likely to get AND and OR */
+//    switch (op_num)
+//    {
+//    case 1:
+//    case 2:
+//    case 3:
+//    case 4:
+//        op = QOF_QUERY_AND;
+//        break;
+//    case 5:
+//    case 6:
+//    case 7:
+//    case 8:
+//        op = QOF_QUERY_OR;
+//        break;
+//    case 9:
+//        op = QOF_QUERY_NAND;
+//        break;
+//    case 10:
+//        op = QOF_QUERY_NOR;
+//        break;
+//    case 11:
+//        op = QOF_QUERY_XOR;
+//        break;
+//    default:
+//        g_assert_not_reached();
+//        break;
+//    };
+//    if (gnc_engine_debug_random) printf ("op = %d (int was %d), ", op, op_num);
+//    return op;
+//}
 
 static GSList *
 get_random_kvp_path (void)
@@ -1656,245 +1652,245 @@ typedef enum
     BY_NONE
 } sort_type_t;
 
-static void
-set_query_sort (QofQuery *q, sort_type_t sort_code)
-{
-    GSList *p1 = NULL, *p2 = NULL, *p3 = NULL, *standard;
-
-    standard = g_slist_prepend (NULL, QUERY_DEFAULT_SORT);
-
-    switch (sort_code)
-    {
-    case BY_STANDARD:
-        p1 = standard;
-        break;
-    case BY_DATE:
-        p1 = g_slist_prepend (p1, TRANS_DATE_POSTED);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        break;
-    case BY_DATE_ENTERED:
-        p1 = g_slist_prepend (p1, TRANS_DATE_ENTERED);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        break;
-    case BY_DATE_RECONCILED:
-        p1 = g_slist_prepend (p1, SPLIT_RECONCILE);
-        p2 = g_slist_prepend (p2, SPLIT_DATE_RECONCILED);
-        p3 = standard;
-        break;
-    case BY_NUM:
-        p1 = g_slist_prepend (p1, TRANS_NUM);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        break;
-    case BY_AMOUNT:
-        p1 = g_slist_prepend (p1, SPLIT_VALUE);
-        p2 = standard;
-        break;
-    case BY_MEMO:
-        p1 = g_slist_prepend (p1, SPLIT_MEMO);
-        p2 = standard;
-        break;
-    case BY_DESC:
-        p1 = g_slist_prepend (p1, TRANS_DESCRIPTION);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        break;
-    case BY_NONE:
-        g_slist_free (standard);
-        break;
-    default:
-        g_slist_free (standard);
-        g_return_if_fail (FALSE);
-        break;
-    }
-
-    qof_query_set_sort_order (q, p1, p2, p3);
-}
-
-QofQuery *
-get_random_query(void)
-{
-    QofQuery *q;
-    int num_terms;
-
-    num_terms = get_random_int_in_range (1, 3);
-    if (gnc_engine_debug_random) printf("num_terms = %d", num_terms);
-
-    q = qof_query_create_for(GNC_ID_SPLIT);
-
-    while (num_terms-- > 0)
-    {
-        gint pr_type;
-        KvpValue *value;
-        Timespec *start;
-        Timespec *end;
-        GList *guids;
-        GSList *path;
-        char *string;
-        GncGUID *guid;
-
-        pr_type = get_random_int_in_range (1, 20);
-        if (gnc_engine_debug_random) printf("\n pr_type = %d ", pr_type);
-
-        switch (pr_type)
-        {
-        case 1: /*PR_ACCOUNT */
-            guids = get_random_guids (10);
-            xaccQueryAddAccountGUIDMatch
-            (q,
-             guids,
-             get_random_int_in_range (1, QOF_GUID_MATCH_NONE),
-             get_random_queryop ());
-            free_random_guids (guids);
-            break;
-
-        case 2: /*PR_ACTION */
-            string = get_random_string ();
-            xaccQueryAddActionMatch (q,
-                                     string,
-                                     get_random_boolean (),
-                                     get_random_boolean (),
-                                     get_random_queryop ());
-            g_free (string);
-            break;
-
-        case 3: /* PR_BALANCE */
-            xaccQueryAddBalanceMatch
-            (q,
-             get_random_boolean (),
-             get_random_queryop ());
-            break;
-
-        case 4: /* PR_CLEARED */
-            xaccQueryAddClearedMatch
-            (q,
-             get_random_int_in_range (1,
-                                      CLEARED_NO |
-                                      CLEARED_CLEARED |
-                                      CLEARED_RECONCILED |
-                                      CLEARED_FROZEN |
-                                      CLEARED_VOIDED),
-             get_random_queryop ());
-            break;
-
-        case 5: /* PR_DATE */
-            start = get_random_timespec ();
-            end = get_random_timespec ();
-            xaccQueryAddDateMatchTS (q,
-                                     get_random_boolean (),
-                                     *start,
-                                     get_random_boolean (),
-                                     *end,
-                                     get_random_queryop ());
-//            g_free (start);
-//            g_free (end);
-            delete start;
-            delete end;
-            break;
-
-        case 6: /* PR_DESC */
-            string = get_random_string ();
-            xaccQueryAddDescriptionMatch (q,
-                                          string,
-                                          get_random_boolean (),
-                                          get_random_boolean (),
-                                          get_random_queryop ());
-            g_free (string);
-            break;
-
-        case 7: /* PR_GUID */
-            guid = get_random_guid ();
-            xaccQueryAddGUIDMatch (q,
-                                   guid,
-                                   get_random_id_type (),
-                                   get_random_queryop ());
-//            g_free (guid);
-            delete guid;
-            break;
-
-        case 8: /* PR_KVP */
-            path = get_random_kvp_path ();
-            do
-            {
-                value = get_random_kvp_value_depth (-2, kvp_max_depth);
-            }
-            while (!value);
-            xaccQueryAddKVPMatch (q,
-                                  path,
-                                  value,
-                                  get_random_int_in_range (1, QOF_COMPARE_NEQ),
-                                  get_random_id_type (),
-                                  get_random_queryop ());
-            kvp_value_delete (value);
-            free_random_kvp_path (path);
-            break;
-
-        case 9: /* PR_MEMO */
-            string = get_random_string ();
-            xaccQueryAddMemoMatch (q,
-                                   string,
-                                   get_random_boolean (),
-                                   get_random_boolean (),
-                                   get_random_queryop ());
-            g_free (string);
-            break;
-
-        case 10: /* PR_NUM */
-            string = get_random_string ();
-            xaccQueryAddNumberMatch (q,
-                                     string,
-                                     get_random_boolean (),
-                                     get_random_boolean (),
-                                     get_random_queryop ());
-            g_free (string);
-            break;
-
-        case 11: /*  PR_PRICE */
-            xaccQueryAddSharePriceMatch
-            (q,
-             get_random_gnc_numeric (),
-             get_random_int_in_range (1, QOF_COMPARE_NEQ),
-             get_random_queryop ());
-            break;
-
-        case 12: /* PR_SHRS */
-            xaccQueryAddSharesMatch
-            (q,
-             get_random_gnc_numeric (),
-             get_random_int_in_range (1, QOF_COMPARE_NEQ),
-             get_random_queryop ());
-            break;
-
-        case 13: /* PR_VALUE */
-            xaccQueryAddValueMatch
-            (q,
-             get_random_gnc_numeric (),
-             get_random_int_in_range (1, QOF_NUMERIC_MATCH_ANY),
-             get_random_int_in_range (1, QOF_COMPARE_NEQ),
-             get_random_queryop ());
-            break;
-
-        default:
-            if (gnc_engine_debug_random) printf("ignored..");
-            num_terms++;
-            break;
-        }
-    }
-
-    if (gnc_engine_debug_random) printf ("\n");
-    set_query_sort (q, get_random_int_in_range (1, BY_NONE));
-
-    qof_query_set_sort_increasing (q,
-                                   get_random_boolean (),
-                                   get_random_boolean (),
-                                   get_random_boolean ());
-
-    qof_query_set_max_results (q, get_random_int_in_range (-50000, 50000));
-
-    return q;
-}
+//static void
+//set_query_sort (QofQuery *q, sort_type_t sort_code)
+//{
+//    GSList *p1 = NULL, *p2 = NULL, *p3 = NULL, *standard;
+//
+//    standard = g_slist_prepend (NULL, QUERY_DEFAULT_SORT);
+//
+//    switch (sort_code)
+//    {
+//    case BY_STANDARD:
+//        p1 = standard;
+//        break;
+//    case BY_DATE:
+//        p1 = g_slist_prepend (p1, TRANS_DATE_POSTED);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        break;
+//    case BY_DATE_ENTERED:
+//        p1 = g_slist_prepend (p1, TRANS_DATE_ENTERED);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        break;
+//    case BY_DATE_RECONCILED:
+//        p1 = g_slist_prepend (p1, SPLIT_RECONCILE);
+//        p2 = g_slist_prepend (p2, SPLIT_DATE_RECONCILED);
+//        p3 = standard;
+//        break;
+//    case BY_NUM:
+//        p1 = g_slist_prepend (p1, TRANS_NUM);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        break;
+//    case BY_AMOUNT:
+//        p1 = g_slist_prepend (p1, SPLIT_VALUE);
+//        p2 = standard;
+//        break;
+//    case BY_MEMO:
+//        p1 = g_slist_prepend (p1, SPLIT_MEMO);
+//        p2 = standard;
+//        break;
+//    case BY_DESC:
+//        p1 = g_slist_prepend (p1, TRANS_DESCRIPTION);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        break;
+//    case BY_NONE:
+//        g_slist_free (standard);
+//        break;
+//    default:
+//        g_slist_free (standard);
+//        g_return_if_fail (FALSE);
+//        break;
+//    }
+//
+//    qof_query_set_sort_order (q, p1, p2, p3);
+//}
+//
+//QofQuery *
+//get_random_query(void)
+//{
+//    QofQuery *q;
+//    int num_terms;
+//
+//    num_terms = get_random_int_in_range (1, 3);
+//    if (gnc_engine_debug_random) printf("num_terms = %d", num_terms);
+//
+//    q = qof_query_create_for(GNC_ID_SPLIT);
+//
+//    while (num_terms-- > 0)
+//    {
+//        gint pr_type;
+//        KvpValue *value;
+//        Timespec *start;
+//        Timespec *end;
+//        GList *guids;
+//        GSList *path;
+//        char *string;
+//        GncGUID *guid;
+//
+//        pr_type = get_random_int_in_range (1, 20);
+//        if (gnc_engine_debug_random) printf("\n pr_type = %d ", pr_type);
+//
+//        switch (pr_type)
+//        {
+//        case 1: /*PR_ACCOUNT */
+//            guids = get_random_guids (10);
+//            xaccQueryAddAccountGUIDMatch
+//            (q,
+//             guids,
+//             get_random_int_in_range (1, QOF_GUID_MATCH_NONE),
+//             get_random_queryop ());
+//            free_random_guids (guids);
+//            break;
+//
+//        case 2: /*PR_ACTION */
+//            string = get_random_string ();
+//            xaccQueryAddActionMatch (q,
+//                                     string,
+//                                     get_random_boolean (),
+//                                     get_random_boolean (),
+//                                     get_random_queryop ());
+//            g_free (string);
+//            break;
+//
+//        case 3: /* PR_BALANCE */
+//            xaccQueryAddBalanceMatch
+//            (q,
+//             get_random_boolean (),
+//             get_random_queryop ());
+//            break;
+//
+//        case 4: /* PR_CLEARED */
+//            xaccQueryAddClearedMatch
+//            (q,
+//             get_random_int_in_range (1,
+//                                      CLEARED_NO |
+//                                      CLEARED_CLEARED |
+//                                      CLEARED_RECONCILED |
+//                                      CLEARED_FROZEN |
+//                                      CLEARED_VOIDED),
+//             get_random_queryop ());
+//            break;
+//
+//        case 5: /* PR_DATE */
+//            start = get_random_timespec ();
+//            end = get_random_timespec ();
+//            xaccQueryAddDateMatchTS (q,
+//                                     get_random_boolean (),
+//                                     *start,
+//                                     get_random_boolean (),
+//                                     *end,
+//                                     get_random_queryop ());
+////            g_free (start);
+////            g_free (end);
+//            delete start;
+//            delete end;
+//            break;
+//
+//        case 6: /* PR_DESC */
+//            string = get_random_string ();
+//            xaccQueryAddDescriptionMatch (q,
+//                                          string,
+//                                          get_random_boolean (),
+//                                          get_random_boolean (),
+//                                          get_random_queryop ());
+//            g_free (string);
+//            break;
+//
+//        case 7: /* PR_GUID */
+//            guid = get_random_guid ();
+//            xaccQueryAddGUIDMatch (q,
+//                                   guid,
+//                                   get_random_id_type (),
+//                                   get_random_queryop ());
+////            g_free (guid);
+//            delete guid;
+//            break;
+//
+//        case 8: /* PR_KVP */
+//            path = get_random_kvp_path ();
+//            do
+//            {
+//                value = get_random_kvp_value_depth (-2, kvp_max_depth);
+//            }
+//            while (!value);
+//            xaccQueryAddKVPMatch (q,
+//                                  path,
+//                                  value,
+//                                  get_random_int_in_range (1, QOF_COMPARE_NEQ),
+//                                  get_random_id_type (),
+//                                  get_random_queryop ());
+//            kvp_value_delete (value);
+//            free_random_kvp_path (path);
+//            break;
+//
+//        case 9: /* PR_MEMO */
+//            string = get_random_string ();
+//            xaccQueryAddMemoMatch (q,
+//                                   string,
+//                                   get_random_boolean (),
+//                                   get_random_boolean (),
+//                                   get_random_queryop ());
+//            g_free (string);
+//            break;
+//
+//        case 10: /* PR_NUM */
+//            string = get_random_string ();
+//            xaccQueryAddNumberMatch (q,
+//                                     string,
+//                                     get_random_boolean (),
+//                                     get_random_boolean (),
+//                                     get_random_queryop ());
+//            g_free (string);
+//            break;
+//
+//        case 11: /*  PR_PRICE */
+//            xaccQueryAddSharePriceMatch
+//            (q,
+//             get_random_gnc_numeric (),
+//             get_random_int_in_range (1, QOF_COMPARE_NEQ),
+//             get_random_queryop ());
+//            break;
+//
+//        case 12: /* PR_SHRS */
+//            xaccQueryAddSharesMatch
+//            (q,
+//             get_random_gnc_numeric (),
+//             get_random_int_in_range (1, QOF_COMPARE_NEQ),
+//             get_random_queryop ());
+//            break;
+//
+//        case 13: /* PR_VALUE */
+//            xaccQueryAddValueMatch
+//            (q,
+//             get_random_gnc_numeric (),
+//             get_random_int_in_range (1, QOF_NUMERIC_MATCH_ANY),
+//             get_random_int_in_range (1, QOF_COMPARE_NEQ),
+//             get_random_queryop ());
+//            break;
+//
+//        default:
+//            if (gnc_engine_debug_random) printf("ignored..");
+//            num_terms++;
+//            break;
+//        }
+//    }
+//
+//    if (gnc_engine_debug_random) printf ("\n");
+//    set_query_sort (q, get_random_int_in_range (1, BY_NONE));
+//
+//    qof_query_set_sort_increasing (q,
+//                                   get_random_boolean (),
+//                                   get_random_boolean (),
+//                                   get_random_boolean ());
+//
+//    qof_query_set_max_results (q, get_random_int_in_range (-50000, 50000));
+//
+//    return q;
+//}
 
 QofBook *
 get_random_book (void)
@@ -1969,45 +1965,45 @@ make_random_changes_to_session (QofSession *session)
     make_random_changes_to_book (qof_session_get_book (session));
 }
 
-typedef struct
-{
-    QofIdType where;
-    GSList *path;
-    QofQuery *q;
-} KVPQueryData;
-
-static void
-add_kvp_value_query (const char *key, KvpValue *value, gpointer data)
-{
-    KVPQueryData *kqd = data;
-    GSList *node;
-
-    kqd->path = g_slist_append (kqd->path, (gpointer) key);
-
-    if (kvp_value_get_type (value) == KVP_TYPE_FRAME)
-        kvp_frame_for_each_slot (kvp_value_get_frame (value),
-                                 add_kvp_value_query, data);
-    else
-        xaccQueryAddKVPMatch (kqd->q, kqd->path, value,
-                              QOF_COMPARE_EQUAL, kqd->where,
-                              QOF_QUERY_AND);
-
-    node = g_slist_last (kqd->path);
-    kqd->path = g_slist_remove_link (kqd->path, node);
-    g_slist_free_1 (node);
-}
-
-static void
-add_kvp_query (QofQuery *q, KvpFrame *frame, QofIdType where)
-{
-    KVPQueryData kqd;
-
-    kqd.where = where;
-    kqd.path = NULL;
-    kqd.q = q;
-
-    kvp_frame_for_each_slot (frame, add_kvp_value_query, &kqd);
-}
+//typedef struct
+//{
+//    QofIdType where;
+//    GSList *path;
+////    QofQuery *q;
+//} KVPQueryData;
+//
+//static void
+//add_kvp_value_query (const char *key, KvpValue *value, gpointer data)
+//{
+//    KVPQueryData *kqd = data;
+//    GSList *node;
+//
+//    kqd->path = g_slist_append (kqd->path, (gpointer) key);
+//
+//    if (kvp_value_get_type (value) == KVP_TYPE_FRAME)
+//        kvp_frame_for_each_slot (kvp_value_get_frame (value),
+//                                 add_kvp_value_query, data);
+//    else
+//        xaccQueryAddKVPMatch (kqd->q, kqd->path, value,
+//                              QOF_COMPARE_EQUAL, kqd->where,
+//                              QOF_QUERY_AND);
+//
+//    node = g_slist_last (kqd->path);
+//    kqd->path = g_slist_remove_link (kqd->path, node);
+//    g_slist_free_1 (node);
+//}
+//
+//static void
+//add_kvp_query (QofQuery *q, KvpFrame *frame, QofIdType where)
+//{
+//    KVPQueryData kqd;
+//
+//    kqd.where = where;
+//    kqd.path = NULL;
+//    kqd.q = q;
+//
+//    kvp_frame_for_each_slot (frame, add_kvp_value_query, &kqd);
+//}
 
 static gboolean include_price = TRUE;
 
@@ -2036,157 +2032,156 @@ get_random_query_type (void)
         return SIMPLE_QT;
     }
 }
-
-QofQuery *
-make_trans_query (Transaction *trans, TestQueryTypes query_types)
-{
-    Account *a;
-    gnc_numeric n;
-    QofQuery *q;
-    Split *s;
-
-    if (query_types == RANDOM_QT)
-        query_types = get_random_query_type ();
-
-    q = qof_query_create_for(GNC_ID_SPLIT);
-
-    s = xaccTransGetSplit (trans, 0);
-    a = xaccSplitGetAccount (s);
-
-    if (query_types & SIMPLE_QT)
-    {
-        xaccQueryAddSingleAccountMatch (q, xaccSplitGetAccount (s), QOF_QUERY_AND);
-
-        if (xaccTransGetDescription(trans) && *xaccTransGetDescription(trans) != '\0')
-        {
-            xaccQueryAddDescriptionMatch (q, xaccTransGetDescription (trans),
-                                          TRUE, FALSE, QOF_QUERY_AND);
-        }
-
-        if (xaccTransGetNum(trans) && *xaccTransGetNum(trans) != '\0')
-        {
-            xaccQueryAddNumberMatch (q, xaccTransGetNum (trans),
-                                     TRUE, FALSE, QOF_QUERY_AND);
-        }
-
-        if (xaccSplitGetAction(s) && *xaccSplitGetAction(s) != '\0')
-        {
-            xaccQueryAddActionMatch (q, xaccSplitGetAction (s),
-                                     TRUE, FALSE, QOF_QUERY_AND);
-        }
-
-        n = xaccSplitGetValue (s);
-        xaccQueryAddValueMatch (q, n, QOF_NUMERIC_MATCH_ANY,
-                                QOF_COMPARE_EQUAL, QOF_QUERY_AND);
-
-        n = xaccSplitGetAmount (s);
-        xaccQueryAddSharesMatch (q, n, QOF_COMPARE_EQUAL, QOF_QUERY_AND);
-
-        if (include_price)
-        {
-            n = xaccSplitGetSharePrice (s);
-            xaccQueryAddSharePriceMatch (q, n, QOF_COMPARE_EQUAL, QOF_QUERY_AND);
-        }
-
-        {
-            Timespec ts;
-
-            xaccTransGetDatePostedTS (trans, &ts);
-            xaccQueryAddDateMatchTS (q, TRUE, ts, TRUE, ts, QOF_QUERY_AND);
-        }
-
-        if (xaccSplitGetMemo(s) && *xaccSplitGetMemo(s) != '\0')
-        {
-            xaccQueryAddMemoMatch (q, xaccSplitGetMemo (s), TRUE, FALSE, QOF_QUERY_AND);
-        }
-
-        {
-            cleared_match_t how;
-
-            switch (xaccSplitGetReconcile (s))
-            {
-            case NREC:
-                how = CLEARED_NO;
-                break;
-            case CREC:
-                how = CLEARED_CLEARED;
-                break;
-            case YREC:
-                how = CLEARED_RECONCILED;
-                break;
-            case FREC:
-                how = CLEARED_FROZEN;
-                break;
-            case VREC:
-                how = CLEARED_VOIDED;
-                break;
-            default:
-                failure ("bad reconcile flag");
-                qof_query_destroy (q);
-                return NULL;
-            }
-
-            xaccQueryAddClearedMatch (q, how, QOF_QUERY_AND);
-        }
-    }
-
-    if (query_types & ACCOUNT_QT)
-    {
-        GList * node;
-
-        /* QOF_GUID_MATCH_ALL */
-        AccountList_t list;
-        for (node = xaccTransGetSplitList (trans); node; node = node->next)
-        {
-            Split * split = node->data;
-            list.push_front(xaccSplitGetAccount (split));
-        }
-        xaccQueryAddAccountMatch (q, list, QOF_GUID_MATCH_ALL, QOF_QUERY_AND);
-
-        /* QOF_GUID_MATCH_NONE */
-        GList * guidList = NULL;
-        guidList = g_list_prepend (guidList, get_random_guid ());
-        guidList = g_list_prepend (guidList, get_random_guid ());
-        guidList = g_list_prepend (guidList, get_random_guid ());
-        xaccQueryAddAccountGUIDMatch (q, guidList, QOF_GUID_MATCH_NONE, QOF_QUERY_AND);
-
-        /* QOF_GUID_MATCH_ANY */
-        {
-            GncGUID * guid = get_random_guid ();
-            *guid = *xaccAccountGetGUID (a);
-            guidList = g_list_prepend (guidList, guid);
-        }
-        xaccQueryAddAccountGUIDMatch (q, guidList, QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
-
-        for (node = guidList; node; node = node->next)
-            delete (GncGUID*)(node->data);
-//            g_free (node->data);
-        g_list_free (guidList);
-    }
-
-    if (query_types & GUID_QT)
-    {
-        xaccQueryAddGUIDMatch (q, xaccSplitGetGUID (s),
-                               GNC_ID_SPLIT, QOF_QUERY_AND);
-
-        xaccQueryAddGUIDMatch (q, xaccTransGetGUID (trans),
-                               GNC_ID_TRANS, QOF_QUERY_AND);
-
-        xaccQueryAddGUIDMatch (q, xaccAccountGetGUID (a),
-                               GNC_ID_ACCOUNT, QOF_QUERY_AND);
-    }
-
-    if (query_types & SPLIT_KVP_QT)
-        add_kvp_query (q, xaccSplitGetSlots (s), GNC_ID_SPLIT);
-
-    if (query_types & TRANS_KVP_QT)
-        add_kvp_query (q, xaccTransGetSlots (trans), GNC_ID_TRANS);
-
-    if (query_types & ACCOUNT_KVP_QT)
-        add_kvp_query (q, xaccAccountGetSlots (a), GNC_ID_ACCOUNT);
-
-    return q;
-}
+//
+//QofQuery *
+//make_trans_query (Transaction *trans, TestQueryTypes query_types)
+//{
+//    Account *a;
+//    gnc_numeric n;
+//    QofQuery *q;
+//    Split *s;
+//
+//    if (query_types == RANDOM_QT)
+//        query_types = get_random_query_type ();
+//
+//    q = qof_query_create_for(GNC_ID_SPLIT);
+//
+//    s = xaccTransGetSplit (trans, 0);
+//    a = xaccSplitGetAccount (s);
+//
+//    if (query_types & SIMPLE_QT)
+//    {
+//        xaccQueryAddSingleAccountMatch (q, xaccSplitGetAccount (s), QOF_QUERY_AND);
+//
+//        if (xaccTransGetDescription(trans) && *xaccTransGetDescription(trans) != '\0')
+//        {
+//            xaccQueryAddDescriptionMatch (q, xaccTransGetDescription (trans),
+//                                          TRUE, FALSE, QOF_QUERY_AND);
+//        }
+//
+//        if (xaccTransGetNum(trans) && *xaccTransGetNum(trans) != '\0')
+//        {
+//            xaccQueryAddNumberMatch (q, xaccTransGetNum (trans),
+//                                     TRUE, FALSE, QOF_QUERY_AND);
+//        }
+//
+//        if (xaccSplitGetAction(s) && *xaccSplitGetAction(s) != '\0')
+//        {
+//            xaccQueryAddActionMatch (q, xaccSplitGetAction (s),
+//                                     TRUE, FALSE, QOF_QUERY_AND);
+//        }
+//
+//        n = xaccSplitGetValue (s);
+//        xaccQueryAddValueMatch (q, n, QOF_NUMERIC_MATCH_ANY,
+//                                QOF_COMPARE_EQUAL, QOF_QUERY_AND);
+//
+//        n = xaccSplitGetAmount (s);
+//        xaccQueryAddSharesMatch (q, n, QOF_COMPARE_EQUAL, QOF_QUERY_AND);
+//
+//        if (include_price)
+//        {
+//            n = xaccSplitGetSharePrice (s);
+//            xaccQueryAddSharePriceMatch (q, n, QOF_COMPARE_EQUAL, QOF_QUERY_AND);
+//        }
+//
+//        {
+//            Timespec ts;
+//
+//            xaccTransGetDatePostedTS (trans, &ts);
+//            xaccQueryAddDateMatchTS (q, TRUE, ts, TRUE, ts, QOF_QUERY_AND);
+//        }
+//
+//        if (xaccSplitGetMemo(s) && *xaccSplitGetMemo(s) != '\0')
+//        {
+//            xaccQueryAddMemoMatch (q, xaccSplitGetMemo (s), TRUE, FALSE, QOF_QUERY_AND);
+//        }
+//
+//        {
+//            cleared_match_t how;
+//
+//            switch (xaccSplitGetReconcile (s))
+//            {
+//            case NREC:
+//                how = CLEARED_NO;
+//                break;
+//            case CREC:
+//                how = CLEARED_CLEARED;
+//                break;
+//            case YREC:
+//                how = CLEARED_RECONCILED;
+//                break;
+//            case FREC:
+//                how = CLEARED_FROZEN;
+//                break;
+//            case VREC:
+//                how = CLEARED_VOIDED;
+//                break;
+//            default:
+//                failure ("bad reconcile flag");
+//                qof_query_destroy (q);
+//                return NULL;
+//            }
+//
+//            xaccQueryAddClearedMatch (q, how, QOF_QUERY_AND);
+//        }
+//    }
+//
+//    if (query_types & ACCOUNT_QT)
+//    {
+//        /* QOF_GUID_MATCH_ALL */
+//        AccountList_t list;
+//        SplitList_t splits = xaccTransGetSplitList (trans);
+//        for (SplitList_t::iterator node = splits.begin(); node != splits.end(); node++)
+//        {
+//            Split * split = *node;
+//            list.push_front(xaccSplitGetAccount (split));
+//        }
+//        xaccQueryAddAccountMatch (q, list, QOF_GUID_MATCH_ALL, QOF_QUERY_AND);
+//
+//        /* QOF_GUID_MATCH_NONE */
+//        GList * guidList = NULL;
+//        guidList = g_list_prepend (guidList, get_random_guid ());
+//        guidList = g_list_prepend (guidList, get_random_guid ());
+//        guidList = g_list_prepend (guidList, get_random_guid ());
+//        xaccQueryAddAccountGUIDMatch (q, guidList, QOF_GUID_MATCH_NONE, QOF_QUERY_AND);
+//
+//        /* QOF_GUID_MATCH_ANY */
+//        {
+//            GncGUID * guid = get_random_guid ();
+//            *guid = *xaccAccountGetGUID (a);
+//            guidList = g_list_prepend (guidList, guid);
+//        }
+//        xaccQueryAddAccountGUIDMatch (q, guidList, QOF_GUID_MATCH_ANY, QOF_QUERY_AND);
+//
+//        for (GList* node = guidList; node; node = node->next)
+//            delete (GncGUID*)(node->data);
+////            g_free (node->data);
+//        g_list_free (guidList);
+//    }
+//
+//    if (query_types & GUID_QT)
+//    {
+//        xaccQueryAddGUIDMatch (q, xaccSplitGetGUID (s),
+//                               GNC_ID_SPLIT, QOF_QUERY_AND);
+//
+//        xaccQueryAddGUIDMatch (q, xaccTransGetGUID (trans),
+//                               GNC_ID_TRANS, QOF_QUERY_AND);
+//
+//        xaccQueryAddGUIDMatch (q, xaccAccountGetGUID (a),
+//                               GNC_ID_ACCOUNT, QOF_QUERY_AND);
+//    }
+//
+//    if (query_types & SPLIT_KVP_QT)
+//        add_kvp_query (q, xaccSplitGetSlots (s), GNC_ID_SPLIT);
+//
+//    if (query_types & TRANS_KVP_QT)
+//        add_kvp_query (q, xaccTransGetSlots (trans), GNC_ID_TRANS);
+//
+//    if (query_types & ACCOUNT_KVP_QT)
+//        add_kvp_query (q, xaccAccountGetSlots (a), GNC_ID_ACCOUNT);
+//
+//    return q;
+//}
 
 static Recurrence*
 daily_freq(const GDate* start, int multiplier)

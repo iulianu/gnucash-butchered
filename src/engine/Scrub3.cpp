@@ -58,7 +58,6 @@ static QofLogModule log_module = GNC_MOD_LOT;
 static inline bool
 gains_possible (GNCLot *lot)
 {
-    SplitList *node;
     Account *acc;
     Split *split;
     bool comeq;
@@ -66,13 +65,13 @@ gains_possible (GNCLot *lot)
 
     acc = gnc_lot_get_account (lot);
 
-    node = gnc_lot_get_split_list (lot);
-    if (!node) return FALSE;
-    split = node->data;
+    SplitList_t slist = gnc_lot_get_split_list (lot);
+    if (slist.empty()) return false;
+    split = *(slist.begin());
 
     acc_commodity = xaccAccountGetCommodity(acc);
     comeq = gnc_commodity_equiv (acc_commodity, split->parent->common_currency);
-    return (FALSE == comeq);
+    return (false == comeq);
 }
 
 /* ================================================================= */
@@ -104,7 +103,6 @@ xaccScrubLot (GNCLot *lot)
            gnc_lot_get_title(lot));
     if (! gnc_numeric_zero_p (lot_baln))
     {
-        SplitList *node;
         gnc_numeric opening_baln;
 
         /* Get the opening balance for this lot */
@@ -119,9 +117,11 @@ xaccScrubLot (GNCLot *lot)
                 ((!opening_baln_is_pos) || (!lot_baln_is_pos)))
         {
 rethin:
-            for (node = gnc_lot_get_split_list(lot); node; node = node->next)
+            SplitList_t slist = gnc_lot_get_split_list(lot);
+            for (SplitList_t::iterator node = slist.begin(); 
+                    node != slist.end(); node++)
             {
-                Split *s = node->data;
+                Split *s = *node;
                 if (pcy->PolicyIsOpeningSplit (pcy, lot, s)) continue;
                 gnc_lot_remove_split (lot, s);
                 goto rethin;

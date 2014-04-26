@@ -394,7 +394,7 @@ void gnc_entry_ledger_destroy (GncEntryLedger *ledger)
     gnc_entry_ledger_clear_blank_entry (ledger);
     gnc_entry_ledger_display_fini (ledger);
     gnc_table_destroy (ledger->table);
-    qof_query_destroy (ledger->query);
+//    qof_query_destroy (ledger->query);
     g_free (ledger);
 }
 
@@ -410,138 +410,138 @@ void gnc_entry_ledger_set_default_order (GncEntryLedger *ledger,
     if (!ledger) return;
     ledger->order = order;
 
-    if (!ledger->query && order)
-    {
-        ledger->query = qof_query_create_for (GNC_ENTRY_MODULE_NAME);
-        qof_query_set_book (ledger->query, gncOrderGetBook (order));
-        qof_query_add_guid_match (ledger->query,
-                                  g_slist_prepend (g_slist_prepend (NULL,
-                                          QOF_PARAM_GUID),
-                                          ENTRY_ORDER),
-                                  gncOrderGetGUID (order), QOF_QUERY_AND);
-    }
+//    if (!ledger->query && order)
+//    {
+//        ledger->query = qof_query_create_for (GNC_ENTRY_MODULE_NAME);
+//        qof_query_set_book (ledger->query, gncOrderGetBook (order));
+//        qof_query_add_guid_match (ledger->query,
+//                                  g_slist_prepend (g_slist_prepend (NULL,
+//                                          QOF_PARAM_GUID),
+//                                          ENTRY_ORDER),
+//                                  gncOrderGetGUID (order), QOF_QUERY_AND);
+//    }
     gnc_entry_ledger_display_refresh (ledger);
 }
 
-static void create_invoice_query (GncEntryLedger *ledger)
-{
-    QofQuery *q, *q1;
-    char * type = NULL;
-
-    if (!ledger->invoice)
-        return;
-
-    if (ledger->query)
-        qof_query_destroy (ledger->query);
-
-    /* Match:   (where I-TYPE == Invoice or Bill)
-     *
-     * 1. book AND
-     * 2.   ( Entry->I-TYPE == ledger->invoice
-     * #if I-TYPE == Invoice/Cust Credit Note (entry only)
-     *        OR
-     * 3.     ( Entry->Invoice == NULL AND
-     *          ( Entry->Billable == TRUE AND
-     *            Entry->Bill->Is-Posted? == TRUE AND
-     *            ( Entry->BillTo == Invoice->parent OR
-     *              ( Entry->BillTo == NULL AND Entry->Bill->BillTo == Invoice->parent ) ) )
-     *           OR
-     *           ( Entry->Order->real-parent == Invoice->parent ) )
-     * #endif
-     *      )
-     *
-     * Note that term 3 is only for Editable invoices.
-     */
-
-    /* Term 1 */
-    ledger->query = qof_query_create_for (GNC_ENTRY_MODULE_NAME);
-    qof_query_set_book (ledger->query, gncInvoiceGetBook (ledger->invoice));
-
-    /* Term 2 */
-    switch (ledger->type)
-    {
-    case GNCENTRY_INVOICE_ENTRY:
-    case GNCENTRY_INVOICE_VIEWER:
-    case GNCENTRY_CUST_CREDIT_NOTE_ENTRY:
-    case GNCENTRY_CUST_CREDIT_NOTE_VIEWER:
-        type = ENTRY_INVOICE;
-        break;
-    case GNCENTRY_BILL_ENTRY:
-    case GNCENTRY_BILL_VIEWER:
-    case GNCENTRY_EXPVOUCHER_ENTRY:
-    case GNCENTRY_EXPVOUCHER_VIEWER:
-    case GNCENTRY_VEND_CREDIT_NOTE_ENTRY:
-    case GNCENTRY_VEND_CREDIT_NOTE_VIEWER:
-    case GNCENTRY_EMPL_CREDIT_NOTE_ENTRY:
-    case GNCENTRY_EMPL_CREDIT_NOTE_VIEWER:
-        type = ENTRY_BILL;
-        break;
-    default:
-        g_warning ("Invalid Ledger type");
-        type = ENTRY_INVOICE;
-        break;
-    }
-
-    q = qof_query_create_for (GNC_ENTRY_MODULE_NAME);
-    qof_query_add_guid_match (q, qof_query_build_param_list (type, QOF_PARAM_GUID, NULL),
-                              gncInvoiceGetGUID (ledger->invoice), QOF_QUERY_OR);
-
-    /* Term 3 */
-    if ((ledger->type == GNCENTRY_INVOICE_ENTRY ||
-            ledger->type == GNCENTRY_CUST_CREDIT_NOTE_ENTRY) &&
-            gncOwnerGetEndGUID (gncInvoiceGetOwner (ledger->invoice)) != NULL)
-    {
-
-        const GncGUID *invoice_parent =
-            gncOwnerGetGUID (gncInvoiceGetOwner (ledger->invoice));
-        QofQuery *q2 = qof_query_create_for (GNC_ENTRY_MODULE_NAME);
-
-        /*
-         * Entry->BillTo == Invoice->parent OR
-         * ( Entry->BillTo == NULL AND Entry->Bill->BillTo == Invoice->parent )
-         */
-
-        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_BILLTO,
-                                  QOF_PARAM_GUID, NULL),
-                                  NULL, QOF_QUERY_AND);
-        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_BILL, INVOICE_BILLTO,
-                                  QOF_PARAM_GUID, NULL),
-                                  invoice_parent, QOF_QUERY_AND);
-        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_BILLTO,
-                                  QOF_PARAM_GUID, NULL),
-                                  invoice_parent, QOF_QUERY_OR);
-
-        /* Entry->Billable == TRUE AND Entry->Bill->Is-Posted? == TRUE */
-        qof_query_add_boolean_match (q2, qof_query_build_param_list (ENTRY_BILLABLE, NULL),
-                                     TRUE, QOF_QUERY_AND);
-        qof_query_add_boolean_match (q2, qof_query_build_param_list (ENTRY_BILL,
-                                     INVOICE_IS_POSTED, NULL),
-                                     TRUE, QOF_QUERY_AND);
-
-        /* Entry->Order->real-parent == Invoice->parent */
-        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_ORDER, ORDER_OWNER,
-                                  OWNER_PARENTG, NULL),
-                                  invoice_parent, QOF_QUERY_OR);
-
-        /* Entry->Invoice == NULL */
-        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_INVOICE,
-                                  QOF_PARAM_GUID, NULL),
-                                  NULL, QOF_QUERY_AND);
-
-
-        /* Combine terms 2 and 3 */
-        q1 = qof_query_merge (q, q2, QOF_QUERY_OR);
-        qof_query_destroy (q);
-        qof_query_destroy (q2);
-        q = q1;
-    }
-
-    /* Combine terms 1 and 2 */
-    q1 = qof_query_merge (ledger->query, q, QOF_QUERY_AND);
-    qof_query_destroy (q);
-    qof_query_destroy (ledger->query);
-    ledger->query = q1;
-}
+//static void create_invoice_query (GncEntryLedger *ledger)
+//{
+//    QofQuery *q, *q1;
+//    char * type = NULL;
+//
+//    if (!ledger->invoice)
+//        return;
+//
+//    if (ledger->query)
+//        qof_query_destroy (ledger->query);
+//
+//    /* Match:   (where I-TYPE == Invoice or Bill)
+//     *
+//     * 1. book AND
+//     * 2.   ( Entry->I-TYPE == ledger->invoice
+//     * #if I-TYPE == Invoice/Cust Credit Note (entry only)
+//     *        OR
+//     * 3.     ( Entry->Invoice == NULL AND
+//     *          ( Entry->Billable == TRUE AND
+//     *            Entry->Bill->Is-Posted? == TRUE AND
+//     *            ( Entry->BillTo == Invoice->parent OR
+//     *              ( Entry->BillTo == NULL AND Entry->Bill->BillTo == Invoice->parent ) ) )
+//     *           OR
+//     *           ( Entry->Order->real-parent == Invoice->parent ) )
+//     * #endif
+//     *      )
+//     *
+//     * Note that term 3 is only for Editable invoices.
+//     */
+//
+//    /* Term 1 */
+//    ledger->query = qof_query_create_for (GNC_ENTRY_MODULE_NAME);
+//    qof_query_set_book (ledger->query, gncInvoiceGetBook (ledger->invoice));
+//
+//    /* Term 2 */
+//    switch (ledger->type)
+//    {
+//    case GNCENTRY_INVOICE_ENTRY:
+//    case GNCENTRY_INVOICE_VIEWER:
+//    case GNCENTRY_CUST_CREDIT_NOTE_ENTRY:
+//    case GNCENTRY_CUST_CREDIT_NOTE_VIEWER:
+//        type = ENTRY_INVOICE;
+//        break;
+//    case GNCENTRY_BILL_ENTRY:
+//    case GNCENTRY_BILL_VIEWER:
+//    case GNCENTRY_EXPVOUCHER_ENTRY:
+//    case GNCENTRY_EXPVOUCHER_VIEWER:
+//    case GNCENTRY_VEND_CREDIT_NOTE_ENTRY:
+//    case GNCENTRY_VEND_CREDIT_NOTE_VIEWER:
+//    case GNCENTRY_EMPL_CREDIT_NOTE_ENTRY:
+//    case GNCENTRY_EMPL_CREDIT_NOTE_VIEWER:
+//        type = ENTRY_BILL;
+//        break;
+//    default:
+//        g_warning ("Invalid Ledger type");
+//        type = ENTRY_INVOICE;
+//        break;
+//    }
+//
+//    q = qof_query_create_for (GNC_ENTRY_MODULE_NAME);
+//    qof_query_add_guid_match (q, qof_query_build_param_list (type, QOF_PARAM_GUID, NULL),
+//                              gncInvoiceGetGUID (ledger->invoice), QOF_QUERY_OR);
+//
+//    /* Term 3 */
+//    if ((ledger->type == GNCENTRY_INVOICE_ENTRY ||
+//            ledger->type == GNCENTRY_CUST_CREDIT_NOTE_ENTRY) &&
+//            gncOwnerGetEndGUID (gncInvoiceGetOwner (ledger->invoice)) != NULL)
+//    {
+//
+//        const GncGUID *invoice_parent =
+//            gncOwnerGetGUID (gncInvoiceGetOwner (ledger->invoice));
+//        QofQuery *q2 = qof_query_create_for (GNC_ENTRY_MODULE_NAME);
+//
+//        /*
+//         * Entry->BillTo == Invoice->parent OR
+//         * ( Entry->BillTo == NULL AND Entry->Bill->BillTo == Invoice->parent )
+//         */
+//
+//        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_BILLTO,
+//                                  QOF_PARAM_GUID, NULL),
+//                                  NULL, QOF_QUERY_AND);
+//        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_BILL, INVOICE_BILLTO,
+//                                  QOF_PARAM_GUID, NULL),
+//                                  invoice_parent, QOF_QUERY_AND);
+//        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_BILLTO,
+//                                  QOF_PARAM_GUID, NULL),
+//                                  invoice_parent, QOF_QUERY_OR);
+//
+//        /* Entry->Billable == TRUE AND Entry->Bill->Is-Posted? == TRUE */
+//        qof_query_add_boolean_match (q2, qof_query_build_param_list (ENTRY_BILLABLE, NULL),
+//                                     TRUE, QOF_QUERY_AND);
+//        qof_query_add_boolean_match (q2, qof_query_build_param_list (ENTRY_BILL,
+//                                     INVOICE_IS_POSTED, NULL),
+//                                     TRUE, QOF_QUERY_AND);
+//
+//        /* Entry->Order->real-parent == Invoice->parent */
+//        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_ORDER, ORDER_OWNER,
+//                                  OWNER_PARENTG, NULL),
+//                                  invoice_parent, QOF_QUERY_OR);
+//
+//        /* Entry->Invoice == NULL */
+//        qof_query_add_guid_match (q2, qof_query_build_param_list (ENTRY_INVOICE,
+//                                  QOF_PARAM_GUID, NULL),
+//                                  NULL, QOF_QUERY_AND);
+//
+//
+//        /* Combine terms 2 and 3 */
+//        q1 = qof_query_merge (q, q2, QOF_QUERY_OR);
+//        qof_query_destroy (q);
+//        qof_query_destroy (q2);
+//        q = q1;
+//    }
+//
+//    /* Combine terms 1 and 2 */
+//    q1 = qof_query_merge (ledger->query, q, QOF_QUERY_AND);
+//    qof_query_destroy (q);
+//    qof_query_destroy (ledger->query);
+//    ledger->query = q1;
+//}
 
 void gnc_entry_ledger_set_default_invoice (GncEntryLedger *ledger,
         GncInvoice *invoice)
@@ -560,8 +560,8 @@ void gnc_entry_ledger_set_default_invoice (GncEntryLedger *ledger,
     if (gncInvoiceGetOwnerType (invoice) == GNC_OWNER_VENDOR)
         ledger->last_date_entered = timespec_to_gdate(gncInvoiceGetDateOpened (invoice));
 
-    if (!ledger->query && invoice)
-        create_invoice_query (ledger);
+//    if (!ledger->query && invoice)
+//        create_invoice_query (ledger);
 
     gnc_entry_ledger_display_refresh (ledger);
 }
@@ -571,7 +571,7 @@ void gnc_entry_ledger_reset_query (GncEntryLedger *ledger)
     if (!ledger) return;
     if (!ledger->invoice) return;
 
-    create_invoice_query (ledger);
+//    create_invoice_query (ledger);
     gnc_entry_ledger_display_refresh (ledger);
 }
 
@@ -619,27 +619,27 @@ void gnc_entry_ledger_set_readonly (GncEntryLedger *ledger, gboolean readonly)
             break;
         case GNCENTRY_INVOICE_ENTRY:
             ledger->type = GNCENTRY_INVOICE_VIEWER;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_BILL_ENTRY:
             ledger->type = GNCENTRY_BILL_VIEWER;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_EXPVOUCHER_ENTRY:
             ledger->type = GNCENTRY_EXPVOUCHER_VIEWER;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_CUST_CREDIT_NOTE_ENTRY:
             ledger->type = GNCENTRY_CUST_CREDIT_NOTE_VIEWER;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_VEND_CREDIT_NOTE_ENTRY:
             ledger->type = GNCENTRY_VEND_CREDIT_NOTE_VIEWER;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_EMPL_CREDIT_NOTE_ENTRY:
             ledger->type = GNCENTRY_EMPL_CREDIT_NOTE_VIEWER;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         default:
             return;        /* Nothing to do */
@@ -654,27 +654,27 @@ void gnc_entry_ledger_set_readonly (GncEntryLedger *ledger, gboolean readonly)
             break;
         case GNCENTRY_INVOICE_VIEWER:
             ledger->type = GNCENTRY_INVOICE_ENTRY;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_BILL_VIEWER:
             ledger->type = GNCENTRY_BILL_ENTRY;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_EXPVOUCHER_VIEWER:
             ledger->type = GNCENTRY_EXPVOUCHER_ENTRY;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_CUST_CREDIT_NOTE_VIEWER:
             ledger->type = GNCENTRY_CUST_CREDIT_NOTE_ENTRY;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_VEND_CREDIT_NOTE_VIEWER:
             ledger->type = GNCENTRY_VEND_CREDIT_NOTE_ENTRY;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         case GNCENTRY_EMPL_CREDIT_NOTE_VIEWER:
             ledger->type = GNCENTRY_EMPL_CREDIT_NOTE_ENTRY;
-            create_invoice_query (ledger);
+//            create_invoice_query (ledger);
             break;
         default:
             return;        /* Nothing to do */
@@ -946,14 +946,14 @@ gnc_entry_ledger_duplicate_current_entry (GncEntryLedger *ledger)
     return;
 }
 
-QofQuery *
-gnc_entry_ledger_get_query (GncEntryLedger *ledger)
-{
-    if (!ledger)
-        return NULL;
-
-    return ledger->query;
-}
+//QofQuery *
+//gnc_entry_ledger_get_query (GncEntryLedger *ledger)
+//{
+//    if (!ledger)
+//        return NULL;
+//
+//    return ledger->query;
+//}
 
 void
 gnc_entry_ledger_set_gconf_section (GncEntryLedger *ledger, const gchar *string)

@@ -70,7 +70,7 @@ struct _GNCGeneralSearchPrivate
     GNCSearchCB		search_cb;
     gpointer		user_data;
     GNCSearchWindow *	sw;
-    const QofParam * get_guid;
+//    const QofParam * get_guid;
     gint			component_id;
 };
 
@@ -382,50 +382,50 @@ create_children (GNCGeneralSearch *gsl,
                  QofBook          *book)
 {
     GtkListStore *	list_store;
-    QofQuery *	q;
+//    QofQuery *	q;
     GtkTreeIter iter;
     GList * list, * it;
     GtkEntryCompletion *completion;
-
-    /* Add a text entry box */
-    gsl->entry = gtk_entry_new ();
-    if (!text_editable)
-        gtk_editable_set_editable (GTK_EDITABLE (gsl->entry), FALSE);
-    gtk_box_pack_start (GTK_BOX (gsl), gsl->entry, TRUE, TRUE, 0);
-
-
-    /* Setup a GtkEntryCompletion auxiliary widget for our Entry box
-     * This requires an internal table ("model") with the possible
-     * auto-completion text entries */
-
-    /* Query for the requested object type */
-    q = qof_query_create_for (type);
-    qof_query_add_boolean_match(q, g_slist_prepend
-                                (NULL, QOF_PARAM_ACTIVE), TRUE, QOF_QUERY_AND);
-    qof_query_set_book (q, book);
-    list = qof_query_run(q);
-
-    /* Setup the internal model */
-    list_store = gtk_list_store_new (GSL_N_COLUMNS, G_TYPE_STRING, G_TYPE_OBJECT);
-    for (it = list; it != NULL ; it = it->next)
-    {
-        char * name;
-
-        name = g_strdup(qof_object_printable(type, it->data));
-        /* Add a new row to the model */
-        if (name)
-        {
-            gtk_list_store_append (list_store, &iter);
-            gtk_list_store_set (list_store, &iter,
-                                GSL_COLUMN_TEXT, name,
-                                GSL_COLUMN_QOFOBJECT, G_OBJECT(it->data),
-                                -1);
-            g_free(name);
-        }
-
-    }
-
-    qof_query_destroy(q);
+//
+//    /* Add a text entry box */
+//    gsl->entry = gtk_entry_new ();
+//    if (!text_editable)
+//        gtk_editable_set_editable (GTK_EDITABLE (gsl->entry), FALSE);
+//    gtk_box_pack_start (GTK_BOX (gsl), gsl->entry, TRUE, TRUE, 0);
+//
+//
+//    /* Setup a GtkEntryCompletion auxiliary widget for our Entry box
+//     * This requires an internal table ("model") with the possible
+//     * auto-completion text entries */
+//
+//    /* Query for the requested object type */
+//    q = qof_query_create_for (type);
+//    qof_query_add_boolean_match(q, g_slist_prepend
+//                                (NULL, QOF_PARAM_ACTIVE), TRUE, QOF_QUERY_AND);
+//    qof_query_set_book (q, book);
+//    list = qof_query_run(q);
+//
+//    /* Setup the internal model */
+//    list_store = gtk_list_store_new (GSL_N_COLUMNS, G_TYPE_STRING, G_TYPE_OBJECT);
+//    for (it = list; it != NULL ; it = it->next)
+//    {
+//        char * name;
+//
+//        name = g_strdup(qof_object_printable(type, it->data));
+//        /* Add a new row to the model */
+//        if (name)
+//        {
+//            gtk_list_store_append (list_store, &iter);
+//            gtk_list_store_set (list_store, &iter,
+//                                GSL_COLUMN_TEXT, name,
+//                                GSL_COLUMN_QOFOBJECT, G_OBJECT(it->data),
+//                                -1);
+//            g_free(name);
+//        }
+//
+//    }
+//
+//    qof_query_destroy(q);
 
     /* Add the GtkEntryCompletion widget */
     completion = gtk_entry_completion_new();
@@ -481,12 +481,12 @@ gnc_general_search_new (QofIdTypeConst type,
 {
     GNCGeneralSearch *gsl;
     GNCGeneralSearchPrivate *priv;
-    const QofParam *get_guid;
+//    const QofParam *get_guid;
 
     g_return_val_if_fail (type && label && search_cb, NULL);
 
-    get_guid = qof_class_get_parameter (type, QOF_PARAM_GUID);
-    g_return_val_if_fail (get_guid, NULL);
+//    get_guid = qof_class_get_parameter (type, QOF_PARAM_GUID);
+//    g_return_val_if_fail (get_guid, NULL);
 
     gsl = g_object_new (GNC_TYPE_GENERAL_SEARCH, NULL);
 
@@ -496,7 +496,7 @@ gnc_general_search_new (QofIdTypeConst type,
     priv->type = type;
     priv->search_cb = search_cb;
     priv->user_data = user_data;
-    priv->get_guid = get_guid;
+//    priv->get_guid = get_guid;
     priv->component_id =
         gnc_register_gui_component (GNCGENERALSEARCH_CLASS,
                                     refresh_handler, NULL, gsl);
@@ -542,12 +542,12 @@ gnc_general_search_set_selected (GNCGeneralSearch *gsl, gpointer selection)
 
     if (selection)
     {
-        const QofParam *get_guid = priv->get_guid;
-        priv->guid = * ((GncGUID *)(get_guid->param_getfcn
-                                    (gsl->selected_item, get_guid)));
-        gnc_gui_component_watch_entity
-        (priv->component_id, &(priv->guid),
-         QOF_EVENT_MODIFY | QOF_EVENT_DESTROY);
+//        const QofParam *get_guid = priv->get_guid;
+//        priv->guid = * ((GncGUID *)(get_guid->param_getfcn
+//                                    (gsl->selected_item, get_guid)));
+//        gnc_gui_component_watch_entity
+//        (priv->component_id, &(priv->guid),
+//         QOF_EVENT_MODIFY | QOF_EVENT_DESTROY);
     }
     else
         priv->guid = *guid_null ();

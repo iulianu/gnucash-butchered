@@ -110,8 +110,8 @@ struct QofInstanceReference
 	use the param->param_type to obtain the type of the reference entity.
 	For a QOF_TYPE_COLLECT, obtain the collection and get the type from that. */
     GncGUID            *ref_guid;  /**< The GncGUID of the REFERENCE entity */
-    const QofParam  *param;      /**< The parameter of the original entity to use
-	to get or set the reference. */
+//    const QofParam  *param;      /**< The parameter of the original entity to use
+//	to get or set the reference. */
     const GncGUID      *ent_guid;   /**< The GncGUID of the original entity. */
     
     QofInstanceReference();
@@ -158,7 +158,7 @@ is not updated. The referenceList is unchanged (in case the child is added
 later).
 
 */
-void qof_book_set_references(QofBook *book);
+//void qof_book_set_references(QofBook *book);
 
 /** \brief Get a reference from this entity to another entity.
 
@@ -194,8 +194,8 @@ the integrity of the partial book during sequential copy operations.
 
 @return FALSE on error, otherwise a pointer to the QofInstanceReference.
 */
-QofInstanceReference*
-qof_instance_get_reference_from(QofInstance *ent, const QofParam *param);
+//QofInstanceReference*
+//qof_instance_get_reference_from(QofInstance *ent, const QofParam *param);
 
 /** @} */
 /** @} */

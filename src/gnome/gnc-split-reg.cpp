@@ -1574,76 +1574,76 @@ gnc_split_reg_double_line_cb (GtkWidget *w, gpointer data)
 static void
 gnc_split_reg_sort_force( GNCSplitReg *gsr, SortType sort_code, gboolean force )
 {
-    Query *query = gnc_ledger_display_get_query( gsr->ledger );
-    gboolean show_present_divider = FALSE;
-    GSList *p1 = NULL, *p2 = NULL, *p3 = NULL, *standard;
-    SplitRegister *reg;
-
-    if ((gsr->sort_type == sort_code) && !force)
-        return;
-
-    standard = g_slist_prepend( NULL, QUERY_DEFAULT_SORT );
-
-    switch (sort_code)
-    {
-    case BY_STANDARD:
-        p1 = standard;
-        show_present_divider = TRUE;
-        break;
-    case BY_DATE:
-        p1 = g_slist_prepend (p1, TRANS_DATE_POSTED);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        show_present_divider = TRUE;
-        break;
-    case BY_DATE_ENTERED:
-        p1 = g_slist_prepend (p1, TRANS_DATE_ENTERED);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        break;
-    case BY_DATE_RECONCILED:
-        p1 = g_slist_prepend (p1, SPLIT_RECONCILE);
-        p2 = g_slist_prepend (p2, SPLIT_DATE_RECONCILED);
-        p3 = standard;
-        break;
-    case BY_NUM:
-        p1 = g_slist_prepend (p1, TRANS_NUM);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        break;
-    case BY_AMOUNT:
-        p1 = g_slist_prepend (p1, SPLIT_VALUE);
-        p2 = standard;
-        break;
-    case BY_MEMO:
-        p1 = g_slist_prepend (p1, SPLIT_MEMO);
-        p2 = standard;
-        break;
-    case BY_DESC:
-        p1 = g_slist_prepend (p1, TRANS_DESCRIPTION);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        break;
-    case BY_ACTION:
-        p1 = g_slist_prepend (p1, SPLIT_ACTION);
-        p2 = standard;
-        break;
-    case BY_NOTES:
-        p1 = g_slist_prepend (p1, TRANS_NOTES);
-        p1 = g_slist_prepend (p1, SPLIT_TRANS);
-        p2 = standard;
-        break;
-    default:
-        g_slist_free (standard);
-        g_return_if_fail (FALSE);
-        break;
-    }
-
-    qof_query_set_sort_order( query, p1, p2, p3 );
-    reg = gnc_ledger_display_get_split_register( gsr->ledger );
-    gnc_split_register_show_present_divider( reg, show_present_divider );
-    gsr->sort_type = sort_code;
-    gnc_ledger_display_refresh( gsr->ledger );
+//    Query *query = gnc_ledger_display_get_query( gsr->ledger );
+//    gboolean show_present_divider = FALSE;
+//    GSList *p1 = NULL, *p2 = NULL, *p3 = NULL, *standard;
+//    SplitRegister *reg;
+//
+//    if ((gsr->sort_type == sort_code) && !force)
+//        return;
+//
+//    standard = g_slist_prepend( NULL, QUERY_DEFAULT_SORT );
+//
+//    switch (sort_code)
+//    {
+//    case BY_STANDARD:
+//        p1 = standard;
+//        show_present_divider = TRUE;
+//        break;
+//    case BY_DATE:
+//        p1 = g_slist_prepend (p1, TRANS_DATE_POSTED);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        show_present_divider = TRUE;
+//        break;
+//    case BY_DATE_ENTERED:
+//        p1 = g_slist_prepend (p1, TRANS_DATE_ENTERED);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        break;
+//    case BY_DATE_RECONCILED:
+//        p1 = g_slist_prepend (p1, SPLIT_RECONCILE);
+//        p2 = g_slist_prepend (p2, SPLIT_DATE_RECONCILED);
+//        p3 = standard;
+//        break;
+//    case BY_NUM:
+//        p1 = g_slist_prepend (p1, TRANS_NUM);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        break;
+//    case BY_AMOUNT:
+//        p1 = g_slist_prepend (p1, SPLIT_VALUE);
+//        p2 = standard;
+//        break;
+//    case BY_MEMO:
+//        p1 = g_slist_prepend (p1, SPLIT_MEMO);
+//        p2 = standard;
+//        break;
+//    case BY_DESC:
+//        p1 = g_slist_prepend (p1, TRANS_DESCRIPTION);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        break;
+//    case BY_ACTION:
+//        p1 = g_slist_prepend (p1, SPLIT_ACTION);
+//        p2 = standard;
+//        break;
+//    case BY_NOTES:
+//        p1 = g_slist_prepend (p1, TRANS_NOTES);
+//        p1 = g_slist_prepend (p1, SPLIT_TRANS);
+//        p2 = standard;
+//        break;
+//    default:
+//        g_slist_free (standard);
+//        g_return_if_fail (FALSE);
+//        break;
+//    }
+//
+////    qof_query_set_sort_order( query, p1, p2, p3 );
+//    reg = gnc_ledger_display_get_split_register( gsr->ledger );
+//    gnc_split_register_show_present_divider( reg, show_present_divider );
+//    gsr->sort_type = sort_code;
+//    gnc_ledger_display_refresh( gsr->ledger );
 }
 
 static void
@@ -1726,9 +1726,9 @@ gnc_split_reg_sort_notes_cb(GtkWidget *w, gpointer data)
 void 
 gnc_split_reg_set_sort_reversed(GNCSplitReg *gsr, gboolean rev)
 {
-  Query *query = gnc_ledger_display_get_query( gsr->ledger );
-  qof_query_set_sort_increasing (query, rev, rev, rev);
-  gnc_ledger_display_refresh( gsr->ledger );
+//  Query *query = gnc_ledger_display_get_query( gsr->ledger );
+//  qof_query_set_sort_increasing (query, rev, rev, rev);
+//  gnc_ledger_display_refresh( gsr->ledger );
 }
 
 void

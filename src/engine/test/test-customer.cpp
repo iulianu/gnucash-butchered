@@ -94,20 +94,20 @@ test_customer (void)
         gncCustomerSetGUID (customer, &guid);
         do_test (guid_equal (&guid, gncCustomerGetGUID (customer)), "guid compare");
     }
-    {
-        GList *list;
-
-        list = gncBusinessGetList (book, GNC_ID_CUSTOMER, TRUE);
-        do_test (list != NULL, "getList all");
-//        printf("list_length %d, count %d\n", g_list_length(list), count);
-        do_test (g_list_length (list) == count, "correct length: all, list length");
-        g_list_free (list);
-
-        list = gncBusinessGetList (book, GNC_ID_CUSTOMER, FALSE);
-        do_test (list != NULL, "getList active");
-        do_test (g_list_length (list) == 1, "correct length: active");
-        g_list_free (list);
-    }
+//    {
+//        GList *list;
+//
+//        list = gncBusinessGetList (book, GNC_ID_CUSTOMER, TRUE);
+//        do_test (list != NULL, "getList all");
+////        printf("list_length %d, count %d\n", g_list_length(list), count);
+//        do_test (g_list_length (list) == count, "correct length: all, list length");
+//        g_list_free (list);
+//
+//        list = gncBusinessGetList (book, GNC_ID_CUSTOMER, FALSE);
+//        do_test (list != NULL, "getList active");
+//        do_test (g_list_length (list) == 1, "correct length: active");
+//        g_list_free (list);
+//    }
     {
         const char *str = get_random_string();
         const char *res;

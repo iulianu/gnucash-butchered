@@ -79,24 +79,24 @@ bool
 xaccAccountHasTrades (const Account *acc)
 {
     gnc_commodity *acc_comm;
-    SplitList *splits, *node;
 
-    if (!acc) return FALSE;
+    if (!acc) return false;
 
     if (xaccAccountIsPriced (acc))
-        return TRUE;
+        return true;
 
     acc_comm = xaccAccountGetCommodity(acc);
 
-    splits = xaccAccountGetSplitList(acc);
-    for (node = splits; node; node = node->next)
+    SplitList_t splits = xaccAccountGetSplitList(acc);
+    for (SplitList_t::const_iterator node = splits.begin();
+            node != splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         Transaction *t = s->parent;
-        if (acc_comm != t->common_currency) return TRUE;
+        if (acc_comm != t->common_currency) return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /* ============================================================== */
@@ -679,7 +679,6 @@ xaccSplitGetGainsSourceSplit (const Split *split)
 void
 xaccSplitComputeCapGains(Split *split, Account *gain_acc)
 {
-    SplitList *node;
     GNCLot *lot;
     GNCPolicy *pcy;
     gnc_commodity *currency = NULL;
@@ -773,9 +772,11 @@ xaccSplitComputeCapGains(Split *split, Account *gain_acc)
     /* Note: if the value of the 'opening' split(s) has changed,
      * then the cap gains are changed. So we need to check not
      * only if this split is dirty, but also the lot-opening splits. */
-    for (node = gnc_lot_get_split_list(lot); node; node = node->next)
+    SplitList_t splits = gnc_lot_get_split_list(lot);
+    for (SplitList_t::iterator node = splits.begin(); 
+            node != splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         if (pcy->PolicyIsOpeningSplit(pcy, lot, s))
         {
             if (GAINS_STATUS_UNKNOWN == s->gains) xaccSplitDetermineGainStatus (s);
@@ -832,10 +833,10 @@ xaccSplitComputeCapGains(Split *split, Account *gain_acc)
     if (0 > gnc_numeric_compare (gnc_numeric_abs(lot_amount),
                                  gnc_numeric_abs(split->amount)))
     {
-        GList *n;
-        for (n = gnc_lot_get_split_list(lot); n; n = n->next)
+        SplitList_t splits = gnc_lot_get_split_list(lot);
+        for (SplitList_t::iterator n = splits.begin(); n != splits.end(); n++)
         {
-            Split *s = n->data;
+            Split *s = *n;
             PINFO ("split amt=%s", gnc_num_dbg_to_string(s->amount));
         }
         PERR ("Malformed Lot \"%s\"! (too thin!) "
@@ -851,10 +852,10 @@ xaccSplitComputeCapGains(Split *split, Account *gain_acc)
             (gnc_numeric_positive_p(lot_amount) ||
              gnc_numeric_negative_p(split->amount)))
     {
-        GList *n;
-        for (n = gnc_lot_get_split_list(lot); n; n = n->next)
+        SplitList_t splits = gnc_lot_get_split_list(lot);
+        for (SplitList_t::iterator n = splits.begin(); n != splits.end(); n++)
         {
-            Split *s = n->data;
+            Split *s = *n;
             PINFO ("split amt=%s", gnc_num_dbg_to_string(s->amount));
         }
         PERR ("Malformed Lot \"%s\"! (too fat!) "
@@ -1082,7 +1083,6 @@ xaccSplitGetCapGains(Split * split)
 void
 xaccLotComputeCapGains (GNCLot *lot, Account *gain_acc)
 {
-    SplitList *node;
     GNCPolicy *pcy;
     bool is_dirty = FALSE;
 
@@ -1092,9 +1092,10 @@ xaccLotComputeCapGains (GNCLot *lot, Account *gain_acc)
 
     ENTER("(lot=%p)", lot);
     pcy = gnc_account_get_policy(gnc_lot_get_account(lot));
-    for (node = gnc_lot_get_split_list(lot); node; node = node->next)
+    SplitList_t splits = gnc_lot_get_split_list(lot);
+    for (SplitList_t::iterator n = splits.begin(); n != splits.end(); n++)
     {
-        Split *s = node->data;
+        Split *s = *n;
         if (pcy->PolicyIsOpeningSplit(pcy, lot, s))
         {
             if (GAINS_STATUS_UNKNOWN == s->gains)
@@ -1109,16 +1110,18 @@ xaccLotComputeCapGains (GNCLot *lot, Account *gain_acc)
 
     if (is_dirty)
     {
-        for (node = gnc_lot_get_split_list(lot); node; node = node->next)
+        SplitList_t splits = gnc_lot_get_split_list(lot);
+        for (SplitList_t::iterator n = splits.begin(); n != splits.end(); n++)
         {
-            Split *s = node->data;
+            Split *s = *n;
             s->gains |= GAINS_STATUS_VDIRTY;
         }
     }
 
-    for (node = gnc_lot_get_split_list(lot); node; node = node->next)
+    splits = gnc_lot_get_split_list(lot);
+    for (SplitList_t::iterator n = splits.begin(); n != splits.end(); n++)
     {
-        Split *s = node->data;
+        Split *s = *n;
         xaccSplitComputeCapGains (s, gain_acc);
     }
     LEAVE("(lot=%p)", lot);

@@ -534,7 +534,7 @@ gnc_plugin_page_register2_new_common (GNCLedgerDisplay2 *ledger)
     GList *book_list;
     gchar *label;
     gchar *label_color;
-    QofQuery *q;
+//    QofQuery *q;
     Account *account;
 
     /* Is there an existing page? */
@@ -569,10 +569,10 @@ gnc_plugin_page_register2_new_common (GNCLedgerDisplay2 *ledger)
     gnc_plugin_page_set_page_long_name(plugin_page, label);
     g_free(label);
 
-    q = gnc_ledger_display2_get_query (ledger);
-    book_list = qof_query_get_books (q);
-    for (item = book_list; item; item = g_list_next(item))
-        gnc_plugin_page_add_book (plugin_page, (QofBook *)item->data);
+//    q = gnc_ledger_display2_get_query (ledger);
+//    book_list = qof_query_get_books (q);
+//    for (item = book_list; item; item = g_list_next(item))
+//        gnc_plugin_page_add_book (plugin_page, (QofBook *)item->data);
     // Do not free the list. It is owned by the query.
 
     priv->component_manager_id = 0;
@@ -2561,7 +2561,7 @@ gnc_plugin_page_register2_cmd_view_filter_by (GtkAction *action,
     time64 start_time, end_time, time_val;
     GtkBuilder *builder;
     gboolean sensitive, value;
-    Query *query;
+//    Query *query;
     GList *split_list;
     gchar *title;
     int i;
@@ -2612,9 +2612,9 @@ gnc_plugin_page_register2_cmd_view_filter_by (GtkAction *action,
 
     /* Set the date info */
     button = GTK_WIDGET(gtk_builder_get_object (builder, "filter_show_range"));
-    query = gnc_ledger_display2_get_query (priv->ledger);
+//    query = gnc_ledger_display2_get_query (priv->ledger);
     // Lets update the query but do not free the resulting list as it belongs to query.
-    split_list = qof_query_run (query);
+//    split_list = qof_query_run (query);
 
     priv->fd.original_start_time = priv->fd.start_time;
     start_time = priv->fd.start_time;
@@ -2636,7 +2636,7 @@ gnc_plugin_page_register2_cmd_view_filter_by (GtkAction *action,
         if (start_time == 0)
         {
             button = GTK_WIDGET(gtk_builder_get_object (builder, "start_date_earliest"));
-            time_val = xaccQueryGetEarliestDateFound (query);
+//            time_val = xaccQueryGetEarliestDateFound (query);
             sensitive = FALSE;
         }
         else
@@ -2671,7 +2671,7 @@ gnc_plugin_page_register2_cmd_view_filter_by (GtkAction *action,
         if (end_time == 0)
         {
             button = GTK_WIDGET(gtk_builder_get_object (builder, "end_date_latest"));
-            time_val = xaccQueryGetLatestDateFound (query);
+//            time_val = xaccQueryGetLatestDateFound (query);
             sensitive = FALSE;
         }
         else
@@ -3117,7 +3117,7 @@ gnc_plugin_page_register2_cmd_scrub_current (GtkAction *action,
 {
     GncPluginPageRegister2Private *priv;
     GncTreeViewSplitReg *view;
-    Query *query;
+//    Query *query;
     Account *root;
     Transaction *trans;
 
@@ -3126,12 +3126,12 @@ gnc_plugin_page_register2_cmd_scrub_current (GtkAction *action,
     ENTER("(action %p, plugin_page %p)", action, plugin_page);
 
     priv = GNC_PLUGIN_PAGE_REGISTER2_GET_PRIVATE (plugin_page);
-    query = gnc_ledger_display2_get_query (priv->ledger);
-    if (query == NULL)
-    {
-        LEAVE("no query found");
-        return;
-    }
+//    query = gnc_ledger_display2_get_query (priv->ledger);
+//    if (query == NULL)
+//    {
+//        LEAVE("no query found");
+//        return;
+//    }
 
     view = gnc_ledger_display2_get_split_view_register (priv->ledger);
     trans = gnc_tree_view_split_reg_get_current_trans (view);
@@ -3154,7 +3154,7 @@ gnc_plugin_page_register2_cmd_scrub_all (GtkAction *action,
                                         GncPluginPageRegister2 *plugin_page) // this works
 {
     GncPluginPageRegister2Private *priv;
-    Query *query;
+//    Query *query;
     Account *root;
     Transaction *trans;
     Split *split;
@@ -3165,25 +3165,25 @@ gnc_plugin_page_register2_cmd_scrub_all (GtkAction *action,
     ENTER("(action %p, plugin_page %p)", action, plugin_page);
 
     priv = GNC_PLUGIN_PAGE_REGISTER2_GET_PRIVATE(plugin_page);
-    query = gnc_ledger_display2_get_query( priv->ledger );
-    if (!query)
-    {
-        LEAVE("no query found");
-        return;
-    }
+//    query = gnc_ledger_display2_get_query( priv->ledger );
+//    if (!query)
+//    {
+//        LEAVE("no query found");
+//        return;
+//    }
 
     gnc_suspend_gui_refresh();
     root = gnc_get_current_root_account();
 
-    for (node = qof_query_run(query); node; node = node->next)
-    {
-        split = node->data;
-        trans = xaccSplitGetParent(split);
-
-        xaccTransScrubOrphans(trans);
-        xaccTransScrubImbalance(trans, root, NULL);
-    }
-
+//    for (node = qof_query_run(query); node; node = node->next)
+//    {
+//        split = node->data;
+//        trans = xaccSplitGetParent(split);
+//
+//        xaccTransScrubOrphans(trans);
+//        xaccTransScrubImbalance(trans, root, NULL);
+//    }
+//
     gnc_resume_gui_refresh();
     LEAVE(" ");
 }

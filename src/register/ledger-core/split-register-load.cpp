@@ -160,7 +160,6 @@ gnc_split_register_add_transaction (SplitRegister *reg,
                                     int *new_split_row,
                                     VirtualCellLocation *vcell_loc)
 {
-    GList *node;
 
     g_return_if_fail(reg);
     g_return_if_fail(vcell_loc);
@@ -175,9 +174,10 @@ gnc_split_register_add_transaction (SplitRegister *reg,
 
     /* Continue setting up virtual cells in a column, using a row for each
      * split in the transaction. */
-    for (node = xaccTransGetSplitList (trans); node; node = node->next)
+    SplitList_t slist = xaccTransGetSplitList (trans);
+    for (SplitList_t::iterator node = slist.begin(); node != slist.end(); node++)
     {
-        Split *secondary = node->data;
+        Split *secondary = *node;
 
         if (!xaccTransStillHasSplit(trans, secondary)) continue;
         if (secondary == find_split && find_class == CURSOR_CLASS_SPLIT)
@@ -203,12 +203,20 @@ gnc_split_register_add_transaction (SplitRegister *reg,
 }
 
 static gint
-_find_split_with_parent_txn(gconstpointer a, gconstpointer b)
+_find_split_with_parent_txn(Split * split, Transaction * txn)
 {
-    Split *split = (Split*)a;
-    Transaction *txn = (Transaction*)b;
-
     return xaccSplitGetParent(split) == txn ? 0 : 1;
+}
+
+static SplitList_t::iterator find_split_with_parent_txn(SplitList_t::iterator begin, SplitList_t::iterator end, Transaction * txn)
+{
+    SplitList_t::iterator it;
+    for(it = begin; it != end; it++)
+    {
+        if(_find_split_with_parent_txn(*it, txn) == 0)
+            break;
+    }
+    return it;
 }
 
 static void add_quickfill_completions(TableLayout *layout, Transaction *trans,
@@ -240,7 +248,7 @@ static void add_quickfill_completions(TableLayout *layout, Transaction *trans,
 }
 
 void
-gnc_split_register_load (SplitRegister *reg, GList * slist,
+gnc_split_register_load (SplitRegister *reg, SplitList_t &slist,
                          Account *default_account)
 {
     SRInfo *info;
@@ -259,7 +267,6 @@ gnc_split_register_load (SplitRegister *reg, GList * slist,
     Split *find_split;
     Split *split;
     Table *table;
-    GList *node;
 
     gboolean start_primary_color = TRUE;
     gboolean found_pending = FALSE;
@@ -269,7 +276,7 @@ gnc_split_register_load (SplitRegister *reg, GList * slist,
     gboolean has_last_num = FALSE;
     gboolean multi_line;
     gboolean dynamic;
-    gboolean we_own_slist = FALSE;
+//    gboolean we_own_slist = FALSE;
     gboolean use_autoreadonly = qof_book_uses_autoreadonly(gnc_get_current_book());
 
     VirtualCellLocation vcell_loc;
@@ -286,7 +293,7 @@ gnc_split_register_load (SplitRegister *reg, GList * slist,
     info = gnc_split_register_get_info (reg);
     g_return_if_fail(info);
 
-    ENTER("reg=%p, slist=%p, default_account=%p", reg, slist, default_account);
+    ENTER("reg=%p, slist=%z, default_account=%p", reg, slist.size(), default_account);
 
     blank_split = xaccSplitLookup (&info->blank_split_guid,
                                    gnc_get_current_book ());
@@ -492,24 +499,25 @@ gnc_split_register_load (SplitRegister *reg, GList * slist,
     // list we're about to load.
     if (pending_trans != NULL)
     {
-        for (node = xaccTransGetSplitList(pending_trans); node; node = node->next)
+        SplitList_t spl_list = xaccTransGetSplitList(pending_trans);
+        for (SplitList_t::iterator it = spl_list.begin(); it != spl_list.end(); it++)
         {
-            Split *pending_split = (Split*)node->data;
+            Split *pending_split = *it;
             if (!xaccTransStillHasSplit(pending_trans, pending_split)) continue;
-            if (g_list_find(slist, pending_split) != NULL)
+            if (std::find(slist.begin(), slist.end(), pending_split) != slist.end())
                 continue;
 
-            if (g_list_find_custom(slist, pending_trans,
-                                   _find_split_with_parent_txn) != NULL)
+            if(find_split_with_parent_txn(slist.begin(), slist.end(), pending_trans)
+                    != slist.end() )
                 continue;
 
-            if (!we_own_slist)
-            {
-                // lazy-copy
-                slist = g_list_copy(slist);
-                we_own_slist = TRUE;
-            }
-            slist = g_list_append(slist, pending_split);
+//            if (!we_own_slist)
+//            {
+//                // lazy-copy
+//                slist = g_list_copy(slist);
+//                we_own_slist = TRUE;
+//            }
+            slist.push_back(pending_split);
         }
     }
 
@@ -517,9 +525,9 @@ gnc_split_register_load (SplitRegister *reg, GList * slist,
         trans_table = g_hash_table_new (g_direct_hash, g_direct_equal);
 
     /* populate the table */
-    for (node = slist; node; node = node->next)
+    for (SplitList_t::iterator node = slist.begin(); node != slist.end(); node++)
     {
-        split = node->data;
+        split = *node;
         trans = xaccSplitGetParent (split);
 
         if (!xaccTransStillHasSplit(trans, split))
@@ -712,8 +720,8 @@ gnc_split_register_load (SplitRegister *reg, GList * slist,
     /* enable callback for cursor user-driven moves */
     gnc_table_control_allow_move (table->control, TRUE);
 
-    if (we_own_slist)
-        g_list_free(slist);
+//    if (we_own_slist)
+//        g_list_free(slist);
 
     LEAVE(" ");
 }

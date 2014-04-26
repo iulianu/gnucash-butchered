@@ -72,7 +72,7 @@ struct QofInstanceCopyData
 {
     QofInstance *from;
     QofInstance *to;
-    QofParam  *param;
+//    QofParam  *param;
     GList  *referenceList;
     GSList *param_list;
     QofSession *new_session;

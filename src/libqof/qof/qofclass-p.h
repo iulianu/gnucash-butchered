@@ -35,7 +35,7 @@
 void qof_class_init(void);
 void qof_class_shutdown (void);
 
-QofSortFunc qof_class_get_default_sort (QofIdTypeConst obj_name);
+//QofSortFunc qof_class_get_default_sort (QofIdTypeConst obj_name);
 
 /* @} */
 /* @} */

@@ -27,37 +27,37 @@
 #ifndef GNC_DIALOG_QUERY_VIEW_H
 #define GNC_DIALOG_QUERY_VIEW_H
 
-#include "Query.h"
-
-typedef struct _DialogQueryView DialogQueryView;
-
-typedef void (*GNCDisplayViewCB)(gpointer obj, gpointer user_data);
-typedef struct
-{
-    const char         *label;
-    GNCDisplayViewCB	cb_fcn;
-} GNCDisplayViewButton;
-
-DialogQueryView *
-gnc_dialog_query_view_new (GList *param_list, Query *q);
-
-void gnc_dialog_query_view_set_title (DialogQueryView *dqv, const char *title);
-void gnc_dialog_query_view_set_label (DialogQueryView *dqv, const char *label);
-void gnc_dialog_query_view_set_buttons (DialogQueryView *dqv,
-                                        GNCDisplayViewButton *buttons,
-                                        gpointer user_data);
-void gnc_dialog_query_view_set_numerics (DialogQueryView *dqv, gboolean abs,
-                                         gboolean inv_sort);
-
-void gnc_dialog_query_view_refresh (DialogQueryView *dqv);
-void gnc_dialog_query_view_destroy (DialogQueryView *dqv);
-
-DialogQueryView *
-gnc_dialog_query_view_create (GList *param_list, Query *q,
-                              const char *title, const char *label,
-                              gboolean abs, gboolean inv_sort,
-                              gint sort_column, GtkSortType order,
-                              GNCDisplayViewButton *buttons, gpointer user_data);
+//#include "Query.h"
+//
+//typedef struct _DialogQueryView DialogQueryView;
+//
+//typedef void (*GNCDisplayViewCB)(gpointer obj, gpointer user_data);
+//typedef struct
+//{
+//    const char         *label;
+//    GNCDisplayViewCB	cb_fcn;
+//} GNCDisplayViewButton;
+//
+//DialogQueryView *
+//gnc_dialog_query_view_new (GList *param_list, Query *q);
+//
+//void gnc_dialog_query_view_set_title (DialogQueryView *dqv, const char *title);
+//void gnc_dialog_query_view_set_label (DialogQueryView *dqv, const char *label);
+//void gnc_dialog_query_view_set_buttons (DialogQueryView *dqv,
+//                                        GNCDisplayViewButton *buttons,
+//                                        gpointer user_data);
+//void gnc_dialog_query_view_set_numerics (DialogQueryView *dqv, gboolean abs,
+//                                         gboolean inv_sort);
+//
+//void gnc_dialog_query_view_refresh (DialogQueryView *dqv);
+//void gnc_dialog_query_view_destroy (DialogQueryView *dqv);
+//
+//DialogQueryView *
+//gnc_dialog_query_view_create (GList *param_list, Query *q,
+//                              const char *title, const char *label,
+//                              gboolean abs, gboolean inv_sort,
+//                              gint sort_column, GtkSortType order,
+//                              GNCDisplayViewButton *buttons, gpointer user_data);
 
 
 #endif /* GNC_DIALOG_QUERY_VIEW_H */

@@ -66,7 +66,7 @@ struct _job_select_window
 {
     QofBook *	book;
     GncOwner *	owner;
-    QofQuery *	q;
+//    QofQuery *	q;
     GncOwner	owner_def;
 };
 
@@ -526,105 +526,105 @@ free_userdata_cb (gpointer user_data)
 
     g_return_if_fail (sw);
 
-    qof_query_destroy (sw->q);
+//    qof_query_destroy (sw->q);
     g_free (sw);
 }
 
 GNCSearchWindow *
 gnc_job_search (GncJob *start, GncOwner *owner, QofBook *book)
 {
-    QofQuery *q, *q2 = NULL;
-    QofIdType type = GNC_JOB_MODULE_NAME;
-    struct _job_select_window *sw;
-    static GList *params = NULL;
-    static GList *columns = NULL;
-    static GNCSearchCallbackButton buttons[] =
-    {
-        { N_("View/Edit Job"), edit_job_cb, NULL, TRUE},
-        { N_("View Invoices"), invoice_job_cb, NULL, TRUE},
-        { N_("Process Payment"), payment_job_cb, NULL, FALSE},
-        { NULL },
-    };
-
-    g_return_val_if_fail (book, NULL);
-
-    /* Build parameter list in reverse order */
-    if (params == NULL)
-    {
-        params = gnc_search_param_prepend (params, _("Owner's Name"), NULL, type,
-                                           JOB_OWNER, OWNER_NAME, NULL);
-        params = gnc_search_param_prepend (params, _("Only Active?"), NULL, type,
-                                           JOB_ACTIVE, NULL);
-        params = gnc_search_param_prepend (params, _("Billing ID"), NULL, type,
-                                           JOB_REFERENCE, NULL);
-        params = gnc_search_param_prepend (params, _("Job Number"), NULL, type,
-                                           JOB_ID, NULL);
-        params = gnc_search_param_prepend (params, _("Job Name"), NULL, type,
-                                           JOB_NAME, NULL);
-    }
-
-    /* Build the column list in reverse order */
-    if (columns == NULL)
-    {
-        columns = gnc_search_param_prepend (columns, _("Billing ID"), NULL, type,
-                                            JOB_REFERENCE, NULL);
-        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
-                                            JOB_OWNER, OWNER_NAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("Job Name"), NULL, type,
-                                            JOB_NAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("ID #"), NULL, type,
-                                            JOB_ID, NULL);
-    }
-
-    /* Build the queries */
-    q = qof_query_create_for (type);
-    qof_query_set_book (q, book);
-
-    /* If we have a start job but, for some reason, not an owner -- grab
-     * the owner from the starting job.
-     */
-    if ((!owner || !gncOwnerGetGUID (owner)) && start)
-        owner = gncJobGetOwner (start);
-
-    /* If owner is supplied, limit all searches to invoices who's owner
-     * is the supplied owner!  Show all invoices by this owner.
-     */
-    if (owner && gncOwnerGetGUID (owner))
-    {
-        qof_query_add_guid_match (q, g_slist_prepend
-                                  (g_slist_prepend (NULL, QOF_PARAM_GUID),
-                                   JOB_OWNER),
-                                  gncOwnerGetGUID (owner), QOF_QUERY_AND);
-
-        q2 = qof_query_copy (q);
-    }
-
-#if 0
-    if (start)
-    {
-        if (q2 == NULL)
-            q2 = qof_query_copy (q);
-
-        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
-                                  gncJobGetGUID (start), QOF_QUERY_AND);
-    }
-#endif
-
-    /* launch select dialog and return the result */
-    sw = g_new0 (struct _job_select_window, 1);
-
-    if (owner)
-    {
-        gncOwnerCopy (owner, &(sw->owner_def));
-        sw->owner = &(sw->owner_def);
-    }
-    sw->book = book;
-    sw->q = q;
-
-    return gnc_search_dialog_create (type, _("Find Job"),
-                                     params, columns, q, q2, buttons, NULL,
-                                     new_job_cb, sw, free_userdata_cb,
-                                     GCONF_SECTION_SEARCH, NULL);
+//    QofQuery *q, *q2 = NULL;
+//    QofIdType type = GNC_JOB_MODULE_NAME;
+//    struct _job_select_window *sw;
+//    static GList *params = NULL;
+//    static GList *columns = NULL;
+//    static GNCSearchCallbackButton buttons[] =
+//    {
+//        { N_("View/Edit Job"), edit_job_cb, NULL, TRUE},
+//        { N_("View Invoices"), invoice_job_cb, NULL, TRUE},
+//        { N_("Process Payment"), payment_job_cb, NULL, FALSE},
+//        { NULL },
+//    };
+//
+//    g_return_val_if_fail (book, NULL);
+//
+//    /* Build parameter list in reverse order */
+//    if (params == NULL)
+//    {
+//        params = gnc_search_param_prepend (params, _("Owner's Name"), NULL, type,
+//                                           JOB_OWNER, OWNER_NAME, NULL);
+//        params = gnc_search_param_prepend (params, _("Only Active?"), NULL, type,
+//                                           JOB_ACTIVE, NULL);
+//        params = gnc_search_param_prepend (params, _("Billing ID"), NULL, type,
+//                                           JOB_REFERENCE, NULL);
+//        params = gnc_search_param_prepend (params, _("Job Number"), NULL, type,
+//                                           JOB_ID, NULL);
+//        params = gnc_search_param_prepend (params, _("Job Name"), NULL, type,
+//                                           JOB_NAME, NULL);
+//    }
+//
+//    /* Build the column list in reverse order */
+//    if (columns == NULL)
+//    {
+//        columns = gnc_search_param_prepend (columns, _("Billing ID"), NULL, type,
+//                                            JOB_REFERENCE, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
+//                                            JOB_OWNER, OWNER_NAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Job Name"), NULL, type,
+//                                            JOB_NAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("ID #"), NULL, type,
+//                                            JOB_ID, NULL);
+//    }
+//
+//    /* Build the queries */
+//    q = qof_query_create_for (type);
+//    qof_query_set_book (q, book);
+//
+//    /* If we have a start job but, for some reason, not an owner -- grab
+//     * the owner from the starting job.
+//     */
+//    if ((!owner || !gncOwnerGetGUID (owner)) && start)
+//        owner = gncJobGetOwner (start);
+//
+//    /* If owner is supplied, limit all searches to invoices who's owner
+//     * is the supplied owner!  Show all invoices by this owner.
+//     */
+//    if (owner && gncOwnerGetGUID (owner))
+//    {
+//        qof_query_add_guid_match (q, g_slist_prepend
+//                                  (g_slist_prepend (NULL, QOF_PARAM_GUID),
+//                                   JOB_OWNER),
+//                                  gncOwnerGetGUID (owner), QOF_QUERY_AND);
+//
+//        q2 = qof_query_copy (q);
+//    }
+//
+//#if 0
+//    if (start)
+//    {
+//        if (q2 == NULL)
+//            q2 = qof_query_copy (q);
+//
+//        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
+//                                  gncJobGetGUID (start), QOF_QUERY_AND);
+//    }
+//#endif
+//
+//    /* launch select dialog and return the result */
+//    sw = g_new0 (struct _job_select_window, 1);
+//
+//    if (owner)
+//    {
+//        gncOwnerCopy (owner, &(sw->owner_def));
+//        sw->owner = &(sw->owner_def);
+//    }
+//    sw->book = book;
+//    sw->q = q;
+//
+//    return gnc_search_dialog_create (type, _("Find Job"),
+//                                     params, columns, q, q2, buttons, NULL,
+//                                     new_job_cb, sw, free_userdata_cb,
+//                                     GCONF_SECTION_SEARCH, NULL);
 }
 
 /* Functions for widgets for job selection */

@@ -64,7 +64,7 @@ QofInstanceCopyData::QofInstanceCopyData()
 {
     from = NULL;
     to = NULL;
-    param = NULL;
+//    param = NULL;
     referenceList = NULL;
     param_list = NULL;
     new_session = NULL;

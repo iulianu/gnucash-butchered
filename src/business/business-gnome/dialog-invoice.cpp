@@ -111,7 +111,7 @@ struct _invoice_select_window
 {
     QofBook *	book;
     GncOwner *	owner;
-    QofQuery *	q;
+//    QofQuery *	q;
     GncOwner	owner_def;
 };
 
@@ -939,48 +939,48 @@ void gnc_invoice_window_payment_cb (GtkWidget *widget, gpointer data)
 void
 gnc_invoice_window_sort (InvoiceWindow *iw, invoice_sort_type_t sort_code)
 {
-    QofQuery *query = gnc_entry_ledger_get_query (iw->ledger);
-    GSList *p1 = NULL, *p2 = NULL, *p3 = NULL, *standard;
-
-    if (iw->last_sort == sort_code)
-        return;
-
-    standard = g_slist_prepend (NULL, QUERY_DEFAULT_SORT);
-
-    switch (sort_code)
-    {
-    case INVSORT_BY_STANDARD:
-        p1 = standard;
-        break;
-    case INVSORT_BY_DATE:
-        p1 = g_slist_prepend (p1, ENTRY_DATE);
-        p2 = standard;
-        break;
-    case INVSORT_BY_DATE_ENTERED:
-        p1 = g_slist_prepend (p1, ENTRY_DATE_ENTERED);
-        p2 = standard;
-        break;
-    case INVSORT_BY_DESC:
-        p1 = g_slist_prepend (p1, ENTRY_DESC);
-        p2 = standard;
-        break;
-    case INVSORT_BY_QTY:
-        p1 = g_slist_prepend (p1, ENTRY_QTY);
-        p2 = standard;
-        break;
-    case INVSORT_BY_PRICE:
-        p1 = g_slist_prepend (p1, ((iw->owner.type == GNC_OWNER_CUSTOMER) ?
-                                   ENTRY_IPRICE : ENTRY_BPRICE));
-        p2 = standard;
-        break;
-    default:
-        g_slist_free (standard);
-        g_return_if_fail (FALSE);
-        break;
-    }
-
-    qof_query_set_sort_order (query, p1, p2, p3);
-    iw->last_sort = sort_code;
+//    QofQuery *query = gnc_entry_ledger_get_query (iw->ledger);
+//    GSList *p1 = NULL, *p2 = NULL, *p3 = NULL, *standard;
+//
+//    if (iw->last_sort == sort_code)
+//        return;
+//
+//    standard = g_slist_prepend (NULL, QUERY_DEFAULT_SORT);
+//
+//    switch (sort_code)
+//    {
+//    case INVSORT_BY_STANDARD:
+//        p1 = standard;
+//        break;
+//    case INVSORT_BY_DATE:
+//        p1 = g_slist_prepend (p1, ENTRY_DATE);
+//        p2 = standard;
+//        break;
+//    case INVSORT_BY_DATE_ENTERED:
+//        p1 = g_slist_prepend (p1, ENTRY_DATE_ENTERED);
+//        p2 = standard;
+//        break;
+//    case INVSORT_BY_DESC:
+//        p1 = g_slist_prepend (p1, ENTRY_DESC);
+//        p2 = standard;
+//        break;
+//    case INVSORT_BY_QTY:
+//        p1 = g_slist_prepend (p1, ENTRY_QTY);
+//        p2 = standard;
+//        break;
+//    case INVSORT_BY_PRICE:
+//        p1 = g_slist_prepend (p1, ((iw->owner.type == GNC_OWNER_CUSTOMER) ?
+//                                   ENTRY_IPRICE : ENTRY_BPRICE));
+//        p2 = standard;
+//        break;
+//    default:
+//        g_slist_free (standard);
+//        g_return_if_fail (FALSE);
+//        break;
+//    }
+//
+//    qof_query_set_sort_order (query, p1, p2, p3);
+//    iw->last_sort = sort_code;
     gnc_entry_ledger_display_refresh (iw->ledger);
 }
 
@@ -2662,390 +2662,390 @@ free_invoice_cb (gpointer user_data)
 
     g_return_if_fail (sw);
 
-    qof_query_destroy (sw->q);
+//    qof_query_destroy (sw->q);
     g_free (sw);
 }
 
 GNCSearchWindow *
 gnc_invoice_search (GncInvoice *start, GncOwner *owner, QofBook *book)
 {
-    QofIdType type = GNC_INVOICE_MODULE_NAME;
-    struct _invoice_select_window *sw;
-    QofQuery *q, *q2 = NULL;
-    GncOwnerType owner_type = GNC_OWNER_CUSTOMER;
-    static GList *inv_params = NULL, *bill_params = NULL, *emp_params = NULL, *params;
-    static GList *columns = NULL;
-    const gchar *title, *label;
-    static GNCSearchCallbackButton *buttons;
-    static GNCSearchCallbackButton inv_buttons[] =
-    {
-        { N_("View/Edit Invoice"), edit_invoice_cb, NULL, TRUE},
-        { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
-        { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
-        { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
-        { NULL },
-    };
-    static GNCSearchCallbackButton bill_buttons[] =
-    {
-        { N_("View/Edit Bill"), edit_invoice_cb, NULL, TRUE},
-        { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
-        { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
-        { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
-        { NULL },
-    };
-    static GNCSearchCallbackButton emp_buttons[] =
-    {
-        /* Translators: The terms 'Voucher' and 'Expense Voucher' are used
-           interchangeably in gnucash and mean the same thing. */
-        { N_("View/Edit Voucher"), edit_invoice_cb, NULL, TRUE},
-        { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
-        { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
-        { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
-        { NULL },
-    };
-
-    g_return_val_if_fail (book, NULL);
-
-    /* Build parameter list in reverse order */
-    if (inv_params == NULL)
-    {
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Invoice Owner"), NULL, type,
-                                               INVOICE_OWNER, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Invoice Notes"), NULL, type,
-                                               INVOICE_NOTES, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Billing ID"), NULL, type,
-                                               INVOICE_BILLINGID, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Is Paid?"), NULL, type,
-                                               INVOICE_IS_PAID, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Date Posted"), NULL, type,
-                                               INVOICE_POSTED, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Is Posted?"), NULL, type,
-                                               INVOICE_IS_POSTED, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Date Opened"), NULL, type,
-                                               INVOICE_OPENED, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Due Date"), NULL, type,
-                                               INVOICE_DUE, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Company Name "), NULL, type,
-                                               INVOICE_OWNER, OWNER_PARENT,
-                                               OWNER_NAME, NULL);
-        inv_params = gnc_search_param_prepend (inv_params,
-                                               _("Invoice ID"), NULL, type,
-                                               INVOICE_ID, NULL);
-    }
-    if (bill_params == NULL)
-    {
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Bill Owner"), NULL, type,
-                                                INVOICE_OWNER, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Bill Notes"), NULL, type,
-                                                INVOICE_NOTES, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Billing ID"), NULL, type,
-                                                INVOICE_BILLINGID, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Is Paid?"), NULL, type,
-                                                INVOICE_IS_PAID, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Date Posted"), NULL, type,
-                                                INVOICE_POSTED, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Is Posted?"), NULL, type,
-                                                INVOICE_IS_POSTED, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Date Opened"), NULL, type,
-                                                INVOICE_OPENED, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Due Date"), NULL, type,
-                                                INVOICE_DUE, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Company Name "), NULL, type,
-                                                INVOICE_OWNER, OWNER_PARENT,
-                                                OWNER_NAME, NULL);
-        bill_params = gnc_search_param_prepend (bill_params,
-                                                _("Bill ID"), NULL, type,
-                                                INVOICE_ID, NULL);
-    }
-    if (emp_params == NULL)
-    {
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Voucher Owner"), NULL, type,
-                                               INVOICE_OWNER, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Voucher Notes"), NULL, type,
-                                               INVOICE_NOTES, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Billing ID"), NULL, type,
-                                               INVOICE_BILLINGID, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Is Paid?"), NULL, type,
-                                               INVOICE_IS_PAID, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Date Posted"), NULL, type,
-                                               INVOICE_POSTED, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Is Posted?"), NULL, type,
-                                               INVOICE_IS_POSTED, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Date Opened"), NULL, type,
-                                               INVOICE_OPENED, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Due Date"), NULL, type,
-                                               INVOICE_DUE, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Employee Name"), NULL, type,
-                                               INVOICE_OWNER, OWNER_PARENT,
-                                               OWNER_NAME, NULL);
-        emp_params = gnc_search_param_prepend (emp_params,
-                                               _("Voucher ID"), NULL, type,
-                                               INVOICE_ID, NULL);
-    }
-
-    /* Build the column list in reverse order */
-    if (columns == NULL)
-    {
-        columns = gnc_search_param_prepend (columns, _("Billing ID"), NULL, type,
-                                            INVOICE_BILLINGID, NULL);
-        columns = gnc_search_param_prepend (columns, _("Type"), NULL, type,
-                                            INVOICE_TYPE_STRING, NULL);
-        columns = gnc_search_param_prepend_with_justify (columns, _("Paid"),
-                  GTK_JUSTIFY_CENTER, NULL, type,
-                  INVOICE_IS_PAID, NULL);
-        columns = gnc_search_param_prepend (columns, _("Posted"), NULL, type,
-                                            INVOICE_POSTED, NULL);
-        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
-                                            INVOICE_OWNER, OWNER_PARENT,
-                                            OWNER_NAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("Due"), NULL, type,
-                                            INVOICE_DUE, NULL);
-        columns = gnc_search_param_prepend (columns, _("Opened"), NULL, type,
-                                            INVOICE_OPENED, NULL);
-        columns = gnc_search_param_prepend (columns, _("Num"), NULL, type,
-                                            INVOICE_ID, NULL);
-    }
-
-    /* Build the queries */
-    q = qof_query_create_for (type);
-    qof_query_set_book (q, book);
-
-    /* If owner is supplied, limit all searches to invoices who's owner
-     * or end-owner is the supplied owner!  Show all invoices by this
-     * owner.  If a Job is supplied, search for all invoices for that
-     * job, but if a Customer is supplied, search for all invoices owned
-     * by that Customer or any of that Customer's Jobs.  In other words,
-     * match on <supplied-owner's guid> == Invoice->Owner->GncGUID or
-     * Invoice->owner->parentGUID.
-     */
-    if (owner)
-    {
-        /* First, figure out the type of owner here.. */
-        owner_type = gncOwnerGetType (gncOwnerGetEndOwner (owner));
-
-        /* Then if there's an actual owner add it to the query
-         * and limit the search to this owner
-         * If there's only a type, limit the search to this type.
-         */
-        if (gncOwnerGetGUID (owner))
-        {
-            q2 = qof_query_create ();
-            qof_query_add_guid_match (q2, g_slist_prepend
-                                      (g_slist_prepend (NULL, QOF_PARAM_GUID),
-                                       INVOICE_OWNER),
-                                      gncOwnerGetGUID (owner), QOF_QUERY_OR);
-
-            qof_query_add_guid_match (q2, g_slist_prepend
-                                      (g_slist_prepend (NULL, OWNER_PARENTG),
-                                       INVOICE_OWNER),
-                                      gncOwnerGetGUID (owner), QOF_QUERY_OR);
-            qof_query_merge_in_place (q, q2, QOF_QUERY_AND);
-            qof_query_destroy (q2);
-
-            /* Use this base query as pre-fill query.
-             * This will pre-fill the search dialog with the query results
-             */
-            q2 = qof_query_copy (q);
-
-        }
-        else
-        {
-            QofQuery *q3 = qof_query_create ();
-            QofQueryPredData *inv_type_pred = NULL;
-            GList *type_list = NULL, *node = NULL;
-
-            type_list = gncInvoiceGetTypeListForOwnerType(owner_type);
-            for (node = type_list; node; node = node->next)
-            {
-                inv_type_pred = qof_query_int32_predicate(QOF_COMPARE_EQUAL,
-                                GPOINTER_TO_INT(node->data));
-                qof_query_add_term (q3, g_slist_prepend (NULL, INVOICE_TYPE), inv_type_pred, QOF_QUERY_OR);
-            }
-            qof_query_merge_in_place (q, q3, QOF_QUERY_AND);
-            qof_query_destroy (q3);
-
-            /* Don't set a pre-fill query in this case, the result set would be too long */
-            q2 = NULL;
-        }
-    }
-
-    /* Launch select dialog and return the result */
-    sw = g_new0 (struct _invoice_select_window, 1);
-
-    if (owner)
-    {
-        gncOwnerCopy (owner, &(sw->owner_def));
-        sw->owner = &(sw->owner_def);
-    }
-    sw->book = book;
-    sw->q = q;
-
-    switch (owner_type)
-    {
-    case GNC_OWNER_VENDOR:
-        title = _("Find Bill");
-        label = _("Bill");
-        params = bill_params;
-        buttons = bill_buttons;
-        break;
-    case GNC_OWNER_EMPLOYEE:
-        title = _("Find Expense Voucher");
-        label = _("Expense Voucher");
-        params = emp_params;
-        buttons = emp_buttons;
-        break;
-    default:
-        title = _("Find Invoice");
-        label = _("Invoice");
-        params = inv_params;
-        buttons = inv_buttons;
-        break;
-    }
-    return gnc_search_dialog_create (type, title, params, columns, q, q2,
-                                     buttons, NULL, new_invoice_cb,
-                                     sw, free_invoice_cb, GCONF_SECTION_SEARCH,
-                                     label);
+//    QofIdType type = GNC_INVOICE_MODULE_NAME;
+//    struct _invoice_select_window *sw;
+//    QofQuery *q, *q2 = NULL;
+//    GncOwnerType owner_type = GNC_OWNER_CUSTOMER;
+//    static GList *inv_params = NULL, *bill_params = NULL, *emp_params = NULL, *params;
+//    static GList *columns = NULL;
+//    const gchar *title, *label;
+//    static GNCSearchCallbackButton *buttons;
+//    static GNCSearchCallbackButton inv_buttons[] =
+//    {
+//        { N_("View/Edit Invoice"), edit_invoice_cb, NULL, TRUE},
+//        { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
+//        { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
+//        { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
+//        { NULL },
+//    };
+//    static GNCSearchCallbackButton bill_buttons[] =
+//    {
+//        { N_("View/Edit Bill"), edit_invoice_cb, NULL, TRUE},
+//        { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
+//        { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
+//        { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
+//        { NULL },
+//    };
+//    static GNCSearchCallbackButton emp_buttons[] =
+//    {
+//        /* Translators: The terms 'Voucher' and 'Expense Voucher' are used
+//           interchangeably in gnucash and mean the same thing. */
+//        { N_("View/Edit Voucher"), edit_invoice_cb, NULL, TRUE},
+//        { N_("Process Payment"), pay_invoice_cb, NULL, FALSE},
+//        { N_("Duplicate"), NULL, multi_duplicate_invoice_cb, FALSE},
+//        { N_("Post"), NULL, multi_post_invoice_cb, FALSE},
+//        { NULL },
+//    };
+//
+//    g_return_val_if_fail (book, NULL);
+//
+//    /* Build parameter list in reverse order */
+//    if (inv_params == NULL)
+//    {
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Invoice Owner"), NULL, type,
+//                                               INVOICE_OWNER, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Invoice Notes"), NULL, type,
+//                                               INVOICE_NOTES, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Billing ID"), NULL, type,
+//                                               INVOICE_BILLINGID, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Is Paid?"), NULL, type,
+//                                               INVOICE_IS_PAID, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Date Posted"), NULL, type,
+//                                               INVOICE_POSTED, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Is Posted?"), NULL, type,
+//                                               INVOICE_IS_POSTED, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Date Opened"), NULL, type,
+//                                               INVOICE_OPENED, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Due Date"), NULL, type,
+//                                               INVOICE_DUE, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Company Name "), NULL, type,
+//                                               INVOICE_OWNER, OWNER_PARENT,
+//                                               OWNER_NAME, NULL);
+//        inv_params = gnc_search_param_prepend (inv_params,
+//                                               _("Invoice ID"), NULL, type,
+//                                               INVOICE_ID, NULL);
+//    }
+//    if (bill_params == NULL)
+//    {
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Bill Owner"), NULL, type,
+//                                                INVOICE_OWNER, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Bill Notes"), NULL, type,
+//                                                INVOICE_NOTES, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Billing ID"), NULL, type,
+//                                                INVOICE_BILLINGID, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Is Paid?"), NULL, type,
+//                                                INVOICE_IS_PAID, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Date Posted"), NULL, type,
+//                                                INVOICE_POSTED, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Is Posted?"), NULL, type,
+//                                                INVOICE_IS_POSTED, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Date Opened"), NULL, type,
+//                                                INVOICE_OPENED, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Due Date"), NULL, type,
+//                                                INVOICE_DUE, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Company Name "), NULL, type,
+//                                                INVOICE_OWNER, OWNER_PARENT,
+//                                                OWNER_NAME, NULL);
+//        bill_params = gnc_search_param_prepend (bill_params,
+//                                                _("Bill ID"), NULL, type,
+//                                                INVOICE_ID, NULL);
+//    }
+//    if (emp_params == NULL)
+//    {
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Voucher Owner"), NULL, type,
+//                                               INVOICE_OWNER, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Voucher Notes"), NULL, type,
+//                                               INVOICE_NOTES, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Billing ID"), NULL, type,
+//                                               INVOICE_BILLINGID, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Is Paid?"), NULL, type,
+//                                               INVOICE_IS_PAID, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Date Posted"), NULL, type,
+//                                               INVOICE_POSTED, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Is Posted?"), NULL, type,
+//                                               INVOICE_IS_POSTED, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Date Opened"), NULL, type,
+//                                               INVOICE_OPENED, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Due Date"), NULL, type,
+//                                               INVOICE_DUE, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Employee Name"), NULL, type,
+//                                               INVOICE_OWNER, OWNER_PARENT,
+//                                               OWNER_NAME, NULL);
+//        emp_params = gnc_search_param_prepend (emp_params,
+//                                               _("Voucher ID"), NULL, type,
+//                                               INVOICE_ID, NULL);
+//    }
+//
+//    /* Build the column list in reverse order */
+//    if (columns == NULL)
+//    {
+//        columns = gnc_search_param_prepend (columns, _("Billing ID"), NULL, type,
+//                                            INVOICE_BILLINGID, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Type"), NULL, type,
+//                                            INVOICE_TYPE_STRING, NULL);
+//        columns = gnc_search_param_prepend_with_justify (columns, _("Paid"),
+//                  GTK_JUSTIFY_CENTER, NULL, type,
+//                  INVOICE_IS_PAID, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Posted"), NULL, type,
+//                                            INVOICE_POSTED, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
+//                                            INVOICE_OWNER, OWNER_PARENT,
+//                                            OWNER_NAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Due"), NULL, type,
+//                                            INVOICE_DUE, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Opened"), NULL, type,
+//                                            INVOICE_OPENED, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Num"), NULL, type,
+//                                            INVOICE_ID, NULL);
+//    }
+//
+//    /* Build the queries */
+//    q = qof_query_create_for (type);
+//    qof_query_set_book (q, book);
+//
+//    /* If owner is supplied, limit all searches to invoices who's owner
+//     * or end-owner is the supplied owner!  Show all invoices by this
+//     * owner.  If a Job is supplied, search for all invoices for that
+//     * job, but if a Customer is supplied, search for all invoices owned
+//     * by that Customer or any of that Customer's Jobs.  In other words,
+//     * match on <supplied-owner's guid> == Invoice->Owner->GncGUID or
+//     * Invoice->owner->parentGUID.
+//     */
+//    if (owner)
+//    {
+//        /* First, figure out the type of owner here.. */
+//        owner_type = gncOwnerGetType (gncOwnerGetEndOwner (owner));
+//
+//        /* Then if there's an actual owner add it to the query
+//         * and limit the search to this owner
+//         * If there's only a type, limit the search to this type.
+//         */
+//        if (gncOwnerGetGUID (owner))
+//        {
+//            q2 = qof_query_create ();
+//            qof_query_add_guid_match (q2, g_slist_prepend
+//                                      (g_slist_prepend (NULL, QOF_PARAM_GUID),
+//                                       INVOICE_OWNER),
+//                                      gncOwnerGetGUID (owner), QOF_QUERY_OR);
+//
+//            qof_query_add_guid_match (q2, g_slist_prepend
+//                                      (g_slist_prepend (NULL, OWNER_PARENTG),
+//                                       INVOICE_OWNER),
+//                                      gncOwnerGetGUID (owner), QOF_QUERY_OR);
+//            qof_query_merge_in_place (q, q2, QOF_QUERY_AND);
+//            qof_query_destroy (q2);
+//
+//            /* Use this base query as pre-fill query.
+//             * This will pre-fill the search dialog with the query results
+//             */
+//            q2 = qof_query_copy (q);
+//
+//        }
+//        else
+//        {
+//            QofQuery *q3 = qof_query_create ();
+//            QofQueryPredData *inv_type_pred = NULL;
+//            GList *type_list = NULL, *node = NULL;
+//
+//            type_list = gncInvoiceGetTypeListForOwnerType(owner_type);
+//            for (node = type_list; node; node = node->next)
+//            {
+//                inv_type_pred = qof_query_int32_predicate(QOF_COMPARE_EQUAL,
+//                                GPOINTER_TO_INT(node->data));
+//                qof_query_add_term (q3, g_slist_prepend (NULL, INVOICE_TYPE), inv_type_pred, QOF_QUERY_OR);
+//            }
+//            qof_query_merge_in_place (q, q3, QOF_QUERY_AND);
+//            qof_query_destroy (q3);
+//
+//            /* Don't set a pre-fill query in this case, the result set would be too long */
+//            q2 = NULL;
+//        }
+//    }
+//
+//    /* Launch select dialog and return the result */
+//    sw = g_new0 (struct _invoice_select_window, 1);
+//
+//    if (owner)
+//    {
+//        gncOwnerCopy (owner, &(sw->owner_def));
+//        sw->owner = &(sw->owner_def);
+//    }
+//    sw->book = book;
+//    sw->q = q;
+//
+//    switch (owner_type)
+//    {
+//    case GNC_OWNER_VENDOR:
+//        title = _("Find Bill");
+//        label = _("Bill");
+//        params = bill_params;
+//        buttons = bill_buttons;
+//        break;
+//    case GNC_OWNER_EMPLOYEE:
+//        title = _("Find Expense Voucher");
+//        label = _("Expense Voucher");
+//        params = emp_params;
+//        buttons = emp_buttons;
+//        break;
+//    default:
+//        title = _("Find Invoice");
+//        label = _("Invoice");
+//        params = inv_params;
+//        buttons = inv_buttons;
+//        break;
+//    }
+//    return gnc_search_dialog_create (type, title, params, columns, q, q2,
+//                                     buttons, NULL, new_invoice_cb,
+//                                     sw, free_invoice_cb, GCONF_SECTION_SEARCH,
+//                                     label);
 }
 
-DialogQueryView *
-gnc_invoice_show_bills_due (QofBook *book, double days_in_advance)
-{
-    QofIdType type = GNC_INVOICE_MODULE_NAME;
-    Query *q;
-    QofQueryPredData* pred_data;
-    time64 end_date;
-    GList *res;
-    gchar *message;
-    DialogQueryView *dialog;
-    gint len;
-    Timespec ts;
-    static GList *param_list = NULL;
-    static GNCDisplayViewButton buttons[] =
-    {
-        { N_("View/Edit Bill"), edit_invoice_direct },
-        { N_("Process Payment"), pay_invoice_direct },
-        { NULL },
-    };
+//DialogQueryView *
+//gnc_invoice_show_bills_due (QofBook *book, double days_in_advance)
+//{
+//    QofIdType type = GNC_INVOICE_MODULE_NAME;
+//    Query *q;
+//    QofQueryPredData* pred_data;
+//    time64 end_date;
+//    GList *res;
+//    gchar *message;
+//    DialogQueryView *dialog;
+//    gint len;
+//    Timespec ts;
+//    static GList *param_list = NULL;
+//    static GNCDisplayViewButton buttons[] =
+//    {
+//        { N_("View/Edit Bill"), edit_invoice_direct },
+//        { N_("Process Payment"), pay_invoice_direct },
+//        { NULL },
+//    };
+//
+//    /* Create the param list (in reverse order) */
+//    if (param_list == NULL)
+//    {
+//        param_list = gnc_search_param_prepend (param_list, _("Amount"), NULL, type,
+//                                               INVOICE_POST_LOT, LOT_BALANCE, NULL);
+//        param_list = gnc_search_param_prepend (param_list, _("Company"), NULL, type,
+//                                               INVOICE_OWNER, OWNER_NAME, NULL);
+//        param_list = gnc_search_param_prepend (param_list, _("Due"), NULL, type,
+//                                               INVOICE_DUE, NULL);
+//    }
+//
+//    /* Create the query to search for invoices; set the book */
+//    q = qof_query_create();
+//    qof_query_search_for(q, GNC_INVOICE_MODULE_NAME);
+//    qof_query_set_book (q, book);
+//
+//    /* We want to find all invoices where:
+//     *      invoice -> is_posted == TRUE
+//     * AND  invoice -> lot -> is_closed? == FALSE
+//     * AND  invoice -> type != customer invoice
+//     * AND  invoice -> type != customer credit note
+//     * AND  invoice -> due >= (today - days_in_advance)
+//     */
+//
+//    qof_query_add_boolean_match (q, g_slist_prepend(NULL, INVOICE_IS_POSTED), TRUE,
+//                                 QOF_QUERY_AND);
+//
+//    qof_query_add_boolean_match (q, g_slist_prepend(g_slist_prepend(NULL, LOT_IS_CLOSED),
+//                                 INVOICE_POST_LOT), FALSE, QOF_QUERY_AND);
+//
+//    pred_data = qof_query_int32_predicate (QOF_COMPARE_NEQ, GNC_INVOICE_CUST_INVOICE);
+//    qof_query_add_term (q, g_slist_prepend(NULL, INVOICE_TYPE), pred_data, QOF_QUERY_AND);
+//
+//    pred_data = qof_query_int32_predicate (QOF_COMPARE_NEQ, GNC_INVOICE_CUST_CREDIT_NOTE);
+//    qof_query_add_term (q, g_slist_prepend(NULL, INVOICE_TYPE), pred_data, QOF_QUERY_AND);
+//
+//    end_date = gnc_time (NULL);
+//    if (days_in_advance < 0)
+//        days_in_advance = 0;
+//    end_date += days_in_advance * 60 * 60 * 24;
+//
+//    ts.tv_sec = (gint64) end_date;
+//    ts.tv_nsec = 0;
+//    pred_data = qof_query_date_predicate (QOF_COMPARE_LTE, QOF_DATE_MATCH_NORMAL, ts);
+//    qof_query_add_term (q, g_slist_prepend(NULL, INVOICE_DUE), pred_data, QOF_QUERY_AND);
+//
+//    res = qof_query_run(q);
+//    len = g_list_length (res);
+//    if (!res || len <= 0)
+//    {
+//        qof_query_destroy(q);
+//        return NULL;
+//    }
+//
+//    message = g_strdup_printf
+//              (/* Translators: %d is the number of bills due. This is a
+//                     ngettext(3) message. */
+//                  ngettext("The following %d bill is due:",
+//                           "The following %d bills are due:",
+//                           len),
+//                  len);
+//    dialog = gnc_dialog_query_view_create(param_list, q,
+//                                        _("Due Bills Reminder"),
+//                                          message,
+//                                          TRUE, FALSE,
+//                                          1, GTK_SORT_ASCENDING,
+//                                          buttons, NULL);
+//
+//    g_free(message);
+//    qof_query_destroy(q);
+//    return dialog;
+//}
 
-    /* Create the param list (in reverse order) */
-    if (param_list == NULL)
-    {
-        param_list = gnc_search_param_prepend (param_list, _("Amount"), NULL, type,
-                                               INVOICE_POST_LOT, LOT_BALANCE, NULL);
-        param_list = gnc_search_param_prepend (param_list, _("Company"), NULL, type,
-                                               INVOICE_OWNER, OWNER_NAME, NULL);
-        param_list = gnc_search_param_prepend (param_list, _("Due"), NULL, type,
-                                               INVOICE_DUE, NULL);
-    }
-
-    /* Create the query to search for invoices; set the book */
-    q = qof_query_create();
-    qof_query_search_for(q, GNC_INVOICE_MODULE_NAME);
-    qof_query_set_book (q, book);
-
-    /* We want to find all invoices where:
-     *      invoice -> is_posted == TRUE
-     * AND  invoice -> lot -> is_closed? == FALSE
-     * AND  invoice -> type != customer invoice
-     * AND  invoice -> type != customer credit note
-     * AND  invoice -> due >= (today - days_in_advance)
-     */
-
-    qof_query_add_boolean_match (q, g_slist_prepend(NULL, INVOICE_IS_POSTED), TRUE,
-                                 QOF_QUERY_AND);
-
-    qof_query_add_boolean_match (q, g_slist_prepend(g_slist_prepend(NULL, LOT_IS_CLOSED),
-                                 INVOICE_POST_LOT), FALSE, QOF_QUERY_AND);
-
-    pred_data = qof_query_int32_predicate (QOF_COMPARE_NEQ, GNC_INVOICE_CUST_INVOICE);
-    qof_query_add_term (q, g_slist_prepend(NULL, INVOICE_TYPE), pred_data, QOF_QUERY_AND);
-
-    pred_data = qof_query_int32_predicate (QOF_COMPARE_NEQ, GNC_INVOICE_CUST_CREDIT_NOTE);
-    qof_query_add_term (q, g_slist_prepend(NULL, INVOICE_TYPE), pred_data, QOF_QUERY_AND);
-
-    end_date = gnc_time (NULL);
-    if (days_in_advance < 0)
-        days_in_advance = 0;
-    end_date += days_in_advance * 60 * 60 * 24;
-
-    ts.tv_sec = (gint64) end_date;
-    ts.tv_nsec = 0;
-    pred_data = qof_query_date_predicate (QOF_COMPARE_LTE, QOF_DATE_MATCH_NORMAL, ts);
-    qof_query_add_term (q, g_slist_prepend(NULL, INVOICE_DUE), pred_data, QOF_QUERY_AND);
-
-    res = qof_query_run(q);
-    len = g_list_length (res);
-    if (!res || len <= 0)
-    {
-        qof_query_destroy(q);
-        return NULL;
-    }
-
-    message = g_strdup_printf
-              (/* Translators: %d is the number of bills due. This is a
-                     ngettext(3) message. */
-                  ngettext("The following %d bill is due:",
-                           "The following %d bills are due:",
-                           len),
-                  len);
-    dialog = gnc_dialog_query_view_create(param_list, q,
-                                        _("Due Bills Reminder"),
-                                          message,
-                                          TRUE, FALSE,
-                                          1, GTK_SORT_ASCENDING,
-                                          buttons, NULL);
-
-    g_free(message);
-    qof_query_destroy(q);
-    return dialog;
-}
-
-void
-gnc_invoice_remind_bills_due (void)
-{
-    QofBook *book;
-    gint days;
-
-    if (!gnc_current_session_exist()) return;
-    book = qof_session_get_book(gnc_get_current_session());
-    days = gnc_gconf_get_float(GCONF_SECTION_BILL, "days_in_advance", NULL);
-
-    gnc_invoice_show_bills_due(book, days);
-}
-
-void
-gnc_invoice_remind_bills_due_cb (void)
-{
-    if (!gnc_gconf_get_bool(GCONF_SECTION_BILL, "notify_when_due", NULL))
-        return;
-
-    gnc_invoice_remind_bills_due();
-}
+//void
+//gnc_invoice_remind_bills_due (void)
+//{
+//    QofBook *book;
+//    gint days;
+//
+//    if (!gnc_current_session_exist()) return;
+//    book = qof_session_get_book(gnc_get_current_session());
+//    days = gnc_gconf_get_float(GCONF_SECTION_BILL, "days_in_advance", NULL);
+//
+//    gnc_invoice_show_bills_due(book, days);
+//}
+//
+//void
+//gnc_invoice_remind_bills_due_cb (void)
+//{
+//    if (!gnc_gconf_get_bool(GCONF_SECTION_BILL, "notify_when_due", NULL))
+//        return;
+//
+//    gnc_invoice_remind_bills_due();
+//}
 

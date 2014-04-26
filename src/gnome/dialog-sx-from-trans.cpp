@@ -209,7 +209,7 @@ sxftd_add_template_trans(SXFromTransInfo *sxfti)
 
     Transaction *tr = sxfti->trans;
     GList *tt_list = NULL;
-    GList *splits, *template_splits = NULL;
+    GList *template_splits = NULL;
     TTInfo *tti = gnc_ttinfo_malloc();
     TTSplitInfo *ttsi;
     Split *sp;
@@ -223,9 +223,10 @@ sxftd_add_template_trans(SXFromTransInfo *sxfti)
     gnc_ttinfo_set_num(tti, gnc_get_num_action(tr, NULL));
     gnc_ttinfo_set_currency(tti, xaccTransGetCurrency(tr));
 
-    for (splits = xaccTransGetSplitList(tr); splits; splits = splits->next)
+    SplitList_t splits = xaccTransGetSplitList(tr);
+    for (SplitList_t::iterator it = splits.begin(); it != splits.end(); it++)
     {
-        sp = splits->data;
+        sp = *it;
         ttsi = gnc_ttsplitinfo_malloc();
         gnc_ttsplitinfo_set_action(ttsi, gnc_get_num_action(NULL, sp));
         split_value = xaccSplitGetValue(sp);

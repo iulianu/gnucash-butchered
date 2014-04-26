@@ -69,7 +69,6 @@ gnc_split_register_get_rbaln (VirtualLocation virt_loc, gpointer user_data, gboo
     gnc_numeric balance = gnc_numeric_zero();
     Account *account = NULL;
     Transaction *trans;
-    GList *node, *child;
     int i, row;
 
     balance = gnc_numeric_zero();
@@ -109,9 +108,10 @@ gnc_split_register_get_rbaln (VirtualLocation virt_loc, gpointer user_data, gboo
         trans = xaccSplitGetParent (split);
 
         i = 1;
-        for (node = xaccTransGetSplitList (trans); node; node = node->next)
+        SplitList_t slist = xaccTransGetSplitList (trans);
+        for (SplitList_t::iterator it = slist.begin(); it != slist.end(); it++)
         {
-            Split *secondary = node->data;
+            Split *secondary = *it;
             i++;
 
             if (subaccounts)

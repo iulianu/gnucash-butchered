@@ -1164,18 +1164,18 @@ owner_from_lot (GNCLot *lot)
 
     return NULL;
 }
-
-static void
-reg_lot (void)
-{
-    static QofParam params[] =
-    {
-        { OWNER_FROM_LOT, _GNC_MOD_NAME, (QofAccessFunc)owner_from_lot, NULL },
-        { NULL },
-    };
-
-    qof_class_register (GNC_ID_LOT, NULL, params);
-}
+//
+//static void
+//reg_lot (void)
+//{
+//    static QofParam params[] =
+//    {
+//        { OWNER_FROM_LOT, _GNC_MOD_NAME, (QofAccessFunc)owner_from_lot, NULL },
+//        { NULL },
+//    };
+//
+//    qof_class_register (GNC_ID_LOT, NULL, params);
+//}
 
 bool gncOwnerGetOwnerFromTypeGuid (QofBook *book, GncOwner *owner, QofIdType type, GncGUID *guid)
 {
@@ -1210,22 +1210,22 @@ bool gncOwnerGetOwnerFromTypeGuid (QofBook *book, GncOwner *owner, QofIdType typ
 
 bool gncOwnerRegister (void)
 {
-    static QofParam params[] =
-    {
-        { OWNER_TYPE, QOF_TYPE_INT64,      (QofAccessFunc)gncOwnerGetType,          NULL },
-        { OWNER_CUSTOMER, GNC_ID_CUSTOMER, (QofAccessFunc)gncOwnerGetCustomer,      NULL },
-        { OWNER_JOB, GNC_ID_JOB,           (QofAccessFunc)gncOwnerGetJob,           NULL },
-        { OWNER_VENDOR, GNC_ID_VENDOR,     (QofAccessFunc)gncOwnerGetVendor,        NULL },
-        { OWNER_EMPLOYEE, GNC_ID_EMPLOYEE, (QofAccessFunc)gncOwnerGetEmployee,      NULL },
-        { OWNER_PARENT, GNC_ID_OWNER,      (QofAccessFunc)gncOwnerGetEndOwner,      NULL },
-        { OWNER_PARENTG, QOF_TYPE_GUID,    (QofAccessFunc)gncOwnerGetEndGUID,       NULL },
-        { OWNER_NAME, QOF_TYPE_STRING,     (QofAccessFunc)gncOwnerGetName, NULL },
-        { QOF_PARAM_GUID, QOF_TYPE_GUID,   (QofAccessFunc)gncOwnerGetGUID, NULL },
-        { NULL },
-    };
-
-    qof_class_register (GNC_ID_OWNER, (QofSortFunc)gncOwnerCompare, params);
-    reg_lot ();
+//    static QofParam params[] =
+//    {
+//        { OWNER_TYPE, QOF_TYPE_INT64,      (QofAccessFunc)gncOwnerGetType,          NULL },
+//        { OWNER_CUSTOMER, GNC_ID_CUSTOMER, (QofAccessFunc)gncOwnerGetCustomer,      NULL },
+//        { OWNER_JOB, GNC_ID_JOB,           (QofAccessFunc)gncOwnerGetJob,           NULL },
+//        { OWNER_VENDOR, GNC_ID_VENDOR,     (QofAccessFunc)gncOwnerGetVendor,        NULL },
+//        { OWNER_EMPLOYEE, GNC_ID_EMPLOYEE, (QofAccessFunc)gncOwnerGetEmployee,      NULL },
+//        { OWNER_PARENT, GNC_ID_OWNER,      (QofAccessFunc)gncOwnerGetEndOwner,      NULL },
+//        { OWNER_PARENTG, QOF_TYPE_GUID,    (QofAccessFunc)gncOwnerGetEndGUID,       NULL },
+//        { OWNER_NAME, QOF_TYPE_STRING,     (QofAccessFunc)gncOwnerGetName, NULL },
+//        { QOF_PARAM_GUID, QOF_TYPE_GUID,   (QofAccessFunc)gncOwnerGetGUID, NULL },
+//        { NULL },
+//    };
+//
+//    qof_class_register (GNC_ID_OWNER, (QofSortFunc)gncOwnerCompare, params);
+//    reg_lot ();
 
     return TRUE;
 }

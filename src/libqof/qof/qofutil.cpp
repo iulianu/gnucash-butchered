@@ -263,14 +263,14 @@ qof_init (void)
     qof_string_cache_init();
     guid_init ();
     qof_object_initialize ();
-    qof_query_init ();
+//    qof_query_init ();
     qof_book_register ();
 }
 
 void
 qof_close(void)
 {
-    qof_query_shutdown ();
+//    qof_query_shutdown ();
     qof_object_shutdown ();
     guid_shutdown ();
     qof_finalize_backend_libraries();

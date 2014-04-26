@@ -163,18 +163,18 @@ gnc_search_param_set_param_path (GNCSearchParam *param,
     for (; param_path; param_path = param_path->next)
     {
         QofIdType param_name = param_path->data;
-        const QofParam *objDef =
-            qof_class_get_parameter (search_type, param_name);
-
-        /* If it doesn't exist, then we've reached the end */
-        if (objDef == NULL)
+//        const QofParam *objDef =
+//            qof_class_get_parameter (search_type, param_name);
+//
+//        /* If it doesn't exist, then we've reached the end */
+//        if (objDef == NULL)
             break;
 
         /* Save the converter */
-        converters = g_slist_prepend (converters, (gpointer) objDef);
-
-        /* And reset for the next parameter */
-        type = search_type = objDef->param_type;
+//        converters = g_slist_prepend (converters, (gpointer) objDef);
+//
+//        /* And reset for the next parameter */
+//        type = search_type = objDef->param_type;
     }
 
     /* Save the type */
@@ -404,8 +404,8 @@ gnc_search_param_compute_value (GNCSearchParam *param, gpointer object)
         /* Do all the object conversions */
         for (; converters; converters = converters->next)
         {
-            QofParam *qp = converters->data;
-            res = (qp->param_getfcn) (res, qp);
+//            QofParam *qp = converters->data;
+//            res = (qp->param_getfcn) (res, qp);
         }
 
         return res;

@@ -599,17 +599,17 @@ gnc_sxed_check_consistent( GncSxEditorDialog *sxed )
             g_hash_table_foreach( txns, set_sums_to_zero, NULL );
             tmp = gnc_numeric_zero();
 
-            splitList = xaccSchedXactionGetSplits( sxed->sx );
-            splitCount += g_list_length( splitList );
+            SplitList_t splitList = xaccSchedXactionGetSplits( sxed->sx );
+            splitCount += splitList.size();
 
-            for ( ; splitList; splitList = splitList->next )
+            for (SplitList_t::iterator it = splitList.begin(); it != splitList.end(); it++)
             {
                 GncGUID *acct_guid;
                 Account *acct;
                 gnc_commodity *split_cmdty;
                 txnCreditDebitSums *tcds;
 
-                s = (Split*)splitList->data;
+                s = *it;
                 t = xaccSplitGetParent( s );
 
                 if ( !(tcds =
@@ -1475,10 +1475,8 @@ schedXact_editor_populate( GncSxEditorDialog *sxed )
     /* populate the ledger */
     {
         /* create the split list */
-        GList        *splitList;
-
-        splitList = xaccSchedXactionGetSplits( sxed->sx );
-        if ( splitList != NULL )
+        SplitList_t splitList = xaccSchedXactionGetSplits( sxed->sx );
+        if ( ! splitList.empty() )
         {
             splitReg = gnc_ledger_display_get_split_register
                        ( sxed->ledger );

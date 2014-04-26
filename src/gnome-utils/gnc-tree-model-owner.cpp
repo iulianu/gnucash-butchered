@@ -303,7 +303,7 @@ gnc_tree_model_owner_new (GncOwnerType owner_type)
     priv = GNC_TREE_MODEL_OWNER_GET_PRIVATE(model);
     priv->book = gnc_get_current_book();
     priv->owner_type = owner_type;
-    priv->owner_list = gncBusinessGetOwnerList (priv->book, gncOwnerTypeToQofIdType(owner_type), TRUE);
+//    priv->owner_list = gncBusinessGetOwnerList (priv->book, gncOwnerTypeToQofIdType(owner_type), TRUE);
 
     priv->event_handler_id = qof_event_register_handler
                              ((QofEventHandler)gnc_tree_model_owner_event_handler, model);
@@ -1018,8 +1018,8 @@ gnc_tree_model_owner_event_handler (QofInstance *entity,
         /* Tell the filters/views where the new owner was added. */
         DEBUG("add owner %p (%s)", &owner, gncOwnerGetName(&owner));
         /* First update our copy of the owner list. This isn't done automatically */
-        priv->owner_list = gncBusinessGetOwnerList (priv->book,
-                           gncOwnerTypeToQofIdType(priv->owner_type), TRUE);
+//        priv->owner_list = gncBusinessGetOwnerList (priv->book,
+//                           gncOwnerTypeToQofIdType(priv->owner_type), TRUE);
         increment_stamp(model);
         if (!gnc_tree_model_owner_get_iter_from_owner (model, &owner, &iter))
         {

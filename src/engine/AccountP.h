@@ -110,7 +110,7 @@ struct AccountPrivate
 
     bool balance_dirty;     /* balances in splits incorrect */
 
-    GList *splits;              /* list of split pointers */
+    SplitList_t splits;              /* list of split pointers */
     bool sort_dirty;        /* sort order of splits is bad */
 
     LotList   *lots;		/* list of lot pointers */
@@ -138,7 +138,6 @@ struct AccountPrivate
         cleared_balance = gnc_numeric_zero();
         reconciled_balance = gnc_numeric_zero();
         balance_dirty = false;
-        splits = NULL;
         sort_dirty = false;
         lots = NULL;
         policy = NULL;

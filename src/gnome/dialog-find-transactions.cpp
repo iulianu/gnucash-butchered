@@ -40,41 +40,41 @@
 
 struct _ftd_data
 {
-    QofQuery *		q;
-    QofQuery *		ledger_q;
+//    QofQuery *		q;
+//    QofQuery *		ledger_q;
     GNCSearchWindow *	sw;
 };
 
-static void
-do_find_cb (QofQuery *query, gpointer user_data, gpointer *result)
-{
-    struct _ftd_data *ftd = user_data;
-    GNCLedgerDisplay *ledger;
-    gboolean new_ledger = FALSE;
-    GncPluginPage *page;
-
-    ledger = gnc_ledger_display_find_by_query (ftd->ledger_q);
-    if (!ledger)
-    {
-        new_ledger = TRUE;
-        ledger = gnc_ledger_display_query (query, SEARCH_LEDGER,
-                                           REG_STYLE_JOURNAL);
-    }
-    else
-        gnc_ledger_display_set_query (ledger, query);
-
-    gnc_ledger_display_refresh (ledger);
-
-    if (new_ledger)
-    {
-        page = gnc_plugin_page_register_new_ledger (ledger);
-        gnc_main_window_open_page (NULL, page);
-    }
-
-    qof_query_destroy (ftd->q);
-
-    gnc_search_dialog_destroy (ftd->sw);
-}
+//static void
+//do_find_cb (QofQuery *query, gpointer user_data, gpointer *result)
+//{
+//    struct _ftd_data *ftd = user_data;
+//    GNCLedgerDisplay *ledger;
+//    gboolean new_ledger = FALSE;
+//    GncPluginPage *page;
+//
+//    ledger = gnc_ledger_display_find_by_query (ftd->ledger_q);
+//    if (!ledger)
+//    {
+//        new_ledger = TRUE;
+//        ledger = gnc_ledger_display_query (query, SEARCH_LEDGER,
+//                                           REG_STYLE_JOURNAL);
+//    }
+//    else
+//        gnc_ledger_display_set_query (ledger, query);
+//
+//    gnc_ledger_display_refresh (ledger);
+//
+//    if (new_ledger)
+//    {
+//        page = gnc_plugin_page_register_new_ledger (ledger);
+//        gnc_main_window_open_page (NULL, page);
+//    }
+//
+//    qof_query_destroy (ftd->q);
+//
+//    gnc_search_dialog_destroy (ftd->sw);
+//}
 
 static void
 free_ftd_cb (gpointer user_data)
@@ -93,7 +93,7 @@ gnc_ui_find_transactions_dialog_create(GNCLedgerDisplay * orig_ledg)
     QofIdType type = GNC_ID_SPLIT;
     struct _ftd_data *ftd;
     static GList *params = NULL;
-    QofQuery *start_q, *show_q = NULL;
+//    QofQuery *start_q, *show_q = NULL;
     gboolean num_action =
                 qof_book_use_split_action_for_num_field(gnc_get_current_book());
 
@@ -104,9 +104,9 @@ gnc_ui_find_transactions_dialog_create(GNCLedgerDisplay * orig_ledg)
                                            ACCOUNT_MATCH_ALL_TYPE,
                                            type, SPLIT_TRANS, TRANS_SPLITLIST,
                                            SPLIT_ACCOUNT_GUID, NULL);
-        params = gnc_search_param_prepend (params, N_("Account"), GNC_ID_ACCOUNT,
-                                           type, SPLIT_ACCOUNT, QOF_PARAM_GUID,
-                                           NULL);
+//        params = gnc_search_param_prepend (params, N_("Account"), GNC_ID_ACCOUNT,
+//                                           type, SPLIT_ACCOUNT, QOF_PARAM_GUID,
+//                                           NULL);
         params = gnc_search_param_prepend (params, N_("Balanced"), NULL,
                                            type, SPLIT_TRANS, TRANS_IS_BALANCED,
                                            NULL);
@@ -165,13 +165,13 @@ gnc_ui_find_transactions_dialog_create(GNCLedgerDisplay * orig_ledg)
 
     if (orig_ledg)
     {
-        ftd->ledger_q = gnc_ledger_display_get_query (orig_ledg);
-        start_q = show_q = qof_query_copy (ftd->ledger_q);
+//        ftd->ledger_q = gnc_ledger_display_get_query (orig_ledg);
+//        start_q = show_q = qof_query_copy (ftd->ledger_q);
     }
     else
     {
-        start_q = qof_query_create ();
-        qof_query_set_book (start_q, gnc_get_current_book ());
+//        start_q = qof_query_create ();
+//        qof_query_set_book (start_q, gnc_get_current_book ());
 
         /* In lieu of not "mis-using" some portion of the infrastructure by writing
          * a bunch of new code, we just filter out the accounts of the template
@@ -190,17 +190,17 @@ gnc_ui_find_transactions_dialog_create(GNCLedgerDisplay * orig_ledg)
             
             tRoot = gnc_book_get_template_root( gnc_get_current_book() );
             AccountList_t al = gnc_account_get_descendants( tRoot );
-            xaccQueryAddAccountMatch( start_q, al, QOF_GUID_MATCH_NONE, QOF_QUERY_AND );
+//            xaccQueryAddAccountMatch( start_q, al, QOF_GUID_MATCH_NONE, QOF_QUERY_AND );
             tRoot = NULL;
         }
 
-        ftd->q = start_q;		/* save this to destroy it later */
+//        ftd->q = start_q;		/* save this to destroy it later */
     }
 
-    ftd->sw = gnc_search_dialog_create (type, _("Find Transaction"),
-                                        params, NULL, start_q, show_q,
-                                        NULL, do_find_cb, NULL,
-                                        ftd, free_ftd_cb, GCONF_SECTION, NULL);
+//    ftd->sw = gnc_search_dialog_create (type, _("Find Transaction"),
+//                                        params, NULL, start_q, show_q,
+//                                        NULL, do_find_cb, NULL,
+//                                        ftd, free_ftd_cb, GCONF_SECTION, NULL);
 
     if (!ftd->sw)
     {

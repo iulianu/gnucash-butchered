@@ -21,50 +21,50 @@
 
 #ifndef _GNCSEARCH_STRING_H
 #define _GNCSEARCH_STRING_H
-
-#include "search-core-type.h"
-
-#define GNC_TYPE_SEARCH_STRING		(gnc_search_string_get_type ())
-#define GNCSEARCH_STRING(obj)		G_TYPE_CHECK_INSTANCE_CAST (obj, GNC_TYPE_SEARCH_STRING, GNCSearchString)
-#define GNCSEARCH_STRING_CLASS(klass)	G_TYPE_CHECK_CLASS_CAST (klass, GNC_TYPE_SEARCH_STRING, GNCSearchStringClass)
-#define IS_GNCSEARCH_STRING(obj)	G_TYPE_CHECK_INSTANCE_TYPE (obj, GNC_TYPE_SEARCH_STRING)
-
-typedef struct _GNCSearchString	GNCSearchString;
-typedef struct _GNCSearchStringClass	GNCSearchStringClass;
-
-typedef enum _search_string_how
-{
-    SEARCH_STRING_CONTAINS,
-    SEARCH_STRING_NOT_CONTAINS,
-    SEARCH_STRING_MATCHES_REGEX,
-    SEARCH_STRING_NOT_MATCHES_REGEX
-} GNCSearchString_Type;
-
-struct _GNCSearchString
-{
-    GNCSearchCoreType parent;
-
-    GNCSearchString_Type	how;
-    gboolean		ign_case;
-    char *		value;
-};
-
-struct _GNCSearchStringClass
-{
-    GNCSearchCoreTypeClass parent_class;
-
-    /* virtual methods */
-
-    /* signals */
-};
-
-GType		gnc_search_string_get_type	(void);
-GNCSearchString	*gnc_search_string_new	(void);
-
-/* methods */
-void	gnc_search_string_set_value(GNCSearchString *fi, const char *value);
-void	gnc_search_string_set_how (GNCSearchString *fi, GNCSearchString_Type how);
-void	gnc_search_string_set_case (GNCSearchString *fi, gboolean ignore_case);
+//
+//#include "search-core-type.h"
+//
+//#define GNC_TYPE_SEARCH_STRING		(gnc_search_string_get_type ())
+//#define GNCSEARCH_STRING(obj)		G_TYPE_CHECK_INSTANCE_CAST (obj, GNC_TYPE_SEARCH_STRING, GNCSearchString)
+//#define GNCSEARCH_STRING_CLASS(klass)	G_TYPE_CHECK_CLASS_CAST (klass, GNC_TYPE_SEARCH_STRING, GNCSearchStringClass)
+//#define IS_GNCSEARCH_STRING(obj)	G_TYPE_CHECK_INSTANCE_TYPE (obj, GNC_TYPE_SEARCH_STRING)
+//
+//typedef struct _GNCSearchString	GNCSearchString;
+//typedef struct _GNCSearchStringClass	GNCSearchStringClass;
+//
+//typedef enum _search_string_how
+//{
+//    SEARCH_STRING_CONTAINS,
+//    SEARCH_STRING_NOT_CONTAINS,
+//    SEARCH_STRING_MATCHES_REGEX,
+//    SEARCH_STRING_NOT_MATCHES_REGEX
+//} GNCSearchString_Type;
+//
+//struct _GNCSearchString
+//{
+//    GNCSearchCoreType parent;
+//
+//    GNCSearchString_Type	how;
+//    gboolean		ign_case;
+//    char *		value;
+//};
+//
+//struct _GNCSearchStringClass
+//{
+//    GNCSearchCoreTypeClass parent_class;
+//
+//    /* virtual methods */
+//
+//    /* signals */
+//};
+//
+//GType		gnc_search_string_get_type	(void);
+//GNCSearchString	*gnc_search_string_new	(void);
+//
+///* methods */
+//void	gnc_search_string_set_value(GNCSearchString *fi, const char *value);
+//void	gnc_search_string_set_how (GNCSearchString *fi, GNCSearchString_Type how);
+//void	gnc_search_string_set_case (GNCSearchString *fi, gboolean ignore_case);
 
 #endif /* ! _GNCSEARCH_STRING_H */
 

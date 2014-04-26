@@ -112,7 +112,6 @@ gnc_html_register_url_cb (const char *location, const char *label,
     Split       * split = NULL;
     Account     * account = NULL;
     Transaction * trans;
-    GList       * node;
     GncGUID       guid;
     QofInstance * entity = NULL;
 
@@ -143,10 +142,10 @@ gnc_html_register_url_cb (const char *location, const char *label,
             return FALSE;
 
         trans = dynamic_cast<Transaction*>(entity);
-
-        for (node = xaccTransGetSplitList (trans); node; node = node->next)
+        SplitList_t splits = xaccTransGetSplitList (trans);
+        for (SplitList_t::iterator it = splits.begin(); it != splits.end(); it++)
         {
-            split = node->data;
+            split = *it;
             account = xaccSplitGetAccount(split);
             if (account) break;
         }

@@ -21,42 +21,42 @@
 
 #ifndef _GNCSEARCH_DATE_H
 #define _GNCSEARCH_DATE_H
-
-#include "search-core-type.h"
-#include "qof.h"
-#include "qof.h"
-
-#define GNC_TYPE_SEARCH_DATE		(gnc_search_date_get_type ())
-#define GNCSEARCH_DATE(obj)		G_TYPE_CHECK_INSTANCE_CAST (obj, GNC_TYPE_SEARCH_DATE, GNCSearchDate)
-#define GNCSEARCH_DATE_CLASS(klass)	G_TYPE_CHECK_CLASS_CAST (klass, GNC_TYPE_SEARCH_DATE, GNCSearchDateClass)
-#define IS_GNCSEARCH_DATE(obj)     	G_TYPE_CHECK_INSTANCE_TYPE (obj, GNC_TYPE_SEARCH_DATE)
-
-typedef struct _GNCSearchDate	GNCSearchDate;
-typedef struct _GNCSearchDateClass	GNCSearchDateClass;
-
-struct _GNCSearchDate
-{
-    GNCSearchCoreType parent;
-
-    QofQueryCompare	how;
-    Timespec		ts;
-};
-
-struct _GNCSearchDateClass
-{
-    GNCSearchCoreTypeClass parent_class;
-
-    /* virtual methods */
-
-    /* signals */
-};
-
-GType		gnc_search_date_get_type	(void);
-GNCSearchDate	*gnc_search_date_new	(void);
-
-/* methods */
-void	gnc_search_date_set_date (GNCSearchDate *fi, Timespec ts);
-void	gnc_search_date_set_how (GNCSearchDate *fi, QofQueryCompare how);
+//
+//#include "search-core-type.h"
+//#include "qof.h"
+//#include "qof.h"
+//
+//#define GNC_TYPE_SEARCH_DATE		(gnc_search_date_get_type ())
+//#define GNCSEARCH_DATE(obj)		G_TYPE_CHECK_INSTANCE_CAST (obj, GNC_TYPE_SEARCH_DATE, GNCSearchDate)
+//#define GNCSEARCH_DATE_CLASS(klass)	G_TYPE_CHECK_CLASS_CAST (klass, GNC_TYPE_SEARCH_DATE, GNCSearchDateClass)
+//#define IS_GNCSEARCH_DATE(obj)     	G_TYPE_CHECK_INSTANCE_TYPE (obj, GNC_TYPE_SEARCH_DATE)
+//
+//typedef struct _GNCSearchDate	GNCSearchDate;
+//typedef struct _GNCSearchDateClass	GNCSearchDateClass;
+//
+//struct _GNCSearchDate
+//{
+//    GNCSearchCoreType parent;
+//
+//    QofQueryCompare	how;
+//    Timespec		ts;
+//};
+//
+//struct _GNCSearchDateClass
+//{
+//    GNCSearchCoreTypeClass parent_class;
+//
+//    /* virtual methods */
+//
+//    /* signals */
+//};
+//
+//GType		gnc_search_date_get_type	(void);
+//GNCSearchDate	*gnc_search_date_new	(void);
+//
+///* methods */
+//void	gnc_search_date_set_date (GNCSearchDate *fi, Timespec ts);
+//void	gnc_search_date_set_how (GNCSearchDate *fi, QofQueryCompare how);
 
 #endif /* ! _GNCSEARCH_DATE_H */
 

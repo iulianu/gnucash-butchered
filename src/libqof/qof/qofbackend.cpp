@@ -47,9 +47,9 @@ QofBackend::QofBackend()
     begin = NULL;
     commit = NULL;
     rollback = NULL;
-    compile_query = NULL;
-    free_query = NULL;
-    run_query = NULL;
+//    compile_query = NULL;
+//    free_query = NULL;
+//    run_query = NULL;
     sync = NULL;
     safe_sync = NULL;
     load_config = NULL;
@@ -151,9 +151,9 @@ qof_backend_init(QofBackend *be)
     be->commit = NULL;
     be->rollback = NULL;
 
-    be->compile_query = NULL;
-    be->free_query = NULL;
-    be->run_query = NULL;
+//    be->compile_query = NULL;
+//    be->free_query = NULL;
+//    be->run_query = NULL;
 
     be->sync = NULL;
     be->safe_sync = NULL;

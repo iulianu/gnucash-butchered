@@ -108,29 +108,12 @@ static void entry_cb(gpointer data, gpointer user_data)
     }
 }
 
-/** Creates a new query that searches for all GncEntry items in the
- * current book. */
-static QofQuery *new_query_for_entrys(QofBook *book)
-{
-    GSList *primary_sort_params = NULL;
-    QofQuery *query = qof_query_create_for (GNC_ID_ENTRY);
-    g_assert(book);
-    qof_query_set_book (query, book);
-
-    /* Set the sort order: By DATE_ENTERED, increasing, and returning
-     * only one single resulting item. */
-    primary_sort_params = qof_query_build_param_list(ENTRY_DATE_ENTERED, NULL);
-    qof_query_set_sort_order (query, primary_sort_params, NULL, NULL);
-    qof_query_set_sort_increasing (query, TRUE, TRUE, TRUE);
-
-    return query;
-}
-
 static EntryQF* build_shared_quickfill (QofBook *book, const char * key, gboolean use_invoices)
 {
     EntryQF *result;
-    QofQuery *query = new_query_for_entrys(book);
-    GList *entries = qof_query_run(query);
+//    GList *entries = qof_query_run(query);
+    // TODO: list GncEntry sorted by DATE_ENTERED, increasing, 
+    //  and returning one single item??
 
     /*     g_warning("Found %d GncEntry items", g_list_length (entries)); */
 
@@ -141,9 +124,9 @@ static EntryQF* build_shared_quickfill (QofBook *book, const char * key, gboolea
     result->qf_sort = QUICKFILL_LIFO;
     result->book = book;
 
-    g_list_foreach (entries, entry_cb, result);
-
-    qof_query_destroy(query);
+//    g_list_foreach (entries, entry_cb, result);
+//
+//    qof_query_destroy(query);
 
     result->listener =
         qof_event_register_handler (listen_for_gncentry_events,

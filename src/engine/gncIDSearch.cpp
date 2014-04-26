@@ -75,66 +75,66 @@ gnc_search_vendor_on_id (QofBook * book, const gchar *id)
  ****************************************************************/
 static void * search(QofBook * book, const gchar *id, void * object, QofIdType type)
 {
-    void *c;
-    GList *result;
-    QofQuery *q;
-    gint len;
-    QofQueryPredData* string_pred_data;
-    g_return_val_if_fail (type, NULL);
-    g_return_val_if_fail (id, NULL);
-    g_return_val_if_fail (book, NULL);
-
-    // Build the query
-    q = qof_query_create_for (type);
-    qof_query_set_book (q, book);
-    // Search only the id field
-    string_pred_data = qof_query_string_predicate (QOF_COMPARE_EQUAL, id, QOF_STRING_MATCH_NORMAL, FALSE);
-
-    if (strcmp(type, GNC_CUSTOMER_MODULE_NAME))
-    {
-        qof_query_add_term (q, qof_query_build_param_list("CUSTOMER_ID"), string_pred_data, QOF_QUERY_AND);
-    }
-    else if (strcmp(type, GNC_INVOICE_MODULE_NAME))
-    {
-        qof_query_add_term (q, qof_query_build_param_list("INVOICE_ID"), string_pred_data, QOF_QUERY_AND);
-    }
-    else if (strcmp(type, GNC_VENDOR_MODULE_NAME))
-    {
-        qof_query_add_term (q, qof_query_build_param_list("VENDOR_ID"), string_pred_data, QOF_QUERY_AND);
-    }
-
-
-    // Run the query
-    result = qof_query_run (q);
-
-    // now compare _exactly_
-    len = g_list_length (result);
-    if (result && (len > 0))
-    {
-        result = g_list_first (result);
-
-        while (result)
-        {
-            c = result->data;
-            if (strcmp(type, GNC_CUSTOMER_MODULE_NAME) && strcmp(id, gncCustomerGetID(c)) == 0)
-            {
-                // correct id found
-                object = c;
-                break;
-            }
-            else if (strcmp(type, GNC_INVOICE_MODULE_NAME) && strcmp(id, gncInvoiceGetID(c)) == 0)
-            {
-                object = c;
-                break;
-            }
-            else if (strcmp(type, GNC_VENDOR_MODULE_NAME) && strcmp(id, gncVendorGetID(c)) == 0)
-            {
-                object = c;
-                break;
-            }
-            result = g_list_next (result);
-        }
-    }
-    qof_query_destroy (q);
+//    void *c;
+//    GList *result;
+//    QofQuery *q;
+//    gint len;
+//    QofQueryPredData* string_pred_data;
+//    g_return_val_if_fail (type, NULL);
+//    g_return_val_if_fail (id, NULL);
+//    g_return_val_if_fail (book, NULL);
+//
+//    // Build the query
+//    q = qof_query_create_for (type);
+//    qof_query_set_book (q, book);
+//    // Search only the id field
+//    string_pred_data = qof_query_string_predicate (QOF_COMPARE_EQUAL, id, QOF_STRING_MATCH_NORMAL, FALSE);
+//
+//    if (strcmp(type, GNC_CUSTOMER_MODULE_NAME))
+//    {
+//        qof_query_add_term (q, qof_query_build_param_list("CUSTOMER_ID"), string_pred_data, QOF_QUERY_AND);
+//    }
+//    else if (strcmp(type, GNC_INVOICE_MODULE_NAME))
+//    {
+//        qof_query_add_term (q, qof_query_build_param_list("INVOICE_ID"), string_pred_data, QOF_QUERY_AND);
+//    }
+//    else if (strcmp(type, GNC_VENDOR_MODULE_NAME))
+//    {
+//        qof_query_add_term (q, qof_query_build_param_list("VENDOR_ID"), string_pred_data, QOF_QUERY_AND);
+//    }
+//
+//
+//    // Run the query
+//    result = qof_query_run (q);
+//
+//    // now compare _exactly_
+//    len = g_list_length (result);
+//    if (result && (len > 0))
+//    {
+//        result = g_list_first (result);
+//
+//        while (result)
+//        {
+//            c = result->data;
+//            if (strcmp(type, GNC_CUSTOMER_MODULE_NAME) && strcmp(id, gncCustomerGetID(c)) == 0)
+//            {
+//                // correct id found
+//                object = c;
+//                break;
+//            }
+//            else if (strcmp(type, GNC_INVOICE_MODULE_NAME) && strcmp(id, gncInvoiceGetID(c)) == 0)
+//            {
+//                object = c;
+//                break;
+//            }
+//            else if (strcmp(type, GNC_VENDOR_MODULE_NAME) && strcmp(id, gncVendorGetID(c)) == 0)
+//            {
+//                object = c;
+//                break;
+//            }
+//            result = g_list_next (result);
+//        }
+//    }
+//    qof_query_destroy (q);
     return object;
 }

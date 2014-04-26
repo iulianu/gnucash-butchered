@@ -71,7 +71,7 @@
 
 #include "qofid.h"
 
-#define QOF_MOD_CLASS "qof.class"
+//#define QOF_MOD_CLASS "qof.class"
 
 /** \name Core types
 
@@ -82,18 +82,18 @@ single reference between two known objects.
  @{
  */
 
-#define QOF_TYPE_STRING    "string"
-#define QOF_TYPE_DATE      "date"
-#define QOF_TYPE_NUMERIC   "numeric"
-#define QOF_TYPE_DEBCRED   "debcred"
-#define QOF_TYPE_GUID      "guid"
-#define QOF_TYPE_INT32     "gint32"
-#define QOF_TYPE_INT64     "gint64"
-#define QOF_TYPE_DOUBLE    "double"
-#define QOF_TYPE_BOOLEAN   "boolean"
-#define QOF_TYPE_KVP       "kvp"
-#define QOF_TYPE_CHAR      "character"
-#define QOF_TYPE_COLLECT   "collection" /**< secondary collections
+//#define QOF_TYPE_STRING    "string"
+//#define QOF_TYPE_DATE      "date"
+//#define QOF_TYPE_NUMERIC   "numeric"
+//#define QOF_TYPE_DEBCRED   "debcred"
+//#define QOF_TYPE_GUID      "guid"
+//#define QOF_TYPE_INT32     "gint32"
+//#define QOF_TYPE_INT64     "gint64"
+//#define QOF_TYPE_DOUBLE    "double"
+//#define QOF_TYPE_BOOLEAN   "boolean"
+//#define QOF_TYPE_KVP       "kvp"
+//#define QOF_TYPE_CHAR      "character"
+/*#define QOF_TYPE_COLLECT   "collection"*/ /**< secondary collections
 are used for one-to-many references between entities and are
 implemented using ::QofCollection.
 These are \b NOT the same as the main collections in the QofBook.
@@ -125,39 +125,40 @@ links: one object linked to many entities of many types.
                 /** Type of Paramters (String, Date, Numeric, GncGUID, etc.) */
                 typedef const char * QofType;
 
-struct QofParam;
-
-/** The QofAccessFunc defines an arbitrary function pointer
- *  for access functions.  This is needed because C doesn't have
- *  templates, so we just cast a lot.  Real functions must be of
- *  the form:
- *
- *        param_type getter_func (object_type *self);
- *  or
- *        param_type getter_func (object_type *self, QofParam *param);
- *
- * The additional argument 'param' allows generic getter functions
- * to be implemented, because this argument provides for a way to
- * identify the expected getter_func return type at runtime.  It
- * also provides a place for the user to hang additional user-defined
- * data.
- */
-typedef void * (*QofAccessFunc)(void * object, /*@ null @*/ const QofParam *param);
-
-/** The QofSetterFunc defines an function pointer for parameter
- *  setters. Real functions must be of the form:
- *
- * void setter_func (object_type *self, param_type *param);
- */
-typedef void (*QofSetterFunc) (void *, /*@ null @*/ void *);
-
-/* A callback for how to compare two (same-type) objects based on a
- * common getter (parameter member), using the provided comparison
- * options (which are the type-specific options).
- */
-typedef int (*QofCompareFunc) (void * a, void * b,
-                                int compare_options,
-                                QofParam *getter);
+//struct QofParam;
+//
+///** The QofAccessFunc defines an arbitrary function pointer
+// *  for access functions.  This is needed because C doesn't have
+// *  templates, so we just cast a lot.  Real functions must be of
+// *  the form:
+// *
+// *        param_type getter_func (object_type *self);
+// *  or
+// *        param_type getter_func (object_type *self, QofParam *param);
+// *
+// * The additional argument 'param' allows generic getter functions
+// * to be implemented, because this argument provides for a way to
+// * identify the expected getter_func return type at runtime.  It
+// * also provides a place for the user to hang additional user-defined
+// * data.
+// */
+//typedef void * (*QofAccessFunc)(void * object, /*@ null @*/ const QofParam *param);
+//
+//
+///** The QofSetterFunc defines an function pointer for parameter
+// *  setters. Real functions must be of the form:
+// *
+// * void setter_func (object_type *self, param_type *param);
+// */
+//typedef void (*QofSetterFunc) (void *, /*@ null @*/ void *);
+//
+///* A callback for how to compare two (same-type) objects based on a
+// * common getter (parameter member), using the provided comparison
+// * options (which are the type-specific options).
+// */
+//typedef int (*QofCompareFunc) (void * a, void * b,
+//                                int compare_options,
+//                                QofParam *getter);
 
 /** This structure is for each queriable parameter in an object
  *
@@ -176,35 +177,44 @@ typedef int (*QofCompareFunc) (void * a, void * b,
  * the param memory is freed, the callback can be used to release the
  * user-defined data.
  */
-struct QofParam
-{
-    const char       * param_name;
-    QofType            param_type;
-    QofAccessFunc      param_getfcn;
-    QofSetterFunc      param_setfcn;
-    QofCompareFunc     param_compfcn;
-    void *             param_userdata;
-};
-
-/** This function is the default sort function for a particular object type */
-typedef int (*QofSortFunc)(const void *, const void *);
-
-/** This function registers a new object class with the Qof subsystem.
- *  In particular, it registers the set of setters and getters for
- *  controlling the object.   The getters are typically used by the
- *  query subsystem to query type specific data.   Note that there
- *  is no particular requirement for there to be a setter for every
- *  getter or even vice-versa, nor is there any requirement for these
- *  to map 'cleanly' or orthogonally to the underlying object.  The
- *  parameters are really just a set of value setting and getting
- *  routines.
- *
- *  The "params" argument must be a NULL-terminated array of QofParam.
- *  It may be NULL if there are no parameters to be registered.
- */
-void qof_class_register (QofIdTypeConst obj_name,
-                         QofSortFunc default_sort_fcn,
-                         const QofParam *params);
+//template <typename VT>
+//class QofParam
+//{
+//public:
+//    const char       * param_name;
+//    QofType            param_type;
+//    VT   (*param_getfcn)(void *);
+//    void (*param_setfcn)(void *, /*@ null @*/ const VT&);
+//    int  (*param_compfcn)(void *, void *, int, QofParam *);
+//    void *             param_userdata;
+//};
+//
+//template<typename VT>
+//class QofParamName
+//{
+//public:
+//    std::string name;
+//}
+//
+///** This function is the default sort function for a particular object type */
+//typedef int (*QofSortFunc)(const void *, const void *);
+//
+///** This function registers a new object class with the Qof subsystem.
+// *  In particular, it registers the set of setters and getters for
+// *  controlling the object.   The getters are typically used by the
+// *  query subsystem to query type specific data.   Note that there
+// *  is no particular requirement for there to be a setter for every
+// *  getter or even vice-versa, nor is there any requirement for these
+// *  to map 'cleanly' or orthogonally to the underlying object.  The
+// *  parameters are really just a set of value setting and getting
+// *  routines.
+// *
+// *  The "params" argument must be a NULL-terminated array of QofParam.
+// *  It may be NULL if there are no parameters to be registered.
+// */
+//void qof_class_register (QofIdTypeConst obj_name,
+//                         QofSortFunc default_sort_fcn,
+//                         const QofParam *params);
 
 /** An example:
  *
@@ -228,49 +238,52 @@ void qof_class_register (QofIdTypeConst obj_name,
 /** Return true if the the indicated type is registered,
  *  else return false.
  */
-bool qof_class_is_registered (QofIdTypeConst obj_name);
-
-///** Return the core datatype of the specified object's parameter */
-QofType qof_class_get_parameter_type (QofIdTypeConst obj_name,
-                                      const char *param_name);
-
-/** Return the registered Parameter Definition for the requested parameter */
-const QofParam * qof_class_get_parameter (QofIdTypeConst obj_name,
-        const char *parameter);
-
-///** Return the object's parameter getter function */
-QofAccessFunc qof_class_get_parameter_getter (QofIdTypeConst obj_name,
-        const char *parameter);
-
-/** Return the object's parameter setter function */
-QofSetterFunc qof_class_get_parameter_setter (QofIdTypeConst obj_name,
-        const char *parameter);
+//bool qof_class_is_registered (QofIdTypeConst obj_name);
+//
+/////** Return the core datatype of the specified object's parameter */
+//QofType qof_class_get_parameter_type (QofIdTypeConst obj_name,
+//                                      const char *param_name);
+//
+///** Return the registered Parameter Definition for the requested parameter */
+//template<typename VT>
+//const QofParam<VT> * qof_class_get_parameter (const QofIdType<VT>& obj_name,
+//        const char *parameter);
+//
+/////** Return the object's parameter getter function */
+//template<typename VT>
+//VT   (*)(void *)
+//qof_class_get_parameter_getter (QofIdTypeConst obj_name,
+//        const char *parameter);
+//
+///** Return the object's parameter setter function */
+//QofSetterFunc qof_class_get_parameter_setter (QofIdTypeConst obj_name,
+//        const char *parameter);
 
 /** Type definition for the class callback function. */
-typedef void (*QofClassForeachCB) (QofIdTypeConst, void *);
+//typedef void (*QofClassForeachCB) (QofIdTypeConst, void *);
 
 /** Call the callback once for each object class that is registered
  *  with the system.  The 'user_data' is passed back to the callback.
  */
-void qof_class_foreach (QofClassForeachCB, void * user_data);
-
-/** Type definition for the paramter callback function. */
-typedef void (*QofParamForeachCB) (QofParam *, void * user_data);
-
-/** Call the callback once for each parameter on the indicated
- *  object class.  The 'user_data' is passed back to the callback.
- */
-void qof_class_param_foreach (QofIdTypeConst obj_name,
-                              QofParamForeachCB, void * user_data);
-
-/** \brief List of the parameters that could be references.
-
-Simple check to return a GList of all parameters
-of this object type that are not known QOF data types.
-Used for partial QofBook support, see ::QofInstanceReference
-*/
-GList* qof_class_get_referenceList(QofIdTypeConst type);
-
+//void qof_class_foreach (QofClassForeachCB, void * user_data);
+//
+///** Type definition for the paramter callback function. */
+//typedef void (*QofParamForeachCB) (QofParam *, void * user_data);
+//
+///** Call the callback once for each parameter on the indicated
+// *  object class.  The 'user_data' is passed back to the callback.
+// */
+//void qof_class_param_foreach (QofIdTypeConst obj_name,
+//                              QofParamForeachCB, void * user_data);
+//
+///** \brief List of the parameters that could be references.
+//
+//Simple check to return a GList of all parameters
+//of this object type that are not known QOF data types.
+//Used for partial QofBook support, see ::QofInstanceReference
+//*/
+//GList* qof_class_get_referenceList(QofIdTypeConst type);
+//
 
 #endif /* QOF_CLASS_H */
 /** @} */

@@ -1379,7 +1379,6 @@ gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
 {
     Transaction *txn;
     GNCLot *lot;
-    GList *lot_split_list, *lot_split_iter;
 
     if (!invoice) return FALSE;
     if (!gncInvoiceIsPosted (invoice)) return FALSE;
@@ -1414,11 +1413,10 @@ gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
 
     // Note: make a copy of the lot list here, when splits are deleted from the lot,
     //       the original list may be destroyed by the lot code.
-    lot_split_list = g_list_copy (gnc_lot_get_split_list (lot));
-    for (lot_split_iter = lot_split_list; lot_split_iter; lot_split_iter = lot_split_iter->next)
+    SplitList_t lot_split_list = gnc_lot_get_split_list (lot);
+    for(SplitList_t::iterator it = lot_split_list.begin(); it != lot_split_list.end(); it++)
     {
-        Split *split = lot_split_iter->data;
-        GList *other_split_list, *list_iter;
+        Split *split = *it;
         Transaction *other_txn = xaccSplitGetParent (split);
         GList *lot_list = NULL;
 
@@ -1428,10 +1426,10 @@ gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
             continue;
 
         /* Save a list of lots this linking transaction linked to */
-        other_split_list = xaccTransGetSplitList (other_txn);
-        for (list_iter = other_split_list; list_iter; list_iter = list_iter->next)
+        SplitList_t other_split_list = xaccTransGetSplitList (other_txn);
+        for (SplitList_t::iterator oit = other_split_list.begin(); oit != other_split_list.end(); oit++)
         {
-            Split *other_split = list_iter->data;
+            Split *other_split = *oit;
             GNCLot *other_lot = xaccSplitGetLot (other_split);
 
             /* Omit the lot we are about to delete */
@@ -1455,7 +1453,7 @@ gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
         /* If any of the saved lots has no more splits, then destroy it.
          * Otherwise if any has an invoice associated with it,
          * send it a modified event to reset its paid status */
-        for (list_iter = lot_list; list_iter; list_iter = list_iter->next)
+        for (GList* list_iter = lot_list; list_iter; list_iter = list_iter->next)
         {
             GNCLot *other_lot = list_iter->data;
             GncInvoice *other_invoice = gncInvoiceGetInvoiceFromLot (other_lot);
@@ -1466,7 +1464,6 @@ gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
                 qof_event_gen (QOF_INSTANCE(other_invoice), QOF_EVENT_MODIFY, NULL);
         }
     }
-    g_list_free (lot_split_list);
 
     /* If the lot has no splits, then destroy it */
     if (!gnc_lot_count_splits (lot))
@@ -1824,84 +1821,84 @@ static QofObject gncInvoiceDesc =
     DI(.printable         = ) _gncInvoicePrintable,
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
-
-static void
-reg_lot (void)
-{
-    static QofParam params[] =
-    {
-        {
-            INVOICE_FROM_LOT, _GNC_MOD_NAME,
-            (QofAccessFunc)gncInvoiceGetInvoiceFromLot, NULL
-        },
-        { NULL },
-    };
-
-    qof_class_register (GNC_ID_LOT, NULL, params);
-}
-
-static void
-reg_txn (void)
-{
-    static QofParam params[] =
-    {
-        {
-            INVOICE_FROM_TXN, _GNC_MOD_NAME,
-            (QofAccessFunc)gncInvoiceGetInvoiceFromTxn, NULL
-        },
-        { NULL },
-    };
-
-    qof_class_register (GNC_ID_TRANS, NULL, params);
-}
+//
+//static void
+//reg_lot (void)
+//{
+//    static QofParam params[] =
+//    {
+//        {
+//            INVOICE_FROM_LOT, _GNC_MOD_NAME,
+//            (QofAccessFunc)gncInvoiceGetInvoiceFromLot, NULL
+//        },
+//        { NULL },
+//    };
+//
+//    qof_class_register (GNC_ID_LOT, NULL, params);
+//}
+//
+//static void
+//reg_txn (void)
+//{
+//    static QofParam params[] =
+//    {
+//        {
+//            INVOICE_FROM_TXN, _GNC_MOD_NAME,
+//            (QofAccessFunc)gncInvoiceGetInvoiceFromTxn, NULL
+//        },
+//        { NULL },
+//    };
+//
+//    qof_class_register (GNC_ID_TRANS, NULL, params);
+//}
 
 bool gncInvoiceRegister (void)
 {
-    static QofParam params[] =
-    {
-        { INVOICE_ID,        QOF_TYPE_STRING,  (QofAccessFunc)gncInvoiceGetID,     (QofSetterFunc)gncInvoiceSetID },
-        { INVOICE_OWNER,     GNC_ID_OWNER,     (QofAccessFunc)gncInvoiceGetOwner, NULL },
-        { INVOICE_OPENED,    QOF_TYPE_DATE,    (QofAccessFunc)gncInvoiceGetDateOpened, (QofSetterFunc)gncInvoiceSetDateOpened },
-        { INVOICE_DUE,       QOF_TYPE_DATE,    (QofAccessFunc)gncInvoiceGetDateDue, NULL },
-        { INVOICE_POSTED,    QOF_TYPE_DATE,    (QofAccessFunc)gncInvoiceGetDatePosted, (QofSetterFunc)gncInvoiceSetDatePosted },
-        { INVOICE_IS_POSTED, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncInvoiceIsPosted, NULL },
-        { INVOICE_IS_PAID,   QOF_TYPE_BOOLEAN, (QofAccessFunc)gncInvoiceIsPaid,    NULL },
-        { INVOICE_BILLINGID, QOF_TYPE_STRING,  (QofAccessFunc)gncInvoiceGetBillingID, (QofSetterFunc)gncInvoiceSetBillingID },
-        { INVOICE_NOTES,     QOF_TYPE_STRING,  (QofAccessFunc)gncInvoiceGetNotes,   (QofSetterFunc)gncInvoiceSetNotes },
-        { INVOICE_ACC,       GNC_ID_ACCOUNT,   (QofAccessFunc)gncInvoiceGetPostedAcc, (QofSetterFunc)gncInvoiceSetPostedAcc },
-        { INVOICE_POST_TXN,  GNC_ID_TRANS,     (QofAccessFunc)gncInvoiceGetPostedTxn, (QofSetterFunc)gncInvoiceSetPostedTxn },
-        { INVOICE_POST_LOT,  GNC_ID_LOT,       (QofAccessFunc)gncInvoiceGetPostedLot, NULL/*(QofSetterFunc)gncInvoiceSetPostedLot*/ },
-        { INVOICE_TYPE,      QOF_TYPE_INT32,   (QofAccessFunc)gncInvoiceGetType,    NULL },
-        { INVOICE_TYPE_STRING, QOF_TYPE_STRING, (QofAccessFunc)gncInvoiceGetTypeString,    NULL },
-        { INVOICE_TERMS,     GNC_ID_BILLTERM,  (QofAccessFunc)gncInvoiceGetTerms,   (QofSetterFunc)gncInvoiceSetTerms },
-        { INVOICE_BILLTO,    GNC_ID_OWNER,     (QofAccessFunc)gncInvoiceGetBillTo, NULL  },
-        { INVOICE_ENTRIES,   QOF_TYPE_COLLECT, (QofAccessFunc)qofInvoiceGetEntries, (QofSetterFunc)qofInvoiceSetEntries },
-        { INVOICE_JOB,       GNC_ID_JOB,       (QofAccessFunc)qofInvoiceGetJob,     (QofSetterFunc)qofInvoiceSetJob },
-        { QOF_PARAM_ACTIVE,  QOF_TYPE_BOOLEAN, (QofAccessFunc)gncInvoiceGetActive, (QofSetterFunc)gncInvoiceSetActive },
-        { INVOICE_IS_CN,     QOF_TYPE_BOOLEAN, (QofAccessFunc)gncInvoiceGetIsCreditNote, (QofSetterFunc)gncInvoiceSetIsCreditNote },
-        { QOF_PARAM_BOOK,    QOF_ID_BOOK,      (QofAccessFunc)qof_instance_get_book, NULL },
-        { QOF_PARAM_GUID,    QOF_TYPE_GUID,    (QofAccessFunc)qof_instance_get_guid, NULL },
-        { NULL },
-    };
-
-    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncInvoiceCompare, params);
-    reg_lot ();
-    reg_txn ();
-
-    /* Make the compiler happy... */
-    if (0)
-    {
-        qofInvoiceSetEntries(NULL, NULL);
-        qofInvoiceGetEntries(NULL);
-        qofInvoiceSetOwner(NULL, NULL);
-        qofInvoiceGetOwner(NULL);
-        qofInvoiceSetBillTo(NULL, NULL);
-        qofInvoiceGetBillTo(NULL);
-    }
-    if (!qof_choice_create(GNC_ID_INVOICE))
-    {
-        return FALSE;
-    }
+//    static QofParam params[] =
+//    {
+//        { INVOICE_ID,        QOF_TYPE_STRING,  (QofAccessFunc)gncInvoiceGetID,     (QofSetterFunc)gncInvoiceSetID },
+//        { INVOICE_OWNER,     GNC_ID_OWNER,     (QofAccessFunc)gncInvoiceGetOwner, NULL },
+//        { INVOICE_OPENED,    QOF_TYPE_DATE,    (QofAccessFunc)gncInvoiceGetDateOpened, (QofSetterFunc)gncInvoiceSetDateOpened },
+//        { INVOICE_DUE,       QOF_TYPE_DATE,    (QofAccessFunc)gncInvoiceGetDateDue, NULL },
+//        { INVOICE_POSTED,    QOF_TYPE_DATE,    (QofAccessFunc)gncInvoiceGetDatePosted, (QofSetterFunc)gncInvoiceSetDatePosted },
+//        { INVOICE_IS_POSTED, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncInvoiceIsPosted, NULL },
+//        { INVOICE_IS_PAID,   QOF_TYPE_BOOLEAN, (QofAccessFunc)gncInvoiceIsPaid,    NULL },
+//        { INVOICE_BILLINGID, QOF_TYPE_STRING,  (QofAccessFunc)gncInvoiceGetBillingID, (QofSetterFunc)gncInvoiceSetBillingID },
+//        { INVOICE_NOTES,     QOF_TYPE_STRING,  (QofAccessFunc)gncInvoiceGetNotes,   (QofSetterFunc)gncInvoiceSetNotes },
+//        { INVOICE_ACC,       GNC_ID_ACCOUNT,   (QofAccessFunc)gncInvoiceGetPostedAcc, (QofSetterFunc)gncInvoiceSetPostedAcc },
+//        { INVOICE_POST_TXN,  GNC_ID_TRANS,     (QofAccessFunc)gncInvoiceGetPostedTxn, (QofSetterFunc)gncInvoiceSetPostedTxn },
+//        { INVOICE_POST_LOT,  GNC_ID_LOT,       (QofAccessFunc)gncInvoiceGetPostedLot, NULL/*(QofSetterFunc)gncInvoiceSetPostedLot*/ },
+//        { INVOICE_TYPE,      QOF_TYPE_INT32,   (QofAccessFunc)gncInvoiceGetType,    NULL },
+//        { INVOICE_TYPE_STRING, QOF_TYPE_STRING, (QofAccessFunc)gncInvoiceGetTypeString,    NULL },
+//        { INVOICE_TERMS,     GNC_ID_BILLTERM,  (QofAccessFunc)gncInvoiceGetTerms,   (QofSetterFunc)gncInvoiceSetTerms },
+//        { INVOICE_BILLTO,    GNC_ID_OWNER,     (QofAccessFunc)gncInvoiceGetBillTo, NULL  },
+//        { INVOICE_ENTRIES,   QOF_TYPE_COLLECT, (QofAccessFunc)qofInvoiceGetEntries, (QofSetterFunc)qofInvoiceSetEntries },
+//        { INVOICE_JOB,       GNC_ID_JOB,       (QofAccessFunc)qofInvoiceGetJob,     (QofSetterFunc)qofInvoiceSetJob },
+//        { QOF_PARAM_ACTIVE,  QOF_TYPE_BOOLEAN, (QofAccessFunc)gncInvoiceGetActive, (QofSetterFunc)gncInvoiceSetActive },
+//        { INVOICE_IS_CN,     QOF_TYPE_BOOLEAN, (QofAccessFunc)gncInvoiceGetIsCreditNote, (QofSetterFunc)gncInvoiceSetIsCreditNote },
+//        { QOF_PARAM_BOOK,    QOF_ID_BOOK,      (QofAccessFunc)qof_instance_get_book, NULL },
+//        { QOF_PARAM_GUID,    QOF_TYPE_GUID,    (QofAccessFunc)qof_instance_get_guid, NULL },
+//        { NULL },
+//    };
+//
+//    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncInvoiceCompare, params);
+//    reg_lot ();
+//    reg_txn ();
+//
+//    /* Make the compiler happy... */
+//    if (0)
+//    {
+//        qofInvoiceSetEntries(NULL, NULL);
+//        qofInvoiceGetEntries(NULL);
+//        qofInvoiceSetOwner(NULL, NULL);
+//        qofInvoiceGetOwner(NULL);
+//        qofInvoiceSetBillTo(NULL, NULL);
+//        qofInvoiceGetBillTo(NULL);
+//    }
+//    if (!qof_choice_create(GNC_ID_INVOICE))
+//    {
+//        return FALSE;
+//    }
     return qof_object_register (&gncInvoiceDesc);
 }
 

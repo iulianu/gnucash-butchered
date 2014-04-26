@@ -2518,18 +2518,18 @@ static QofObject pricedb_object_def =
 bool
 gnc_pricedb_register (void)
 {
-    static QofParam params[] =
-    {
-        { PRICE_COMMODITY, GNC_ID_COMMODITY, (QofAccessFunc)gnc_price_get_commodity, (QofSetterFunc)gnc_price_set_commodity },
-        { PRICE_CURRENCY, GNC_ID_COMMODITY, (QofAccessFunc)gnc_price_get_currency, (QofSetterFunc)gnc_price_set_currency },
-        { PRICE_DATE, QOF_TYPE_DATE, (QofAccessFunc)gnc_price_get_time, (QofSetterFunc)gnc_price_set_time },
-        { PRICE_SOURCE, QOF_TYPE_STRING, (QofAccessFunc)gnc_price_get_source, (QofSetterFunc)gnc_price_set_source },
-        { PRICE_TYPE, QOF_TYPE_STRING, (QofAccessFunc)gnc_price_get_typestr, (QofSetterFunc)gnc_price_set_typestr },
-        { PRICE_VALUE, QOF_TYPE_NUMERIC, (QofAccessFunc)gnc_price_get_value, (QofSetterFunc)gnc_price_set_value },
-        { NULL },
-    };
-
-    qof_class_register (GNC_ID_PRICE, NULL, params);
+//    static QofParam params[] =
+//    {
+//        { PRICE_COMMODITY, GNC_ID_COMMODITY, (QofAccessFunc)gnc_price_get_commodity, (QofSetterFunc)gnc_price_set_commodity },
+//        { PRICE_CURRENCY, GNC_ID_COMMODITY, (QofAccessFunc)gnc_price_get_currency, (QofSetterFunc)gnc_price_set_currency },
+//        { PRICE_DATE, QOF_TYPE_DATE, (QofAccessFunc)gnc_price_get_time, (QofSetterFunc)gnc_price_set_time },
+//        { PRICE_SOURCE, QOF_TYPE_STRING, (QofAccessFunc)gnc_price_get_source, (QofSetterFunc)gnc_price_set_source },
+//        { PRICE_TYPE, QOF_TYPE_STRING, (QofAccessFunc)gnc_price_get_typestr, (QofSetterFunc)gnc_price_set_typestr },
+//        { PRICE_VALUE, QOF_TYPE_NUMERIC, (QofAccessFunc)gnc_price_get_value, (QofSetterFunc)gnc_price_set_value },
+//        { NULL },
+//    };
+//
+//    qof_class_register (GNC_ID_PRICE, NULL, params);
 
     if (!qof_object_register (&price_object_def))
         return FALSE;

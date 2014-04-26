@@ -1005,22 +1005,20 @@ static gpointer
 delete_account_helper (Account * account, gpointer data)
 {
     delete_helper_t *helper_res = data;
-    GList *splits;
 
-    splits = xaccAccountGetSplitList (account);
-    if (splits)
+    SplitList_t splits = xaccAccountGetSplitList (account);
+    if (!splits.empty() )
     {
         helper_res->has_splits = TRUE;
-        while (splits)
+        for(SplitList_t::iterator it = splits.begin(); it != splits.end(); it++)
         {
-            Split *s = splits->data;
+            Split *s = *it;
             Transaction *txn = xaccSplitGetParent (s);
             if (xaccTransGetReadOnly (txn))
             {
                 helper_res->has_ro_splits = TRUE;
                 break;
             }
-            splits = splits->next;
         }
     }
 
@@ -1115,7 +1113,6 @@ gnc_plugin_page_account_tree_cmd_delete_account (GtkAction *action, GncPluginPag
     Account *ta = NULL; /* transaction adopter */
     Account *saa = NULL; /* subaccount adopter */
     Account *sta = NULL; /* subaccount transaction adopter */
-    GList *splits;
     GList* list;
     gint response;
 
@@ -1142,13 +1139,13 @@ gnc_plugin_page_account_tree_cmd_delete_account (GtkAction *action, GncPluginPag
         acct_name = g_strdup (_("(no name)"));
     }
 
-    splits = xaccAccountGetSplitList(account);
+    SplitList_t splits = xaccAccountGetSplitList(account);
 
     /*
      * If the account has transactions or child accounts then conduct a
      * dialog to allow the user to specify what should be done with them.
      */
-    if ((NULL != splits) || (gnc_account_n_children(account) > 0))
+    if ((! splits.empty()) || (gnc_account_n_children(account) > 0))
     {
         GList *filter = NULL;
         GtkBuilder *builder = NULL;
@@ -1183,7 +1180,7 @@ gnc_plugin_page_account_tree_cmd_delete_account (GtkAction *action, GncPluginPag
          * Adjust the dialog based on whether the account has
          * transactions.
          */
-        if (splits)
+        if (! splits.empty())
         {
             delete_helper_t delete_res2 = { FALSE, FALSE };
 
@@ -1296,7 +1293,7 @@ gnc_plugin_page_account_tree_cmd_delete_account (GtkAction *action, GncPluginPag
         GtkWidget *dialog;
 
         lines[0] = g_strdup_printf(format, acct_name);
-        if (splits)
+        if (! splits.empty())
         {
             if (ta)
             {
@@ -1305,7 +1302,7 @@ gnc_plugin_page_account_tree_cmd_delete_account (GtkAction *action, GncPluginPag
                            "the account %s.");
                 lines[++i] = g_strdup_printf(format, name);
             }
-            else if (splits)
+            else if (! splits.empty())
             {
                 format = _("All transactions in this account will be deleted.");
                 lines[++i] = g_strdup_printf("%s", format);

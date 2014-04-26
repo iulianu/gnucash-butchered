@@ -134,7 +134,8 @@ void
 gnc_autoclear_window_ok_cb (GtkWidget *widget,
                             AutoClearWindow *data)
 {
-    GList *node, *nc_list = 0, *toclear_list = 0;
+    SplitList_t nc_list;
+    SplitList_t toclear_list;
     gnc_numeric toclear_value;
     GHashTable *sack;
 
@@ -145,9 +146,10 @@ gnc_autoclear_window_ok_cb (GtkWidget *widget,
     toclear_value = gnc_numeric_convert(toclear_value, xaccAccountGetCommoditySCU(data->account), GNC_HOW_RND_NEVER);
 
     /* Extract which splits are not cleared and compute the amount we have to clear */
-    for (node = xaccAccountGetSplitList(data->account); node; node = node->next)
+    SplitList_t splits = xaccAccountGetSplitList(data->account);
+    for (SplitList_t::iterator it = splits.begin(); it != splits.end(); it++)
     {
-        Split *split = (Split *)node->data;
+        Split *split = *it;
         char recn;
         gnc_numeric value;
 
@@ -155,7 +157,7 @@ gnc_autoclear_window_ok_cb (GtkWidget *widget,
         value = xaccSplitGetAmount (split);
 
         if (recn == NREC)
-            nc_list = g_list_append(nc_list, split);
+            nc_list.push_back(split);
         else
             toclear_value = gnc_numeric_sub_fixed(toclear_value, value);
     }
@@ -163,9 +165,9 @@ gnc_autoclear_window_ok_cb (GtkWidget *widget,
     /* Pretty print information */
     PINFO("Amount to clear: %s\n", gnc_numeric_to_string(toclear_value));
     PINFO("Available splits:\n");
-    for (node = nc_list; node; node = node->next)
+    for (SplitList_t::iterator it = nc_list.begin(); it != nc_list.end(); it++)
     {
-        Split *split = (Split *)node->data;
+        Split *split = *it;
         gnc_numeric value = xaccSplitGetAmount (split);
         PINFO("  %s\n", gnc_numeric_to_string(value));
     }
@@ -177,9 +179,9 @@ gnc_autoclear_window_ok_cb (GtkWidget *widget,
      */
     PINFO("Knapsacking ...\n");
     sack = g_hash_table_new_full (ght_gnc_numeric_hash, ght_gnc_numeric_equal, g_free, NULL);
-    for (node = nc_list; node; node = node->next)
+    for (SplitList_t::iterator it = nc_list.begin(); it != nc_list.end(); it++)
     {
-        Split *split = (Split *)node->data;
+        Split *split = *it;
         gnc_numeric split_value = xaccSplitGetAmount(split);
 
         GList *node;
@@ -229,7 +231,7 @@ gnc_autoclear_window_ok_cb (GtkWidget *widget,
             {
                 /* Cast the gpointer to the kind of pointer we actually need */
                 Split *split = (Split *)psplit;
-                toclear_list = g_list_prepend(toclear_list, split);
+                toclear_list.push_front(split);
                 toclear_value = gnc_numeric_sub_fixed(toclear_value,
                                                       xaccSplitGetAmount(split));
                 PINFO("    Cleared: %s -> %s\n",
@@ -255,9 +257,9 @@ gnc_autoclear_window_ok_cb (GtkWidget *widget,
 
     /* Show solution */
     PINFO("Clearing splits:\n");
-    for (node = toclear_list; node; node = node->next)
+    for (SplitList_t::iterator it = toclear_list.begin(); it != toclear_list.end(); it++)
     {
-        Split *split = node->data;
+        Split *split = *it;
         char recn;
         gnc_numeric value;
 
@@ -268,12 +270,8 @@ gnc_autoclear_window_ok_cb (GtkWidget *widget,
 
         xaccSplitSetReconcile (split, CREC);
     }
-    if (toclear_list == 0)
+    if (toclear_list.empty())
         PINFO("  None\n");
-
-    /* Free lists */
-    g_list_free(nc_list);
-    g_list_free(toclear_list);
 
     /* Close window */
     gtk_widget_destroy(data->window);

@@ -46,50 +46,50 @@ static int test_core_param (gpointer a)
 
 static void test_class (void)
 {
-    static QofParam params[] =
-    {
-        { TEST_PARAM, TEST_CORE, (QofAccessFunc)test_core_param, NULL },
-        { NULL },
-    };
-
-    gchar *msg1 = "qof_class_get_parameter: assertion `obj_name' failed";
-    gchar *msg2 = "qof_class_get_parameter: assertion `parameter' failed";
-    gchar *logdomain = "qof";
-    guint loglevel = G_LOG_LEVEL_CRITICAL;
-    TestErrorStruct check1 = { loglevel, logdomain, msg1 };
-    TestErrorStruct check2 = { loglevel, logdomain, msg2 };
-    test_add_error (&check1);
-    test_add_error (&check2);
-    g_log_set_handler (logdomain, loglevel,
-                       (GLogFunc)test_list_handler, NULL);
-
-
-    qof_class_register (TEST_MODULE_NAME, (QofSortFunc)test_sort, params);
-
-    do_test (qof_class_get_parameter (TEST_MODULE_NAME, TEST_PARAM)
-             == &params[0], "qof_class_get_parameter");
-    do_test (qof_class_get_parameter (NULL, NULL) == NULL,
-             "qof_class_get_parameter (NULL, NULL)");
-    do_test (qof_class_get_parameter (TEST_MODULE_NAME, NULL) == NULL,
-             "qof_class_get_parameter (TEST_MODULE_NAME, NULL)");
-    do_test (qof_class_get_parameter (TEST_MODULE_NAME, BAD_PARAM) == NULL,
-             "qof_class_get_parameter (TEST_MODULE_NAME, BAD_PARAM)");
-    do_test (qof_class_get_parameter (NULL, TEST_PARAM) == NULL,
-             "qof_class_get_parameter (NULL, TEST_PARAM)");
-
-    do_test (qof_class_get_parameter_getter (TEST_MODULE_NAME, TEST_PARAM)
-             == (QofAccessFunc)test_core_param,
-             "qof_class_get_parameter_getter");
-
-    do_test (g_strcmp0 (qof_class_get_parameter_type (TEST_MODULE_NAME,
-                          TEST_PARAM),
-                          TEST_CORE) == 0, "qof_class_get_parameter_type");
-
-    /*  do_test (qof_class_get_default_sort (TEST_MODULE_NAME) == test_sort,
-    	   "qof_class_get_default_sort");
-      do_test (qof_class_get_default_sort (NULL) == NULL,
-    	   "qof_class_get_default_sort (NULL)");*/
-    test_clear_error_list ();
+//    static QofParam params[] =
+//    {
+//        { TEST_PARAM, TEST_CORE, (QofAccessFunc)test_core_param, NULL },
+//        { NULL },
+//    };
+//
+//    gchar *msg1 = "qof_class_get_parameter: assertion `obj_name' failed";
+//    gchar *msg2 = "qof_class_get_parameter: assertion `parameter' failed";
+//    gchar *logdomain = "qof";
+//    guint loglevel = G_LOG_LEVEL_CRITICAL;
+//    TestErrorStruct check1 = { loglevel, logdomain, msg1 };
+//    TestErrorStruct check2 = { loglevel, logdomain, msg2 };
+//    test_add_error (&check1);
+//    test_add_error (&check2);
+//    g_log_set_handler (logdomain, loglevel,
+//                       (GLogFunc)test_list_handler, NULL);
+//
+//
+//    qof_class_register (TEST_MODULE_NAME, (QofSortFunc)test_sort, params);
+//
+//    do_test (qof_class_get_parameter (TEST_MODULE_NAME, TEST_PARAM)
+//             == &params[0], "qof_class_get_parameter");
+//    do_test (qof_class_get_parameter (NULL, NULL) == NULL,
+//             "qof_class_get_parameter (NULL, NULL)");
+//    do_test (qof_class_get_parameter (TEST_MODULE_NAME, NULL) == NULL,
+//             "qof_class_get_parameter (TEST_MODULE_NAME, NULL)");
+//    do_test (qof_class_get_parameter (TEST_MODULE_NAME, BAD_PARAM) == NULL,
+//             "qof_class_get_parameter (TEST_MODULE_NAME, BAD_PARAM)");
+//    do_test (qof_class_get_parameter (NULL, TEST_PARAM) == NULL,
+//             "qof_class_get_parameter (NULL, TEST_PARAM)");
+//
+//    do_test (qof_class_get_parameter_getter (TEST_MODULE_NAME, TEST_PARAM)
+//             == (QofAccessFunc)test_core_param,
+//             "qof_class_get_parameter_getter");
+//
+//    do_test (g_strcmp0 (qof_class_get_parameter_type (TEST_MODULE_NAME,
+//                          TEST_PARAM),
+//                          TEST_CORE) == 0, "qof_class_get_parameter_type");
+//
+//    /*  do_test (qof_class_get_default_sort (TEST_MODULE_NAME) == test_sort,
+//    	   "qof_class_get_default_sort");
+//      do_test (qof_class_get_default_sort (NULL) == NULL,
+//    	   "qof_class_get_default_sort (NULL)");*/
+//    test_clear_error_list ();
 }
 
 static void test_query_core (void)

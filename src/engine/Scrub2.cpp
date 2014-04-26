@@ -57,18 +57,17 @@ static QofLogModule log_module = GNC_MOD_LOT;
 void
 xaccAccountAssignLots (Account *acc)
 {
-    SplitList *splits, *node;
-
     if (!acc) return;
 
     ENTER ("acc=%s", xaccAccountGetName(acc));
     xaccAccountBeginEdit (acc);
 
 restart_loop:
-    splits = xaccAccountGetSplitList(acc);
-    for (node = splits; node; node = node->next)
+    SplitList_t splits = xaccAccountGetSplitList(acc);
+    for (SplitList_t::iterator node = splits.begin();
+            node != splits.end(); node++)
     {
-        Split * split = node->data;
+        Split * split = *node;
 
         /* If already in lot, then no-op */
         if (split->lot) continue;
@@ -150,8 +149,6 @@ void
 xaccLotScrubDoubleBalance (GNCLot *lot)
 {
     gnc_commodity *currency = NULL;
-    SplitList *snode;
-    GList *node;
     gnc_numeric zero = gnc_numeric_zero();
     gnc_numeric value = zero;
 
@@ -159,18 +156,20 @@ xaccLotScrubDoubleBalance (GNCLot *lot)
 
     ENTER ("lot=%s", kvp_frame_get_string (gnc_lot_get_slots (lot), "/title"));
 
-    for (snode = gnc_lot_get_split_list(lot); snode; snode = snode->next)
+    SplitList_t slist = gnc_lot_get_split_list(lot);
+    for (SplitList_t::iterator snode = slist.begin(); snode != slist.end(); snode++)
     {
-        Split *s = snode->data;
+        Split *s = *snode;
         xaccSplitComputeCapGains (s, NULL);
     }
 
     /* We double-check only closed lots */
     if (FALSE == gnc_lot_is_closed (lot)) return;
 
-    for (snode = gnc_lot_get_split_list(lot); snode; snode = snode->next)
+    slist = gnc_lot_get_split_list(lot);
+    for (SplitList_t::iterator snode = slist.begin(); snode != slist.end(); snode++)
     {
-        Split *s = snode->data;
+        Split *s = *snode;
         Transaction *trans = s->parent;
 
         /* Check to make sure all splits in the lot have a common currency */
@@ -207,9 +206,10 @@ xaccLotScrubDoubleBalance (GNCLot *lot)
          */
         PERR ("Closed lot fails to double-balance !! lot value=%s",
               gnc_num_dbg_to_string (value));
-        for (node = gnc_lot_get_split_list(lot); node; node = node->next)
+        SplitList_t nlist = gnc_lot_get_split_list(lot);
+        for (SplitList_t::iterator node = nlist.begin(); node != nlist.end(); node++)
         {
-            Split *s = node->data;
+            Split *s = *node;
             PERR ("s=%p amt=%s val=%s", s,
                   gnc_num_dbg_to_string(s->amount),
                   gnc_num_dbg_to_string(s->value));
@@ -330,7 +330,6 @@ xaccScrubMergeSubSplits (Split *split)
 {
     bool rc = FALSE;
     Transaction *txn;
-    SplitList *node;
     GNCLot *lot;
     const GncGUID *guid;
 
@@ -341,9 +340,10 @@ xaccScrubMergeSubSplits (Split *split)
 
     ENTER ("(Lot=%s)", gnc_lot_get_title(lot));
 restart:
-    for (node = txn->splits; node; node = node->next)
+    for (SplitList_t::iterator node = txn->splits.begin();
+            node != txn->splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         if (xaccSplitGetLot (s) != lot) continue;
         if (s == split) continue;
         if (qof_instance_get_destroying(s)) continue;
@@ -377,15 +377,16 @@ bool
 xaccScrubMergeLotSubSplits (GNCLot *lot)
 {
     bool rc = FALSE;
-    SplitList *node;
 
     if (!lot) return FALSE;
 
     ENTER (" ");
 restart:
-    for (node = gnc_lot_get_split_list(lot); node; node = node->next)
+    SplitList_t slist = gnc_lot_get_split_list(lot);
+    for (SplitList_t::const_iterator node = slist.begin(); 
+            node != slist.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         if (!xaccScrubMergeSubSplits(s)) continue;
 
         rc = TRUE;

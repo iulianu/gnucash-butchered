@@ -1,5 +1,5 @@
 /********************************************************************
- * gnc-transactions-xml-v2.cpp -- xml routines for transactions     *
+ * gnc-transaction-xml-v2.cpp -- xml routines for transactions      *
  * Copyright (C) 2001 Rob Browning                                  *
  * Copyright (C) 2002 Linas Vepstas <linas@linas.org>               *
  *                                                                  *
@@ -137,14 +137,14 @@ split_to_dom_tree(const gchar *tag, Split *spl)
 static void
 add_trans_splits(xmlNodePtr node, Transaction *trn)
 {
-    GList *n;
     xmlNodePtr toaddto;
 
     toaddto = xmlNewChild(node, NULL, BAD_CAST "trn:splits", NULL);
 
-    for (n = xaccTransGetSplitList(trn); n; n = n->next)
+    SplitList_t splits = xaccTransGetSplitList(trn);
+    for (SplitList_t::const_iterator n = splits.begin(); n != splits.end(); n++)
     {
-        Split *s = n->data;
+        Split *s = *n;
         xmlAddChild(toaddto, split_to_dom_tree("trn:split", s));
     }
 }

@@ -1296,11 +1296,10 @@ gnc_tree_control_split_reg_cut_trans (GncTreeViewSplitReg *view)
 static Account *
 gtc_trans_get_account_for_splits_ancestor (const Transaction *trans, const Account *ancestor)
 {
-    GList *node;
-
-    for (node = xaccTransGetSplitList (trans); node; node = node->next)
+    SplitList_t sl = xaccTransGetSplitList (trans);
+    for (SplitList_t::const_iterator it = sl.begin(); it != sl.end(); it++)
     {
-        Split *split = node->data;
+        Split *split = *it;
         Account *split_acc = xaccSplitGetAccount(split);
 
         if (!xaccTransStillHasSplit(trans, split))

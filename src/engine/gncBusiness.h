@@ -58,10 +58,10 @@
 #  define DI(x) /* */
 #endif
 
-/** Returns a GList of all objects of the given type_name in the given
- * book. */
-GList * gncBusinessGetList (QofBook *book, QofIdTypeConst type_name,
-                            bool all_including_inactive);
+///** Returns a GList of all objects of the given type_name in the given
+// * book. */
+//GList * gncBusinessGetList (QofBook *book, QofIdTypeConst type_name,
+//                            bool all_including_inactive);
 
 /** For SWIG: A GList containing GncOwner. */
 typedef GList OwnerList;
@@ -73,8 +73,8 @@ typedef GList OwnerList;
  * contain data only for {CUSTOMER, JOB, VERNDOR, EMPLOYEE}, otherwise
  * the owner will be of type GNC_OWNER_NONE and not contain the
  * original data. */
-OwnerList * gncBusinessGetOwnerList (QofBook *book, QofIdTypeConst type_name,
-                                     bool all_including_inactive);
+//OwnerList * gncBusinessGetOwnerList (QofBook *book, QofIdTypeConst type_name,
+//                                     bool all_including_inactive);
 
 
 #endif /* GNC_BUSINESS_H_ */

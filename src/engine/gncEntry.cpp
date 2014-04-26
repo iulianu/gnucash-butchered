@@ -1499,53 +1499,53 @@ static QofObject gncEntryDesc =
 
 bool gncEntryRegister (void)
 {
-    static QofParam params[] =
-    {
-        { ENTRY_DATE, QOF_TYPE_DATE, (QofAccessFunc)gncEntryGetDate, (QofSetterFunc)gncEntrySetDate },
-        { ENTRY_DATE_ENTERED, QOF_TYPE_DATE, (QofAccessFunc)gncEntryGetDateEntered, (QofSetterFunc)gncEntrySetDateEntered },
-        { ENTRY_DESC, QOF_TYPE_STRING, (QofAccessFunc)gncEntryGetDescription, (QofSetterFunc)gncEntrySetDescription },
-        { ENTRY_ACTION, QOF_TYPE_STRING, (QofAccessFunc)gncEntryGetAction, (QofSetterFunc)gncEntrySetAction },
-        { ENTRY_NOTES, QOF_TYPE_STRING, (QofAccessFunc)gncEntryGetNotes, (QofSetterFunc)gncEntrySetNotes },
-        { ENTRY_QTY, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEntryGetQuantity, (QofSetterFunc)gncEntrySetQuantity },
-        { ENTRY_IPRICE, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEntryGetInvPrice, (QofSetterFunc)gncEntrySetInvPrice },
-        { ENTRY_BPRICE, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEntryGetBillPrice, (QofSetterFunc)gncEntrySetBillPrice },
-        { ENTRY_INVOICE, GNC_ID_INVOICE, (QofAccessFunc)gncEntryGetInvoice, NULL },
-        { ENTRY_IACCT, GNC_ID_ACCOUNT,  (QofAccessFunc)gncEntryGetInvAccount,  (QofSetterFunc)gncEntrySetInvAccount  },
-        { ENTRY_BACCT, GNC_ID_ACCOUNT,  (QofAccessFunc)gncEntryGetBillAccount, (QofSetterFunc)gncEntrySetBillAccount },
-        { ENTRY_BILL, GNC_ID_INVOICE, (QofAccessFunc)gncEntryGetBill, NULL },
-        {
-            ENTRY_INV_DISC_TYPE, QOF_TYPE_STRING, (QofAccessFunc)qofEntryGetInvDiscType,
-            (QofSetterFunc)qofEntrySetInvDiscType
-        },
-        {
-            ENTRY_INV_DISC_HOW, QOF_TYPE_STRING, (QofAccessFunc)qofEntryGetInvDiscHow,
-            (QofSetterFunc)qofEntrySetInvDiscHow
-        },
-        {
-            ENTRY_INV_TAXABLE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetInvTaxable,
-            (QofSetterFunc)gncEntrySetInvTaxable
-        },
-        {
-            ENTRY_INV_TAX_INC, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetInvTaxIncluded,
-            (QofSetterFunc)gncEntrySetInvTaxIncluded
-        },
-        {
-            ENTRY_BILL_TAXABLE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetBillTaxable,
-            (QofSetterFunc)gncEntrySetBillTaxable
-        },
-        {
-            ENTRY_BILL_TAX_INC, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetBillTaxIncluded,
-            (QofSetterFunc)gncEntrySetBillTaxIncluded
-        },
-        { ENTRY_BILLABLE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetBillable, (QofSetterFunc)gncEntrySetBillable },
-        { ENTRY_BILLTO, GNC_ID_OWNER, (QofAccessFunc)gncEntryGetBillTo, (QofSetterFunc)gncEntrySetBillTo },
-        { ENTRY_ORDER, GNC_ID_ORDER, (QofAccessFunc)gncEntryGetOrder, NULL },
-        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)qof_instance_get_book, NULL },
-        { QOF_PARAM_GUID, QOF_TYPE_GUID, (QofAccessFunc)qof_instance_get_guid, NULL },
-        { NULL },
-    };
-
-    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncEntryCompare, params);
+//    static QofParam params[] =
+//    {
+//        { ENTRY_DATE, QOF_TYPE_DATE, (QofAccessFunc)gncEntryGetDate, (QofSetterFunc)gncEntrySetDate },
+//        { ENTRY_DATE_ENTERED, QOF_TYPE_DATE, (QofAccessFunc)gncEntryGetDateEntered, (QofSetterFunc)gncEntrySetDateEntered },
+//        { ENTRY_DESC, QOF_TYPE_STRING, (QofAccessFunc)gncEntryGetDescription, (QofSetterFunc)gncEntrySetDescription },
+//        { ENTRY_ACTION, QOF_TYPE_STRING, (QofAccessFunc)gncEntryGetAction, (QofSetterFunc)gncEntrySetAction },
+//        { ENTRY_NOTES, QOF_TYPE_STRING, (QofAccessFunc)gncEntryGetNotes, (QofSetterFunc)gncEntrySetNotes },
+//        { ENTRY_QTY, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEntryGetQuantity, (QofSetterFunc)gncEntrySetQuantity },
+//        { ENTRY_IPRICE, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEntryGetInvPrice, (QofSetterFunc)gncEntrySetInvPrice },
+//        { ENTRY_BPRICE, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEntryGetBillPrice, (QofSetterFunc)gncEntrySetBillPrice },
+//        { ENTRY_INVOICE, GNC_ID_INVOICE, (QofAccessFunc)gncEntryGetInvoice, NULL },
+//        { ENTRY_IACCT, GNC_ID_ACCOUNT,  (QofAccessFunc)gncEntryGetInvAccount,  (QofSetterFunc)gncEntrySetInvAccount  },
+//        { ENTRY_BACCT, GNC_ID_ACCOUNT,  (QofAccessFunc)gncEntryGetBillAccount, (QofSetterFunc)gncEntrySetBillAccount },
+//        { ENTRY_BILL, GNC_ID_INVOICE, (QofAccessFunc)gncEntryGetBill, NULL },
+//        {
+//            ENTRY_INV_DISC_TYPE, QOF_TYPE_STRING, (QofAccessFunc)qofEntryGetInvDiscType,
+//            (QofSetterFunc)qofEntrySetInvDiscType
+//        },
+//        {
+//            ENTRY_INV_DISC_HOW, QOF_TYPE_STRING, (QofAccessFunc)qofEntryGetInvDiscHow,
+//            (QofSetterFunc)qofEntrySetInvDiscHow
+//        },
+//        {
+//            ENTRY_INV_TAXABLE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetInvTaxable,
+//            (QofSetterFunc)gncEntrySetInvTaxable
+//        },
+//        {
+//            ENTRY_INV_TAX_INC, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetInvTaxIncluded,
+//            (QofSetterFunc)gncEntrySetInvTaxIncluded
+//        },
+//        {
+//            ENTRY_BILL_TAXABLE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetBillTaxable,
+//            (QofSetterFunc)gncEntrySetBillTaxable
+//        },
+//        {
+//            ENTRY_BILL_TAX_INC, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetBillTaxIncluded,
+//            (QofSetterFunc)gncEntrySetBillTaxIncluded
+//        },
+//        { ENTRY_BILLABLE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEntryGetBillable, (QofSetterFunc)gncEntrySetBillable },
+//        { ENTRY_BILLTO, GNC_ID_OWNER, (QofAccessFunc)gncEntryGetBillTo, (QofSetterFunc)gncEntrySetBillTo },
+//        { ENTRY_ORDER, GNC_ID_ORDER, (QofAccessFunc)gncEntryGetOrder, NULL },
+//        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)qof_instance_get_book, NULL },
+//        { QOF_PARAM_GUID, QOF_TYPE_GUID, (QofAccessFunc)qof_instance_get_guid, NULL },
+//        { NULL },
+//    };
+//
+//    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncEntryCompare, params);
 
     return qof_object_register (&gncEntryDesc);
 }

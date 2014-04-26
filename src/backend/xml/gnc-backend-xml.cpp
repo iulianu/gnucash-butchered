@@ -1269,10 +1269,10 @@ gnc_backend_new(void)
     be->commit = xml_commit_edit;
     be->rollback = xml_rollback_edit;
 
-    /* The file backend always loads all data ... */
-    be->compile_query = NULL;
-    be->free_query = NULL;
-    be->run_query = NULL;
+//    /* The file backend always loads all data ... */
+//    be->compile_query = NULL;
+//    be->free_query = NULL;
+//    be->run_query = NULL;
 
     /* The file backend will never be multi-user... */
     be->events_pending = NULL;

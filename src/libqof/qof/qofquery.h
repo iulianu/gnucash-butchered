@@ -74,309 +74,319 @@ probably optimize.
 #ifndef QOF_QUERYNEW_H
 #define QOF_QUERYNEW_H
 
-#include "guid.h"
-#include "qofbook.h"
-#include "qofquerycore.h"
-#include "qofchoice.h"
-
-#define QOF_MOD_QUERY "qof.query"
-
-/** A Query */
-struct QofQuery;
-
-/** Query Term Operators, for combining Query Terms */
-enum QofQueryOp
-{
-    QOF_QUERY_AND = 1,
-    QOF_QUERY_OR,
-    QOF_QUERY_NAND,
-    QOF_QUERY_NOR,
-    QOF_QUERY_XOR
-};
-
-/** First/only term is same as 'and' */
-#define QOF_QUERY_FIRST_TERM QOF_QUERY_AND
-
-/** Default sort object type */
-#define QUERY_DEFAULT_SORT      "QofQueryDefaultSort"
-
-/** "Known" Object Parameters -- all objects must support these */
-#define QOF_PARAM_BOOK    "book"
-#define QOF_PARAM_GUID    "guid"
-
-/** "Known" Object Parameters -- some objects might support these */
-#define QOF_PARAM_KVP     "kvp"
-#define QOF_PARAM_ACTIVE  "active"
-#define QOF_PARAM_VERSION "version"
-
-/* --------------------------------------------------------- */
-/** \name Query Subsystem Initialization and Shudown  */
-// @{
-/** Subsystem initialization and shutdown. Call init() once
- *  to initialize the query subsystem; call shutdown() to free
- *  up any resources associated with the query subsystem.
- *  Typically called during application startup, shutdown.
- */
-
-void qof_query_init (void);
-void qof_query_shutdown (void);
-// @}
-
-/* --------------------------------------------------------- */
-/** \name Low-Level API Functions */
-// @{
-
-QofQueryParamList * qof_query_build_param_list (char const *param, ...);
-
-/** Create a new query.
- *  Before running the query, a 'search-for' type must be set
- *  otherwise nothing will be returned.  The results of the query
- *  is a list of the indicated search-for type.
- *
- *  Allocates and initializes a Query structure which must be
- *  freed by the user with qof_query_destroy().  A newly-allocated
- *  QofQuery object matches nothing (qof_query_run() will return NULL).
- */
-QofQuery * qof_query_create (void);
-QofQuery * qof_query_create_for (QofIdTypeConst obj_type);
-
-/** Frees the resources associate with a Query object.  */
-void qof_query_destroy (QofQuery *q);
-
-/** Set the object type to be searched for.  The results of
- *  performing the query will be a list of this obj_type.
- */
-void qof_query_search_for (QofQuery *query, QofIdTypeConst obj_type);
-
-/** Set the book to be searched.  Books contain/identify collections
- *  of objects; the search will be performed over those books
- *  specified with this function.  If no books are set, no results
- *  will be returned (since there is nothing to search over).
- *
- *  You can search multiple books.  To specify multiple books, call
- *  this function multiple times with different arguments.
- * XXX needed qof_query_clear_books() to reset the list ...
- */
-void qof_query_set_book (QofQuery *q, QofBook *book);
-
-
-/** This is the general function that adds a new Query Term to a query.
- * It will find the 'obj_type' object of the search item and compare
- * the 'param_list' parameter to the predicate data via the comparator.
- *
- * The param_list is a recursive list of parameters.  For example, you
- * can say 'split->memo' by creating a list of one element, "SPLIT_MEMO".
- * You can say 'split->account->name' by creating a list of two elements,
- * "SPLIT_ACCOUNT" and "ACCOUNT_NAME".  The list becomes the property of
- * the Query.
- *
- * For example:
- *
- * acct_name_pred_data = make_string_pred_data(QOF_STRING_MATCH_CASEINSENSITIVE,
- *                                          account_name);
- * param_list = make_list (SPLIT_ACCOUNT, ACCOUNT_NAME, NULL);
- * qof_query_add_term (query, param_list, QOF_COMPARE_EQUAL,
- *                    acct_name_pred_data, QOF_QUERY_AND);
- *
- * Please note that QofQuery does not, at this time, support joins.
- * That is, one cannot specify a predicate that is a parameter list.
- * Put another way, one cannot search for objects where
- *   obja->thingy == objb->stuff
- */
-
-void qof_query_add_term (QofQuery *query, QofQueryParamList *param_list,
-                         QofQueryPredData *pred_data, QofQueryOp op);
-
-/** DOCUMENT ME !! */
-void qof_query_add_guid_match (QofQuery *q, QofQueryParamList *param_list,
-                               const GncGUID *guid, QofQueryOp op);
-/** DOCUMENT ME !! */
-void qof_query_add_guid_list_match (QofQuery *q, QofQueryParamList *param_list,
-                                    GList *guid_list, QofGuidMatch options,
-                                    QofQueryOp op);
-
-/** Handy-dandy convenience routines, avoids having to create
- * a separate predicate for boolean matches.  We might want to
- * create handy-dandy sugar routines for the other predicate types
- * as well. */
-void qof_query_add_boolean_match (QofQuery *q,
-                                  QofQueryParamList *param_list,
-                                  bool value,
-                                  QofQueryOp op);
-
-/** Perform the query, return the results.
- *  The returned list is a list of the 'search-for' type that was
- *  previously set with the qof_query_search_for() or the
- *  qof_query_create_for() routines.  The returned list will have
- *  been sorted using the indicated sort order, and trimmed to the
- *  max_results length.
- *
- *  Do NOT free the resulting list.  This list is managed internally
- *  by QofQuery.
- */
-GList * qof_query_run (QofQuery *query);
-
-/** Return the results of the last query, without causing the query to
- *  be re-run.  Do NOT free the resulting list.  This list is managed
- *  internally by QofQuery.
- */
-GList * qof_query_last_run (QofQuery *query);
-
-/** Perform a subquery, return the results.
- *  Instead of running over a book, the subquery runs over the results
- *  of the primary query.
- *
- *  Do NOT free the resulting list.  This list is managed internally
- *  by QofQuery.
- */
-GList * qof_query_run_subquery (QofQuery *subquery,
-                                const QofQuery* primary_query);
-
-/** Remove all query terms from query.  query matches nothing
- *  after qof_query_clear().
- */
-void qof_query_clear (QofQuery *query);
-
-/** Remove query terms of a particular type from q.  The "type" of a term
- *  is determined by the type of data that gets passed to the predicate
- *  function.
- * XXX ??? Huh? remove anything of that predicate type, or just
- * the particular predicate ?
- */
-void qof_query_purge_terms (QofQuery *q, QofQueryParamList *param_list);
-
-/** Return boolean FALSE if there are no terms in the query
- *  Can be used as a predicate to see if the query has been
- *  initialized (return value > 0) or is "blank" (return value == 0).
- */
-int qof_query_has_terms (QofQuery *q);
-
-/** Return the number of terms in the canonical form of the query.
- */
-int qof_query_num_terms (QofQuery *q);
-
-/** DOCUMENT ME !! */
-bool  qof_query_has_term_type (QofQuery *q, QofQueryParamList *term_param);
-GSList * qof_query_get_term_type (QofQuery *q, QofQueryParamList *term_param);
-
-/** Make a copy of the indicated query */
-QofQuery * qof_query_copy (QofQuery *q);
-
-/** Make a copy of the indicated query, inverting the sense
- *  of the search.  In other words, if the original query search
- *  for all objects with a certain condition, the inverted query
- *  will search for all object with NOT that condition.  The union
- *  of the results returned by the original and inverted queries
- *  equals the set of all searched objects. These to sets are
- *  disjoint (share no members in common).
- *
- *  This will return a newly allocated QofQuery object, or NULL
- *  on error. Free it with qof_query_destroy() when no longer needed.
- */
-QofQuery * qof_query_invert(QofQuery *q);
-
-/** Combine two queries together using the Boolean set (logical)
- *  operator 'op'.  For example, if the operator 'op' is set to
- *  QUERY_AND, then the set of results returned by the query will
- *  will be the Boolean set intersection of the results returned
- *  by q1 and q2.  Similarly,  QUERY_OR maps to set union, etc.
- *
- *  Both queries must have compatible
- *  search-types.  If both queries are set, they must search for the
- *  same object type.  If only one is set, the resulting query will
- *  search for the set type.  If neither query has the search-type set,
- *  the result will be unset as well.
- *
- *  This will return a newly allocated QofQuery object, or NULL on
- *  error. Free it with qof_query_destroy() when no longer needed.
- *  Note that if either input query is NULL then the returned query is
- *  NOT newly allocated -- it will return the non-NULL query.  You
- *  only need to call this function when both q1 and q2 are non-NULL.
- */
-QofQuery * qof_query_merge(QofQuery *q1, QofQuery *q2, QofQueryOp op);
-
-/** Like qof_query_merge, but this will merge a copy of q2 into q1.
- *   q2 remains unchanged.
- */
-void qof_query_merge_in_place(QofQuery *q1, QofQuery *q2, QofQueryOp op);
-
-/**
- * When a query is run, the results are sorted before being returned.
- * This routine can be used to set the parameters on which the sort will
- * be performed.  Two objects in the result list will be compared using
- * the 'primary_sort_params', and sorted based on that order.  If the
- * comparison shows that they are equal, then the
- * 'secondary_sort_params' will be used.  If still equal, then the
- * tertiary parameters will be compared.  Any or all of these parameter
- * lists may be NULL.  Any of these parameter lists may be set to
- * QUERY_DEFAULT_SORT.
- *
- * Note that if there are more results than the 'max-results' value,
- * then only the *last* max-results will be returned.  For example,
- * if the sort is set to be increasing date order, then only the
- * objects with the most recent dates will be returned.
- *
- * The input lists become the property of QofQuery and are managed
- * by it.   They will be freed when the query is destroyed (or when
- * new lists are set).
- */
-void qof_query_set_sort_order (QofQuery *q,
-                               QofQueryParamList *primary_sort_params,
-                               QofQueryParamList *secondary_sort_params,
-                               QofQueryParamList *tertiary_sort_params);
-
-void qof_query_set_sort_options (QofQuery *q, int prim_op, int sec_op,
-                                 int tert_op);
-
-/**
- * When a query is run, the results are sorted before being returned.
- * This routine can be used to control the direction of the ordering.
- * A value of true indicates the sort will be in increasing order,
- * a value of false will order results in decreasing order.
- *
- * Note that if there are more results than the 'max-results' value,
- * then only the *last* max-results will be returned.  For example,
- * if the sort is set to be increasing date order, then only the
- * objects with the most recent dates will be returned.
- */
-void qof_query_set_sort_increasing (QofQuery *q, bool prim_inc,
-                                    bool sec_inc, bool tert_inc);
-
-
-/**
- * Set the maximum number of results that should be returned.
- * If 'max-results' is set to -1, then all of the results are
- * returned.  If there are more results than 'max-results',
- * then the result list is trimmed.  Note that there is an
- * important interplay between 'max-results' and the sort order:
- * only the last bit of results are returned.  For example,
- * if the sort order is set to be increasing date order, then
- * only the objects with the most recent dates will be returned.
- */
-void qof_query_set_max_results (QofQuery *q, int n);
-
-/** Compare two queries for equality.
- * Query terms are compared each to each.
- * This is a simplistic
- * implementation -- logical equivalences between different
- * and/or trees are ignored.
- */
-bool qof_query_equal (const QofQuery *q1, const QofQuery *q2);
-
-/** Log the Query
- *
- * \deprecated Do not call directly, use the standard log
- * module code: ::qof_log_set_level(QOF_MOD_QUERY, QOF_LOG_DEBUG);
- * or ::qof_log_set_default(QOF_LOG_DEBUG);
- */
-void qof_query_print (QofQuery *query);
-
-/** Return the type of data we're querying for */
-/*@ dependent @*/
-QofIdType qof_query_get_search_for (const QofQuery *q);
-
-/** Return the list of books we're using */
-GList * qof_query_get_books (QofQuery *q);
+//#include "guid.h"
+//#include <list>
+//#include "qofbook.h"
+//#include "qofquerycore.h"
+//#include "qofchoice.h"
+//
+//#define QOF_MOD_QUERY "qof.query"
+//
+///** A Query */
+//struct QofQuery;
+//
+///** Query Term Operators, for combining Query Terms */
+//enum QofQueryOp
+//{
+//    QOF_QUERY_AND = 1,
+//    QOF_QUERY_OR,
+//    QOF_QUERY_NAND,
+//    QOF_QUERY_NOR,
+//    QOF_QUERY_XOR
+//};
+//
+///** First/only term is same as 'and' */
+//#define QOF_QUERY_FIRST_TERM QOF_QUERY_AND
+//
+///** Default sort object type */
+//#define QUERY_DEFAULT_SORT      "QofQueryDefaultSort"
+//
+///** "Known" Object Parameters -- all objects must support these */
+//#define QOF_PARAM_BOOK    "book"
+//#define QOF_PARAM_GUID    "guid"
+//
+///** "Known" Object Parameters -- some objects might support these */
+//#define QOF_PARAM_KVP     "kvp"
+//#define QOF_PARAM_ACTIVE  "active"
+//#define QOF_PARAM_VERSION "version"
+//
+///* --------------------------------------------------------- */
+///** \name Query Subsystem Initialization and Shudown  */
+//// @{
+///** Subsystem initialization and shutdown. Call init() once
+// *  to initialize the query subsystem; call shutdown() to free
+// *  up any resources associated with the query subsystem.
+// *  Typically called during application startup, shutdown.
+// */
+//
+//void qof_query_init (void);
+//void qof_query_shutdown (void);
+//// @}
+//
+///* --------------------------------------------------------- */
+///** \name Low-Level API Functions */
+//// @{
+//
+//QofQueryParamList * qof_query_build_param_list (char const *param, ...);
+//
+///** Create a new query.
+// *  Before running the query, a 'search-for' type must be set
+// *  otherwise nothing will be returned.  The results of the query
+// *  is a list of the indicated search-for type.
+// *
+// *  Allocates and initializes a Query structure which must be
+// *  freed by the user with qof_query_destroy().  A newly-allocated
+// *  QofQuery object matches nothing (qof_query_run() will return NULL).
+// */
+//QofQuery * qof_query_create (void);
+//QofQuery * qof_query_create_for (QofIdTypeConst obj_type);
+//
+///** Frees the resources associate with a Query object.  */
+//void qof_query_destroy (QofQuery *q);
+//
+///** Set the object type to be searched for.  The results of
+// *  performing the query will be a list of this obj_type.
+// */
+//void qof_query_search_for (QofQuery *query, QofIdTypeConst obj_type);
+//
+///** Set the book to be searched.  Books contain/identify collections
+// *  of objects; the search will be performed over those books
+// *  specified with this function.  If no books are set, no results
+// *  will be returned (since there is nothing to search over).
+// *
+// *  You can search multiple books.  To specify multiple books, call
+// *  this function multiple times with different arguments.
+// * XXX needed qof_query_clear_books() to reset the list ...
+// */
+//void qof_query_set_book (QofQuery *q, QofBook *book);
+//
+//
+///** This is the general function that adds a new Query Term to a query.
+// * It will find the 'obj_type' object of the search item and compare
+// * the 'param_list' parameter to the predicate data via the comparator.
+// *
+// * The param_list is a recursive list of parameters.  For example, you
+// * can say 'split->memo' by creating a list of one element, "SPLIT_MEMO".
+// * You can say 'split->account->name' by creating a list of two elements,
+// * "SPLIT_ACCOUNT" and "ACCOUNT_NAME".  The list becomes the property of
+// * the Query.
+// *
+// * For example:
+// *
+// * acct_name_pred_data = make_string_pred_data(QOF_STRING_MATCH_CASEINSENSITIVE,
+// *                                          account_name);
+// * param_list = make_list (SPLIT_ACCOUNT, ACCOUNT_NAME, NULL);
+// * qof_query_add_term (query, param_list, QOF_COMPARE_EQUAL,
+// *                    acct_name_pred_data, QOF_QUERY_AND);
+// *
+// * Please note that QofQuery does not, at this time, support joins.
+// * That is, one cannot specify a predicate that is a parameter list.
+// * Put another way, one cannot search for objects where
+// *   obja->thingy == objb->stuff
+// */
+//
+//void qof_query_add_term (QofQuery *query, QofQueryParamList *param_list,
+//                         QofQueryPredData *pred_data, QofQueryOp op);
+//
+///** DOCUMENT ME !! */
+//void qof_query_add_guid_match (QofQuery *q, QofQueryParamList *param_list,
+//                               const GncGUID *guid, QofQueryOp op);
+///** DOCUMENT ME !! */
+//void qof_query_add_guid_list_match (QofQuery *q, QofQueryParamList *param_list,
+//                                    GList *guid_list, QofGuidMatch options,
+//                                    QofQueryOp op);
+//
+///** Handy-dandy convenience routines, avoids having to create
+// * a separate predicate for boolean matches.  We might want to
+// * create handy-dandy sugar routines for the other predicate types
+// * as well. */
+//void qof_query_add_boolean_match (QofQuery *q,
+//                                  QofQueryParamList *param_list,
+//                                  bool value,
+//                                  QofQueryOp op);
+//
+///** Perform the query, return the results.
+// *  The returned list is a list of the 'search-for' type that was
+// *  previously set with the qof_query_search_for() or the
+// *  qof_query_create_for() routines.  The returned list will have
+// *  been sorted using the indicated sort order, and trimmed to the
+// *  max_results length.
+// *
+// *  Do NOT free the resulting list.  This list is managed internally
+// *  by QofQuery.
+// */
+//GList * qof_query_run (QofQuery *query);
+//
+///** Return the results of the last query, without causing the query to
+// *  be re-run.  Do NOT free the resulting list.  This list is managed
+// *  internally by QofQuery.
+// */
+//GList * qof_query_last_run (QofQuery *query);
+//
+///** Perform a subquery, return the results.
+// *  Instead of running over a book, the subquery runs over the results
+// *  of the primary query.
+// *
+// *  Do NOT free the resulting list.  This list is managed internally
+// *  by QofQuery.
+// */
+//GList * qof_query_run_subquery (QofQuery *subquery,
+//                                const QofQuery* primary_query);
+//
+//template<typename T>
+//void qof_query_results_into(std::list<T> & dest, GList * src)
+//{
+//    for(GList * it = src; it; it = it->next)
+//    {
+//        dest.push_back(reinterpret_cast<T>(it->data));
+//    }
+//}
+//
+///** Remove all query terms from query.  query matches nothing
+// *  after qof_query_clear().
+// */
+//void qof_query_clear (QofQuery *query);
+//
+///** Remove query terms of a particular type from q.  The "type" of a term
+// *  is determined by the type of data that gets passed to the predicate
+// *  function.
+// * XXX ??? Huh? remove anything of that predicate type, or just
+// * the particular predicate ?
+// */
+//void qof_query_purge_terms (QofQuery *q, QofQueryParamList *param_list);
+//
+///** Return boolean FALSE if there are no terms in the query
+// *  Can be used as a predicate to see if the query has been
+// *  initialized (return value > 0) or is "blank" (return value == 0).
+// */
+//int qof_query_has_terms (QofQuery *q);
+//
+///** Return the number of terms in the canonical form of the query.
+// */
+//int qof_query_num_terms (QofQuery *q);
+//
+///** DOCUMENT ME !! */
+//bool  qof_query_has_term_type (QofQuery *q, QofQueryParamList *term_param);
+//GSList * qof_query_get_term_type (QofQuery *q, QofQueryParamList *term_param);
+//
+///** Make a copy of the indicated query */
+//QofQuery * qof_query_copy (QofQuery *q);
+//
+///** Make a copy of the indicated query, inverting the sense
+// *  of the search.  In other words, if the original query search
+// *  for all objects with a certain condition, the inverted query
+// *  will search for all object with NOT that condition.  The union
+// *  of the results returned by the original and inverted queries
+// *  equals the set of all searched objects. These to sets are
+// *  disjoint (share no members in common).
+// *
+// *  This will return a newly allocated QofQuery object, or NULL
+// *  on error. Free it with qof_query_destroy() when no longer needed.
+// */
+//QofQuery * qof_query_invert(QofQuery *q);
+//
+///** Combine two queries together using the Boolean set (logical)
+// *  operator 'op'.  For example, if the operator 'op' is set to
+// *  QUERY_AND, then the set of results returned by the query will
+// *  will be the Boolean set intersection of the results returned
+// *  by q1 and q2.  Similarly,  QUERY_OR maps to set union, etc.
+// *
+// *  Both queries must have compatible
+// *  search-types.  If both queries are set, they must search for the
+// *  same object type.  If only one is set, the resulting query will
+// *  search for the set type.  If neither query has the search-type set,
+// *  the result will be unset as well.
+// *
+// *  This will return a newly allocated QofQuery object, or NULL on
+// *  error. Free it with qof_query_destroy() when no longer needed.
+// *  Note that if either input query is NULL then the returned query is
+// *  NOT newly allocated -- it will return the non-NULL query.  You
+// *  only need to call this function when both q1 and q2 are non-NULL.
+// */
+//QofQuery * qof_query_merge(QofQuery *q1, QofQuery *q2, QofQueryOp op);
+//
+///** Like qof_query_merge, but this will merge a copy of q2 into q1.
+// *   q2 remains unchanged.
+// */
+//void qof_query_merge_in_place(QofQuery *q1, QofQuery *q2, QofQueryOp op);
+//
+///**
+// * When a query is run, the results are sorted before being returned.
+// * This routine can be used to set the parameters on which the sort will
+// * be performed.  Two objects in the result list will be compared using
+// * the 'primary_sort_params', and sorted based on that order.  If the
+// * comparison shows that they are equal, then the
+// * 'secondary_sort_params' will be used.  If still equal, then the
+// * tertiary parameters will be compared.  Any or all of these parameter
+// * lists may be NULL.  Any of these parameter lists may be set to
+// * QUERY_DEFAULT_SORT.
+// *
+// * Note that if there are more results than the 'max-results' value,
+// * then only the *last* max-results will be returned.  For example,
+// * if the sort is set to be increasing date order, then only the
+// * objects with the most recent dates will be returned.
+// *
+// * The input lists become the property of QofQuery and are managed
+// * by it.   They will be freed when the query is destroyed (or when
+// * new lists are set).
+// */
+//void qof_query_set_sort_order (QofQuery *q,
+//                               QofQueryParamList *primary_sort_params,
+//                               QofQueryParamList *secondary_sort_params,
+//                               QofQueryParamList *tertiary_sort_params);
+//
+//void qof_query_set_sort_options (QofQuery *q, int prim_op, int sec_op,
+//                                 int tert_op);
+//
+///**
+// * When a query is run, the results are sorted before being returned.
+// * This routine can be used to control the direction of the ordering.
+// * A value of true indicates the sort will be in increasing order,
+// * a value of false will order results in decreasing order.
+// *
+// * Note that if there are more results than the 'max-results' value,
+// * then only the *last* max-results will be returned.  For example,
+// * if the sort is set to be increasing date order, then only the
+// * objects with the most recent dates will be returned.
+// */
+//void qof_query_set_sort_increasing (QofQuery *q, bool prim_inc,
+//                                    bool sec_inc, bool tert_inc);
+//
+//
+///**
+// * Set the maximum number of results that should be returned.
+// * If 'max-results' is set to -1, then all of the results are
+// * returned.  If there are more results than 'max-results',
+// * then the result list is trimmed.  Note that there is an
+// * important interplay between 'max-results' and the sort order:
+// * only the last bit of results are returned.  For example,
+// * if the sort order is set to be increasing date order, then
+// * only the objects with the most recent dates will be returned.
+// */
+//void qof_query_set_max_results (QofQuery *q, int n);
+//
+///** Compare two queries for equality.
+// * Query terms are compared each to each.
+// * This is a simplistic
+// * implementation -- logical equivalences between different
+// * and/or trees are ignored.
+// */
+//bool qof_query_equal (const QofQuery *q1, const QofQuery *q2);
+//
+///** Log the Query
+// *
+// * \deprecated Do not call directly, use the standard log
+// * module code: ::qof_log_set_level(QOF_MOD_QUERY, QOF_LOG_DEBUG);
+// * or ::qof_log_set_default(QOF_LOG_DEBUG);
+// */
+//void qof_query_print (QofQuery *query);
+//
+///** Return the type of data we're querying for */
+///*@ dependent @*/
+//QofIdType qof_query_get_search_for (const QofQuery *q);
+//
+///** Return the list of books we're using */
+//GList * qof_query_get_books (QofQuery *q);
 
 // @}
 /* @} */

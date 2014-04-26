@@ -584,36 +584,36 @@ static QofObject gncEmployeeDesc =
 
 bool gncEmployeeRegister (void)
 {
-    static QofParam params[] =
-    {
-        { EMPLOYEE_ID, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetID, (QofSetterFunc)gncEmployeeSetID },
-        {
-            EMPLOYEE_USERNAME, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetUsername,
-            (QofSetterFunc)gncEmployeeSetUsername
-        },
-        {
-            EMPLOYEE_NAME, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetName,
-            (QofSetterFunc)gncEmployeeSetName
-        },
-        {
-            EMPLOYEE_LANGUAGE, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetLanguage,
-            (QofSetterFunc)gncEmployeeSetLanguage
-        },
-        { EMPLOYEE_ACL, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetAcl, (QofSetterFunc)gncEmployeeSetAcl },
-        {
-            EMPLOYEE_WORKDAY, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEmployeeGetWorkday,
-            (QofSetterFunc)gncEmployeeSetWorkday
-        },
-        { EMPLOYEE_RATE, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEmployeeGetRate, (QofSetterFunc)gncEmployeeSetRate },
-        { EMPLOYEE_ADDR, GNC_ID_ADDRESS, (QofAccessFunc)gncEmployeeGetAddr, (QofSetterFunc)qofEmployeeSetAddr },
-        { EMPLOYEE_CC,  GNC_ID_ACCOUNT, (QofAccessFunc)gncEmployeeGetCCard, (QofSetterFunc)gncEmployeeSetCCard },
-        { QOF_PARAM_ACTIVE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEmployeeGetActive, (QofSetterFunc)gncEmployeeSetActive },
-        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)qof_instance_get_book, NULL },
-        { QOF_PARAM_GUID, QOF_TYPE_GUID, (QofAccessFunc)qof_instance_get_guid, NULL },
-        { NULL },
-    };
-
-    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncEmployeeCompare, params);
+//    static QofParam params[] =
+//    {
+//        { EMPLOYEE_ID, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetID, (QofSetterFunc)gncEmployeeSetID },
+//        {
+//            EMPLOYEE_USERNAME, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetUsername,
+//            (QofSetterFunc)gncEmployeeSetUsername
+//        },
+//        {
+//            EMPLOYEE_NAME, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetName,
+//            (QofSetterFunc)gncEmployeeSetName
+//        },
+//        {
+//            EMPLOYEE_LANGUAGE, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetLanguage,
+//            (QofSetterFunc)gncEmployeeSetLanguage
+//        },
+//        { EMPLOYEE_ACL, QOF_TYPE_STRING, (QofAccessFunc)gncEmployeeGetAcl, (QofSetterFunc)gncEmployeeSetAcl },
+//        {
+//            EMPLOYEE_WORKDAY, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEmployeeGetWorkday,
+//            (QofSetterFunc)gncEmployeeSetWorkday
+//        },
+//        { EMPLOYEE_RATE, QOF_TYPE_NUMERIC, (QofAccessFunc)gncEmployeeGetRate, (QofSetterFunc)gncEmployeeSetRate },
+//        { EMPLOYEE_ADDR, GNC_ID_ADDRESS, (QofAccessFunc)gncEmployeeGetAddr, (QofSetterFunc)qofEmployeeSetAddr },
+//        { EMPLOYEE_CC,  GNC_ID_ACCOUNT, (QofAccessFunc)gncEmployeeGetCCard, (QofSetterFunc)gncEmployeeSetCCard },
+//        { QOF_PARAM_ACTIVE, QOF_TYPE_BOOLEAN, (QofAccessFunc)gncEmployeeGetActive, (QofSetterFunc)gncEmployeeSetActive },
+//        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)qof_instance_get_book, NULL },
+//        { QOF_PARAM_GUID, QOF_TYPE_GUID, (QofAccessFunc)qof_instance_get_guid, NULL },
+//        { NULL },
+//    };
+//
+//    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncEmployeeCompare, params);
 
     return qof_object_register (&gncEmployeeDesc);
 }

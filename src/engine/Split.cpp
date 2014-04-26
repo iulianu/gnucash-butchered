@@ -33,6 +33,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#include <algorithm>
 
 #include "qof.h"
 #include "qofbook.h"
@@ -1168,12 +1169,21 @@ xaccSplitOrderDateOnly (const Split *sa, const Split *sb)
     return -1;
 }
 
+bool xaccSplitOrderStrictWeak(const Split *sa, const Split *sb)
+{
+    return xaccSplitOrder(sa, sb) < 0;
+}
+
+bool xaccSplitOrderDateOnlyStrictWeak(const Split *sa, const Split *sb)
+{
+    return xaccSplitOrderDateOnly(sa, sb) < 0;
+}
+
 static bool
 get_corr_account_split(const Split *sa, const Split **retval)
 {
 
     const Split *current_split;
-    GList *node;
     gnc_numeric sa_value, current_value;
     bool sa_value_positive, current_value_positive, seen_one = FALSE;
 
@@ -1183,9 +1193,10 @@ get_corr_account_split(const Split *sa, const Split **retval)
     sa_value = xaccSplitGetValue (sa);
     sa_value_positive = gnc_numeric_positive_p(sa_value);
 
-    for (node = sa->parent->splits; node; node = node->next)
+    for (SplitList_t::iterator node = sa->parent->splits.begin();
+            node != sa->parent->splits.end(); node++)
     {
-        current_split = node->data;
+        current_split = *node;
         if (current_split == sa) continue;
 
         if (!xaccTransStillHasSplit(sa->parent, current_split)) continue;
@@ -1498,8 +1509,8 @@ xaccSplitSetParent(Split *s, Transaction *t)
         xaccSplitSetValue(s, xaccSplitGetValue(s));
 
         /* add ourselves to the new transaction's list of pending splits. */
-        if (NULL == g_list_find(t->splits, s))
-            t->splits = g_list_append(t->splits, s);
+        if (std::find(t->splits.begin(), t->splits.end(), s) == t->splits.end())
+            t->splits.push_back(s);
 
         ed.idx = -1; /* unused */
         qof_event_gen(t, GNC_EVENT_ITEM_ADDED, &ed);
@@ -1766,17 +1777,17 @@ static QofObject split_object_def =
     DI(.version_cmp       = ) (int (*)(gpointer, gpointer)) qof_instance_version_cmp,
 };
 
-static gpointer
-split_account_guid_getter (gpointer obj, const QofParam *p)
-{
-    Split *s = obj;
-    Account *acc;
-
-    if (!s) return NULL;
-    acc = xaccSplitGetAccount (s);
-    if (!acc) return NULL;
-    return ((gpointer)xaccAccountGetGUID (acc));
-}
+//static gpointer
+//split_account_guid_getter (gpointer obj, const QofParam *p)
+//{
+//    Split *s = obj;
+//    Account *acc;
+//
+//    if (!s) return NULL;
+//    acc = xaccSplitGetAccount (s);
+//    if (!acc) return NULL;
+//    return ((gpointer)xaccAccountGetGUID (acc));
+//}
 
 static double    /* internal use only */
 DxaccSplitGetShareAmount (const Split * split)
@@ -1784,11 +1795,11 @@ DxaccSplitGetShareAmount (const Split * split)
     return split ? gnc_numeric_to_double(xaccSplitGetAmount(split)) : 0.0;
 }
 
-static gpointer
-no_op (gpointer obj, const QofParam *p)
-{
-    return obj;
-}
+//static gpointer
+//no_op (gpointer obj, const QofParam *p)
+//{
+//    return obj;
+//}
 
 static void
 qofSplitSetParentTrans(Split *s, QofInstance *ent)
@@ -1810,104 +1821,104 @@ qofSplitSetAccount(Split *s, QofInstance *ent)
 
 bool xaccSplitRegister (void)
 {
-    static const QofParam params[] =
-    {
-        {
-            SPLIT_DATE_RECONCILED, QOF_TYPE_DATE,
-            (QofAccessFunc)xaccSplitRetDateReconciledTS,
-            (QofSetterFunc)xaccSplitSetDateReconciledTS
-        },
-
-        /* d-* are deprecated query params, should not be used in new
-         * queries, should be removed from old queries. */
-        {
-            "d-share-amount", QOF_TYPE_DOUBLE,
-            (QofAccessFunc)DxaccSplitGetShareAmount, NULL
-        },
-        {
-            "d-share-int64", QOF_TYPE_INT64,
-            (QofAccessFunc)qof_entity_get_guid, NULL
-        },
-        {
-            SPLIT_BALANCE, QOF_TYPE_NUMERIC,
-            (QofAccessFunc)xaccSplitGetBalance, NULL
-        },
-        {
-            SPLIT_CLEARED_BALANCE, QOF_TYPE_NUMERIC,
-            (QofAccessFunc)xaccSplitGetClearedBalance, NULL
-        },
-        {
-            SPLIT_RECONCILED_BALANCE, QOF_TYPE_NUMERIC,
-            (QofAccessFunc)xaccSplitGetReconciledBalance, NULL
-        },
-        {
-            SPLIT_MEMO, QOF_TYPE_STRING,
-            (QofAccessFunc)xaccSplitGetMemo, (QofSetterFunc)qofSplitSetMemo
-        },
-        {
-            SPLIT_ACTION, QOF_TYPE_STRING,
-            (QofAccessFunc)xaccSplitGetAction, (QofSetterFunc)qofSplitSetAction
-        },
-        {
-            SPLIT_RECONCILE, QOF_TYPE_CHAR,
-            (QofAccessFunc)xaccSplitGetReconcile,
-            (QofSetterFunc)qofSplitSetReconcile
-        },
-        {
-            SPLIT_AMOUNT, QOF_TYPE_NUMERIC,
-            (QofAccessFunc)xaccSplitGetAmount, (QofSetterFunc)qofSplitSetAmount
-        },
-        {
-            SPLIT_SHARE_PRICE, QOF_TYPE_NUMERIC,
-            (QofAccessFunc)xaccSplitGetSharePrice,
-            (QofSetterFunc)qofSplitSetSharePrice
-        },
-        {
-            SPLIT_VALUE, QOF_TYPE_DEBCRED,
-            (QofAccessFunc)xaccSplitGetValue, (QofSetterFunc)qofSplitSetValue
-        },
-        { SPLIT_TYPE, QOF_TYPE_STRING, (QofAccessFunc)xaccSplitGetType, NULL },
-        {
-            SPLIT_VOIDED_AMOUNT, QOF_TYPE_NUMERIC,
-            (QofAccessFunc)xaccSplitVoidFormerAmount, NULL
-        },
-        {
-            SPLIT_VOIDED_VALUE, QOF_TYPE_NUMERIC,
-            (QofAccessFunc)xaccSplitVoidFormerValue, NULL
-        },
-        { SPLIT_LOT, GNC_ID_LOT, (QofAccessFunc)xaccSplitGetLot, NULL },
-        {
-            SPLIT_TRANS, GNC_ID_TRANS,
-            (QofAccessFunc)xaccSplitGetParent,
-            (QofSetterFunc)qofSplitSetParentTrans
-        },
-        {
-            SPLIT_ACCOUNT, GNC_ID_ACCOUNT,
-            (QofAccessFunc)xaccSplitGetAccount, (QofSetterFunc)qofSplitSetAccount
-        },
-        { SPLIT_ACCOUNT_GUID, QOF_TYPE_GUID, split_account_guid_getter, NULL },
-        /*  these are no-ops to register the parameter names (for sorting) but
-            they return an allocated object which getters cannot do.  */
-        { SPLIT_ACCT_FULLNAME, SPLIT_ACCT_FULLNAME, no_op, NULL },
-        { SPLIT_CORR_ACCT_NAME, SPLIT_CORR_ACCT_NAME, no_op, NULL },
-        { SPLIT_CORR_ACCT_CODE, SPLIT_CORR_ACCT_CODE, no_op, NULL },
-        { SPLIT_KVP, QOF_TYPE_KVP, (QofAccessFunc)xaccSplitGetSlots, NULL },
-        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)xaccSplitGetBook, NULL },
-        {
-            QOF_PARAM_GUID, QOF_TYPE_GUID,
-            (QofAccessFunc)qof_entity_get_guid, NULL
-        },
-        { NULL },
-    };
-
-    qof_class_register (GNC_ID_SPLIT, (QofSortFunc)xaccSplitOrder, params);
-    qof_class_register (SPLIT_ACCT_FULLNAME,
-                        (QofSortFunc)xaccSplitCompareAccountFullNames, NULL);
-    qof_class_register (SPLIT_CORR_ACCT_NAME,
-                        (QofSortFunc)xaccSplitCompareOtherAccountFullNames,
-                        NULL);
-    qof_class_register (SPLIT_CORR_ACCT_CODE,
-                        (QofSortFunc)xaccSplitCompareOtherAccountCodes, NULL);
+//    static const QofParam params[] =
+//    {
+//        {
+//            SPLIT_DATE_RECONCILED, QOF_TYPE_DATE,
+//            (QofAccessFunc)xaccSplitRetDateReconciledTS,
+//            (QofSetterFunc)xaccSplitSetDateReconciledTS
+//        },
+//
+//        /* d-* are deprecated query params, should not be used in new
+//         * queries, should be removed from old queries. */
+//        {
+//            "d-share-amount", QOF_TYPE_DOUBLE,
+//            (QofAccessFunc)DxaccSplitGetShareAmount, NULL
+//        },
+//        {
+//            "d-share-int64", QOF_TYPE_INT64,
+//            (QofAccessFunc)qof_entity_get_guid, NULL
+//        },
+//        {
+//            SPLIT_BALANCE, QOF_TYPE_NUMERIC,
+//            (QofAccessFunc)xaccSplitGetBalance, NULL
+//        },
+//        {
+//            SPLIT_CLEARED_BALANCE, QOF_TYPE_NUMERIC,
+//            (QofAccessFunc)xaccSplitGetClearedBalance, NULL
+//        },
+//        {
+//            SPLIT_RECONCILED_BALANCE, QOF_TYPE_NUMERIC,
+//            (QofAccessFunc)xaccSplitGetReconciledBalance, NULL
+//        },
+//        {
+//            SPLIT_MEMO, QOF_TYPE_STRING,
+//            (QofAccessFunc)xaccSplitGetMemo, (QofSetterFunc)qofSplitSetMemo
+//        },
+//        {
+//            SPLIT_ACTION, QOF_TYPE_STRING,
+//            (QofAccessFunc)xaccSplitGetAction, (QofSetterFunc)qofSplitSetAction
+//        },
+//        {
+//            SPLIT_RECONCILE, QOF_TYPE_CHAR,
+//            (QofAccessFunc)xaccSplitGetReconcile,
+//            (QofSetterFunc)qofSplitSetReconcile
+//        },
+//        {
+//            SPLIT_AMOUNT, QOF_TYPE_NUMERIC,
+//            (QofAccessFunc)xaccSplitGetAmount, (QofSetterFunc)qofSplitSetAmount
+//        },
+//        {
+//            SPLIT_SHARE_PRICE, QOF_TYPE_NUMERIC,
+//            (QofAccessFunc)xaccSplitGetSharePrice,
+//            (QofSetterFunc)qofSplitSetSharePrice
+//        },
+//        {
+//            SPLIT_VALUE, QOF_TYPE_DEBCRED,
+//            (QofAccessFunc)xaccSplitGetValue, (QofSetterFunc)qofSplitSetValue
+//        },
+//        { SPLIT_TYPE, QOF_TYPE_STRING, (QofAccessFunc)xaccSplitGetType, NULL },
+//        {
+//            SPLIT_VOIDED_AMOUNT, QOF_TYPE_NUMERIC,
+//            (QofAccessFunc)xaccSplitVoidFormerAmount, NULL
+//        },
+//        {
+//            SPLIT_VOIDED_VALUE, QOF_TYPE_NUMERIC,
+//            (QofAccessFunc)xaccSplitVoidFormerValue, NULL
+//        },
+//        { SPLIT_LOT, GNC_ID_LOT, (QofAccessFunc)xaccSplitGetLot, NULL },
+//        {
+//            SPLIT_TRANS, GNC_ID_TRANS,
+//            (QofAccessFunc)xaccSplitGetParent,
+//            (QofSetterFunc)qofSplitSetParentTrans
+//        },
+//        {
+//            SPLIT_ACCOUNT, GNC_ID_ACCOUNT,
+//            (QofAccessFunc)xaccSplitGetAccount, (QofSetterFunc)qofSplitSetAccount
+//        },
+//        { SPLIT_ACCOUNT_GUID, QOF_TYPE_GUID, split_account_guid_getter, NULL },
+//        /*  these are no-ops to register the parameter names (for sorting) but
+//            they return an allocated object which getters cannot do.  */
+//        { SPLIT_ACCT_FULLNAME, SPLIT_ACCT_FULLNAME, no_op, NULL },
+//        { SPLIT_CORR_ACCT_NAME, SPLIT_CORR_ACCT_NAME, no_op, NULL },
+//        { SPLIT_CORR_ACCT_CODE, SPLIT_CORR_ACCT_CODE, no_op, NULL },
+//        { SPLIT_KVP, QOF_TYPE_KVP, (QofAccessFunc)xaccSplitGetSlots, NULL },
+//        { QOF_PARAM_BOOK, QOF_ID_BOOK, (QofAccessFunc)xaccSplitGetBook, NULL },
+//        {
+//            QOF_PARAM_GUID, QOF_TYPE_GUID,
+//            (QofAccessFunc)qof_entity_get_guid, NULL
+//        },
+//        { NULL },
+//    };
+//
+//    qof_class_register (GNC_ID_SPLIT, (QofSortFunc)xaccSplitOrder, params);
+//    qof_class_register (SPLIT_ACCT_FULLNAME,
+//                        (QofSortFunc)xaccSplitCompareAccountFullNames, NULL);
+//    qof_class_register (SPLIT_CORR_ACCT_NAME,
+//                        (QofSortFunc)xaccSplitCompareOtherAccountFullNames,
+//                        NULL);
+//    qof_class_register (SPLIT_CORR_ACCT_CODE,
+//                        (QofSortFunc)xaccSplitCompareOtherAccountCodes, NULL);
 
     return qof_object_register (&split_object_def);
 }

@@ -47,32 +47,8 @@
 #include "qof.h"
 #include "gnc-engine.h"
 #include "policy.h"
-#include <list>
 #include <string>
 
-/** Iulian TODO */
-/* ----> */
-#include <iterator>
-
-/** Function for compatibility with g_list_index */
-template<typename T>
-int list_index_of(const std::list<T> & list, const T& el)
-{
-    typename std::list<T>::const_iterator beg = list.begin();
-    typename std::list<T>::const_iterator end = list.end();
-    typename std::list<T>::const_iterator pos = find(beg, end, el);
-    if(pos != end)
-    {
-        return std::distance(beg, pos);
-    }
-    else
-    {
-        return -1;
-    }
-}
-/* <---- */
-
-typedef std::list<Account*> AccountList_t;
 
 typedef gnc_numeric (*xaccGetBalanceFn)( const Account *account );
 
@@ -968,7 +944,7 @@ uint32_t xaccAccountTypesValid(void);
  * of the list. No other part of the code should have access to the
  * internal data structure used by this object.
  */
-SplitList* xaccAccountGetSplitList (const Account *account);
+SplitList_t xaccAccountGetSplitList (const Account *account);
 
 /** The xaccAccountMoveAllSplits() routine reassigns each of the splits
  *  in accfrom to accto. */
@@ -1263,7 +1239,7 @@ void gnc_account_tree_begin_staged_transaction_traversals(Account *acc);
  *    marker for each transaction which is a parent of one of the
  *    splits in the list.
  */
-void xaccSplitsBeginStagedTransactionTraversals(SplitList *splits);
+void xaccSplitsBeginStagedTransactionTraversals(SplitList_t &splits);
 
 /** xaccAccountBeginStagedTransactionTraversals() resets the traversal
  *    marker for each transaction which is a parent of one of the

@@ -111,21 +111,21 @@ GNCLedgerDisplay2 * gnc_ledger_display2_gl (void);
  **/
 GNCLedgerDisplay2 * gnc_ledger_display2_template_gl (char *id);
 
-/* display a general ledger for an arbitrary query */
-GNCLedgerDisplay2 * gnc_ledger_display2_query (Query *query,
-        SplitRegisterType2 type,
-        SplitRegisterStyle2 style);
-
-/* Set the query used for a register. */
-void gnc_ledger_display2_set_query (GNCLedgerDisplay2 *ledger_display,
-                                   Query *q);
-
-/* return the query associated with a ledger */
-Query * gnc_ledger_display2_get_query (GNCLedgerDisplay2 *ld);
-
-/* If the given ledger display still exists, return it. Otherwise,
- * return NULL */
-GNCLedgerDisplay2 * gnc_ledger_display2_find_by_query (Query *q);
+///* display a general ledger for an arbitrary query */
+//GNCLedgerDisplay2 * gnc_ledger_display2_query (Query *query,
+//        SplitRegisterType2 type,
+//        SplitRegisterStyle2 style);
+//
+///* Set the query used for a register. */
+//void gnc_ledger_display2_set_query (GNCLedgerDisplay2 *ledger_display,
+//                                   Query *q);
+//
+///* return the query associated with a ledger */
+//Query * gnc_ledger_display2_get_query (GNCLedgerDisplay2 *ld);
+//
+///* If the given ledger display still exists, return it. Otherwise,
+// * return NULL */
+//GNCLedgerDisplay2 * gnc_ledger_display2_find_by_query (Query *q);
 
 /* redisplay/redraw only the indicated window. Both routines do same
  * thing, they differ only by the argument they take. */

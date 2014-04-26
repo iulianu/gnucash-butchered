@@ -514,7 +514,7 @@ void gnc_split_register_cancel_cursor_trans_changes (SplitRegister *reg);
  *
  *  @param default_account an account to provide defaults for the blank split
  */
-void gnc_split_register_load (SplitRegister *reg, GList * slist,
+void gnc_split_register_load (SplitRegister *reg, SplitList_t &slist,
                               Account *default_account);
 
 /** Copy the contents of the current cursor to a split. The split and

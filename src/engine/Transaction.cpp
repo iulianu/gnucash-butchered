@@ -193,10 +193,10 @@ xaccTransStillHasSplit(const Transaction *trans, const Split *s)
 
 /* Executes 'cmd_block' for each split currently in the transaction,
  * using the in-edit state.  Use the variable 's' for each split. */
-#define FOR_EACH_SPLIT(trans, cmd_block) do {                           \
-        GList *splits;                                                  \
-        for (splits = (trans)->splits; splits; splits = splits->next) { \
-            Split *s = splits->data;                                    \
+#define FOR_EACH_SPLIT(trans, cmd_block) do {                                       \
+        const SplitList_t &splits = (trans)->splits;                                      \
+        for (SplitList_t::const_iterator it = splits.begin(); it != splits.end(); it++) { \
+            Split *s = *it;                                                         \
             if (xaccTransStillHasSplit(trans, s)) {                     \
                 cmd_block;                                              \
             }                                                           \
@@ -213,11 +213,10 @@ G_INLINE_FUNC void gen_event_trans (Transaction *trans);
 void gen_event_trans (Transaction *trans)
 {
 #ifndef REGISTER_STILL_DEPENDS_ON_ACCOUNT_EVENTS
-    GList *node;
-
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         Account *account = s->acc;
         GNCLot *lot = s->lot;
         if (account)
@@ -244,7 +243,6 @@ Transaction::Transaction()
     this->description = CACHE_INSERT("");
 
     this->common_currency = NULL;
-    this->splits = NULL;
 
     this->date_entered.tv_sec  = 0;
     this->date_entered.tv_nsec = 0;
@@ -332,29 +330,30 @@ xaccTransDump (const Transaction *trans, const char *tag)
 void
 xaccTransSortSplits (Transaction *trans)
 {
-    GList *node, *new_list = NULL;
+    SplitList_t new_list;
     Split *split;
 
     /* first debits */
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        split = node->data;
+        split = *node;
         if (gnc_numeric_negative_p (xaccSplitGetValue(split)))
             continue;
-        new_list = g_list_append(new_list, split);
+        new_list.push_back(split);
     }
 
     /* then credits */
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        split = node->data;
+        split = *node;
         if (!gnc_numeric_negative_p (xaccSplitGetValue(split)))
             continue;
-        new_list = g_list_append(new_list, split);
+        new_list.push_back(split);
     }
 
     /* install newly sorted list */
-    g_list_free(trans->splits);
     trans->splits = new_list;
 }
 
@@ -371,17 +370,17 @@ Transaction *
 xaccDupeTransaction (const Transaction *from)
 {
     Transaction *to;
-    GList *node;
 
     to = new Transaction; //g_object_new (GNC_TYPE_TRANSACTION, NULL);
 
     to->num         = CACHE_INSERT (from->num);
     to->description = CACHE_INSERT (from->description);
 
-    to->splits = g_list_copy (from->splits);
-    for (node = to->splits; node; node = node->next)
+    to->splits = from->splits;
+    for (SplitList_t::iterator node = to->splits.begin();
+            node != to->splits.end(); node++)
     {
-        node->data = xaccDupeSplit (node->data);
+        *node = xaccDupeSplit (*node);
     }
 
     to->date_entered = from->date_entered;
@@ -412,7 +411,6 @@ xaccTransClone (const Transaction *from)
 {
     Transaction *to;
     Split *split;
-    GList *node;
 
     qof_event_suspend();
     to = new Transaction; // g_object_new (GNC_TYPE_TRANSACTION, NULL);
@@ -432,11 +430,12 @@ xaccTransClone (const Transaction *from)
     to->kvp_data    = kvp_frame_copy (from->kvp_data);
 
     xaccTransBeginEdit(to);
-    for (node = from->splits; node; node = node->next)
+    for (SplitList_t::const_iterator node = from->splits.begin();
+            node != from->splits.end(); node++)
     {
-        split = xaccSplitClone(node->data);
+        split = xaccSplitClone(*node);
         split->parent = to;
-        to->splits = g_list_append (to->splits, split);
+        to->splits.push_back(split);
     }
     qof_instance_set_dirty(QOF_INSTANCE(to));
     xaccTransCommitEdit(to);
@@ -497,7 +496,6 @@ xaccTransCopyFromClipBoard(const Transaction *from_trans, Transaction *to_trans,
 {
     Timespec ts = {0,0};
     bool change_accounts = FALSE;
-    GList *node;
 
     if (!from_trans || !to_trans)
         return;
@@ -518,11 +516,12 @@ xaccTransCopyFromClipBoard(const Transaction *from_trans, Transaction *to_trans,
     }
 
     /* Each new split will be parented to 'to' */
-    for (node = from_trans->splits; node; node = node->next)
+    for (SplitList_t::const_iterator node = from_trans->splits.begin();
+            node != from_trans->splits.end(); node++)
     {
         Split *new_split = xaccMallocSplit( qof_instance_get_book(QOF_INSTANCE(from_trans)));
-        xaccSplitCopyOnto(node->data, new_split);
-        if (change_accounts && xaccSplitGetAccount(node->data) == from_acc)
+        xaccSplitCopyOnto(*node, new_split);
+        if (change_accounts && xaccSplitGetAccount(*node) == from_acc)
             xaccSplitSetAccount(new_split, to_acc);
         xaccSplitSetParent(new_split, to_trans);
     }
@@ -537,8 +536,6 @@ xaccTransCopyFromClipBoard(const Transaction *from_trans, Transaction *to_trans,
 static void
 xaccFreeTransaction (Transaction *trans)
 {
-    GList *node;
-
     if (!trans) return;
 
     ENTER ("(addr=%p)", trans);
@@ -550,10 +547,9 @@ xaccFreeTransaction (Transaction *trans)
     }
 
     /* free up the destination splits */
-    for (node = trans->splits; node; node = node->next)
-        xaccFreeSplit (node->data);
-    g_list_free (trans->splits);
-    trans->splits = NULL;
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
+        xaccFreeSplit (*node);
 
     /* free up transaction strings */
     CACHE_REMOVE(trans->num);
@@ -602,6 +598,17 @@ compare_split_guids (gconstpointer a, gconstpointer b)
     if (!sa || !sb) return 1;
 
     return guid_compare (xaccSplitGetGUID (sa), xaccSplitGetGUID (sb));
+}
+
+static Split* find_by_comparing_split_guids(const SplitList_t &splits, Split * split_a)
+{
+    for(SplitList_t::const_iterator it = splits.begin(); it != splits.end(); it++)
+    {
+        Split* split_b = *it;
+        if(0 == compare_split_guids(split_b, split_a))
+            return split_b;
+    }
+    return NULL;
 }
 
 bool
@@ -698,36 +705,33 @@ xaccTransEqual(const Transaction *ta, const Transaction *tb,
 
     if (check_splits)
     {
-        if ((!ta->splits && tb->splits) || (!tb->splits && ta->splits))
+        if ((ta->splits.empty() && (!tb->splits.empty())) || 
+                (tb->splits.empty() && (!ta->splits.empty())))
         {
             PWARN ("only one has splits");
             return FALSE;
         }
 
-        if (ta->splits && tb->splits)
+        if ((!ta->splits.empty()) && (!tb->splits.empty()))
         {
-            GList *node_a, *node_b;
-
-            for (node_a = ta->splits, node_b = tb->splits;
-                    node_a;
-                    node_a = node_a->next, node_b = node_b->next)
+            SplitList_t::const_iterator node_a, node_b;
+            for (node_a = ta->splits.begin(), node_b = tb->splits.begin();
+                    node_a != ta->splits.end();
+                    node_a++, node_b++)
             {
-                Split *split_a = node_a->data;
-                Split *split_b;
+                Split *split_a = *node_a;
+                Split *split_b = *node_b; // But may get overridden below.
 
                 /* don't presume that the splits are in the same order */
                 if (!assume_ordered)
-                    node_b = g_list_find_custom (tb->splits, split_a,
-                                                 compare_split_guids);
+                    split_b = find_by_comparing_split_guids(tb->splits, split_a);
 
-                if (!node_b)
+                if (!split_b)
                 {
                     PWARN ("first has split %s and second does not",
                            guid_to_string (xaccSplitGetGUID (split_a)));
                     return FALSE;
                 }
-
-                split_b = node_b->data;
 
                 if (!xaccSplitEqual (split_a, split_b, check_guids, check_balances,
                                      FALSE))
@@ -743,7 +747,7 @@ xaccTransEqual(const Transaction *ta, const Transaction *tb,
                 }
             }
 
-            if (g_list_length (ta->splits) != g_list_length (tb->splits))
+            if (ta->splits.size() != tb->splits.size())
             {
                 PWARN ("different number of splits");
                 return FALSE;
@@ -948,7 +952,6 @@ xaccTransGetRateForCommodity(const Transaction *trans,
                              const gnc_commodity *split_com,
                              const Split *split, gnc_numeric *rate)
 {
-    GList *splits;
     gnc_commodity *trans_curr;
 
     trans_curr = xaccTransGetCurrency (trans);
@@ -959,9 +962,10 @@ xaccTransGetRateForCommodity(const Transaction *trans,
         return TRUE;
     }
 
-    for (splits = trans->splits; splits; splits = splits->next)
+    for (SplitList_t::const_iterator it = trans->splits.begin();
+            it != trans->splits.end(); it++)
     {
-        Split *s = splits->data;
+        Split *s = *it;
         gnc_commodity *comm;
 
         if (!xaccTransStillHasSplit (trans, s)) continue;
@@ -993,7 +997,6 @@ gnc_numeric
 xaccTransGetAccountConvRate(const Transaction *txn, const Account *acc)
 {
     gnc_numeric amount, value, convrate;
-    GList *splits;
     Split *s;
     bool found_acc_match = FALSE;
     gnc_commodity *acc_commod = xaccAccountGetCommodity(acc);
@@ -1006,12 +1009,13 @@ xaccTransGetAccountConvRate(const Transaction *txn, const Account *acc)
     if (gnc_commodity_equal(acc_commod, xaccTransGetCurrency(txn)))
         return gnc_numeric_create(1, 1);
 
-    for (splits = txn->splits; splits; splits = splits->next)
+    for (SplitList_t::const_iterator it = txn->splits.begin();
+            it != txn->splits.end(); it++)
     {
         Account *split_acc;
         gnc_commodity *split_commod;
 
-        s = splits->data;
+        s = *it;
 
         if (!xaccTransStillHasSplit(txn, s))
             continue;
@@ -1053,15 +1057,15 @@ gnc_numeric
 xaccTransGetAccountBalance (const Transaction *trans,
                             const Account *account)
 {
-    GList *node;
     Split *last_split = NULL;
 
     // Not really the appropriate error value.
     g_return_val_if_fail(account && trans, gnc_numeric_error(GNC_ERROR_ARG));
 
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::const_iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        Split *split = node->data;
+        Split *split = *node;
 
         if (!xaccTransStillHasSplit(trans, split))
             continue;
@@ -1158,10 +1162,10 @@ xaccTransDestroy (Transaction *trans)
 static void
 destroy_gains (Transaction *trans)
 {
-    SplitList *node;
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         if (!xaccTransStillHasSplit(trans, s))
             continue;
 
@@ -1178,7 +1182,6 @@ destroy_gains (Transaction *trans)
 static void
 do_destroy (Transaction *trans)
 {
-    SplitList *node;
     bool shutting_down = qof_book_shutting_down(qof_instance_get_book(trans));
 
     /* If there are capital-gains transactions associated with this,
@@ -1200,24 +1203,24 @@ do_destroy (Transaction *trans)
        done for the next split, then a split will still be on the split list after it
        has been freed.  This can cause other parts of the code (e.g. in xaccSplitDestroy())
        to reference the split after it has been freed. */
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         if (s->parent == trans)
         {
             xaccSplitDestroy(s);
         }
     }
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         if (s->parent == trans)
         {
             xaccSplitCommitEdit(s);
         }
     }
-    g_list_free (trans->splits);
-    trans->splits = NULL;
     xaccFreeTransaction (trans);
 }
 
@@ -1261,17 +1264,18 @@ static void trans_on_error(Transaction *trans, QofBackendError errcode)
 
 static void trans_cleanup_commit(Transaction *trans)
 {
-    GList *slist, *node;
+    SplitList_t slist;
 
     /* ------------------------------------------------- */
     /* Make sure all associated splits are in proper order
      * in their accounts with the correct balances. */
 
     /* Iterate over existing splits */
-    slist = g_list_copy(trans->splits);
-    for (node = slist; node; node = node->next)
+    slist = trans->splits;
+    for (SplitList_t::iterator node = slist.begin();
+            node != slist.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         if (!qof_instance_is_dirty(QOF_INSTANCE(s)))
             continue;
 
@@ -1281,8 +1285,8 @@ static void trans_cleanup_commit(Transaction *trans)
                was destroyed, drop from list */
             GncEventData ed;
             ed.node = trans;
-            ed.idx = g_list_index(trans->splits, s);
-            trans->splits = g_list_remove(trans->splits, s);
+            ed.idx = list_index_of(trans->splits, s);
+            trans->splits.remove(s);
             qof_event_gen(s, QOF_EVENT_REMOVE, &ed);
         }
 
@@ -1295,7 +1299,6 @@ static void trans_cleanup_commit(Transaction *trans)
             xaccSplitCommitEdit(s);
         }
     }
-    g_list_free(slist);
 
     if (!qof_book_is_readonly(qof_instance_get_book(trans)))
         xaccTransWriteLog (trans, 'C');
@@ -1398,10 +1401,8 @@ xaccTransCommitEdit (Transaction *trans)
 void
 xaccTransRollbackEdit (Transaction *trans)
 {
-    GList *node, *onode;
     QofBackend *be;
     Transaction *orig;
-    GList *slist;
     int num_preexist, i;
     ENTER ("trans addr=%p\n", trans);
 
@@ -1419,19 +1420,22 @@ xaccTransRollbackEdit (Transaction *trans)
     /* The splits at the front of trans->splits are exactly the same
        splits as in the original, but some of them may have changed, so
        we restore only those. */
-    num_preexist = g_list_length(orig->splits);
-    slist = g_list_copy(trans->splits);
-    for (i = 0, node = slist, onode = orig->splits; node;
-            i++, node = node->next, onode = onode ? onode->next : NULL)
+    num_preexist = orig->splits.size();
+    SplitList_t slist = trans->splits;
+    SplitList_t::iterator node;
+    SplitList_t::iterator onode;
+    for (i = 0, node = slist.begin(), onode = orig->splits.begin();
+            node != slist.end();
+            i++, node++, onode++)
     {
-        Split *s = node->data;
+        Split *s = *node;
 
         if (!qof_instance_is_dirty(QOF_INSTANCE(s)))
             continue;
 
         if (i < num_preexist)
         {
-            Split *so = onode->data;
+            Split *so = *onode;
 
             xaccSplitRollbackEdit(s);
             SWAP(s->action, so->action);
@@ -1452,13 +1456,13 @@ xaccTransRollbackEdit (Transaction *trans)
             /* Potentially added splits */
             if (trans != xaccSplitGetParent(s))
             {
-                trans->splits = g_list_remove(trans->splits, s);
+                trans->splits.remove(s);
                 /* New split added, but then moved to another
                    transaction */
                 continue;
             }
             xaccSplitRollbackEdit(s);
-            trans->splits = g_list_remove(trans->splits, s);
+            trans->splits.remove(s);
             g_assert(trans != xaccSplitGetParent(s));
             /* NB: our memory management policy here is that a new split
                added to the transaction which is then rolled-back still
@@ -1471,9 +1475,6 @@ xaccTransRollbackEdit (Transaction *trans)
             }
         }
     }
-    g_list_free(slist);
-    g_list_free(orig->splits);
-    orig->splits = NULL;
 
     /* Now that the engine copy is back to its original version,
      * get the backend to fix it in the database */
@@ -1859,10 +1860,12 @@ xaccTransGetSplitIndex(const Transaction *trans, const Split *split)
     return -1;
 }
 
-SplitList *
+SplitList_t
 xaccTransGetSplitList (const Transaction *trans)
 {
-    return trans ? trans->splits : NULL;
+    SplitList_t splits;
+    if(trans) splits = trans->splits;
+    return splits;
 }
 
 int
@@ -2073,11 +2076,11 @@ bool
 xaccTransHasReconciledSplitsByAccount (const Transaction *trans,
                                        const Account *account)
 {
-    GList *node;
-
-    for (node = xaccTransGetSplitList (trans); node; node = node->next)
+    SplitList_t splits = xaccTransGetSplitList (trans);
+    for (SplitList_t::iterator node = splits.begin(); 
+            node != splits.end(); node++)
     {
-        Split *split = node->data;
+        Split *split = *node;
 
         if (!xaccTransStillHasSplit(trans, split))
             continue;
@@ -2110,11 +2113,11 @@ xaccTransHasSplitsInStateByAccount (const Transaction *trans,
                                     const char state,
                                     const Account *account)
 {
-    GList *node;
-
-    for (node = xaccTransGetSplitList (trans); node; node = node->next)
+    SplitList_t splits = xaccTransGetSplitList (trans);
+    for (SplitList_t::iterator node = splits.begin(); 
+            node != splits.end(); node++)
     {
-        Split *split = node->data;
+        Split *split = *node;
 
         if (!xaccTransStillHasSplit(trans, split))
             continue;
@@ -2314,12 +2317,12 @@ xaccTransScrubSplits (Transaction *trans)
 static void
 xaccTransScrubGainsDate (Transaction *trans)
 {
-    SplitList *node;
     Timespec ts = {0, 0};
 //restart_search:
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
 
         if (!xaccTransStillHasSplit(trans, s)) continue;
         xaccSplitDetermineGainStatus(s);
@@ -2346,8 +2349,6 @@ xaccTransScrubGainsDate (Transaction *trans)
 void
 xaccTransScrubGains (Transaction *trans, Account *gain_acc)
 {
-    SplitList *node;
-
     ENTER("(trans=%p)", trans);
     /* Lock down posted date, its to be synced to the posted date
      * for the source of the cap gains. */
@@ -2355,9 +2356,10 @@ xaccTransScrubGains (Transaction *trans, Account *gain_acc)
 
     /* Fix up the split amount */
 restart:
-    for (node = trans->splits; node; node = node->next)
+    for (SplitList_t::iterator node = trans->splits.begin();
+            node != trans->splits.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
 
         if (!xaccTransStillHasSplit(trans, s)) continue;
 
@@ -2446,87 +2448,87 @@ trans_is_balanced_p (const Transaction *trans)
 
 bool xaccTransRegister (void)
 {
-    static QofParam params[] =
-    {
-        {
-            TRANS_NUM, QOF_TYPE_STRING,
-            (QofAccessFunc)xaccTransGetNum,
-            (QofSetterFunc)qofTransSetNum,
-            qof_string_number_compare_func
-        },
-        {
-            TRANS_DESCRIPTION, QOF_TYPE_STRING,
-            (QofAccessFunc)xaccTransGetDescription,
-            (QofSetterFunc)qofTransSetDescription
-        },
-        {
-            TRANS_DATE_ENTERED, QOF_TYPE_DATE,
-            (QofAccessFunc)xaccTransRetDateEnteredTS,
-            (QofSetterFunc)qofTransSetDateEntered
-        },
-        {
-            TRANS_DATE_POSTED, QOF_TYPE_DATE,
-            (QofAccessFunc)xaccTransRetDatePostedTS,
-            (QofSetterFunc)qofTransSetDatePosted
-        },
-        {
-            TRANS_DATE_DUE, QOF_TYPE_DATE,
-            (QofAccessFunc)xaccTransRetDateDueTS, NULL
-        },
-        {
-            TRANS_IMBALANCE, QOF_TYPE_NUMERIC,
-            (QofAccessFunc)xaccTransGetImbalanceValue, NULL
-        },
-        {
-            TRANS_NOTES, QOF_TYPE_STRING,
-            (QofAccessFunc)xaccTransGetNotes,
-            (QofSetterFunc)qofTransSetNotes
-        },
-        {
-            TRANS_IS_CLOSING, QOF_TYPE_BOOLEAN,
-            (QofAccessFunc)xaccTransGetIsClosingTxn, NULL
-        },
-        {
-            TRANS_IS_BALANCED, QOF_TYPE_BOOLEAN,
-            (QofAccessFunc)trans_is_balanced_p, NULL
-        },
-        {
-            TRANS_TYPE, QOF_TYPE_CHAR,
-            (QofAccessFunc)xaccTransGetTxnType,
-            (QofSetterFunc)xaccTransSetTxnType
-        },
-        {
-            TRANS_VOID_STATUS, QOF_TYPE_BOOLEAN,
-            (QofAccessFunc)xaccTransGetVoidStatus, NULL
-        },
-        {
-            TRANS_VOID_REASON, QOF_TYPE_STRING,
-            (QofAccessFunc)xaccTransGetVoidReason, NULL
-        },
-        {
-            TRANS_VOID_TIME, QOF_TYPE_DATE,
-            (QofAccessFunc)xaccTransGetVoidTime, NULL
-        },
-        {
-            TRANS_SPLITLIST, GNC_ID_SPLIT,
-            (QofAccessFunc)xaccTransGetSplitList, NULL
-        },
-        {
-            TRANS_KVP, QOF_TYPE_KVP,
-            (QofAccessFunc)qof_instance_get_slots, NULL
-        },
-        {
-            QOF_PARAM_BOOK, QOF_ID_BOOK,
-            (QofAccessFunc)qof_instance_get_book, NULL
-        },
-        {
-            QOF_PARAM_GUID, QOF_TYPE_GUID,
-            (QofAccessFunc)qof_entity_get_guid, NULL
-        },
-        { NULL },
-    };
-
-    qof_class_register (GNC_ID_TRANS, (QofSortFunc)xaccTransOrder, params);
+//    static QofParam params[] =
+//    {
+//        {
+//            TRANS_NUM, QOF_TYPE_STRING,
+//            (QofAccessFunc)xaccTransGetNum,
+//            (QofSetterFunc)qofTransSetNum,
+//            qof_string_number_compare_func
+//        },
+//        {
+//            TRANS_DESCRIPTION, QOF_TYPE_STRING,
+//            (QofAccessFunc)xaccTransGetDescription,
+//            (QofSetterFunc)qofTransSetDescription
+//        },
+//        {
+//            TRANS_DATE_ENTERED, QOF_TYPE_DATE,
+//            (QofAccessFunc)xaccTransRetDateEnteredTS,
+//            (QofSetterFunc)qofTransSetDateEntered
+//        },
+//        {
+//            TRANS_DATE_POSTED, QOF_TYPE_DATE,
+//            (QofAccessFunc)xaccTransRetDatePostedTS,
+//            (QofSetterFunc)qofTransSetDatePosted
+//        },
+//        {
+//            TRANS_DATE_DUE, QOF_TYPE_DATE,
+//            (QofAccessFunc)xaccTransRetDateDueTS, NULL
+//        },
+//        {
+//            TRANS_IMBALANCE, QOF_TYPE_NUMERIC,
+//            (QofAccessFunc)xaccTransGetImbalanceValue, NULL
+//        },
+//        {
+//            TRANS_NOTES, QOF_TYPE_STRING,
+//            (QofAccessFunc)xaccTransGetNotes,
+//            (QofSetterFunc)qofTransSetNotes
+//        },
+//        {
+//            TRANS_IS_CLOSING, QOF_TYPE_BOOLEAN,
+//            (QofAccessFunc)xaccTransGetIsClosingTxn, NULL
+//        },
+//        {
+//            TRANS_IS_BALANCED, QOF_TYPE_BOOLEAN,
+//            (QofAccessFunc)trans_is_balanced_p, NULL
+//        },
+//        {
+//            TRANS_TYPE, QOF_TYPE_CHAR,
+//            (QofAccessFunc)xaccTransGetTxnType,
+//            (QofSetterFunc)xaccTransSetTxnType
+//        },
+//        {
+//            TRANS_VOID_STATUS, QOF_TYPE_BOOLEAN,
+//            (QofAccessFunc)xaccTransGetVoidStatus, NULL
+//        },
+//        {
+//            TRANS_VOID_REASON, QOF_TYPE_STRING,
+//            (QofAccessFunc)xaccTransGetVoidReason, NULL
+//        },
+//        {
+//            TRANS_VOID_TIME, QOF_TYPE_DATE,
+//            (QofAccessFunc)xaccTransGetVoidTime, NULL
+//        },
+//        {
+//            TRANS_SPLITLIST, GNC_ID_SPLIT,
+//            (QofAccessFunc)xaccTransGetSplitList, NULL
+//        },
+//        {
+//            TRANS_KVP, QOF_TYPE_KVP,
+//            (QofAccessFunc)qof_instance_get_slots, NULL
+//        },
+//        {
+//            QOF_PARAM_BOOK, QOF_ID_BOOK,
+//            (QofAccessFunc)qof_instance_get_book, NULL
+//        },
+//        {
+//            QOF_PARAM_GUID, QOF_TYPE_GUID,
+//            (QofAccessFunc)qof_entity_get_guid, NULL
+//        },
+//        { NULL },
+//    };
+//
+//    qof_class_register (GNC_ID_TRANS, (QofSortFunc)xaccTransOrder, params);
 
     return qof_object_register (&trans_object_def);
 }

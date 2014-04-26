@@ -341,7 +341,7 @@ int xaccTransGetSplitIndex(const Transaction *trans, const Split *split);
     @return The list of splits. This list must NOT be modified.  Do *NOT* free
     this list when you are done with it. */
 /*@ dependent @*/
-SplitList *   xaccTransGetSplitList (const Transaction *trans);
+SplitList_t  xaccTransGetSplitList (const Transaction *trans);
 bool      xaccTransStillHasSplit(const Transaction *trans, const Split *s);
 
 /** Set the transaction to be ReadOnly by setting a non-NULL value as "reason".

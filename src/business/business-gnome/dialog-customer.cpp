@@ -118,7 +118,7 @@ typedef enum
 struct _customer_select_window
 {
     QofBook *	book;
-    QofQuery *	q;
+//    QofQuery *	q;
 };
 
 struct _customer_window
@@ -883,78 +883,78 @@ free_userdata_cb (gpointer user_data)
 
     g_return_if_fail (sw);
 
-    qof_query_destroy (sw->q);
+//    qof_query_destroy (sw->q);
     g_free (sw);
 }
 
 GNCSearchWindow *
 gnc_customer_search (GncCustomer *start, QofBook *book)
 {
-    QofQuery *q, *q2 = NULL;
-    QofIdType type = GNC_CUSTOMER_MODULE_NAME;
-    struct _customer_select_window *sw;
-    static GList *params = NULL;
-    static GList *columns = NULL;
-    static GNCSearchCallbackButton buttons[] =
-    {
-        { N_("View/Edit Customer"), edit_customer_cb, NULL, TRUE},
-        { N_("Customer's Jobs"), jobs_customer_cb, NULL, TRUE},
-        //    { N_("Customer's Orders"), order_customer_cb, NULL, TRUE},
-        { N_("Customer's Invoices"), invoice_customer_cb, NULL, TRUE},
-        { N_("Process Payment"), payment_customer_cb, NULL, FALSE},
-        { NULL },
-    };
-    (void)order_customer_cb;
-
-    g_return_val_if_fail (book, NULL);
-
-    /* Build parameter list in reverse order */
-    if (params == NULL)
-    {
-        params = gnc_search_param_prepend (params, _("Shipping Contact"), NULL, type,
-                                           CUSTOMER_SHIPADDR, ADDRESS_NAME, NULL);
-        params = gnc_search_param_prepend (params, _("Billing Contact"), NULL, type,
-                                           CUSTOMER_ADDR, ADDRESS_NAME, NULL);
-        params = gnc_search_param_prepend (params, _("Customer ID"), NULL, type,
-                                           CUSTOMER_ID, NULL);
-        params = gnc_search_param_prepend (params, _("Company Name"), NULL, type,
-                                           CUSTOMER_NAME, NULL);
-    }
-
-    /* Build the column list in reverse order */
-    if (columns == NULL)
-    {
-        columns = gnc_search_param_prepend (columns, _("Contact"), NULL, type,
-                                            CUSTOMER_ADDR, ADDRESS_NAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
-                                            CUSTOMER_NAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("ID #"), NULL, type,
-                                            CUSTOMER_ID, NULL);
-    }
-
-    /* Build the queries */
-    q = qof_query_create_for (type);
-    qof_query_set_book (q, book);
-
-#if 0
-    if (start)
-    {
-        q2 = qof_query_copy (q);
-        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
-                                  gncCustomerGetGUID (start), QOF_QUERY_AND);
-    }
-#endif
-
-    /* launch select dialog and return the result */
-    sw = g_new0 (struct _customer_select_window, 1);
-
-    sw->book = book;
-    sw->q = q;
-
-    return gnc_search_dialog_create (type, _("Find Customer"),
-                                     params, columns, q, q2, buttons, NULL,
-                                     new_customer_cb, sw, free_userdata_cb,
-                                     GCONF_SECTION_SEARCH, NULL);
+//    QofQuery *q, *q2 = NULL;
+//    QofIdType type = GNC_CUSTOMER_MODULE_NAME;
+//    struct _customer_select_window *sw;
+//    static GList *params = NULL;
+//    static GList *columns = NULL;
+//    static GNCSearchCallbackButton buttons[] =
+//    {
+//        { N_("View/Edit Customer"), edit_customer_cb, NULL, TRUE},
+//        { N_("Customer's Jobs"), jobs_customer_cb, NULL, TRUE},
+//        //    { N_("Customer's Orders"), order_customer_cb, NULL, TRUE},
+//        { N_("Customer's Invoices"), invoice_customer_cb, NULL, TRUE},
+//        { N_("Process Payment"), payment_customer_cb, NULL, FALSE},
+//        { NULL },
+//    };
+//    (void)order_customer_cb;
+//
+//    g_return_val_if_fail (book, NULL);
+//
+//    /* Build parameter list in reverse order */
+//    if (params == NULL)
+//    {
+//        params = gnc_search_param_prepend (params, _("Shipping Contact"), NULL, type,
+//                                           CUSTOMER_SHIPADDR, ADDRESS_NAME, NULL);
+//        params = gnc_search_param_prepend (params, _("Billing Contact"), NULL, type,
+//                                           CUSTOMER_ADDR, ADDRESS_NAME, NULL);
+//        params = gnc_search_param_prepend (params, _("Customer ID"), NULL, type,
+//                                           CUSTOMER_ID, NULL);
+//        params = gnc_search_param_prepend (params, _("Company Name"), NULL, type,
+//                                           CUSTOMER_NAME, NULL);
+//    }
+//
+//    /* Build the column list in reverse order */
+//    if (columns == NULL)
+//    {
+//        columns = gnc_search_param_prepend (columns, _("Contact"), NULL, type,
+//                                            CUSTOMER_ADDR, ADDRESS_NAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
+//                                            CUSTOMER_NAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("ID #"), NULL, type,
+//                                            CUSTOMER_ID, NULL);
+//    }
+//
+//    /* Build the queries */
+//    q = qof_query_create_for (type);
+//    qof_query_set_book (q, book);
+//
+//#if 0
+//    if (start)
+//    {
+//        q2 = qof_query_copy (q);
+//        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
+//                                  gncCustomerGetGUID (start), QOF_QUERY_AND);
+//    }
+//#endif
+//
+//    /* launch select dialog and return the result */
+//    sw = g_new0 (struct _customer_select_window, 1);
+//
+//    sw->book = book;
+//    sw->q = q;
+//
+//    return gnc_search_dialog_create (type, _("Find Customer"),
+//                                     params, columns, q, q2, buttons, NULL,
+//                                     new_customer_cb, sw, free_userdata_cb,
+//                                     GCONF_SECTION_SEARCH, NULL);
 }
 
 GNCSearchWindow *

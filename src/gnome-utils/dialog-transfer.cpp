@@ -412,7 +412,6 @@ price_amount_radio_toggled_cb(GtkToggleButton *togglebutton, gpointer data)
 static void
 gnc_xfer_dialog_reload_quickfill( XferDialog *xferData )
 {
-    GList *splitlist, *node;
     Split *split;
     Transaction *trans;
     Account *account;
@@ -423,11 +422,12 @@ gnc_xfer_dialog_reload_quickfill( XferDialog *xferData )
     gnc_quickfill_destroy( xferData->qf );
     xferData->qf = gnc_quickfill_new();
 
-    splitlist = xaccAccountGetSplitList( account );
+    SplitList_t splitlist = xaccAccountGetSplitList( account );
 
-    for ( node = splitlist; node; node = node->next )
+    for ( SplitList_t::iterator node = splitlist.begin();
+            node != splitlist.end(); node++ )
     {
-        split = node->data;
+        split = *node;
         trans = xaccSplitGetParent( split );
         gnc_quickfill_insert( xferData->qf,
                               xaccTransGetDescription (trans), QUICKFILL_LIFO);

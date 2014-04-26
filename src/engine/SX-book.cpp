@@ -359,10 +359,11 @@ gnc_sx_get_sxes_referencing_account(QofBook *book, Account *acct)
     for (sx_list = sxactions->sx_list; sx_list != NULL; sx_list = sx_list->next)
     {
         SchedXaction *sx = (SchedXaction*)sx_list->data;
-        GList *splits = xaccSchedXactionGetSplits(sx);
-        for (; splits != NULL; splits = splits->next)
+        SplitList_t splits = xaccSchedXactionGetSplits(sx);
+        for (SplitList_t::const_iterator it = splits.begin();
+                it != splits.end(); it++)
         {
-            Split *s = (Split*)splits->data;
+            Split *s = *it;
             KvpFrame *frame = kvp_frame_get_frame(xaccSplitGetSlots(s), GNC_SX_ID);
             GncGUID *sx_split_acct_guid = kvp_frame_get_guid(frame, GNC_SX_ACCOUNT);
             if (guid_equal(acct_guid, sx_split_acct_guid))

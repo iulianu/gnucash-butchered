@@ -48,7 +48,6 @@ static Split *
 DirectionPolicyGetSplit (GNCPolicy *pcy, GNCLot *lot, short reverse)
 {
     Split *split;
-    SplitList *node;
     gnc_commodity *common_currency;
     bool want_positive;
     gnc_numeric baln;
@@ -57,7 +56,7 @@ DirectionPolicyGetSplit (GNCPolicy *pcy, GNCLot *lot, short reverse)
     Timespec open_ts;
     Account* lot_account;
 
-    if (!pcy || !lot || !gnc_lot_get_split_list(lot)) return NULL;
+    if (!pcy || !lot || gnc_lot_get_split_list(lot).empty()) return NULL;
     lot_account = gnc_lot_get_account(lot);
     if (!lot_account) return NULL;
 
@@ -68,7 +67,7 @@ DirectionPolicyGetSplit (GNCPolicy *pcy, GNCLot *lot, short reverse)
     want_positive = gnc_numeric_negative_p (baln);
 
     /* All splits in lot must share a common transaction currency. */
-    split = gnc_lot_get_split_list(lot)->data;
+    split = *(gnc_lot_get_split_list(lot).begin());
     common_currency = split->parent->common_currency;
 
     /* Don't add a split to the lot unless it will be the new last
@@ -82,17 +81,22 @@ DirectionPolicyGetSplit (GNCPolicy *pcy, GNCLot *lot, short reverse)
      * hasn't been assigned to a lot.  Return that split.
      * Make use of the fact that the splits in an account are
      * already in date order; so we don't have to sort. */
-    node = xaccAccountGetSplitList (lot_account);
-    if (reverse)
-    {
-        node = g_list_last (node);
-    }
-    while (node)
+    SplitList_t splits = xaccAccountGetSplitList (lot_account);
+    SplitList_t::iterator node = splits.begin();
+    SplitList_t::reverse_iterator rnode = splits.rbegin();
+    while (node != splits.end() && rnode != splits.rend())
     {
         bool is_match;
         bool is_positive;
         Timespec this_ts;
-        split = node->data;
+        if( reverse )
+        {
+            split = *rnode;
+        }
+        else
+        {
+            split = *node;
+        }
         if (split->lot) goto donext;
 
         /* Skip it if it's too early */
@@ -119,14 +123,8 @@ DirectionPolicyGetSplit (GNCPolicy *pcy, GNCLot *lot, short reverse)
         if ((want_positive && is_positive) ||
                 ((!want_positive) && (!is_positive))) return split;
 donext:
-        if (reverse)
-        {
-            node = node->prev;
-        }
-        else
-        {
-            node = node->next;
-        }
+        node++;
+        rnode++;
     }
     return NULL;
 }

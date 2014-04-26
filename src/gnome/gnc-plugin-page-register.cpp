@@ -129,8 +129,8 @@ static gchar *gnc_plugin_page_register_filter_time2dmy (time64 raw_time);
 static gchar *gnc_plugin_page_register_get_filter (GncPluginPage *plugin_page);
 void gnc_plugin_page_register_set_filter (GncPluginPage *plugin_page, const gchar *filter);
 
-static void gnc_ppr_update_status_query (GncPluginPageRegister *page);
-static void gnc_ppr_update_date_query (GncPluginPageRegister *page);
+//static void gnc_ppr_update_status_query (GncPluginPageRegister *page);
+//static void gnc_ppr_update_date_query (GncPluginPageRegister *page);
 
 /* Command callbacks */
 static void gnc_plugin_page_register_cmd_cut (GtkAction *action, GncPluginPageRegister *plugin_page);
@@ -545,7 +545,7 @@ gnc_plugin_page_register_new_common (GNCLedgerDisplay *ledger)
     GList *book_list;
     gchar *label;
     gchar *label_color;
-    QofQuery *q;
+//    QofQuery *q;
 
     /* Is there an existing page? */
     gsr = gnc_ledger_display_get_user_data (ledger);
@@ -579,10 +579,11 @@ gnc_plugin_page_register_new_common (GNCLedgerDisplay *ledger)
     gnc_plugin_page_set_page_long_name(plugin_page, label);
     g_free(label);
 
-    q = gnc_ledger_display_get_query (ledger);
-    book_list = qof_query_get_books (q);
-    for (item = book_list; item; item = g_list_next(item))
-        gnc_plugin_page_add_book (plugin_page, (QofBook *)item->data);
+//    q = gnc_ledger_display_get_query (ledger);
+//    book_list = qof_query_get_books (q);
+//    for (item = book_list; item; item = g_list_next(item))
+//        gnc_plugin_page_add_book (plugin_page, (QofBook *)item->data);
+    gnc_plugin_page_add_book (plugin_page, gnc_get_current_book ());
     // Do not free the list. It is owned by the query.
 
     priv->component_manager_id = 0;
@@ -951,8 +952,8 @@ gnc_plugin_page_register_create_widget (GncPluginPage *plugin_page)
         g_strfreev(filter);
 
         /* Update Query with Filter Status and Dates */
-        gnc_ppr_update_status_query (page);
-        gnc_ppr_update_date_query(page);
+//        gnc_ppr_update_status_query (page);
+//        gnc_ppr_update_date_query(page);
     }
 
     plugin_page->summarybar = gsr_create_summary_bar(priv->gsr);
@@ -1785,105 +1786,105 @@ gnc_plugin_page_register_sort_order_reverse_cb (GtkToggleButton *button,
 /*                    "Filter By" Dialog                    */
 /************************************************************/
 
-/** This function updates the "cleared match" term of the register
- *  query.  It unconditionally removes any old "cleared match" query
- *  term, then adds back a new query term if needed.  There seems to
- *  be a bug in the current g2 register code such that when the number
- *  of entries in the register doesn't fill up the window, the blank
- *  space at the end of the window isn't correctly redrawn.  This
- *  function works around that problem, but a root cause analysis
- *  should probably be done.
- *
- *  @param page A pointer to the GncPluginPageRegister that is
- *  associated with this filter dialog.
- */
-static void
-gnc_ppr_update_status_query (GncPluginPageRegister *page)
-{
-    GncPluginPageRegisterPrivate *priv;
-    GSList *param_list;
-    Query *query;
+///** This function updates the "cleared match" term of the register
+// *  query.  It unconditionally removes any old "cleared match" query
+// *  term, then adds back a new query term if needed.  There seems to
+// *  be a bug in the current g2 register code such that when the number
+// *  of entries in the register doesn't fill up the window, the blank
+// *  space at the end of the window isn't correctly redrawn.  This
+// *  function works around that problem, but a root cause analysis
+// *  should probably be done.
+// *
+// *  @param page A pointer to the GncPluginPageRegister that is
+// *  associated with this filter dialog.
+// */
+//static void
+//gnc_ppr_update_status_query (GncPluginPageRegister *page)
+//{
+//    GncPluginPageRegisterPrivate *priv;
+//    GSList *param_list;
+//    Query *query;
+//
+//    ENTER(" ");
+//    priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(page);
+//    query = gnc_ledger_display_get_query( priv->ledger );
+//    if (!query)
+//    {
+//        LEAVE("no query found");
+//        return;
+//    }
+//
+//    /* Remove the old status match */
+//    param_list = qof_query_build_param_list (SPLIT_RECONCILE, NULL);
+//    if (param_list)
+//    {
+//        qof_query_purge_terms (query, param_list);
+//        g_slist_free(param_list);
+//    }
+//
+//    /* Install the new status match */
+//    if (priv->fd.cleared_match != CLEARED_ALL)
+//        xaccQueryAddClearedMatch(query, priv->fd.cleared_match, QOF_QUERY_AND);
+//
+//    gnc_ledger_display_refresh (priv->ledger);
+//    LEAVE(" ");
+//}
 
-    ENTER(" ");
-    priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(page);
-    query = gnc_ledger_display_get_query( priv->ledger );
-    if (!query)
-    {
-        LEAVE("no query found");
-        return;
-    }
-
-    /* Remove the old status match */
-    param_list = qof_query_build_param_list (SPLIT_RECONCILE, NULL);
-    if (param_list)
-    {
-        qof_query_purge_terms (query, param_list);
-        g_slist_free(param_list);
-    }
-
-    /* Install the new status match */
-    if (priv->fd.cleared_match != CLEARED_ALL)
-        xaccQueryAddClearedMatch(query, priv->fd.cleared_match, QOF_QUERY_AND);
-
-    gnc_ledger_display_refresh (priv->ledger);
-    LEAVE(" ");
-}
-
-
-/** This function updates the "date posted" term of the register
- *  query.  It unconditionally removes any old "date posted" query
- *  term, then adds back a new query term if needed.  There seems to
- *  be a bug in the current g2 register code such that when the number
- *  of entries in the register doesn't fill up the window, the blank
- *  space at the end of the window isn't correctly redrawn.  This
- *  function works around that problem, but a root cause analysis
- *  should probably be done.
- *
- *  @param page A pointer to the GncPluginPageRegister that is
- *  associated with this filter dialog.
- */
-static void
-gnc_ppr_update_date_query (GncPluginPageRegister *page)
-{
-    GncPluginPageRegisterPrivate *priv;
-    GSList *param_list;
-    Query *query;
-
-    ENTER(" ");
-    priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(page);
-    if (!priv->ledger)
-    {
-        LEAVE("no ledger");
-        return;
-    }
-
-    query = gnc_ledger_display_get_query( priv->ledger );
-    if (!query)
-    {
-        LEAVE("no query");
-        return;
-    }
-
-    /* Delete any existing old date spec. */
-    param_list = qof_query_build_param_list(SPLIT_TRANS, TRANS_DATE_POSTED, NULL);
-    if (param_list)
-    {
-        qof_query_purge_terms (query, param_list);
-        g_slist_free(param_list);
-    }
-
-    if (priv->fd.start_time || priv->fd.end_time)
-    {
-        /* Build a new spec */
-        xaccQueryAddDateMatchTT(query,
-                                priv->fd.start_time != 0, priv->fd.start_time,
-                                priv->fd.end_time != 0,   priv->fd.end_time,
-                                QOF_QUERY_AND);
-    }
-
-    gnc_ledger_display_refresh (priv->ledger);
-    LEAVE(" ");
-}
+//
+///** This function updates the "date posted" term of the register
+// *  query.  It unconditionally removes any old "date posted" query
+// *  term, then adds back a new query term if needed.  There seems to
+// *  be a bug in the current g2 register code such that when the number
+// *  of entries in the register doesn't fill up the window, the blank
+// *  space at the end of the window isn't correctly redrawn.  This
+// *  function works around that problem, but a root cause analysis
+// *  should probably be done.
+// *
+// *  @param page A pointer to the GncPluginPageRegister that is
+// *  associated with this filter dialog.
+// */
+//static void
+//gnc_ppr_update_date_query (GncPluginPageRegister *page)
+//{
+//    GncPluginPageRegisterPrivate *priv;
+//    GSList *param_list;
+//    Query *query;
+//
+//    ENTER(" ");
+//    priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(page);
+//    if (!priv->ledger)
+//    {
+//        LEAVE("no ledger");
+//        return;
+//    }
+//
+//    query = gnc_ledger_display_get_query( priv->ledger );
+//    if (!query)
+//    {
+//        LEAVE("no query");
+//        return;
+//    }
+//
+//    /* Delete any existing old date spec. */
+//    param_list = qof_query_build_param_list(SPLIT_TRANS, TRANS_DATE_POSTED, NULL);
+//    if (param_list)
+//    {
+//        qof_query_purge_terms (query, param_list);
+//        g_slist_free(param_list);
+//    }
+//
+//    if (priv->fd.start_time || priv->fd.end_time)
+//    {
+//        /* Build a new spec */
+//        xaccQueryAddDateMatchTT(query,
+//                                priv->fd.start_time != 0, priv->fd.start_time,
+//                                priv->fd.end_time != 0,   priv->fd.end_time,
+//                                QOF_QUERY_AND);
+//    }
+//
+//    gnc_ledger_display_refresh (priv->ledger);
+//    LEAVE(" ");
+//}
 
 
 /* This function converts a time64 value date to a string */
@@ -1962,7 +1963,7 @@ gnc_plugin_page_register_filter_status_one_cb (GtkToggleButton *button,
         priv->fd.cleared_match |= value;
     else
         priv->fd.cleared_match &= ~value;
-    gnc_ppr_update_status_query(page);
+//    gnc_ppr_update_status_query(page);
     LEAVE(" ");
 }
 
@@ -2001,7 +2002,7 @@ gnc_plugin_page_register_filter_status_all_cb (GtkButton *button,
     /* Set the requested status */
     priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(page);
     priv->fd.cleared_match = CLEARED_ALL;
-    gnc_ppr_update_status_query(page);
+//    gnc_ppr_update_status_query(page);
     LEAVE(" ");
 }
 
@@ -2100,7 +2101,7 @@ gnc_plugin_page_register_filter_select_range_cb (GtkRadioButton *button,
         priv->fd.start_time = 0;
         priv->fd.end_time = 0;
     }
-    gnc_ppr_update_date_query(page);
+//    gnc_ppr_update_date_query(page);
     LEAVE(" ");
 }
 
@@ -2123,7 +2124,7 @@ gnc_plugin_page_register_filter_gde_changed_cb (GtkWidget *unused,
 
     ENTER("(widget %s(%p), page %p)", gtk_buildable_get_name(GTK_BUILDABLE(unused)), unused, page);
     get_filter_times(page);
-    gnc_ppr_update_date_query(page);
+//    gnc_ppr_update_date_query(page);
     LEAVE(" ");
 }
 
@@ -2170,7 +2171,7 @@ gnc_plugin_page_register_filter_start_cb (GtkWidget *radio,
     active = ( g_strcmp0(name, g_strdup("start_date_choose")) == 0 ? 1 : 0 );
     gtk_widget_set_sensitive(priv->fd.start_date, active);
     get_filter_times(page);
-    gnc_ppr_update_date_query(page);
+//    gnc_ppr_update_date_query(page);
     LEAVE(" ");
 }
 
@@ -2217,7 +2218,7 @@ gnc_plugin_page_register_filter_end_cb (GtkWidget *radio,
     active = ( g_strcmp0(name, g_strdup("end_date_choose")) == 0 ? 1 : 0 );
     gtk_widget_set_sensitive(priv->fd.end_date, active);
     get_filter_times(page);
-    gnc_ppr_update_date_query(page);
+//    gnc_ppr_update_date_query(page);
     LEAVE(" ");
 }
 
@@ -2281,11 +2282,11 @@ gnc_plugin_page_register_filter_response_cb (GtkDialog *dialog,
     {
         /* Remove the old status match */
         priv->fd.cleared_match = priv->fd.original_cleared_match;
-        gnc_ppr_update_status_query(page);
+//        gnc_ppr_update_status_query(page);
         priv->fd.start_time = priv->fd.original_start_time;
         priv->fd.end_time = priv->fd.original_end_time;
         priv->fd.save_filter = priv->fd.original_save_filter;
-        gnc_ppr_update_date_query(page);
+//        gnc_ppr_update_date_query(page);
     }
     else
     {
@@ -2758,7 +2759,7 @@ gnc_plugin_page_register_cmd_view_filter_by (GtkAction *action,
     time64 start_time, end_time, time_val;
     GtkBuilder *builder;
     gboolean sensitive, value;
-    Query *query;
+//    Query *query;
     gchar *title;
     int i;
 
@@ -2804,8 +2805,8 @@ gnc_plugin_page_register_cmd_view_filter_by (GtkAction *action,
 
     /* Set the date info */
     button = GTK_WIDGET(gtk_builder_get_object (builder, "filter_show_range"));
-    query = gnc_ledger_display_get_query (priv->ledger);
-    xaccQueryGetDateMatchTT(query, &start_time, &end_time);
+//    query = gnc_ledger_display_get_query (priv->ledger);
+//    xaccQueryGetDateMatchTT(query, &start_time, &end_time);
     priv->fd.original_start_time = start_time;
     priv->fd.start_time = start_time;
     priv->fd.original_end_time = end_time;
@@ -2826,7 +2827,7 @@ gnc_plugin_page_register_cmd_view_filter_by (GtkAction *action,
         if (start_time == 0)
         {
             button = GTK_WIDGET(gtk_builder_get_object (builder, "start_date_earliest"));
-            time_val = xaccQueryGetEarliestDateFound (query);
+//            time_val = xaccQueryGetEarliestDateFound (query);
             sensitive = FALSE;
         }
         else
@@ -2861,7 +2862,7 @@ gnc_plugin_page_register_cmd_view_filter_by (GtkAction *action,
         if (end_time == 0)
         {
             button = GTK_WIDGET(gtk_builder_get_object (builder, "end_date_latest"));
-            time_val = xaccQueryGetLatestDateFound (query);
+//            time_val = xaccQueryGetLatestDateFound (query);
             sensitive = FALSE;
         }
         else
@@ -3271,7 +3272,7 @@ gnc_plugin_page_register_cmd_scrub_current (GtkAction *action,
         GncPluginPageRegister *plugin_page)
 {
     GncPluginPageRegisterPrivate *priv;
-    Query *query;
+//    Query *query;
     Account *root;
     Transaction *trans;
     SplitRegister *reg;
@@ -3281,12 +3282,12 @@ gnc_plugin_page_register_cmd_scrub_current (GtkAction *action,
     ENTER("(action %p, plugin_page %p)", action, plugin_page);
 
     priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(plugin_page);
-    query = gnc_ledger_display_get_query( priv->ledger );
-    if (query == NULL)
-    {
-        LEAVE("no query found");
-        return;
-    }
+//    query = gnc_ledger_display_get_query( priv->ledger );
+//    if (query == NULL)
+//    {
+//        LEAVE("no query found");
+//        return;
+//    }
 
     reg = gnc_ledger_display_get_split_register(priv->ledger);
     trans = gnc_split_register_get_current_trans(reg);
@@ -3309,7 +3310,7 @@ gnc_plugin_page_register_cmd_scrub_all (GtkAction *action,
                                         GncPluginPageRegister *plugin_page)
 {
     GncPluginPageRegisterPrivate *priv;
-    Query *query;
+//    Query *query;
     Account *root;
     Transaction *trans;
     Split *split;
@@ -3320,24 +3321,24 @@ gnc_plugin_page_register_cmd_scrub_all (GtkAction *action,
     ENTER("(action %p, plugin_page %p)", action, plugin_page);
 
     priv = GNC_PLUGIN_PAGE_REGISTER_GET_PRIVATE(plugin_page);
-    query = gnc_ledger_display_get_query( priv->ledger );
-    if (!query)
-    {
-        LEAVE("no query found");
-        return;
-    }
+//    query = gnc_ledger_display_get_query( priv->ledger );
+//    if (!query)
+//    {
+//        LEAVE("no query found");
+//        return;
+//    }
 
     gnc_suspend_gui_refresh();
     root = gnc_get_current_root_account();
 
-    for (node = qof_query_run(query); node; node = node->next)
-    {
-        split = node->data;
-        trans = xaccSplitGetParent(split);
-
-        xaccTransScrubOrphans(trans);
-        xaccTransScrubImbalance(trans, root, NULL);
-    }
+//    for (node = qof_query_run(query); node; node = node->next)
+//    {
+//        split = node->data;
+//        trans = xaccSplitGetParent(split);
+//
+//        xaccTransScrubOrphans(trans);
+//        xaccTransScrubImbalance(trans, root, NULL);
+//    }
 
     gnc_resume_gui_refresh();
     LEAVE(" ");

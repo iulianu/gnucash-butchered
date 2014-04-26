@@ -795,64 +795,64 @@ static void split_find_match (GNCImportTransInfo * trans_info,
     }
 }/* end split_find_match */
 
-
-/** /brief Iterate through all splits of the originating account of the given
-   transaction, and find all matching splits there. */
-void gnc_import_find_split_matches(GNCImportTransInfo *trans_info,
-                                   gint process_threshold,
-                                   double fuzzy_amount_difference,
-                                   gint match_date_hardlimit)
-{
-    GList * list_element;
-    Query *query = qof_query_create_for(GNC_ID_SPLIT);
-    g_assert (trans_info);
-
-    /* Get list of splits of the originating account. */
-    {
-        /* We used to traverse *all* splits of the account by using
-           xaccAccountGetSplitList, which is a bad idea because 90% of these
-           splits are outside the date range that is interesting. We should
-           rather use a query according to the date region, which is
-           implemented here.
-        */
-        Account *importaccount =
-            xaccSplitGetAccount (gnc_import_TransInfo_get_fsplit (trans_info));
-        time64 download_time = xaccTransGetDate (gnc_import_TransInfo_get_trans (trans_info));
-
-        qof_query_set_book (query, gnc_get_current_book());
-        xaccQueryAddSingleAccountMatch (query, importaccount,
-                                        QOF_QUERY_AND);
-        xaccQueryAddDateMatchTT (query,
-                                 TRUE, download_time - match_date_hardlimit * 86400,
-                                 TRUE, download_time + match_date_hardlimit * 86400,
-                                 QOF_QUERY_AND);
-        list_element = qof_query_run (query);
-        /* Sigh. Doesnt help too much. We still create and run one query
-           for each imported transaction. Maybe it would improve
-           performance further if there is one single (master-)query at
-           the beginning, matching the full date range and all accounts in
-           question. However, this doesnt quite work because this function
-           here is called from each gnc_gen_trans_list_add_trans(), which
-           is called one at a time. Therefore the whole importer would
-           have to change its behaviour: Accept the imported txns via
-           gnc_gen_trans_list_add_trans(), and only when
-           gnc_gen_trans_list_run() is called, then calculate all the
-           different match candidates. That's too much work for now.
-        */
-    }
-
-    /* Traverse that list, calling split_find_match on each one. Note
-       that xaccAccountForEachSplit is declared in Account.h but
-       implemented nowhere :-( */
-    while (list_element != NULL)
-    {
-        split_find_match (trans_info, list_element->data,
-                          process_threshold, fuzzy_amount_difference);
-        list_element = g_list_next (list_element);
-    }
-
-    qof_query_destroy (query);
-}
+//
+///** /brief Iterate through all splits of the originating account of the given
+//   transaction, and find all matching splits there. */
+//void gnc_import_find_split_matches(GNCImportTransInfo *trans_info,
+//                                   gint process_threshold,
+//                                   double fuzzy_amount_difference,
+//                                   gint match_date_hardlimit)
+//{
+//    GList * list_element;
+//    Query *query = qof_query_create_for(GNC_ID_SPLIT);
+//    g_assert (trans_info);
+//
+//    /* Get list of splits of the originating account. */
+//    {
+//        /* We used to traverse *all* splits of the account by using
+//           xaccAccountGetSplitList, which is a bad idea because 90% of these
+//           splits are outside the date range that is interesting. We should
+//           rather use a query according to the date region, which is
+//           implemented here.
+//        */
+//        Account *importaccount =
+//            xaccSplitGetAccount (gnc_import_TransInfo_get_fsplit (trans_info));
+//        time64 download_time = xaccTransGetDate (gnc_import_TransInfo_get_trans (trans_info));
+//
+//        qof_query_set_book (query, gnc_get_current_book());
+//        xaccQueryAddSingleAccountMatch (query, importaccount,
+//                                        QOF_QUERY_AND);
+//        xaccQueryAddDateMatchTT (query,
+//                                 TRUE, download_time - match_date_hardlimit * 86400,
+//                                 TRUE, download_time + match_date_hardlimit * 86400,
+//                                 QOF_QUERY_AND);
+//        list_element = qof_query_run (query);
+//        /* Sigh. Doesnt help too much. We still create and run one query
+//           for each imported transaction. Maybe it would improve
+//           performance further if there is one single (master-)query at
+//           the beginning, matching the full date range and all accounts in
+//           question. However, this doesnt quite work because this function
+//           here is called from each gnc_gen_trans_list_add_trans(), which
+//           is called one at a time. Therefore the whole importer would
+//           have to change its behaviour: Accept the imported txns via
+//           gnc_gen_trans_list_add_trans(), and only when
+//           gnc_gen_trans_list_run() is called, then calculate all the
+//           different match candidates. That's too much work for now.
+//        */
+//    }
+//
+//    /* Traverse that list, calling split_find_match on each one. Note
+//       that xaccAccountForEachSplit is declared in Account.h but
+//       implemented nowhere :-( */
+//    while (list_element != NULL)
+//    {
+//        split_find_match (trans_info, list_element->data,
+//                          process_threshold, fuzzy_amount_difference);
+//        list_element = g_list_next (list_element);
+//    }
+//
+//    qof_query_destroy (query);
+//}
 
 
 /***********************************************************************
@@ -1181,72 +1181,72 @@ static gint compare_probability (gconstpointer a,
            ((GNCImportMatchInfo *)a)->probability);
 }
 
-/** Iterates through all splits of the originating account of
- * trans_info. Sorts the resulting list and sets the selected_match
- * and action fields in the trans_info.
- */
-void
-gnc_import_TransInfo_init_matches (GNCImportTransInfo *trans_info,
-                                   GNCImportSettings *settings)
-{
-    GNCImportMatchInfo * best_match = NULL;
-    g_assert (trans_info);
-
-
-    /* Find all split matches in originating account. */
-    gnc_import_find_split_matches(trans_info,
-                                  gnc_import_Settings_get_display_threshold (settings),
-                                  gnc_import_Settings_get_fuzzy_amount (settings),
-                                  gnc_import_Settings_get_match_date_hardlimit (settings));
-
-    if (trans_info->match_list != NULL)
-    {
-        trans_info->match_list = g_list_sort(trans_info->match_list,
-                                             compare_probability);
-        best_match = g_list_nth_data(trans_info->match_list, 0);
-        gnc_import_TransInfo_set_selected_match (trans_info,
-                best_match,
-                FALSE);
-        if (best_match != NULL &&
-                best_match->probability >= gnc_import_Settings_get_clear_threshold(settings))
-        {
-            trans_info->action = GNCImport_CLEAR;
-            trans_info->selected_match_info = best_match;
-        }
-        else if (best_match == NULL ||
-                 best_match->probability <= gnc_import_Settings_get_add_threshold(settings))
-        {
-            trans_info->action = GNCImport_ADD;
-        }
-        else if (gnc_import_Settings_get_action_skip_enabled(settings))
-        {
-            trans_info->action = GNCImport_SKIP;
-        }
-        else if (gnc_import_Settings_get_action_update_enabled(settings))
-        {
-            trans_info->action = GNCImport_UPDATE;
-        }
-        else
-        {
-            trans_info->action = GNCImport_ADD;
-        }
-    }
-    else
-    {
-        trans_info->action = GNCImport_ADD;
-    }
-    if (best_match &&
-            trans_info->action == GNCImport_CLEAR &&
-            gnc_import_Settings_get_action_update_enabled(settings))
-    {
-        if (best_match->update_proposed)
-        {
-            trans_info->action = GNCImport_UPDATE;
-        }
-    }
-
-    trans_info->previous_action = trans_info->action;
-}
+///** Iterates through all splits of the originating account of
+// * trans_info. Sorts the resulting list and sets the selected_match
+// * and action fields in the trans_info.
+// */
+//void
+//gnc_import_TransInfo_init_matches (GNCImportTransInfo *trans_info,
+//                                   GNCImportSettings *settings)
+//{
+//    GNCImportMatchInfo * best_match = NULL;
+//    g_assert (trans_info);
+//
+//
+//    /* Find all split matches in originating account. */
+//    gnc_import_find_split_matches(trans_info,
+//                                  gnc_import_Settings_get_display_threshold (settings),
+//                                  gnc_import_Settings_get_fuzzy_amount (settings),
+//                                  gnc_import_Settings_get_match_date_hardlimit (settings));
+//
+//    if (trans_info->match_list != NULL)
+//    {
+//        trans_info->match_list = g_list_sort(trans_info->match_list,
+//                                             compare_probability);
+//        best_match = g_list_nth_data(trans_info->match_list, 0);
+//        gnc_import_TransInfo_set_selected_match (trans_info,
+//                best_match,
+//                FALSE);
+//        if (best_match != NULL &&
+//                best_match->probability >= gnc_import_Settings_get_clear_threshold(settings))
+//        {
+//            trans_info->action = GNCImport_CLEAR;
+//            trans_info->selected_match_info = best_match;
+//        }
+//        else if (best_match == NULL ||
+//                 best_match->probability <= gnc_import_Settings_get_add_threshold(settings))
+//        {
+//            trans_info->action = GNCImport_ADD;
+//        }
+//        else if (gnc_import_Settings_get_action_skip_enabled(settings))
+//        {
+//            trans_info->action = GNCImport_SKIP;
+//        }
+//        else if (gnc_import_Settings_get_action_update_enabled(settings))
+//        {
+//            trans_info->action = GNCImport_UPDATE;
+//        }
+//        else
+//        {
+//            trans_info->action = GNCImport_ADD;
+//        }
+//    }
+//    else
+//    {
+//        trans_info->action = GNCImport_ADD;
+//    }
+//    if (best_match &&
+//            trans_info->action == GNCImport_CLEAR &&
+//            gnc_import_Settings_get_action_update_enabled(settings))
+//    {
+//        if (best_match->update_proposed)
+//        {
+//            trans_info->action = GNCImport_UPDATE;
+//        }
+//    }
+//
+//    trans_info->previous_action = trans_info->action;
+//}
 
 
 /* Try to automatch a transaction to a destination account if the */

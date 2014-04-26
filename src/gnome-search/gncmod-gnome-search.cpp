@@ -76,7 +76,7 @@ libgncmod_gnome_search_gnc_module_init(int refcount)
     if (refcount == 0)
     {
         /* initialize known types */
-        gnc_search_core_initialize ();
+//        gnc_search_core_initialize ();
     }
 
     return TRUE;
@@ -90,7 +90,7 @@ libgncmod_gnome_search_gnc_module_end(int refcount)
     if (refcount == 0)
     {
         /* Shutdown */
-        gnc_search_core_finalize ();
+//        gnc_search_core_finalize ();
     }
 
     return TRUE;

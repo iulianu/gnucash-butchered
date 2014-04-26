@@ -74,7 +74,7 @@ struct _order_select_window
 {
     QofBook *	book;
     GncOwner *	owner;
-    QofQuery *	q;
+//    QofQuery *	q;
     GncOwner	owner_def;
 };
 
@@ -836,114 +836,114 @@ free_order_cb (gpointer user_data)
 
     g_return_if_fail (sw);
 
-    qof_query_destroy (sw->q);
+//    qof_query_destroy (sw->q);
     g_free (sw);
 }
 
 GNCSearchWindow *
 gnc_order_search (GncOrder *start, GncOwner *owner, QofBook *book)
 {
-    QofIdType type = GNC_ORDER_MODULE_NAME;
-    struct _order_select_window *sw;
-    QofQuery *q, *q2 = NULL;
-    static GList *params = NULL;
-    static GList *columns = NULL;
-    static GNCSearchCallbackButton buttons[] =
-    {
-        { N_("View/Edit Order"), edit_order_cb, NULL, TRUE},
-        { NULL },
-    };
-
-    g_return_val_if_fail (book, NULL);
-
-    /* Build parameter list in reverse order */
-    if (params == NULL)
-    {
-        params = gnc_search_param_prepend (params, _("Order Notes"), NULL, type,
-                                           ORDER_NOTES, NULL);
-        params = gnc_search_param_prepend (params, _("Date Closed"), NULL, type,
-                                           ORDER_CLOSED, NULL);
-        params = gnc_search_param_prepend (params, _("Is Closed?"), NULL, type,
-                                           ORDER_IS_CLOSED, NULL);
-        params = gnc_search_param_prepend (params, _("Date Opened"), NULL, type,
-                                           ORDER_OPENED, NULL);
-        params = gnc_search_param_prepend (params, _("Owner Name "), NULL, type,
-                                           ORDER_OWNER, OWNER_NAME, NULL);
-        params = gnc_search_param_prepend (params, _("Order ID"), NULL, type,
-                                           ORDER_ID, NULL);
-    }
-
-    /* Build the column list in reverse order */
-    if (columns == NULL)
-    {
-        columns = gnc_search_param_prepend (columns, _("Billing ID"), NULL, type,
-                                            ORDER_REFERENCE, NULL);
-        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
-                                            ORDER_OWNER, OWNER_PARENT,
-                                            OWNER_NAME, NULL);
-        columns = gnc_search_param_prepend (columns, _("Closed"), NULL, type,
-                                            ORDER_CLOSED, NULL);
-        columns = gnc_search_param_prepend (columns, _("Opened"), NULL, type,
-                                            ORDER_OPENED, NULL);
-        columns = gnc_search_param_prepend (columns, _("Num"), NULL, type,
-                                            ORDER_ID, NULL);
-    }
-
-    /* Build the queries */
-    q = qof_query_create_for (type);
-    qof_query_set_book (q, book);
-
-    /* If owner is supplied, limit all searches to orders who's owner
-     * (or parent) is the supplied owner!
-     */
-    if (owner && gncOwnerGetGUID (owner))
-    {
-        QofQuery *tmp, *q3;
-
-        q3 = qof_query_create_for (type);
-        qof_query_add_guid_match (q3, g_slist_prepend
-                                  (g_slist_prepend (NULL, QOF_PARAM_GUID),
-                                   ORDER_OWNER),
-                                  gncOwnerGetGUID (owner), QOF_QUERY_OR);
-        qof_query_add_guid_match (q3, g_slist_prepend
-                                  (g_slist_prepend (NULL, OWNER_PARENTG),
-                                   ORDER_OWNER),
-                                  gncOwnerGetGUID (owner), QOF_QUERY_OR);
-
-        tmp = qof_query_merge (q, q3, QOF_QUERY_AND);
-        qof_query_destroy (q);
-        qof_query_destroy (q3);
-        q = tmp;
-        q2 = qof_query_copy (q);
-    }
-
-#if 0
-    if (start)
-    {
-        if (q2 == NULL)
-            q2 = qof_query_copy (q);
-
-        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
-                                  gncOrderGetGUID (start), QOF_QUERY_AND);
-    }
-#endif
-
-    /* launch select dialog and return the result */
-    sw = g_new0 (struct _order_select_window, 1);
-
-    if (owner)
-    {
-        gncOwnerCopy (owner, &(sw->owner_def));
-        sw->owner = &(sw->owner_def);
-    }
-    sw->book = book;
-    sw->q = q;
-
-    return gnc_search_dialog_create (type, _("Find Order"),
-                                     params, columns, q, q2,
-                                     buttons, NULL, new_order_cb,
-                                     sw, free_order_cb, GCONF_SECTION_SEARCH,
-                                     NULL);
+//    QofIdType type = GNC_ORDER_MODULE_NAME;
+//    struct _order_select_window *sw;
+//    QofQuery *q, *q2 = NULL;
+//    static GList *params = NULL;
+//    static GList *columns = NULL;
+//    static GNCSearchCallbackButton buttons[] =
+//    {
+//        { N_("View/Edit Order"), edit_order_cb, NULL, TRUE},
+//        { NULL },
+//    };
+//
+//    g_return_val_if_fail (book, NULL);
+//
+//    /* Build parameter list in reverse order */
+//    if (params == NULL)
+//    {
+//        params = gnc_search_param_prepend (params, _("Order Notes"), NULL, type,
+//                                           ORDER_NOTES, NULL);
+//        params = gnc_search_param_prepend (params, _("Date Closed"), NULL, type,
+//                                           ORDER_CLOSED, NULL);
+//        params = gnc_search_param_prepend (params, _("Is Closed?"), NULL, type,
+//                                           ORDER_IS_CLOSED, NULL);
+//        params = gnc_search_param_prepend (params, _("Date Opened"), NULL, type,
+//                                           ORDER_OPENED, NULL);
+//        params = gnc_search_param_prepend (params, _("Owner Name "), NULL, type,
+//                                           ORDER_OWNER, OWNER_NAME, NULL);
+//        params = gnc_search_param_prepend (params, _("Order ID"), NULL, type,
+//                                           ORDER_ID, NULL);
+//    }
+//
+//    /* Build the column list in reverse order */
+//    if (columns == NULL)
+//    {
+//        columns = gnc_search_param_prepend (columns, _("Billing ID"), NULL, type,
+//                                            ORDER_REFERENCE, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Company"), NULL, type,
+//                                            ORDER_OWNER, OWNER_PARENT,
+//                                            OWNER_NAME, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Closed"), NULL, type,
+//                                            ORDER_CLOSED, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Opened"), NULL, type,
+//                                            ORDER_OPENED, NULL);
+//        columns = gnc_search_param_prepend (columns, _("Num"), NULL, type,
+//                                            ORDER_ID, NULL);
+//    }
+//
+//    /* Build the queries */
+//    q = qof_query_create_for (type);
+//    qof_query_set_book (q, book);
+//
+//    /* If owner is supplied, limit all searches to orders who's owner
+//     * (or parent) is the supplied owner!
+//     */
+//    if (owner && gncOwnerGetGUID (owner))
+//    {
+//        QofQuery *tmp, *q3;
+//
+//        q3 = qof_query_create_for (type);
+//        qof_query_add_guid_match (q3, g_slist_prepend
+//                                  (g_slist_prepend (NULL, QOF_PARAM_GUID),
+//                                   ORDER_OWNER),
+//                                  gncOwnerGetGUID (owner), QOF_QUERY_OR);
+//        qof_query_add_guid_match (q3, g_slist_prepend
+//                                  (g_slist_prepend (NULL, OWNER_PARENTG),
+//                                   ORDER_OWNER),
+//                                  gncOwnerGetGUID (owner), QOF_QUERY_OR);
+//
+//        tmp = qof_query_merge (q, q3, QOF_QUERY_AND);
+//        qof_query_destroy (q);
+//        qof_query_destroy (q3);
+//        q = tmp;
+//        q2 = qof_query_copy (q);
+//    }
+//
+//#if 0
+//    if (start)
+//    {
+//        if (q2 == NULL)
+//            q2 = qof_query_copy (q);
+//
+//        qof_query_add_guid_match (q2, g_slist_prepend (NULL, QOF_PARAM_GUID),
+//                                  gncOrderGetGUID (start), QOF_QUERY_AND);
+//    }
+//#endif
+//
+//    /* launch select dialog and return the result */
+//    sw = g_new0 (struct _order_select_window, 1);
+//
+//    if (owner)
+//    {
+//        gncOwnerCopy (owner, &(sw->owner_def));
+//        sw->owner = &(sw->owner_def);
+//    }
+//    sw->book = book;
+//    sw->q = q;
+//
+//    return gnc_search_dialog_create (type, _("Find Order"),
+//                                     params, columns, q, q2,
+//                                     buttons, NULL, new_order_cb,
+//                                     sw, free_order_cb, GCONF_SECTION_SEARCH,
+//                                     NULL);
 }
 
 GNCSearchWindow *

@@ -121,7 +121,7 @@ GtkTreeModel* gnc_sx_get_slr_state_model(void);
 
 /* ------------------------------------------------------------ */
 
-static void _show_created_transactions(GncSxSinceLastRunDialog *app_dialog, GList *created_txn_guids);
+//static void _show_created_transactions(GncSxSinceLastRunDialog *app_dialog, GList *created_txn_guids);
 
 static void close_handler(gpointer user_data);
 static void dialog_destroy_cb(GtkObject *object, GncSxSinceLastRunDialog *app_dialog);
@@ -1001,34 +1001,34 @@ gnc_ui_sx_since_last_run_dialog(GncSxInstanceModel *sx_instances, GList *auto_cr
     return dialog;
 }
 
-static void
-_show_created_transactions(GncSxSinceLastRunDialog *app_dialog, GList *created_txn_guids)
-{
-    GNCLedgerDisplay *ledger;
-    GncPluginPage *page;
-    Query *book_query, *guid_query, *query;
-    GList *guid_iter;
-
-    book_query = qof_query_create_for(GNC_ID_SPLIT);
-    guid_query = qof_query_create_for(GNC_ID_SPLIT);
-    qof_query_set_book(book_query, gnc_get_current_book());
-    for (guid_iter = created_txn_guids; guid_iter != NULL; guid_iter = guid_iter->next)
-    {
-        xaccQueryAddGUIDMatch(guid_query, (GncGUID*)guid_iter->data, GNC_ID_TRANS, QOF_QUERY_OR);
-    }
-    query = qof_query_merge(book_query, guid_query, QOF_QUERY_AND);
-
-    // inspired by dialog-find-transactions:do_find_cb:
-    ledger = gnc_ledger_display_query(query, SEARCH_LEDGER, REG_STYLE_JOURNAL);
-    gnc_ledger_display_refresh(ledger);
-    page = gnc_plugin_page_register_new_ledger(ledger);
-    g_object_set(G_OBJECT(page), "page-name", _("Created Transactions"), NULL);
-    gnc_main_window_open_page(NULL, page);
-
-    qof_query_destroy(query);
-    qof_query_destroy(book_query);
-    qof_query_destroy(guid_query);
-}
+//static void
+//_show_created_transactions(GncSxSinceLastRunDialog *app_dialog, GList *created_txn_guids)
+//{
+//    GNCLedgerDisplay *ledger;
+//    GncPluginPage *page;
+//    Query *book_query, *guid_query, *query;
+//    GList *guid_iter;
+//
+//    book_query = qof_query_create_for(GNC_ID_SPLIT);
+//    guid_query = qof_query_create_for(GNC_ID_SPLIT);
+//    qof_query_set_book(book_query, gnc_get_current_book());
+//    for (guid_iter = created_txn_guids; guid_iter != NULL; guid_iter = guid_iter->next)
+//    {
+//        xaccQueryAddGUIDMatch(guid_query, (GncGUID*)guid_iter->data, GNC_ID_TRANS, QOF_QUERY_OR);
+//    }
+//    query = qof_query_merge(book_query, guid_query, QOF_QUERY_AND);
+//
+//    // inspired by dialog-find-transactions:do_find_cb:
+//    ledger = gnc_ledger_display_query(query, SEARCH_LEDGER, REG_STYLE_JOURNAL);
+//    gnc_ledger_display_refresh(ledger);
+//    page = gnc_plugin_page_register_new_ledger(ledger);
+//    g_object_set(G_OBJECT(page), "page-name", _("Created Transactions"), NULL);
+//    gnc_main_window_open_page(NULL, page);
+//
+//    qof_query_destroy(query);
+//    qof_query_destroy(book_query);
+//    qof_query_destroy(guid_query);
+//}
 
 static void
 close_handler(gpointer user_data)
@@ -1089,7 +1089,7 @@ dialog_response_cb(GtkDialog *dialog, gint response_id, GncSxSinceLastRunDialog 
     if (gtk_toggle_button_get_active(app_dialog->review_created_txns_toggle)
             && g_list_length(app_dialog->created_txns) > 0)
     {
-        _show_created_transactions(app_dialog, app_dialog->created_txns);
+//        _show_created_transactions(app_dialog, app_dialog->created_txns);
     }
     g_list_free(app_dialog->created_txns);
     app_dialog->created_txns = NULL;

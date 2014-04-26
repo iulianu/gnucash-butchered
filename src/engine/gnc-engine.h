@@ -36,7 +36,7 @@
 #ifndef GNC_ENGINE_H
 #define GNC_ENGINE_H
 
-#include <glib.h>
+#include <list>
 #include "qof.h"
 
 /** \name QofLogModule identifiers */
@@ -195,10 +195,11 @@ class GNCLot;
 class GNCPrice;
 typedef struct gnc_quote_source_s    gnc_quote_source;
 
+typedef std::list<Account*> AccountList_t;
+typedef std::list<Split*>   SplitList_t;
+
 /** GList of GNCLots */
 typedef GList                  LotList;
-/** GList of Split */
-typedef GList                  SplitList;
 /** GList of Transaction */
 typedef GList                  TransList;
 /** GList of GUIDs of a Account */
@@ -206,10 +207,10 @@ typedef GList                  AccountGUIDList;
 /** GList of GUIDs of a QofBook */
 typedef GList                  BookGUIDList;
 
-typedef void (*EngineCommitErrorCallback)( gpointer data, QofBackendError errcode );
+typedef void (*EngineCommitErrorCallback)( void *data, QofBackendError errcode );
 
-typedef  gint (*SplitCallback)(Split *s, gpointer data);
-typedef  gint (*TransactionCallback)(Transaction *t, void *data);
+typedef  int (*SplitCallback)(Split *s, void *data);
+typedef  int (*TransactionCallback)(Transaction *t, void *data);
 
 /** Function type for init hooks in the engine.  */
 typedef void (* gnc_engine_init_hook_t)(int, char **);
@@ -245,9 +246,32 @@ void gnc_engine_add_init_hook(gnc_engine_init_hook_t hook);
 
 /** Set a callback function to be called in case an engine commit
  * fails */
-void gnc_engine_add_commit_error_callback( EngineCommitErrorCallback cb, gpointer data );
+void gnc_engine_add_commit_error_callback( EngineCommitErrorCallback cb, void* data );
 
 void gnc_engine_signal_commit_error( QofBackendError errcode );
+
+/** Iulian TODO find a better place */
+/* ----> */
+#include <iterator>
+#include <algorithm>
+
+/** Function for compatibility with g_list_index */
+template<typename T>
+int list_index_of(const std::list<T> & list, const T& el)
+{
+    typename std::list<T>::const_iterator beg = list.begin();
+    typename std::list<T>::const_iterator end = list.end();
+    typename std::list<T>::const_iterator pos = std::find(beg, end, el);
+    if(pos != end)
+    {
+        return std::distance(beg, pos);
+    }
+    else
+    {
+        return -1;
+    }
+}
+/* <---- */
 
 #endif
 /** @} */

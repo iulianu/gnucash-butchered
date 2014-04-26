@@ -115,7 +115,7 @@ struct _GNCLotViewer
 };
 
 static void gnc_lot_viewer_fill (GNCLotViewer *lv);
-static void gnc_split_viewer_fill (GNCLotViewer *lv, GtkListStore *store, SplitList *split_list);
+static void gnc_split_viewer_fill (GNCLotViewer *lv, GtkListStore *store, SplitList_t &split_list);
 
 /* ======================================================================== */
 /* Callback prototypes */
@@ -139,12 +139,11 @@ GNC_SIGNALS_END
 static gnc_commodity *
 find_first_currency (GNCLot *lot)
 {
-    SplitList *split_list, *node;
-
-    split_list = gnc_lot_get_split_list(lot);
-    for (node = split_list; node; node = node->next)
+    SplitList_t split_list = gnc_lot_get_split_list(lot);
+    for (SplitList_t::iterator node = split_list.begin();
+            node != split_list.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         Transaction *trans;
         if (FALSE == gnc_numeric_zero_p(xaccSplitGetAmount(s))) continue;
         trans = xaccSplitGetParent (s);
@@ -158,14 +157,14 @@ get_realized_gains (GNCLot *lot, gnc_commodity *currency)
 {
     gnc_numeric zero = gnc_numeric_zero();
     gnc_numeric gains = zero;
-    SplitList *split_list, *node;
 
     if (!currency) return zero;
 
-    split_list = gnc_lot_get_split_list(lot);
-    for (node = split_list; node; node = node->next)
+    SplitList_t split_list = gnc_lot_get_split_list(lot);
+    for (SplitList_t::iterator node = split_list.begin(); 
+            node != split_list.end(); node++)
     {
-        Split *s = node->data;
+        Split *s = *node;
         Transaction *trans;
 
         if (FALSE == gnc_numeric_zero_p(xaccSplitGetAmount(s))) continue;
@@ -185,11 +184,10 @@ static void
 lv_show_splits_in_lot (GNCLotViewer *lv)
 {
     GNCLot *lot = lv->selected_lot;
-    SplitList *split_list;
 
     if (NULL == lot) return;
 
-    split_list = gnc_lot_get_split_list (lot);
+    SplitList_t split_list = gnc_lot_get_split_list (lot);
     gnc_split_viewer_fill(lv, lv->split_in_lot_store, split_list);
 }
 
@@ -208,22 +206,22 @@ lv_clear_splits_in_lot (GNCLotViewer *lv)
 static void
 lv_show_splits_free (GNCLotViewer *lv)
 {
-    SplitList *split_list, *node;
-    SplitList *filtered_list = NULL;
+    SplitList_t filtered_list;
 
     /* cleanup */
     gtk_list_store_clear (lv->split_free_store);
 
     /* get splits */
-    split_list = xaccAccountGetSplitList(lv->account);
+    SplitList_t split_list = xaccAccountGetSplitList(lv->account);
 
     /* filter splits */
-    for (node = split_list; node; node = node->next)
+    for (SplitList_t::iterator node = split_list.begin();
+            node != split_list.end(); node++)
     {
-        Split *split = node->data;
+        Split *split = *node;
         if (NULL == xaccSplitGetLot(split))
         {
-            filtered_list = g_list_append(filtered_list, split);
+            filtered_list.push_back(split);
         }
     }
 
@@ -487,16 +485,16 @@ lv_can_remove_split_from_lot(Split * split, GNCLot * lot)
 /* Populate a split list view */
 
 static void
-gnc_split_viewer_fill (GNCLotViewer *lv, GtkListStore *store, SplitList *split_list)
+gnc_split_viewer_fill (GNCLotViewer *lv, GtkListStore *store, SplitList_t &split_list)
 {
-    SplitList *node;
     GtkTreeIter iter;
 
     gnc_numeric baln = gnc_numeric_zero();
     gtk_list_store_clear (lv->split_in_lot_store);
-    for (node = split_list; node; node = node->next)
+    for (SplitList_t::const_iterator node = split_list.begin();
+            node != split_list.end(); node++)
     {
-        Split *split = node->data;
+        Split *split = *node;
         char dbuff[MAX_DATE_LENGTH];
         char amtbuff[200];
         char valbuff[200];
@@ -532,7 +530,7 @@ gnc_split_viewer_fill (GNCLotViewer *lv, GtkListStore *store, SplitList *split_l
         /* Value. Invert the sign on the first, opening entry. */
         currency = xaccTransGetCurrency (trans);
         valu = xaccSplitGetValue (split);
-        if (node != split_list)
+        if (node != split_list.begin())
         {
             valu = gnc_numeric_neg (valu);
         }

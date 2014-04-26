@@ -40,8 +40,8 @@
 static GList *
 gnc_entry_ledger_get_entries (GncEntryLedger *ledger)
 {
-    if (ledger->query)
-        return qof_query_run (ledger->query);
+//    if (ledger->query)
+//        return qof_query_run (ledger->query);
 
     //  g_warning ("No query to run?");
     return NULL;

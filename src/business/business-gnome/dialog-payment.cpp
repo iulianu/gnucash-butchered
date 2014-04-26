@@ -1014,10 +1014,11 @@ static void increment_if_asset_account (gpointer data,
     if (isAssetLiabType(xaccAccountGetType(account)))
         ++(*r);
 }
-static int countAssetAccounts(SplitList* slist)
+static int countAssetAccounts(SplitList_t &slist)
 {
     int result = 0;
-    g_list_foreach(slist, &increment_if_asset_account, &result);
+    for(SplitList_t::iterator it = slist.begin(); it != slist.end(); it++)
+        increment_if_asset_account(*it, &result);
     return result;
 }
 
@@ -1041,28 +1042,30 @@ static gint predicate_is_apar_account(gconstpointer a,
     else
         return -1;
 }
-static Split *getFirstAssetAccountSplit(SplitList* slist)
+static Split *getFirstAssetAccountSplit(SplitList_t &slist)
 {
-    GList *r = g_list_find_custom(slist, NULL, &predicate_is_asset_account);
-    if (r)
-        return r->data;
-    else
-        return NULL;
+    for(SplitList_t::iterator it = slist.begin(); it != slist.end(); it++)
+    {
+        if(0 == predicate_is_asset_account(*it, NULL))
+            return *it;
+    }
+    return NULL;
 }
-static Split *getFirstAPARAccountSplit(SplitList* slist)
+static Split *getFirstAPARAccountSplit(SplitList_t &slist)
 {
-    GList *r = g_list_find_custom(slist, NULL, &predicate_is_apar_account);
-    if (r)
-        return r->data;
-    else
-        return NULL;
+    for(SplitList_t::iterator it = slist.begin(); it != slist.end(); it++)
+    {
+        if(0 == predicate_is_apar_account(*it, NULL))
+            return *it;
+    }
+    return NULL;
 }
 
 // ///////////////
 
 gboolean gnc_ui_payment_is_customer_payment(const Transaction *txn)
 {
-    SplitList *slist;
+    SplitList_t slist;
     gboolean result = TRUE;
 
     Split *assetaccount_split;
@@ -1074,7 +1077,7 @@ gboolean gnc_ui_payment_is_customer_payment(const Transaction *txn)
     // We require the txn to have one split in an A/R or A/P account.
 
     slist = xaccTransGetSplitList(txn);
-    if (!slist)
+    if (slist.empty())
         return result;
     if (countAssetAccounts(slist) == 0)
     {
@@ -1094,7 +1097,7 @@ gboolean gnc_ui_payment_is_customer_payment(const Transaction *txn)
 
 PaymentWindow * gnc_ui_payment_new_with_txn (GncOwner *owner, Transaction *txn)
 {
-    SplitList *slist;
+    SplitList_t slist;
 
     Split *assetaccount_split;
     Split *postaccount_split;
@@ -1107,7 +1110,7 @@ PaymentWindow * gnc_ui_payment_new_with_txn (GncOwner *owner, Transaction *txn)
     // We require the txn to have one split in an Asset account.
 
     slist = xaccTransGetSplitList(txn);
-    if (!slist)
+    if (slist.empty())
         return NULL;
     if (countAssetAccounts(slist) == 0)
     {

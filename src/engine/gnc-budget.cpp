@@ -583,51 +583,51 @@ static GDate gnc_budget_get_rec_date(const GncBudget *bgt)
 /* Register ourselves with the engine. */
 bool gnc_budget_register (void)
 {
-    static QofParam params[] =
-    {
-        {
-            "name", QOF_TYPE_STRING,
-            (QofAccessFunc) gnc_budget_get_name,
-            (QofSetterFunc) gnc_budget_set_name
-        },
-        {
-            "description", QOF_TYPE_STRING,
-            (QofAccessFunc) gnc_budget_get_description,
-            (QofSetterFunc) gnc_budget_set_description
-        },
-        {
-            "recurrence_period_type", QOF_TYPE_INT32,
-            (QofAccessFunc) gnc_budget_get_rec_pt, NULL
-        },
-        /* Signedness problem: Should be unsigned. */
-        {
-            "recurrence_multiplier", QOF_TYPE_INT32,
-            (QofAccessFunc) gnc_budget_get_rec_mult, NULL
-        },
-        /* This is the same way that SchedXaction.c uses QOF_TYPE_DATE
-           but I don't think QOF actually supports a GDate, so I think
-           this is wrong. */
-        {
-            "recurrence_date", QOF_TYPE_DATE,
-            (QofAccessFunc) gnc_budget_get_rec_date, NULL
-        },
-        /* Signedness problem: Should be unsigned. */
-        {
-            "num_periods", QOF_TYPE_INT32,
-            (QofAccessFunc) gnc_budget_get_num_periods,
-            (QofSetterFunc) gnc_budget_set_num_periods
-        },
-        {
-            QOF_PARAM_BOOK, QOF_ID_BOOK,
-            (QofAccessFunc) qof_instance_get_book, NULL
-        },
-        {
-            QOF_PARAM_GUID, QOF_TYPE_GUID,
-            (QofAccessFunc) qof_instance_get_guid, NULL
-        },
-        { NULL },
-    };
-
-    qof_class_register(GNC_ID_BUDGET, (QofSortFunc) NULL, params);
+//    static QofParam params[] =
+//    {
+//        {
+//            "name", QOF_TYPE_STRING,
+//            (QofAccessFunc) gnc_budget_get_name,
+//            (QofSetterFunc) gnc_budget_set_name
+//        },
+//        {
+//            "description", QOF_TYPE_STRING,
+//            (QofAccessFunc) gnc_budget_get_description,
+//            (QofSetterFunc) gnc_budget_set_description
+//        },
+//        {
+//            "recurrence_period_type", QOF_TYPE_INT32,
+//            (QofAccessFunc) gnc_budget_get_rec_pt, NULL
+//        },
+//        /* Signedness problem: Should be unsigned. */
+//        {
+//            "recurrence_multiplier", QOF_TYPE_INT32,
+//            (QofAccessFunc) gnc_budget_get_rec_mult, NULL
+//        },
+//        /* This is the same way that SchedXaction.c uses QOF_TYPE_DATE
+//           but I don't think QOF actually supports a GDate, so I think
+//           this is wrong. */
+//        {
+//            "recurrence_date", QOF_TYPE_DATE,
+//            (QofAccessFunc) gnc_budget_get_rec_date, NULL
+//        },
+//        /* Signedness problem: Should be unsigned. */
+//        {
+//            "num_periods", QOF_TYPE_INT32,
+//            (QofAccessFunc) gnc_budget_get_num_periods,
+//            (QofSetterFunc) gnc_budget_set_num_periods
+//        },
+//        {
+//            QOF_PARAM_BOOK, QOF_ID_BOOK,
+//            (QofAccessFunc) qof_instance_get_book, NULL
+//        },
+//        {
+//            QOF_PARAM_GUID, QOF_TYPE_GUID,
+//            (QofAccessFunc) qof_instance_get_guid, NULL
+//        },
+//        { NULL },
+//    };
+//
+//    qof_class_register(GNC_ID_BUDGET, (QofSortFunc) NULL, params);
     return qof_object_register(&budget_object_def);
 }

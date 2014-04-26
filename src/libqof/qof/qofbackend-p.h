@@ -306,10 +306,10 @@ struct QofBackend
     void (*commit) (QofBackend *, QofInstance *);
     void (*rollback) (QofBackend *, QofInstance *);
 
-    void * (*compile_query) (QofBackend *, QofQuery *);
-    void (*free_query) (QofBackend *, void *);
-    void (*run_query) (QofBackend *, void *);
-
+//    void * (*compile_query) (QofBackend *, QofQuery *);
+//    void (*free_query) (QofBackend *, void *);
+//    void (*run_query) (QofBackend *, void *);
+//
     void (*sync) (QofBackend *, /*@ dependent @*/ QofBook *);
     void (*safe_sync) (QofBackend *, /*@ dependent @*/ QofBook *);
     void (*load_config) (QofBackend *, KvpFrame *);

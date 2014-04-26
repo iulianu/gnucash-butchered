@@ -883,16 +883,16 @@ static QofObject gncTaxTableDesc =
 
 bool gncTaxTableRegister (void)
 {
-    static QofParam params[] =
-    {
-        { GNC_TT_NAME, 		QOF_TYPE_STRING, 	(QofAccessFunc)gncTaxTableGetName, 		(QofSetterFunc)gncTaxTableSetName },
-        { GNC_TT_REFCOUNT, 	QOF_TYPE_INT64, 	(QofAccessFunc)gncTaxTableGetRefcount, 	(QofSetterFunc)gncTaxTableSetRefcount },
-        { QOF_PARAM_BOOK, 	QOF_ID_BOOK, 		(QofAccessFunc)qof_instance_get_book, 	NULL },
-        { QOF_PARAM_GUID, 	QOF_TYPE_GUID, 		(QofAccessFunc)qof_instance_get_guid, 	NULL },
-        { NULL },
-    };
-
-    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncTaxTableCompare, params);
+//    static QofParam params[] =
+//    {
+//        { GNC_TT_NAME, 		QOF_TYPE_STRING, 	(QofAccessFunc)gncTaxTableGetName, 		(QofSetterFunc)gncTaxTableSetName },
+//        { GNC_TT_REFCOUNT, 	QOF_TYPE_INT64, 	(QofAccessFunc)gncTaxTableGetRefcount, 	(QofSetterFunc)gncTaxTableSetRefcount },
+//        { QOF_PARAM_BOOK, 	QOF_ID_BOOK, 		(QofAccessFunc)qof_instance_get_book, 	NULL },
+//        { QOF_PARAM_GUID, 	QOF_TYPE_GUID, 		(QofAccessFunc)qof_instance_get_guid, 	NULL },
+//        { NULL },
+//    };
+//
+//    qof_class_register (_GNC_MOD_NAME, (QofSortFunc)gncTaxTableCompare, params);
 
     return qof_object_register (&gncTaxTableDesc);
 }
