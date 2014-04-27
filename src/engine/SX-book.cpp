@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <glib.h>
+#include <algorithm>
 
 #include "gnc-engine.h"
 #include "Account.h"
@@ -52,7 +52,6 @@
 
 SchedXactions::SchedXactions()
 {
-    sx_list = NULL;
     sx_notsaved = false;
 }
 
@@ -214,20 +213,20 @@ gnc_book_get_schedxactions(QofBook *book)
 void
 gnc_sxes_add_sx(SchedXactions *sxes, SchedXaction *sx)
 {
-    if (g_list_find(sxes->sx_list, sx) != NULL)
+    if (std::find(sxes->sx_list.begin(), sxes->sx_list.end(), sx) != sxes->sx_list.end())
         return;
-    sxes->sx_list = g_list_append(sxes->sx_list, sx);
+    sxes->sx_list.push_back(sx);
     qof_event_gen(sxes, GNC_EVENT_ITEM_ADDED, (gpointer)sx);
 }
 
 void
 gnc_sxes_del_sx(SchedXactions *sxes, SchedXaction *sx)
 {
-    GList *to_remove;
-    to_remove = g_list_find(sxes->sx_list, sx);
-    if (to_remove == NULL)
+    std::list<SchedXaction*>::iterator to_remove =
+        std::find(sxes->sx_list.begin(), sxes->sx_list.end(), sx);
+    if (to_remove == sxes->sx_list.end())
         return;
-    sxes->sx_list = g_list_delete_link(sxes->sx_list, to_remove);
+    sxes->sx_list.erase(to_remove);
     qof_event_gen(sxes, GNC_EVENT_ITEM_REMOVED, (gpointer)sx);
 }
 
@@ -235,9 +234,8 @@ gnc_sxes_del_sx(SchedXactions *sxes, SchedXaction *sx)
 /* SX-trans stuff */
 
 static void
-mark_sx_clean(gpointer data, gpointer user_data)
+mark_sx_clean(SchedXaction *sx)
 {
-    SchedXaction *sx = (SchedXaction *) data;
     qof_instance_mark_clean (sx);
 }
 
@@ -251,7 +249,6 @@ book_sxes_setup(QofBook *book)
     sxes = new SchedXactions; //g_object_new (GNC_TYPE_SCHEDXACTIONS, NULL);
     g_assert(sxes);
     qof_instance_init_data(sxes, GNC_ID_SXES, book);
-    sxes->sx_list = NULL;
     sxes->sx_notsaved = TRUE;
     qof_collection_set_data(col, sxes);
 }
@@ -280,27 +277,21 @@ book_sxns_mark_saved(QofCollection *col)
     if (!sxl)
         return;
     sxl->sx_notsaved = FALSE;
-    g_list_foreach(sxl->sx_list,
-                   mark_sx_clean,
-                   NULL);
+    for(std::list<SchedXaction*>::iterator it = sxl->sx_list.begin(); it != sxl->sx_list.end(); it++)
+        mark_sx_clean(*it);
 }
 
 static bool
 book_sxlist_notsaved(const QofCollection *col)
 {
-    GList *sxlist;
-    SchedXactions *sxl;
-
-    sxl = gnc_collection_get_schedxactions(col);
+    SchedXactions *sxl = gnc_collection_get_schedxactions(col);
     if (!sxl) return FALSE;
     if (sxl->sx_notsaved) return TRUE;
 
-    for (sxlist = sxl->sx_list;
-            sxlist != NULL;
-            sxlist = g_list_next(sxlist))
+    for (std::list<SchedXaction*>::const_iterator it = sxl->sx_list.begin();
+            it != sxl->sx_list.begin(); it++)
     {
-        SchedXaction *sx;
-        sx = (SchedXaction *) (sxlist->data);
+        SchedXaction *sx = *it;
         if (xaccSchedXactionIsDirty( sx ))
             return TRUE;
     }
@@ -348,17 +339,17 @@ gnc_sxtt_register (void)
     return qof_object_register(&sxtt_object_def);
 }
 
-GList*
+std::list<SchedXaction*> 
 gnc_sx_get_sxes_referencing_account(QofBook *book, Account *acct)
 {
-    GList *rtn = NULL;
+    std::list<SchedXaction*> rtn;
     const GncGUID *acct_guid = qof_entity_get_guid(QOF_INSTANCE(acct));
-    GList *sx_list;
     SchedXactions *sxactions = gnc_book_get_schedxactions(book);
     g_return_val_if_fail( sxactions != NULL, rtn);
-    for (sx_list = sxactions->sx_list; sx_list != NULL; sx_list = sx_list->next)
+    for (std::list<SchedXaction*>::const_iterator it = sxactions->sx_list.begin(); 
+            it != sxactions->sx_list.end(); it++)
     {
-        SchedXaction *sx = (SchedXaction*)sx_list->data;
+        SchedXaction *sx = *it;
         SplitList_t splits = xaccSchedXactionGetSplits(sx);
         for (SplitList_t::const_iterator it = splits.begin();
                 it != splits.end(); it++)
@@ -368,7 +359,7 @@ gnc_sx_get_sxes_referencing_account(QofBook *book, Account *acct)
             GncGUID *sx_split_acct_guid = kvp_frame_get_guid(frame, GNC_SX_ACCOUNT);
             if (guid_equal(acct_guid, sx_split_acct_guid))
             {
-                rtn = g_list_append(rtn, sx);
+                rtn.push_back(sx);
             }
         }
     }

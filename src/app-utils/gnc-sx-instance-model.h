@@ -236,7 +236,7 @@ GHashTable* gnc_g_hash_new_guid_numeric(void);
  * The creation_errors list, if non-NULL, receive any errors that
  * occurred during creation, similar as in
  * gnc_sx_instance_model_effect_change(). */
-void gnc_sx_all_instantiate_cashflow(GList *all_sxes,
+void gnc_sx_all_instantiate_cashflow(std::list<SchedXaction*> all_sxes,
                                      const GDate *range_start, const GDate *range_end,
                                      GHashTable* map, GList **creation_errors);
 

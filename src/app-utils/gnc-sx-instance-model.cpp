@@ -432,10 +432,20 @@ gnc_sx_get_current_instances(void)
     return gnc_sx_get_instances(&now, FALSE);
 }
 
+static GList * sx_map(const std::list<SchedXaction*> sxes, GncGMapFunc map_func, gpointer param)
+{
+    GList * ret = NULL;
+    for(std::list<SchedXaction*>::const_iterator it = sxes.begin(); it != sxes.end(); it++ )
+    {
+        ret = g_list_append(ret, map_func(*it, param));
+    }
+    return ret;
+}
+
 GncSxInstanceModel*
 gnc_sx_get_instances(const GDate *range_end, gboolean include_disabled)
 {
-    GList *all_sxes = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
+    std::list<SchedXaction*> all_sxes = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
     GncSxInstanceModel *instances;
 
     g_assert(range_end != NULL);
@@ -447,23 +457,22 @@ gnc_sx_get_instances(const GDate *range_end, gboolean include_disabled)
 
     if (include_disabled)
     {
-        instances->sx_instance_list = gnc_g_list_map(all_sxes, (GncGMapFunc)_gnc_sx_gen_instances, (gpointer)range_end);
+        instances->sx_instance_list = sx_map(all_sxes, (GncGMapFunc)_gnc_sx_gen_instances, (gpointer)range_end);
     }
     else
     {
-        GList *sx_iter = g_list_first(all_sxes);
-        GList *enabled_sxes = NULL;
+        std::list<SchedXaction*>::iterator sx_iter = all_sxes.begin();
+        std::list<SchedXaction*> enabled_sxes;
 
-        for (; sx_iter != NULL; sx_iter = sx_iter->next)
+        for (; sx_iter != all_sxes.end(); sx_iter++)
         {
-            SchedXaction *sx = (SchedXaction*)sx_iter->data;
+            SchedXaction *sx = *sx_iter;
             if (xaccSchedXactionGetEnabled(sx))
             {
-                enabled_sxes = g_list_append(enabled_sxes, sx);
+                enabled_sxes.push_back(sx);
             }
         }
-        instances->sx_instance_list = gnc_g_list_map(enabled_sxes, (GncGMapFunc)_gnc_sx_gen_instances, (gpointer)range_end);
-        g_list_free(enabled_sxes);
+        instances->sx_instance_list = sx_map(enabled_sxes, (GncGMapFunc)_gnc_sx_gen_instances, (gpointer)range_end);
     }
 
     return instances;
@@ -679,8 +688,8 @@ _gnc_sx_instance_event_handler(QofInstance *ent, QofEventId event_type, gpointer
             else
             {
                 /* determine if this is a legitimate SX or just a "one-off" / being created */
-                GList *all_sxes = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
-                if (g_list_find(all_sxes, sx) && (!instances->include_disabled && xaccSchedXactionGetEnabled(sx)))
+                std::list<SchedXaction*> all_sxes = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
+                if (std::find(all_sxes.begin(), all_sxes.end(), sx) != all_sxes.end() && (!instances->include_disabled && xaccSchedXactionGetEnabled(sx)))
                 {
                     /* it's moved from disabled to enabled, add the instances */
                     instances->sx_instance_list
@@ -1719,7 +1728,7 @@ static void instantiate_cashflow_cb(gpointer data, gpointer _user_data)
     }
 }
 
-void gnc_sx_all_instantiate_cashflow(GList *all_sxes,
+void gnc_sx_all_instantiate_cashflow(std::list<SchedXaction*> all_sxes,
                                      const GDate *range_start, const GDate *range_end,
                                      GHashTable* map, GList **creation_errors)
 {
@@ -1730,14 +1739,18 @@ void gnc_sx_all_instantiate_cashflow(GList *all_sxes,
     userdata.range_end = range_end;
 
     /* The work is done in the callback for each SX */
-    g_list_foreach(all_sxes, instantiate_cashflow_cb, &userdata);
+    for(std::list<SchedXaction*>::const_iterator it = all_sxes.begin();
+            it != all_sxes.end(); it++ )
+    {
+        instantiate_cashflow_cb(*it, &userdata);
+    }
 }
 
 
 GHashTable* gnc_sx_all_instantiate_cashflow_all(GDate range_start, GDate range_end)
 {
     GHashTable *result_map = gnc_g_hash_new_guid_numeric();
-    GList *all_sxes = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
+    std::list<SchedXaction*> all_sxes = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
     gnc_sx_all_instantiate_cashflow(all_sxes,
                                     &range_start, &range_end,
                                     result_map, NULL);

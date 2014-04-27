@@ -994,7 +994,7 @@ write_book(FILE *out, QofBook *book, sixtp_gdv2 *gd)
                       "transaction",
                       gnc_book_count_transactions(book),
                       "schedxaction",
-                      g_list_length(gnc_book_get_schedxactions(book)->sx_list),
+                      gnc_book_get_schedxactions(book)->sx_list.size(),
                       "budget", qof_collection_count(
                           qof_book_get_collection(book, GNC_ID_BUDGET)),
                       NULL))
@@ -1156,18 +1156,17 @@ write_template_transaction_data( FILE *out, QofBook *book, sixtp_gdv2 *gd )
 static bool
 write_schedXactions( FILE *out, QofBook *book, sixtp_gdv2 *gd)
 {
-    GList *schedXactions;
-    SchedXaction *tmpSX;
     xmlNodePtr node;
 
-    schedXactions = gnc_book_get_schedxactions(book)->sx_list;
+    std::list<SchedXaction*> schedXactions = gnc_book_get_schedxactions(book)->sx_list;
 
-    if (schedXactions == NULL)
+    if (schedXactions.empty())
         return TRUE;
 
+    std::list<SchedXaction*>::iterator it = schedXactions.begin();
     do
     {
-        tmpSX = schedXactions->data;
+        SchedXaction* tmpSX = *it;
         node = gnc_schedXaction_dom_tree_create( tmpSX );
         xmlElemDump( out, NULL, node );
         xmlFreeNode(node);
@@ -1175,8 +1174,9 @@ write_schedXactions( FILE *out, QofBook *book, sixtp_gdv2 *gd)
             return FALSE;
         gd->counter.schedXactions_loaded++;
         run_callback(gd, "schedXactions");
+        it++;
     }
-    while ( (schedXactions = schedXactions->next) );
+    while ( it != schedXactions.end() );
 
     return TRUE;
 }
@@ -1277,7 +1277,7 @@ gnc_book_write_to_xml_filehandle_v2(QofBook *book, FILE *out)
                                  gnc_account_n_descendants(gnc_book_get_root_account(book));
     gd->counter.transactions_total = gnc_book_count_transactions(book);
     gd->counter.schedXactions_total =
-        g_list_length(gnc_book_get_schedxactions(book)->sx_list);
+        gnc_book_get_schedxactions(book)->sx_list.size();
     gd->counter.budgets_total = qof_collection_count(
                                     qof_book_get_collection(book, GNC_ID_BUDGET));
 

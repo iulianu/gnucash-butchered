@@ -729,7 +729,6 @@ gnc_sxed_check_consistent( GncSxEditorDialog *sxed )
     {
         gchar *name, *nameKey;
         gboolean nameExists, nameHasChanged;
-        GList *sxList;
 
         name = gtk_editable_get_chars( GTK_EDITABLE(sxed->nameEntry), 0, -1 );
         if ( strlen(name) == 0 )
@@ -747,15 +746,12 @@ gnc_sxed_check_consistent( GncSxEditorDialog *sxed )
         nameHasChanged =
             (xaccSchedXactionGetName(sxed->sx) == NULL)
             || (strcmp( xaccSchedXactionGetName(sxed->sx), name ) != 0);
-        for ( sxList =
-                    gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
-                nameHasChanged && !nameExists && sxList;
-                sxList = sxList->next )
+        std::list<SchedXaction*> sxList = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
+        for ( std::list<SchedXaction*>::const_iterator it = sxList.begin(); nameHasChanged && !nameExists && it != sxList.end(); it++ )
         {
             char *existingName, *existingNameKey;
             existingName =
-                xaccSchedXactionGetName( (SchedXaction*)sxList->
-                                         data );
+                xaccSchedXactionGetName(*it);
             existingNameKey = g_utf8_collate_key(existingName, -1);
             nameExists |= ( strcmp(nameKey, existingNameKey) == 0 );
             g_free( existingNameKey );
@@ -1690,11 +1686,11 @@ on_sx_check_toggled_cb (GtkWidget *togglebutton,
 /* ------------------------------------------------------------ */
 /* sx app engine;  move to somewhere appropriate. :/            */
 
-typedef struct _acct_deletion_handler_data
+struct acct_deletion_handler_data
 {
-    GList *affected_sxes;
+    std::list<SchedXaction*> affected_sxes;
     GtkWidget *dialog;
-} acct_deletion_handler_data;
+};
 
 
 static void
@@ -1703,16 +1699,13 @@ _open_editors(GtkDialog *dialog, gint response_code, gpointer data)
     acct_deletion_handler_data *adhd = (acct_deletion_handler_data *)data;
     gtk_widget_hide(adhd->dialog);
     {
-        GList *sx_iter;
-        for (sx_iter = adhd->affected_sxes; sx_iter; sx_iter = sx_iter->next)
+        for (std::list<SchedXaction*>::const_iterator it = adhd->affected_sxes.begin(); it != adhd->affected_sxes.end(); it++)
         {
-            gnc_ui_scheduled_xaction_editor_dialog_create((SchedXaction*)sx_iter->data,
-                    FALSE);
+            gnc_ui_scheduled_xaction_editor_dialog_create(*it, FALSE);
         }
     }
-    g_list_free(adhd->affected_sxes);
     gtk_widget_destroy(GTK_WIDGET(adhd->dialog));
-    g_free(adhd);
+    delete adhd;
 }
 
 
@@ -1721,7 +1714,6 @@ _sx_engine_event_handler(QofInstance *ent, QofEventId event_type, gpointer user_
 {
     Account *acct;
     QofBook *book;
-    GList *affected_sxes;
 
     if (!(event_type & QOF_EVENT_DESTROY))
         return;
@@ -1731,13 +1723,12 @@ _sx_engine_event_handler(QofInstance *ent, QofEventId event_type, gpointer user_
     if(!acct)
         return;
     book = qof_instance_get_book(QOF_INSTANCE(acct));
-    affected_sxes = gnc_sx_get_sxes_referencing_account(book, acct);
+    std::list<SchedXaction*> affected_sxes = gnc_sx_get_sxes_referencing_account(book, acct);
 
-    if (g_list_length(affected_sxes) == 0)
+    if (affected_sxes.empty())
         return;
 
     {
-        GList *sx_iter;
         acct_deletion_handler_data *data;
         GtkBuilder *builder;
         GtkWidget *dialog;
@@ -1753,17 +1744,16 @@ _sx_engine_event_handler(QofInstance *ent, QofEventId event_type, gpointer user_
 
         list = GTK_TREE_VIEW(gtk_builder_get_object (builder, "sx_list"));
 
-        data = (acct_deletion_handler_data*)g_new0(acct_deletion_handler_data, 1);
+        data = new acct_deletion_handler_data;// (acct_deletion_handler_data*)g_new0(acct_deletion_handler_data, 1);
         data->dialog = dialog;
         data->affected_sxes = affected_sxes;
         name_list = gtk_list_store_new(1, G_TYPE_STRING);
-        for (sx_iter = affected_sxes; sx_iter != NULL; sx_iter = sx_iter->next)
+        for (std::list<SchedXaction*>::const_iterator it = affected_sxes.begin(); it != affected_sxes.end(); it++)
         {
-            SchedXaction *sx;
+            SchedXaction *sx = *it;
             GtkTreeIter iter;
             gchar *sx_name;
 
-            sx = (SchedXaction*)sx_iter->data;
             sx_name = xaccSchedXactionGetName(sx);
             gtk_list_store_append(name_list, &iter);
             gtk_list_store_set(name_list, &iter, 0, sx_name, -1);

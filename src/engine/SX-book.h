@@ -41,14 +41,14 @@
 
 class SchedXactions;
 
-#include <glib.h>
+#include <list>
 #include "SchedXaction.h"
 #include "qof.h"
 
 class SchedXactions : public QofInstance
 {
 public:
-    GList* sx_list;
+    std::list<SchedXaction*> sx_list;
     bool sx_notsaved;
     
     SchedXactions();
@@ -65,7 +65,7 @@ void gnc_sxes_del_sx(SchedXactions* sxes, SchedXaction* sx);
 Account *gnc_book_get_template_root(const QofBook *book);
 
 /** @return The list of SXes which reference the given Account. Caller should free this list. **/
-GList* gnc_sx_get_sxes_referencing_account(QofBook *book, Account *acct);
+std::list<SchedXaction*> gnc_sx_get_sxes_referencing_account(QofBook *book, Account *acct);
 
 #endif /* GNC_SX_BOOK_H */
 /** @} */

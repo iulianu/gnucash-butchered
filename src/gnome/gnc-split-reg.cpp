@@ -1231,14 +1231,12 @@ gsr_default_schedule_handler( GNCSplitReg *gsr, gpointer data )
             {
                 GncGUID *fromSXId = kvp_value_get_guid( kvp_val );
                 SchedXaction *theSX = NULL;
-                GList *sxElts;
 
                 /* Get the correct SX */
-                for ( sxElts = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
-                        (!theSX) && sxElts;
-                        sxElts = sxElts->next )
+                std::list<SchedXaction*> sxes = gnc_book_get_schedxactions(gnc_get_current_book())->sx_list;
+                for ( std::list<SchedXaction*>::const_iterator it = sxes.begin(); (!theSX) && it != sxes.end(); it++ )
                 {
-                    SchedXaction *sx = (SchedXaction*)sxElts->data;
+                    SchedXaction *sx = *it;
                     theSX =
                         ( ( guid_equal( xaccSchedXactionGetGUID( sx ), fromSXId ) )
                           ? sx : NULL );

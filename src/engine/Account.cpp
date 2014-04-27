@@ -409,7 +409,6 @@ static void
 xaccFreeAccount (Account *acc)
 {
     AccountPrivate *priv;
-    GList *lp;
 
 //    g_return_if_fail(GNC_IS_ACCOUNT(acc));
     if(!acc) return NULL;
