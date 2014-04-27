@@ -158,7 +158,6 @@ rethin:
 void
 xaccAccountScrubLots (Account *acc)
 {
-    LotList *lots, *node;
     if (!acc) return;
     if (FALSE == xaccAccountHasTrades (acc)) return;
 
@@ -166,13 +165,12 @@ xaccAccountScrubLots (Account *acc)
     xaccAccountBeginEdit(acc);
     xaccAccountAssignLots (acc);
 
-    lots = xaccAccountGetLotList(acc);
-    for (node = lots; node; node = node->next)
+    LotList_t lots = xaccAccountGetLotList(acc);
+    for (LotList_t::iterator it = lots.begin(); it != lots.end(); it++)
     {
-        GNCLot *lot = node->data;
+        GNCLot *lot = *it;
         xaccScrubLot (lot);
     }
-    g_list_free(lots);
     xaccAccountCommitEdit(acc);
     LEAVE ("(acc=%s)", xaccAccountGetName(acc));
 }

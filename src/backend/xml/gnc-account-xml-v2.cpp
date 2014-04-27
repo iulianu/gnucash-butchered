@@ -44,6 +44,7 @@
 #include "sixtp-dom-parsers.h"
 #include "AccountP.h"
 #include "Account.h"
+#include "gnc-lot.h"
 
 static QofLogModule log_module = GNC_MOD_IO;
 
@@ -79,7 +80,7 @@ gnc_account_dom_tree_create(Account *act,
     const char *str;
     kvp_frame *kf;
     xmlNodePtr ret;
-    GList *lots, *n;
+    GList *n;
     Account *parent;
     gnc_commodity *acct_commodity;
 
@@ -152,21 +153,19 @@ gnc_account_dom_tree_create(Account *act,
                                               xaccAccountGetGUID(parent)));
     }
 
-    lots = xaccAccountGetLotList (act);
-    PINFO ("lot list=%p", lots);
-    if (lots && !exporting)
+    LotList_t lots = xaccAccountGetLotList (act);
+    PINFO ("lot list count=%p", lots.size());
+    if (!lots.empty() && !exporting)
     {
         xmlNodePtr toaddto = xmlNewChild(ret, NULL, BAD_CAST act_lots_string, NULL);
 
-        lots = g_list_sort(lots, qof_instance_guid_compare);
+        lots.sort(lots_guid_weakorder);
 
-        for (n = lots; n; n = n->next)
+        for (LotList_t::const_iterator it = lots.begin(); it != lots.end(); it++)
         {
-            GNCLot * lot = n->data;
-            xmlAddChild(toaddto, gnc_lot_dom_tree_create(lot));
+            xmlAddChild(toaddto, gnc_lot_dom_tree_create(*it));
         }
     }
-    g_list_free(lots);
 
     LEAVE("");
     return ret;

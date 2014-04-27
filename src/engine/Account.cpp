@@ -190,7 +190,6 @@ Account::Account()
     priv->mark = 0;
 
     priv->policy = xaccGetFIFOPolicy();
-    priv->lots = NULL;
 
     priv->commodity = NULL;
     priv->commodity_scu = 0;
@@ -428,18 +427,16 @@ xaccFreeAccount (Account *acc)
     }
 
     /* remove lots -- although these should be gone by now. */
-    if (priv->lots)
+    if (!priv->lots.empty())
     {
         PERR (" instead of calling xaccFreeAccount(), please call \n"
               " xaccAccountBeginEdit(); xaccAccountDestroy(); \n");
 
-        for (lp = priv->lots; lp; lp = lp->next)
+        for(LotList_t::iterator it = priv->lots.begin(); it != priv->lots.end(); it++)
         {
-            GNCLot *lot = lp->data;
+            GNCLot *lot = *it;
             gnc_lot_destroy (lot);
         }
-        g_list_free (priv->lots);
-        priv->lots = NULL;
     }
 
     /* Next, clean up the splits */
@@ -591,15 +588,12 @@ xaccAccountCommitEdit (Account *acc)
             qof_collection_foreach(col, destroy_pending_splits_for_account, acc);
 
             /* the lots should be empty by now */
-            for (GList *lp = priv->lots; lp; lp = lp->next)
+            for (LotList_t::iterator it = priv->lots.begin(); it != priv->lots.end(); it++)
             {
-                GNCLot *lot = lp->data;
+                GNCLot *lot = *it;
                 gnc_lot_destroy (lot);
             }
         }
-        g_list_free(priv->lots);
-        priv->lots = NULL;
-
         qof_instance_set_dirty(acc);
         qof_instance_decrease_editlevel(acc);
     }
@@ -1118,10 +1112,10 @@ xaccAccountRemoveLot (Account *acc, GNCLot *lot)
     if(!lot) return;
 
     priv = GET_PRIVATE(acc);
-    g_return_if_fail(priv->lots);
+//    g_return_if_fail(priv->lots);
 
     ENTER ("(acc=%p, lot=%p)", acc, lot);
-    priv->lots = g_list_remove(priv->lots, lot);
+    priv->lots.remove(lot);
     qof_event_gen (lot, QOF_EVENT_REMOVE, NULL);
     qof_event_gen (acc, QOF_EVENT_MODIFY, NULL);
     LEAVE ("(acc=%p, lot=%p)", acc, lot);
@@ -1152,11 +1146,11 @@ xaccAccountInsertLot (Account *acc, GNCLot *lot)
     {
         old_acc = lot_account;
         opriv = GET_PRIVATE(old_acc);
-        opriv->lots = g_list_remove(opriv->lots, lot);
+        opriv->lots.remove(lot);
     }
 
     priv = GET_PRIVATE(acc);
-    priv->lots = g_list_prepend(priv->lots, lot);
+    priv->lots.push_front(lot);
     gnc_lot_set_account(lot, acc);
 
     /* Don't move the splits to the new account.  The caller will do this
@@ -1241,7 +1235,7 @@ xaccAccountMoveAllSplits (Account *accfrom, Account *accto)
 
     /* Finally empty accfrom. */
     g_assert(from_priv->splits.empty());
-    g_assert(from_priv->lots == NULL);
+    g_assert(from_priv->lots.empty());
     xaccAccountCommitEdit(accfrom);
     xaccAccountCommitEdit(accto);
 
@@ -3001,31 +2995,30 @@ xaccAccountGetSplitList (const Account *acc)
     return GET_PRIVATE(acc)->splits;
 }
 
-LotList *
+LotList_t
 xaccAccountGetLotList (const Account *acc)
 {
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(acc), NULL);
-    if(!acc) return NULL;
-    return g_list_copy(GET_PRIVATE(acc)->lots);
+    if(!acc) return LotList_t();
+    return GET_PRIVATE(acc)->lots;
 }
 
-LotList *
+LotList_t
 xaccAccountFindOpenLots (const Account *acc,
                          bool (*match_func)(GNCLot *lot,
                                  gpointer user_data),
-                         gpointer user_data, GCompareFunc sort_func)
+                         gpointer user_data)
 {
     AccountPrivate *priv;
-    GList *lot_list;
-    GList *retval = NULL;
+    LotList_t retval;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(acc), NULL);
-    if(!acc) return NULL;
+    if(!acc) return retval;
 
     priv = GET_PRIVATE(acc);
-    for (lot_list = priv->lots; lot_list; lot_list = lot_list->next)
+    for (LotList_t::const_iterator it = priv->lots.begin(); it != priv->lots.end(); it++)
     {
-        GNCLot *lot = lot_list->data;
+        GNCLot *lot = *it;
 
         /* If this lot is closed, then ignore it */
         if (gnc_lot_is_closed (lot))
@@ -3035,22 +3028,18 @@ xaccAccountFindOpenLots (const Account *acc,
             continue;
 
         /* Ok, this is a valid lot.  Add it to our list of lots */
-        if (sort_func)
-            retval = g_list_insert_sorted (retval, lot, sort_func);
-        else
-            retval = g_list_prepend (retval, lot);
+        retval.push_front(lot);
     }
 
     return retval;
 }
 
-gpointer
+void*
 xaccAccountForEachLot(const Account *acc,
-                      gpointer (*proc)(GNCLot *lot, void *data), void *data)
+                      void* (*proc)(GNCLot *lot, void *data), void *data)
 {
     AccountPrivate *priv;
-    LotList *node;
-    gpointer result = NULL;
+    void* result = NULL;
 
 //    g_return_val_if_fail(GNC_IS_ACCOUNT(acc), NULL);
 //    g_return_val_if_fail(proc, NULL);
@@ -3058,8 +3047,8 @@ xaccAccountForEachLot(const Account *acc,
     if(!proc) return NULL;
 
     priv = GET_PRIVATE(acc);
-    for (node = priv->lots; node; node = node->next)
-        if ((result = proc((GNCLot *)node->data, data)))
+    for (LotList_t::iterator it = priv->lots.begin(); it != priv->lots.end(); it++)
+        if ((result = proc(*it, data)))
             break;
 
     return result;

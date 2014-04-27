@@ -197,10 +197,7 @@ typedef struct gnc_quote_source_s    gnc_quote_source;
 
 typedef std::list<Account*> AccountList_t;
 typedef std::list<Split*>   SplitList_t;
-
-/** GList of GNCLots */
-typedef GList                  LotList;
-/** GList of Transaction */
+typedef std::list<GNCLot*> LotList_t;
 typedef std::list<Transaction*>   TransList_t;
 ///** GList of GUIDs of a Account */
 //typedef GList                  AccountGUIDList;

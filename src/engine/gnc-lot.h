@@ -152,6 +152,8 @@ const char * gnc_lot_get_notes (const GNCLot *);
 void gnc_lot_set_title (GNCLot *, const char *);
 void gnc_lot_set_notes (GNCLot *, const char *);
 
+bool lots_guid_weakorder( GNCLot* a, GNCLot* b );
+
 /** Every lot has a place to hang kvp data.  This routine returns that
  *     place.
  * */

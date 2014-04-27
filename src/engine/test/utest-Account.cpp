@@ -260,7 +260,7 @@ insert_split (Account *parent, Transaction *txn, SplitParms *p)
     QofBook *book = gnc_account_get_book (parent);
     Split *split = xaccMallocSplit (book);
     Account *acct = gnc_account_lookup_by_name (parent, p->account);
-    LotList* lotlist = xaccAccountGetLotList (acct);
+    LotList_t lotlist = xaccAccountGetLotList (acct);
     GNCLot* lot = NULL;
     g_assert (acct != NULL);
     xaccSplitSetParent (split, txn);
@@ -277,10 +277,15 @@ insert_split (Account *parent, Transaction *txn, SplitParms *p)
     if (p->lotnum == 0)
         return split;
 
-    if (p->lotnum > g_list_length (lotlist))
+    if (p->lotnum > lotlist.size())
         lot = gnc_lot_new (book);
     else
-        lot = reinterpret_cast<GNCLot*> (g_list_nth_data (lotlist, p->lotnum - 1));
+    {
+        LotList_t::iterator iter = lotlist.begin();
+        std::advance(iter, p->lotnum - 1);
+        lot = *iter;
+    }
+        
 
     gnc_lot_add_split (lot, split);
     return split;
@@ -597,7 +602,7 @@ test_gnc_account_create_and_destroy (void)
     g_assert (!hold);
     g_assert (gnc_account_get_parent (acc) == NULL);
     g_assert (gnc_account_get_children (acc).empty());
-    g_assert (xaccAccountGetLotList (acc) == NULL);
+    g_assert (xaccAccountGetLotList (acc).empty());
     g_assert (xaccAccountGetSplitList (acc).empty());
     g_free (name);
     g_free (fname);
@@ -870,7 +875,7 @@ test_xaccFreeAccount (Fixture *fixture, gconstpointer pData)
     xaccAccountSetCommodity (parent, commodity);
     /* Check that we've got children, lots, and splits to remove */
     g_assert (! p_priv->children.empty());
-    g_assert (p_priv->lots != NULL);
+    g_assert (!p_priv->lots.empty());
     g_assert (! p_priv->splits.empty());
     g_assert (p_priv->parent != NULL);
     g_assert (p_priv->commodity != NULL);
@@ -980,7 +985,7 @@ test_xaccAccountCommitEdit (Fixture *fixture, gconstpointer pData)
     xaccAccountSetCommodity (parent, commodity);
     /* Check that we've got children, lots, and splits to remove */
     g_assert (! p_priv->children.empty());
-    g_assert (p_priv->lots != NULL);
+    g_assert (! p_priv->lots.empty());
     g_assert (! p_priv->splits.empty());
     g_assert (p_priv->parent != NULL);
     g_assert (p_priv->commodity != NULL);
@@ -996,7 +1001,7 @@ test_xaccAccountCommitEdit (Fixture *fixture, gconstpointer pData)
     test_signal_assert_hits (sig1, 1);
     test_signal_assert_hits (sig2, 0);
     g_assert (! p_priv->children.empty());
-    g_assert (p_priv->lots != NULL);
+    g_assert (! p_priv->lots.empty());
     g_assert (! p_priv->splits.empty());
     g_assert (p_priv->parent != NULL);
     g_assert (p_priv->commodity != NULL);
@@ -1209,24 +1214,24 @@ test_xaccAccountInsertRemoveLot (Fixture *fixture, gconstpointer pData)
     AccountPrivate *a_priv = fixture->func->get_private (fixture->acct);
     AccountPrivate *p_priv = fixture->func->get_private (parent);
 
-    g_assert_cmpuint (g_list_length (a_priv->lots), == , 0);
-    g_assert_cmpuint (g_list_length (p_priv->lots), == , 0);
+    g_assert_cmpuint (a_priv->lots.size(), == , 0);
+    g_assert_cmpuint (p_priv->lots.size(), == , 0);
     xaccAccountInsertLot (fixture->acct, lot);
     g_assert (gnc_lot_get_account (lot) == fixture->acct);
-    g_assert_cmpuint (g_list_length (a_priv->lots), == , 1);
+    g_assert_cmpuint (a_priv->lots.size(), == , 1);
     test_signal_assert_hits (sig1, 1);
     test_signal_assert_hits (sig2, 1);
     /* Make sure that inserting again doesn't do anything */
     xaccAccountInsertLot (fixture->acct, lot);
     g_assert (gnc_lot_get_account (lot) == fixture->acct);
-    g_assert_cmpuint (g_list_length (a_priv->lots), == , 1);
+    g_assert_cmpuint (a_priv->lots.size(), == , 1);
     test_signal_assert_hits (sig1, 1);
     test_signal_assert_hits (sig2, 1);
     /* Check that inserting the lot into a different account changes the lot */
     xaccAccountInsertLot (parent, lot);
     g_assert (gnc_lot_get_account (lot) == parent);
-    g_assert_cmpuint (g_list_length (a_priv->lots), == , 0);
-    g_assert_cmpuint (g_list_length (p_priv->lots), == , 1);
+    g_assert_cmpuint (a_priv->lots.size(), == , 0);
+    g_assert_cmpuint (p_priv->lots.size(), == , 1);
     test_signal_assert_hits (sig1, 2);
     test_signal_assert_hits (sig4, 1);
     test_signal_assert_hits (sig2, 1);
@@ -1236,8 +1241,8 @@ test_xaccAccountInsertRemoveLot (Fixture *fixture, gconstpointer pData)
      * error in the routine: When removing a lot from an account, the
      * account reference in the lot object should be NULLed. */
     g_assert (gnc_lot_get_account (lot) != NULL);
-    g_assert_cmpuint (g_list_length (a_priv->lots), == , 0);
-    g_assert_cmpuint (g_list_length (p_priv->lots), == , 0);
+    g_assert_cmpuint (a_priv->lots.size(), == , 0);
+    g_assert_cmpuint (p_priv->lots.size(), == , 0);
     test_signal_assert_hits (sig3, 1);
     test_signal_assert_hits (sig4, 2);
     test_signal_assert_hits (sig2, 1);
@@ -1246,11 +1251,11 @@ test_xaccAccountInsertRemoveLot (Fixture *fixture, gconstpointer pData)
      * is removed, we have to do that for the next test to work: */
     gnc_lot_set_account (lot, NULL);
     xaccAccountInsertLot (parent, lot);
-    g_assert_cmpuint (g_list_length (p_priv->lots), == , 1);
+    g_assert_cmpuint (p_priv->lots.size(), == , 1);
     g_assert (gnc_lot_get_account (lot) == parent);
     gnc_lot_destroy (lot);
     /* Destroying the lot should remove it from the account; Not Happening. */
-    g_assert_cmpuint (g_list_length (p_priv->lots), != , 0);
+    g_assert_cmpuint (p_priv->lots.size(), != , 0);
     test_signal_assert_hits (sig1, 3);
     /* We get a modify only on the insert, since there is no remove when
      * the lot is destroyed. */
@@ -1985,38 +1990,22 @@ bogus_lot_match_func_false (GNCLot *lot, void* p_data)
     return FALSE;
 }
 
-static guint count_sorts = 0;
-static gint
-bogus_lot_sort_func (gconstpointer a, gconstpointer b)
-{
-    ++count_sorts;
-    return 0;
-}
-
 static void
 test_xaccAccountFindOpenLots (Fixture *fixture, gconstpointer pData)
 {
     Account *root = gnc_account_get_root (fixture->acct);
     Account *acct = gnc_account_lookup_by_name (root, "baz");
-    LotList* lots;
+    LotList_t lots;
 
     g_assert (acct);
-    lots = xaccAccountFindOpenLots (acct, NULL, NULL, NULL);
-    g_assert (g_list_length (lots) == 2);
-    if (lots) g_list_free (lots);
+    lots = xaccAccountFindOpenLots (acct, NULL, NULL);
+    g_assert (lots.size() == 2);
     lots = xaccAccountFindOpenLots (acct, bogus_lot_match_func_true,
-                                    NULL, NULL);
-    g_assert (g_list_length (lots) == 2);
-    if (lots) g_list_free (lots);
+                                    NULL);
+    g_assert (lots.size() == 2);
     lots = xaccAccountFindOpenLots (acct, bogus_lot_match_func_false,
-                                    NULL, NULL);
-    g_assert (g_list_length (lots) == 0);
-    if (lots) g_list_free (lots);
-    lots = xaccAccountFindOpenLots (acct, NULL, NULL, bogus_lot_sort_func);
-    g_assert_cmpint (count_sorts, == , 1);
-    g_assert (g_list_length (lots) == 2);
-    if (lots) g_list_free (lots);
-    count_sorts = 0;
+                                    NULL);
+    g_assert (lots.size() == 0);
 }
 
 static gpointer

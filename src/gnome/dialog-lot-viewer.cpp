@@ -332,7 +332,6 @@ lv_unselect_row (GNCLotViewer *lv)
 static void
 gnc_lot_viewer_fill (GNCLotViewer *lv)
 {
-    LotList *lot_list, *node;
     GNCLot *this_lot, *selected_lot = NULL;
     GtkListStore *store;
     GtkTreeModel *model;
@@ -340,7 +339,7 @@ gnc_lot_viewer_fill (GNCLotViewer *lv)
     GtkTreeSelection *selection;
     gboolean found = FALSE;
 
-    lot_list = xaccAccountGetLotList (lv->account);
+    LotList_t lot_list = xaccAccountGetLotList (lv->account);
 
     selection = gtk_tree_view_get_selection(lv->lot_view);
     if (gtk_tree_selection_get_selected (selection, &model, &iter))
@@ -349,14 +348,14 @@ gnc_lot_viewer_fill (GNCLotViewer *lv)
     /* Crazy. Should update in place if possible. */
     gtk_list_store_clear (lv->lot_store);
 
-    for (node = lot_list; node; node = node->next)
+    for (LotList_t::iterator it = lot_list.begin(); it != lot_list.end(); it++)
     {
         char type_buff[200];
         char obuff[MAX_DATE_LENGTH];
         char cbuff[MAX_DATE_LENGTH];
         char baln_buff[200];
         char gain_buff[200];
-        GNCLot *lot = node->data;
+        GNCLot *lot = *it;
         Split *esplit = gnc_lot_get_earliest_split (lot);
         Transaction *etrans = xaccSplitGetParent (esplit);
         time64 open_date = xaccTransGetDate (etrans);
@@ -416,7 +415,6 @@ gnc_lot_viewer_fill (GNCLotViewer *lv)
         /* Self-reference */
         gtk_list_store_set(store, &iter, LOT_COL_PNTR, lot, -1);
     }
-    g_list_free(lot_list);
 
     /* re-select the row that the user had previously selected,
      * if possible. */

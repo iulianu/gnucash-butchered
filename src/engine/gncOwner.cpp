@@ -709,6 +709,12 @@ gncOwnerLotsSortFunc (GNCLot *lotA, GNCLot *lotB)
     return timespec_cmp (&da, &db);
 }
 
+bool
+gncOwnerLotsSortWeakOrder (GNCLot *lotA, GNCLot *lotB)
+{
+    return gncOwnerLotsSortFunc(lotA, lotB) < 0;
+}
+
 GNCLot *
 gncOwnerCreatePaymentLot (const GncOwner *owner, Transaction *txn,
                           Account *posted_acc, Account *xfer_acc,
@@ -845,7 +851,7 @@ gncOwnerCreatePaymentLot (const GncOwner *owner, Transaction *txn,
     return payment_lot;
 }
 
-void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, GList *lots)
+void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, LotList_t lots)
 {
     GList *base_iter;
 
@@ -859,15 +865,14 @@ void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, GList *lots)
     /* Payments can only be applied when at least an owner
      * and a list of lots to use are given */
     if (!owner) return;
-    if (!lots) return;
+    if (lots.empty()) return;
 
-    for (base_iter = lots; base_iter; base_iter = base_iter->next)
+    for (LotList_t::iterator base_iter = lots.begin(); base_iter != lots.end(); base_iter++)
     {
-        GNCLot *base_lot = base_iter->data;
+        GNCLot *base_lot = *base_iter;
         QofBook *book;
         Account *acct;
         const gchar *name;
-        GList *lot_list, *lot_iter;
         Transaction *txn = NULL;
         gnc_numeric base_lot_bal, val_to_pay, val_paid = { 0, 1 };
         bool base_bal_is_pos;
@@ -884,7 +889,8 @@ void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, GList *lots)
         book = gnc_lot_get_book (base_lot);
         acct = gnc_lot_get_account (base_lot);
         name = gncOwnerGetName (gncOwnerGetEndOwner (owner));
-        lot_list = base_iter->next;
+        LotList_t::iterator lot_iter = base_iter;
+        lot_iter++;
 
         /* Strings used when creating splits later on. */
         action = _("Lot Link");
@@ -900,14 +906,14 @@ void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, GList *lots)
          * - either the invoice lot is balanced
          * - or there are no more balancing lots.
          */
-        for (lot_iter = lot_list; lot_iter; lot_iter = lot_iter->next)
+        for (; lot_iter != lots.end(); lot_iter++)
         {
             gnc_numeric payment_lot_balance;
             Split *split;
             Account *bal_acct;
             gnc_numeric  split_amt;
 
-            GNCLot *balancing_lot = lot_iter->data;
+            GNCLot *balancing_lot = *lot_iter;
 
             /* Only attempt to use open lots to balance the base lot.
              * Note that due to the iterative nature of this function lots
@@ -1029,13 +1035,13 @@ void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, GList *lots)
  * lots for the owner are considered.
  */
 void
-gncOwnerApplyPayment (const GncOwner *owner, Transaction *txn, GList *lots,
+gncOwnerApplyPayment (const GncOwner *owner, Transaction *txn, LotList_t lots,
                       Account *posted_acc, Account *xfer_acc,
                       gnc_numeric amount, gnc_numeric exch, Timespec date,
                       const char *memo, const char *num)
 {
     GNCLot *payment_lot;
-    GList *selected_lots;
+    LotList_t selected_lots;
 
     /* Verify our arguments */
     if (!owner || !posted_acc || !xfer_acc) return;
@@ -1045,18 +1051,18 @@ gncOwnerApplyPayment (const GncOwner *owner, Transaction *txn, GList *lots,
     payment_lot = gncOwnerCreatePaymentLot (owner, txn, posted_acc, xfer_acc,
                                             amount, exch, date, memo, num);
 
-    if (lots)
+    if (!lots.empty())
         selected_lots = lots;
     else
         selected_lots = xaccAccountFindOpenLots (posted_acc, gncOwnerLotMatchOwnerFunc,
-                                                 (gpointer)owner, NULL);
+                                                 (gpointer)owner);
 
     /* And link the selected lots and the payment lot together as well as possible.
      * If the payment was bigger than the selected documents/overpayments, only
      * part of the payment will be used. Similarly if more documents were selected
      * than the payment value set, not all documents will be marked as paid. */
     if (payment_lot)
-        selected_lots = g_list_prepend (selected_lots, payment_lot);
+        selected_lots.push_front(payment_lot);
     gncOwnerAutoApplyPaymentsWithLots (owner, selected_lots);
 }
 
@@ -1099,7 +1105,7 @@ gncOwnerGetBalanceInCurrency (const GncOwner *owner,
                               const gnc_commodity *report_currency)
 {
     gnc_numeric balance = gnc_numeric_zero ();
-    GList  *acct_types, *lot_list = NULL, *lot_node;
+    GList  *acct_types;
     QofBook *book;
     gnc_commodity *owner_currency;
     GNCPriceDB *pdb;
@@ -1128,12 +1134,11 @@ gncOwnerGetBalanceInCurrency (const GncOwner *owner,
             continue;
 
         /* Get a list of open lots for this owner and account */
-        lot_list = xaccAccountFindOpenLots (account, gncOwnerLotMatchOwnerFunc,
-                                            (gpointer)owner, NULL);
-        /* For each lot */
-        for (lot_node = lot_list; lot_node; lot_node = lot_node->next)
+        LotList_t lot_list = xaccAccountFindOpenLots (account, gncOwnerLotMatchOwnerFunc,
+                                            (gpointer)owner);
+        for (LotList_t::iterator it = lot_list.begin(); it != lot_list.end(); it++)
         {
-            GNCLot *lot = lot_node->data;
+            GNCLot *lot = *it;
             gnc_numeric lot_balance = gnc_lot_get_balance (lot);
             balance = gnc_numeric_add (balance, lot_balance,
                                        gnc_commodity_get_fraction (owner_currency), GNC_HOW_RND_ROUND_HALF_UP);

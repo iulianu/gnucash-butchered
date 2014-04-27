@@ -586,4 +586,20 @@ GNCLot * gnc_lot_make_default (Account *acc)
     return lot;
 }
 
+bool lots_guid_weakorder( GNCLot* a, GNCLot* b )
+{
+    if ( !a && !b )
+        return true;
+    if (a == b)
+        return true;
+    if ( !a )
+        return true;
+    if ( !b )
+        return false;
+
+    GncGUID* guid1 = qof_instance_get_guid(a);
+    GncGUID* guid2 = qof_instance_get_guid(b);
+    return guid_compare(guid1, guid2) >= 0;
+}
+
 /* ========================== END OF FILE ========================= */

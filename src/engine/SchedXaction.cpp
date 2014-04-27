@@ -879,7 +879,7 @@ _temporal_state_data_weakorder( const SXTmpStateData* tsd_a, const SXTmpStateDat
     if ( !tsd_b )
         return false;
     return g_date_compare( &tsd_a->last_date,
-                           &tsd_b->last_date ) >= 0;
+                           &tsd_b->last_date ) < 0;
 }
 
 /**

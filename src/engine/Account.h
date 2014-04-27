@@ -1013,7 +1013,7 @@ void xaccAccountRemoveLot (Account *, GNCLot *);
  *  @return A GList of lot pointers, or NULL if there are no lots in
  *  this account children. It is the callers responsibility to free
  *  any returned list with the g_list_free() function. */
-LotList* xaccAccountGetLotList (const Account *account);
+LotList_t xaccAccountGetLotList (const Account *account);
 
 /** The xaccAccountForEachLot() method will apply the function 'proc'
  *    to each lot in the account.  If 'proc' returns a non-NULL value,
@@ -1031,10 +1031,10 @@ void* xaccAccountForEachLot(
  * If sort_func is NULL, then the returned list has no particular order.
  * The caller must free to returned list.
  */
-LotList * xaccAccountFindOpenLots (const Account *acc,
+LotList_t xaccAccountFindOpenLots (const Account *acc,
                                    bool (*match_func)(GNCLot *lot,
                                            void* user_data),
-                                   /*@ null @*/ void* user_data, GCompareFunc sort_func);
+                                   /*@ null @*/ void* user_data);
 
 /** @} */
 /* ------------------ */

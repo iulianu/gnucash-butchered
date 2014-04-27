@@ -113,7 +113,7 @@ struct AccountPrivate
     SplitList_t splits;              /* list of split pointers */
     bool sort_dirty;        /* sort order of splits is bad */
 
-    LotList   *lots;		/* list of lot pointers */
+    LotList_t   lots;		/* list of lot pointers */
     GNCPolicy *policy;		/* Cached pointer to policy method */
 
     /* The "mark" flag can be used by the user to mark this account
@@ -139,7 +139,6 @@ struct AccountPrivate
         reconciled_balance = gnc_numeric_zero();
         balance_dirty = false;
         sort_dirty = false;
-        lots = NULL;
         policy = NULL;
         mark = 0;
     }

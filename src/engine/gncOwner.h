@@ -188,6 +188,7 @@ bool gncOwnerLotMatchOwnerFunc (GNCLot *lot, gpointer user_data);
  * use the lot's opened date.
  */
 gint gncOwnerLotsSortFunc (GNCLot *lotA, GNCLot *lotB);
+bool gncOwnerLotsSortWeakOrder(GNCLot *lotA, GNCLot *lotB);
 
 /** Get the owner from the lot.  If an owner is found in the lot,
  * fill in "owner" and return TRUE.  Otherwise return FALSE.
@@ -246,7 +247,7 @@ gncOwnerCreatePaymentLot (const GncOwner *owner, Transaction *txn,
  *   of the lots list. If it created the list, it should properly free
  *   it as well.
  */
-void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, GList *lots);
+void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, LotList_t lots);
 
 /**
  * A convenience function to apply a payment to the owner.
@@ -260,7 +261,7 @@ void gncOwnerAutoApplyPaymentsWithLots (const GncOwner *owner, GList *lots);
  * details on what happens exactly.
  */
 void
-gncOwnerApplyPayment (const GncOwner *owner, Transaction *txn, GList *lots,
+gncOwnerApplyPayment (const GncOwner *owner, Transaction *txn, LotList_t lots,
                       Account *posted_acc, Account *xfer_acc,
                       gnc_numeric amount, gnc_numeric exch, Timespec date,
                       const char *memo, const char *num);

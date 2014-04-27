@@ -1418,7 +1418,7 @@ gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
     {
         Split *split = *it;
         Transaction *other_txn = xaccSplitGetParent (split);
-        GList *lot_list = NULL;
+        LotList_t lot_list;
 
         /* Only work with transactions that link invoices and payments.
          * Note: this check also catches the possible case of NULL splits. */
@@ -1436,10 +1436,8 @@ gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
             if (other_lot == lot)
                 continue;
 
-            lot_list = g_list_prepend (lot_list, other_lot);
+            lot_list.push_back(other_lot);
         }
-        /* Maintain original split order */
-        lot_list = g_list_reverse (lot_list);
 
         /* Now remove this link transaction. */
         xaccTransClearReadOnly (other_txn);
@@ -1453,9 +1451,9 @@ gncInvoiceUnpost (GncInvoice *invoice, bool reset_tax_tables)
         /* If any of the saved lots has no more splits, then destroy it.
          * Otherwise if any has an invoice associated with it,
          * send it a modified event to reset its paid status */
-        for (GList* list_iter = lot_list; list_iter; list_iter = list_iter->next)
+        for (LotList_t::iterator it = lot_list.begin(); it != lot_list.end(); it++)
         {
-            GNCLot *other_lot = list_iter->data;
+            GNCLot *other_lot = *it;
             GncInvoice *other_invoice = gncInvoiceGetInvoiceFromLot (other_lot);
 
             if (!gnc_lot_count_splits (other_lot))
@@ -1542,7 +1540,6 @@ void gncInvoiceAutoApplyPayments (GncInvoice *invoice)
     GNCLot *inv_lot;
     Account *acct;
     const GncOwner *owner;
-    GList *lot_list;
     struct lotmatch lm;
 
     /* General note: "paying" in this context means balancing
@@ -1568,12 +1565,11 @@ void gncInvoiceAutoApplyPayments (GncInvoice *invoice)
      * could be used. */
     lm.positive_balance =  gnc_numeric_positive_p (gnc_lot_get_balance (inv_lot));
     lm.owner = owner;
-    lot_list = xaccAccountFindOpenLots (acct, gnc_lot_match_owner_balancing,
-                                        &lm, NULL);
+    LotList_t lot_list = xaccAccountFindOpenLots (acct, gnc_lot_match_owner_balancing,
+                                        &lm);
 
-    lot_list = g_list_prepend (lot_list, inv_lot);
+    lot_list.push_front(inv_lot);
     gncOwnerAutoApplyPaymentsWithLots (owner, lot_list);
-    g_list_free (lot_list);
 }
 
 /*
@@ -1587,7 +1583,7 @@ gncInvoiceApplyPayment (const GncInvoice *invoice, Transaction *txn,
                         const char *memo, const char *num)
 {
     GNCLot *payment_lot;
-    GList *selected_lots = NULL;
+    LotList_t selected_lots;
     const GncOwner *owner;
 
     /* Verify our arguments */
@@ -1601,11 +1597,11 @@ gncInvoiceApplyPayment (const GncInvoice *invoice, Transaction *txn,
                                             amount, exch, date, memo, num);
 
     /* Select the invoice as only payment candidate */
-    selected_lots = g_list_prepend (selected_lots, invoice->posted_lot);
+    selected_lots.push_front(invoice->posted_lot);
 
     /* And link the invoice lot and the payment lot together as well as possible. */
     if (payment_lot)
-        selected_lots = g_list_prepend (selected_lots, payment_lot);
+        selected_lots.push_front(payment_lot);
     gncOwnerAutoApplyPaymentsWithLots (owner, selected_lots);
 }
 

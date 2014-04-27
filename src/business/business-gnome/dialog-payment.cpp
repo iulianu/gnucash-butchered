@@ -275,23 +275,23 @@ static void
 gnc_payment_window_fill_docs_list (PaymentWindow *pw)
 {
     GtkListStore *store;
-    GList *list = NULL, *node;
+    LotList_t list;
 
     g_return_if_fail (pw->docs_list_tree_view && GTK_IS_TREE_VIEW(pw->docs_list_tree_view));
 
     /* Get a list of open lots for this owner and post account */
     if (pw->owner.owner.undefined)
         list = xaccAccountFindOpenLots (pw->post_acct, gncOwnerLotMatchOwnerFunc,
-                                        &pw->owner, NULL);
+                                        &pw->owner);
 
     /* Clear the existing list */
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pw->docs_list_tree_view)));
     gtk_list_store_clear(store);
 
     /* Add the documents and overpayments to the tree view */
-    for (node = list; node; node = node->next)
+    for (LotList_t::iterator it = list.begin(); it != list.end(); it++)
     {
-        GNCLot *lot = node->data;
+        GNCLot *lot = *it;
         const gchar *doc_date_str = NULL;
         const gchar *doc_type_str = NULL;
         const gchar *doc_id_str   = NULL;
@@ -365,8 +365,6 @@ gnc_payment_window_fill_docs_list (PaymentWindow *pw)
                             -1);
 
     }
-
-    g_list_free (list);
 
     /* Highlight the preset invoice if it's in the new list */
     gnc_payment_dialog_highlight_document (pw);
@@ -527,7 +525,7 @@ get_selected_lots (GtkTreeModel *model,
                    GtkTreeIter *iter,
                    gpointer data)
 {
-    GList **return_list = data;
+    LotList_t *return_list = data;
     GNCLot *lot;
     GValue value = { 0 };
 
@@ -535,8 +533,11 @@ get_selected_lots (GtkTreeModel *model,
     lot = (GNCLot *) g_value_get_pointer (&value);
     g_value_unset (&value);
 
-    if (lot)
-        *return_list = g_list_insert_sorted (*return_list, lot, (GCompareFunc)gncOwnerLotsSortFunc);
+    if (lot) 
+    {
+        return_list->push_back(lot);
+        return_list->sort(gncOwnerLotsSortWeakOrder);
+    }
 }
 
 void
@@ -599,7 +600,7 @@ gnc_payment_ok_cb (GtkWidget *widget, gpointer data)
         const char *memo, *num;
         Timespec date;
         gnc_numeric exch = gnc_numeric_create(1, 1); //default to "one to one" rate
-        GList *selected_lots = NULL;
+        LotList_t selected_lots;
         GtkTreeSelection *selection;
 
         /* Obtain all our ancillary information */
