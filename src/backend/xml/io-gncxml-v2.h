@@ -121,7 +121,7 @@ typedef struct
 typedef struct
 {
     AccountList_t accts;
-    TransList	*transactions;
+    TransList_t   transactions;
     QofBook *book;
 } gnc_template_xaction_data;
 

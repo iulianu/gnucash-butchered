@@ -322,10 +322,10 @@ add_template_transaction_local( sixtp_gdv2 *data,
 
     }
 
-    for ( GList* n = txd->transactions; n; n = n->next )
+    for(TransList_t::const_iterator it = txd->transactions.begin(); it != txd->transactions.end(); it++ )
     {
         /* insert transactions into accounts */
-        add_transaction_local( data, (Transaction*)n->data );
+        add_transaction_local( data, *it );
     }
 
     return TRUE;

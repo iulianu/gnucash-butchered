@@ -852,7 +852,7 @@ tt_trn_handler( xmlNodePtr node, gpointer data )
     }
     else
     {
-        txd->transactions = g_list_append( txd->transactions, trn );
+        txd->transactions.push_back(trn);
     }
 
     return TRUE;
@@ -882,7 +882,6 @@ gnc_template_transaction_end_handler(gpointer data_for_children,
     gnc_template_xaction_data txd;
 
     txd.book = book;
-    txd.transactions = NULL;
 
     /* the DOM tree will have an account tree [the template
        accounts] and a list of transactions [which will be members
@@ -917,11 +916,6 @@ gnc_template_transaction_end_handler(gpointer data_for_children,
     }
 
     /* cleanup */
-    for ( n = txd.transactions; n; n = n->next )
-    {
-        n->data = NULL;
-    }
-    g_list_free( txd.transactions );
 
     xmlFreeNode( tree );
 

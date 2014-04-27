@@ -201,11 +201,11 @@ typedef std::list<Split*>   SplitList_t;
 /** GList of GNCLots */
 typedef GList                  LotList;
 /** GList of Transaction */
-typedef GList                  TransList;
-/** GList of GUIDs of a Account */
-typedef GList                  AccountGUIDList;
-/** GList of GUIDs of a QofBook */
-typedef GList                  BookGUIDList;
+typedef std::list<Transaction*>   TransList_t;
+///** GList of GUIDs of a Account */
+//typedef GList                  AccountGUIDList;
+///** GList of GUIDs of a QofBook */
+//typedef GList                  BookGUIDList;
 
 typedef void (*EngineCommitErrorCallback)( void *data, QofBackendError errcode );
 
