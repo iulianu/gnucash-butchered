@@ -41,6 +41,15 @@
 #include "qof.h"
 #include "Recurrence.h"
 #include "gnc-engine.h"
+#include <list>
+
+/** Just the variable temporal bits from the SX structure. */
+struct SXTmpStateData
+{
+    GDate last_date;
+    int num_occur_rem;
+    int num_inst;
+} ;
 
 /**
  * A single scheduled transaction.
@@ -66,7 +75,7 @@
 class SchedXaction : public QofInstance
 {
 public:
-    gchar           *name;
+    char           *name;
 
     RecurrenceList_t schedule;
 
@@ -77,33 +86,27 @@ public:
     GDate           end_date;
 
     /* if num_occurances_total == 0, then no limit */
-    gint            num_occurances_total;
+    int            num_occurances_total;
     /* remaining occurrences are as-of the 'last_date'. */
-    gint            num_occurances_remain;
+    int            num_occurances_remain;
 
     /* the current instance-count of the SX. */
-    gint            instance_num;
+    int            instance_num;
 
     bool        enabled;
     bool        autoCreateOption;
     bool        autoCreateNotify;
-    gint            advanceCreateDays;
-    gint            advanceRemindDays;
+    int            advanceCreateDays;
+    int            advanceRemindDays;
 
     Account        *template_acct;
 
     /** The list of deferred SX instances.  This list is of SXTmpStateData
      * instances.  */
-    GList /* <SXTmpStateData*> */ *deferredList;
+    std::list<SXTmpStateData*> deferredList;
+    
+    SchedXaction();
 };
-
-/** Just the variable temporal bits from the SX structure. */
-typedef struct _SXTmpStateData
-{
-    GDate last_date;
-    gint num_occur_rem;
-    gint num_inst;
-} SXTmpStateData;
 
 #define xaccSchedXactionSetGUID(X,G) qof_instance_set_guid(QOF_INSTANCE(X),(G))
 
@@ -122,17 +125,16 @@ void xaccSchedXactionDestroy( SchedXaction *sx );
 void gnc_sx_begin_edit (SchedXaction *sx);
 void gnc_sx_commit_edit (SchedXaction *sx);
 
-/** @return GList<Recurrence*> **/
 /*@ dependent @*/
 RecurrenceList_t gnc_sx_get_schedule(const SchedXaction *sx);
 /** @param[in] schedule A GList<Recurrence*> **/
 void gnc_sx_set_schedule(SchedXaction *sx, const RecurrenceList_t &schedule);
 
-gchar *xaccSchedXactionGetName( const SchedXaction *sx );
+char *xaccSchedXactionGetName( const SchedXaction *sx );
 /**
  * A copy of the name is made.
 */
-void xaccSchedXactionSetName( SchedXaction *sx, const gchar *newName );
+void xaccSchedXactionSetName( SchedXaction *sx, const char *newName );
 
 const GDate* xaccSchedXactionGetStartDate(const SchedXaction *sx );
 void xaccSchedXactionSetStartDate( SchedXaction *sx, const GDate* newStart );
@@ -155,17 +157,17 @@ void xaccSchedXactionSetLastOccurDate( SchedXaction *sx, const GDate* newLastOcc
  * occurrences, false if not.
 */
 bool xaccSchedXactionHasOccurDef( const SchedXaction *sx );
-gint xaccSchedXactionGetNumOccur( const SchedXaction *sx );
+int xaccSchedXactionGetNumOccur( const SchedXaction *sx );
 /**
  * Set to '0' to turn off number-of-occurrences definition.
 */
-void xaccSchedXactionSetNumOccur( SchedXaction *sx, gint numNum );
-gint xaccSchedXactionGetRemOccur( const SchedXaction *sx );
-void xaccSchedXactionSetRemOccur( SchedXaction *sx, gint numRemain );
+void xaccSchedXactionSetNumOccur( SchedXaction *sx, int numNum );
+int xaccSchedXactionGetRemOccur( const SchedXaction *sx );
+void xaccSchedXactionSetRemOccur( SchedXaction *sx, int numRemain );
 
 /** Calculates and returns the number of occurrences of the given SX
  * in the given date range (inclusive). */
-gint gnc_sx_get_num_occur_daterange(const SchedXaction *sx, const GDate* start_date, const GDate* end_date);
+int gnc_sx_get_num_occur_daterange(const SchedXaction *sx, const GDate* start_date, const GDate* end_date);
 
 /** \brief Get the instance count.
  *
@@ -176,15 +178,14 @@ gint gnc_sx_get_num_occur_daterange(const SchedXaction *sx, const GDate* start_d
  * @param sx The instance whose state should be retrieved.
  * @param stateData may be NULL.
 */
-gint gnc_sx_get_instance_count( const SchedXaction *sx, /*@ null @*/ SXTmpStateData *stateData );
+int gnc_sx_get_instance_count( const SchedXaction *sx, SXTmpStateData *stateData );
 /**
  * Sets the instance count to something other than the default.  As the
  * default is the incorrect value '0', callers should DTRT here.
 */
-void gnc_sx_set_instance_count( SchedXaction *sx, gint instanceNum );
+void gnc_sx_set_instance_count( SchedXaction *sx, int instanceNum );
 
 SplitList_t xaccSchedXactionGetSplits( const SchedXaction *sx );
-void xaccSchedXactionSetSplits( SchedXaction *sx, GList *newSplits );
 
 bool xaccSchedXactionGetEnabled( const SchedXaction *sx );
 void xaccSchedXactionSetEnabled( SchedXaction *sx, bool newEnabled );
@@ -196,11 +197,11 @@ void xaccSchedXactionSetAutoCreate( SchedXaction *sx,
                                     bool newAutoCreate,
                                     bool newNotify );
 
-gint xaccSchedXactionGetAdvanceCreation( const SchedXaction *sx );
-void xaccSchedXactionSetAdvanceCreation( SchedXaction *sx, gint createDays );
+int xaccSchedXactionGetAdvanceCreation( const SchedXaction *sx );
+void xaccSchedXactionSetAdvanceCreation( SchedXaction *sx, int createDays );
 
-gint xaccSchedXactionGetAdvanceReminder( const SchedXaction *sx );
-void xaccSchedXactionSetAdvanceReminder( SchedXaction *sx, gint reminderDays );
+int xaccSchedXactionGetAdvanceReminder( const SchedXaction *sx );
+void xaccSchedXactionSetAdvanceReminder( SchedXaction *sx, int reminderDays );
 
 /** \name Temporal state data.
  *
@@ -261,13 +262,13 @@ void xaccSchedXactionSetTemplateTrans( SchedXaction *sx,
 
 Added instances are added in date-sorted order.
 */
-void gnc_sx_add_defer_instance( SchedXaction *sx, void *deferStateData );
+void gnc_sx_add_defer_instance( SchedXaction *sx, SXTmpStateData *deferStateData );
 
 /** \brief Removes an instance from the deferred list.
 
 If the instance is no longer useful; gnc_sx_destroy_temporal_state() it.
 */
-void gnc_sx_remove_defer_instance( SchedXaction *sx, void *deferStateData );
+void gnc_sx_remove_defer_instance( SchedXaction *sx, SXTmpStateData *deferStateData );
 
 /** \brief Returns the defer list from the SX.
 
@@ -275,7 +276,8 @@ void gnc_sx_remove_defer_instance( SchedXaction *sx, void *deferStateData );
  The list should not be modified by the caller; use the
  gnc_sx_{add,remove}_defer_instance() functions to modify the list.
 */
-GList *gnc_sx_get_defer_instances( SchedXaction *sx );
+std::list<SXTmpStateData*>
+gnc_sx_get_defer_instances( SchedXaction *sx );
 
 /* #defines for KvpFrame strings and QOF */
 #define GNC_SX_ID                    "sched-xaction"

@@ -37,29 +37,26 @@
 #include "gnc-engine.h"
 #include "engine-helpers.h"
 
+#include <algorithm>
+    
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "gnc.engine.sx"
 
 /* GObject initialization */
-//
-//static void
-//gnc_schedxaction_init(SchedXaction* sx)
-//{
-//    sx->schedule = NULL;
-//
-//    g_date_clear( &sx->last_date, 1 );
-//    g_date_clear( &sx->start_date, 1 );
-//    g_date_clear( &sx->end_date, 1 );
-//
-//    sx->enabled = 1;
-//    sx->num_occurances_total = 0;
-//    sx->autoCreateOption = FALSE;
-//    sx->autoCreateNotify = FALSE;
-//    sx->advanceCreateDays = 0;
-//    sx->advanceRemindDays = 0;
-//    sx->instance_num = 0;
-//    sx->deferredList = NULL;
-//}
+SchedXaction::SchedXaction()
+{
+    g_date_clear( &this->last_date, 1 );
+    g_date_clear( &this->start_date, 1 );
+    g_date_clear( &this->end_date, 1 );
+
+    this->enabled = 1;
+    this->num_occurances_total = 0;
+    this->autoCreateOption = false;
+    this->autoCreateNotify = false;
+    this->advanceCreateDays = 0;
+    this->advanceRemindDays = 0;
+    this->instance_num = 0;
+}
 
 static void
 xaccSchedXactionInit(SchedXaction *sx, QofBook *book)
@@ -188,15 +185,10 @@ xaccSchedXactionFree( SchedXaction *sx )
         xaccAccountDestroy(sx->template_acct);
     }
 
-    for ( l = sx->deferredList; l; l = l->next )
+    for(std::list<SXTmpStateData*>::iterator it = sx->deferredList.begin();
+            it != sx->deferredList.end(); it++)
     {
-        gnc_sx_destroy_temporal_state( l->data );
-        l->data = NULL;
-    }
-    if ( sx->deferredList )
-    {
-        g_list_free( sx->deferredList );
-        sx->deferredList = NULL;
+        gnc_sx_destroy_temporal_state(*it);
     }
 
     /* qof_instance_release (&sx->inst); */
@@ -253,14 +245,14 @@ gnc_sx_set_schedule(SchedXaction *sx, const RecurrenceList_t &schedule)
     gnc_sx_commit_edit(sx);
 }
 
-gchar *
+char *
 xaccSchedXactionGetName( const SchedXaction *sx )
 {
     return sx->name;
 }
 
 void
-xaccSchedXactionSetName( SchedXaction *sx, const gchar *newName )
+xaccSchedXactionSetName( SchedXaction *sx, const char *newName )
 {
     g_return_if_fail( newName != NULL );
     gnc_sx_begin_edit(sx);
@@ -359,14 +351,14 @@ xaccSchedXactionHasOccurDef( const SchedXaction *sx )
     return ( xaccSchedXactionGetNumOccur( sx ) != 0 );
 }
 
-gint
+int
 xaccSchedXactionGetNumOccur( const SchedXaction *sx )
 {
     return sx->num_occurances_total;
 }
 
 void
-xaccSchedXactionSetNumOccur(SchedXaction *sx, gint new_num)
+xaccSchedXactionSetNumOccur(SchedXaction *sx, int new_num)
 {
     if (sx->num_occurances_total == new_num)
         return;
@@ -376,14 +368,14 @@ xaccSchedXactionSetNumOccur(SchedXaction *sx, gint new_num)
     gnc_sx_commit_edit(sx);
 }
 
-gint
+int
 xaccSchedXactionGetRemOccur( const SchedXaction *sx )
 {
     return sx->num_occurances_remain;
 }
 
 void
-xaccSchedXactionSetRemOccur(SchedXaction *sx, gint num_remain)
+xaccSchedXactionSetRemOccur(SchedXaction *sx, int num_remain)
 {
     /* FIXME This condition can be tightened up */
     if (num_remain > sx->num_occurances_total)
@@ -402,9 +394,9 @@ xaccSchedXactionSetRemOccur(SchedXaction *sx, gint num_remain)
     }
 }
 
-gint gnc_sx_get_num_occur_daterange(const SchedXaction *sx, const GDate* start_date, const GDate* end_date)
+int gnc_sx_get_num_occur_daterange(const SchedXaction *sx, const GDate* start_date, const GDate* end_date)
 {
-    gint result = 0;
+    int result = 0;
     SXTmpStateData *tmpState;
     bool countFirstDate;
 
@@ -518,14 +510,14 @@ xaccSchedXactionSetAutoCreate( SchedXaction *sx,
     return;
 }
 
-gint
+int
 xaccSchedXactionGetAdvanceCreation( const SchedXaction *sx )
 {
     return sx->advanceCreateDays;
 }
 
 void
-xaccSchedXactionSetAdvanceCreation( SchedXaction *sx, gint createDays )
+xaccSchedXactionSetAdvanceCreation( SchedXaction *sx, int createDays )
 {
     gnc_sx_begin_edit(sx);
     sx->advanceCreateDays = createDays;
@@ -533,14 +525,14 @@ xaccSchedXactionSetAdvanceCreation( SchedXaction *sx, gint createDays )
     gnc_sx_commit_edit(sx);
 }
 
-gint
+int
 xaccSchedXactionGetAdvanceReminder( const SchedXaction *sx )
 {
     return sx->advanceRemindDays;
 }
 
 void
-xaccSchedXactionSetAdvanceReminder( SchedXaction *sx, gint reminderDays )
+xaccSchedXactionSetAdvanceReminder( SchedXaction *sx, int reminderDays )
 {
     gnc_sx_begin_edit(sx);
     sx->advanceRemindDays = reminderDays;
@@ -684,10 +676,10 @@ xaccSchedXactionGetInstanceAfter( const SchedXaction *sx,
     return next_occur;
 }
 
-gint
+int
 gnc_sx_get_instance_count( const SchedXaction *sx, SXTmpStateData *stateData )
 {
-    gint toRet = -1;
+    int toRet = -1;
     SXTmpStateData *tsd;
 
     if ( stateData )
@@ -704,7 +696,7 @@ gnc_sx_get_instance_count( const SchedXaction *sx, SXTmpStateData *stateData )
 }
 
 void
-gnc_sx_set_instance_count(SchedXaction *sx, gint instance_num)
+gnc_sx_set_instance_count(SchedXaction *sx, int instance_num)
 {
     g_return_if_fail(sx);
     if (sx->instance_num == instance_num)
@@ -875,24 +867,19 @@ gnc_sx_clone_temporal_state( SXTmpStateData *stateData )
     return toRet;
 }
 
-static
-gint
-_temporal_state_data_cmp( gconstpointer a, gconstpointer b )
+static bool
+_temporal_state_data_weakorder( const SXTmpStateData* tsd_a, const SXTmpStateData* tsd_b )
 {
-    SXTmpStateData *tsd_a, *tsd_b;
-    tsd_a = (SXTmpStateData*)a;
-    tsd_b = (SXTmpStateData*)b;
-
     if ( !tsd_a && !tsd_b )
-        return 0;
+        return true;
     if (tsd_a == tsd_b)
-        return 0;
+        return true;
     if ( !tsd_a )
-        return 1;
+        return true;
     if ( !tsd_b )
-        return -1;
+        return false;
     return g_date_compare( &tsd_a->last_date,
-                           &tsd_b->last_date );
+                           &tsd_b->last_date ) >= 0;
 }
 
 /**
@@ -900,32 +887,41 @@ _temporal_state_data_cmp( gconstpointer a, gconstpointer b )
  * added in (date-)sorted order.
  **/
 void
-gnc_sx_add_defer_instance( SchedXaction *sx, void *deferStateData )
+gnc_sx_add_defer_instance( SchedXaction *sx, SXTmpStateData *deferStateData )
 {
-    sx->deferredList = g_list_insert_sorted( sx->deferredList,
-                       deferStateData,
-                       _temporal_state_data_cmp );
+    sx->deferredList.push_back(deferStateData);
+    sx->deferredList.sort(_temporal_state_data_weakorder);
 }
+ 
+struct find_by_date : std::unary_function<SXTmpStateData*, bool>
+ {     
+    GDate reference_date;     
+    find_by_date(SXTmpStateData* reference_sxtsd) : reference_date(reference_sxtsd->last_date) {}     
+    bool operator()(SXTmpStateData* const& m) const
+    {         
+        return g_date_compare( &reference_date,
+                               &m->last_date ) == 0;
+    }
+ };
 
 /**
  * Removes an instance from the deferred list.  If the instance is no longer
  * useful; gnc_sx_destroy_temporal_state() it.
  **/
 void
-gnc_sx_remove_defer_instance( SchedXaction *sx, void *deferStateData )
+gnc_sx_remove_defer_instance( SchedXaction *sx, SXTmpStateData *deferStateData )
 {
-    GList *found_by_value;
+    std::list<SXTmpStateData*>::iterator it
+            = find_if(sx->deferredList.begin(), sx->deferredList.end(), find_by_date(deferStateData));
 
-    found_by_value = g_list_find_custom(
-                         sx->deferredList, deferStateData, _temporal_state_data_cmp);
-    if (found_by_value == NULL)
+    if(it == sx->deferredList.end())
     {
         g_warning("unable to find deferred instance");
         return;
     }
 
-    gnc_sx_destroy_temporal_state(found_by_value->data);
-    sx->deferredList = g_list_delete_link(sx->deferredList, found_by_value);
+    gnc_sx_destroy_temporal_state(*it);
+    sx->deferredList.erase(it);
 }
 
 /**
@@ -937,7 +933,7 @@ gnc_sx_remove_defer_instance( SchedXaction *sx, void *deferStateData )
  * @param sx Scheduled transaction
  * @return Defer list which must not be modified by the caller
  **/
-GList*
+std::list<SXTmpStateData*>
 gnc_sx_get_defer_instances( SchedXaction *sx )
 {
     return sx->deferredList;

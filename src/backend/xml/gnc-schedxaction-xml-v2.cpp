@@ -168,13 +168,11 @@ gnc_schedXaction_dom_tree_create(SchedXaction *sx)
 
     /* Output deferred-instance list. */
     {
-        xmlNodePtr instNode;
-        SXTmpStateData *tsd;
-        GList *l;
-
-        for ( l = gnc_sx_get_defer_instances( sx ); l; l = l->next )
+        std::list<SXTmpStateData *> defers = gnc_sx_get_defer_instances( sx );
+        for( std::list<SXTmpStateData*>::const_iterator it = defers.begin(); it != defers.end(); it++ )
         {
-            tsd = (SXTmpStateData*)l->data;
+            xmlNodePtr instNode;
+            SXTmpStateData *tsd = *it;
 
             instNode = xmlNewNode( NULL, BAD_CAST SX_DEFER_INSTANCE );
             if ( g_date_valid( &tsd->last_date ) )
@@ -556,7 +554,7 @@ sx_defer_inst_handler( xmlNodePtr node, gpointer sx_pdata )
     }
 
     /* We assume they were serialized in sorted order, here. */
-    sx->deferredList = g_list_append( sx->deferredList, tsd );
+    sx->deferredList.push_back(tsd);
     return TRUE;
 }
 
