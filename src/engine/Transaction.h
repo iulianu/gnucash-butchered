@@ -421,7 +421,7 @@ gnc_numeric xaccTransGetImbalanceValue (const Transaction * trans);
  * the common currency for the transaction and xaccTransGetImbalance
  * becomes equivalent to xaccTransGetImbalanceValue.  Otherwise it will
  * return a list containing the imbalance in each currency. */
-MonetaryList *xaccTransGetImbalance (const Transaction * trans);
+MonetaryList_t xaccTransGetImbalance (const Transaction * trans);
 
 /** Returns true if the transaction is balanced according to the rules
  * currently in effect. */

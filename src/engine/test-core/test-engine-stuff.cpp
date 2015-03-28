@@ -514,33 +514,26 @@ get_random_commodity_namespace(void)
 static gnc_commodity *
 get_random_commodity_from_table (gnc_commodity_table *table)
 {
-    GList *namespaces;
     gnc_commodity *com = NULL;
 
     g_return_val_if_fail (table, NULL);
 
-    namespaces = gnc_commodity_table_get_namespaces (table);
+    std::list<gnc_commodity_namespace*> namespaces = gnc_commodity_table_get_namespaces (table);
 
     do
     {
-        GList *commodities;
         char *comm_namespace;
 
-        comm_namespace = get_random_list_element (namespaces);
+        comm_namespace = get_random_list_element (namespaces)->name;
 
-        commodities = gnc_commodity_table_get_commodities (table, comm_namespace);
-        if (!commodities)
+        CommodityList_t commodities = gnc_commodity_table_get_commodities (table, comm_namespace);
+        if (commodities.empty())
             continue;
 
         com = get_random_list_element (commodities);
 
-        g_list_free (commodities);
-
     }
     while (!com);
-
-
-    g_list_free (namespaces);
 
     return com;
 }
@@ -625,37 +618,28 @@ make_random_changes_to_commodity (gnc_commodity *com)
 void
 make_random_changes_to_commodity_table (gnc_commodity_table *table)
 {
-    GList *namespaces;
-    GList *node;
-
     g_return_if_fail (table);
 
-    namespaces = gnc_commodity_table_get_namespaces (table);
+    std::list<gnc_commodity_namespace*> namespaces = gnc_commodity_table_get_namespaces (table);
 
-    for (node = namespaces; node; node = node->next)
+    for (std::list<gnc_commodity_namespace*>::iterator nsit = namespaces.begin(); nsit != namespaces.end(); nsit++)
     {
-        const char *ns = node->data;
-        GList *commodities;
-        GList *com_node;
+        const char *ns = (*nsit)->name;
 
         if (gnc_commodity_namespace_is_iso (ns))
             continue;
 
-        commodities = gnc_commodity_table_get_commodities (table, ns);
+        CommodityList_t commodities = gnc_commodity_table_get_commodities (table, ns);
 
-        for (com_node = commodities; com_node; com_node = com_node->next)
+        for (CommodityList_t::iterator it = commodities.begin(); it != commodities.end(); it++)
         {
-            gnc_commodity *com = com_node->data;
+            gnc_commodity *com = *it;
 
             gnc_commodity_table_remove (table, com);
             make_random_changes_to_commodity (com);
             gnc_commodity_table_insert (table, com);
         }
-
-        g_list_free (commodities);
     }
-
-    g_list_free (namespaces);
 }
 /* ================================================================= */
 /* Price stuff */

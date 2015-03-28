@@ -428,14 +428,17 @@ collate(gconstpointer a, gconstpointer b)
     return g_utf8_collate(a, b);
 }
 
+static bool collate_strict_weak(const gnc_commodity_namespace* a, const gnc_commodity_namespace* b)
+{
+    return collate(a->name, b->name) < 0;
+}
+
 
 void
 gnc_ui_update_commodity_picker (GtkWidget *cbwe,
                                 const gchar * comm_namespace,
                                 const gchar * init_string)
 {
-    GList      * commodities;
-    GList      * iterator = NULL;
     GList      * commodity_items = NULL;
     GtkComboBox *combo_box;
     GtkEntry *entry;
@@ -460,17 +463,16 @@ gnc_ui_update_commodity_picker (GtkWidget *cbwe,
     gtk_combo_box_set_active(combo_box, -1);
 
     table = gnc_commodity_table_get_table (gnc_get_current_book ());
-    commodities = gnc_commodity_table_get_commodities(table, comm_namespace);
-    for (iterator = commodities; iterator; iterator = iterator->next)
+    CommodityList_t commodities = gnc_commodity_table_get_commodities(table, comm_namespace);
+    for (CommodityList_t::iterator it = commodities.begin(); it != commodities.end(); it++)
     {
         commodity_items =
             g_list_append(commodity_items,
-                          (gpointer) gnc_commodity_get_printname(iterator->data));
+                          (gpointer) gnc_commodity_get_printname(*it));
     }
-    g_list_free(commodities);
 
     commodity_items = g_list_sort(commodity_items, collate);
-    for (iterator = commodity_items; iterator; iterator = iterator->next)
+    for (GList * iterator = commodity_items; iterator; iterator = iterator->next)
     {
         name = (char *)iterator->data;
         gtk_list_store_append(GTK_LIST_STORE(model), &iter);
@@ -631,7 +633,8 @@ gnc_ui_update_namespace_picker (GtkWidget *cbwe,
     GtkComboBox *combo_box;
     GtkTreeModel *model;
     GtkTreeIter iter;
-    GList *namespaces, *node;
+    std::list<gnc_commodity_namespace*> namespaces;
+    std::list<gnc_commodity_namespace*>::iterator node;
     gint current = 0, match = 0;
 
     g_return_if_fail(GTK_IS_COMBO_BOX (cbwe));
@@ -653,7 +656,7 @@ gnc_ui_update_namespace_picker (GtkWidget *cbwe,
     case DIAG_COMM_NON_CURRENCY:
         namespaces =
             gnc_commodity_table_get_namespaces (gnc_get_current_commodities());
-        node = g_list_find_custom (namespaces, GNC_COMMODITY_NS_CURRENCY, collate);
+        node = std::find_if(namespaces.begin(), namespaces.end(), GNC_COMMODITY_NS_CURRENCY, collate_finder);
         if (node)
         {
             namespaces = g_list_remove_link (namespaces, node);
@@ -666,30 +669,31 @@ gnc_ui_update_namespace_picker (GtkWidget *cbwe,
 
     case DIAG_COMM_CURRENCY:
     default:
-        namespaces = g_list_prepend (NULL, GNC_COMMODITY_NS_CURRENCY);
+        namespaces.clear();
+        namespaces.push_front(GNC_COMMODITY_NS_CURRENCY);
         break;
     }
 
     /* add them to the combobox */
-    namespaces = g_list_sort(namespaces, collate);
-    for (node = namespaces; node; node = node->next)
+    namespaces.sort(collate_strict_weak);
+    for (std::list<gnc_commodity_namespace*>::iterator it = namespaces.begin(); it != namespaces.end(); it++)
     {
-        if (g_utf8_collate(node->data, GNC_COMMODITY_NS_LEGACY) == 0)
+        const char nsname = (*it)->name;
+        if (g_utf8_collate(nsname, GNC_COMMODITY_NS_LEGACY) == 0)
             continue;
         /* Hide the template entry */
-        if (g_utf8_collate(node->data, "template" ) != 0)
+        if (g_utf8_collate(nsname, "template" ) != 0)
         {
             gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-            gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, node->data, -1);
+            gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, nsname, -1);
         }
 
-        if (init_string && (g_utf8_collate(node->data, init_string) == 0))
+        if (init_string && (g_utf8_collate(nsname, init_string) == 0))
             match = current;
         current++;
     }
 
     gtk_combo_box_set_active(combo_box, match);
-    g_list_free(namespaces);
 }
 
 

@@ -48,7 +48,8 @@
 
 #include <glib.h>
 #include "gnc-engine.h"
-
+#include <list>
+#include <string>
 
 struct CommodityPrivate;
 
@@ -61,13 +62,16 @@ public:
     virtual ~gnc_commodity();
 };
 
+
+typedef std::list<gnc_commodity*> CommodityList_t;
+
 class gnc_commodity_namespace : public QofInstance
 {
 public:
     gchar      * name;
     bool     iso4217;
     GHashTable * cm_table;
-    GList      * cm_list;
+    CommodityList_t cm_list;
     
     gnc_commodity_namespace();
     virtual ~gnc_commodity_namespace();
@@ -97,8 +101,6 @@ public:
 #define GNC_COMMODITY_NS_MUTUAL "FUND"
 #define GNC_COMMODITY_NS_AMEX   "AMEX"
 #define GNC_COMMODITY_NS_ASX    "ASX"
-
-typedef GList CommodityList;
 
 /** @name Commodity Quote Source functions
  @{
@@ -142,7 +144,7 @@ bool gnc_quote_source_fq_installed (void);
  *  @param sources_list A list of strings containing the source names
  *  as they are known to F::Q.
  */
-void gnc_quote_source_set_fq_installed (const GList *sources_list);
+void gnc_quote_source_set_fq_installed (const std::list<std::string>& sources_list);
 
 /** Return the number of entries for a given type of quote source.
  *
@@ -150,7 +152,7 @@ void gnc_quote_source_set_fq_installed (const GList *sources_list);
  *
  *  @return The number of entries for this type of quote source.
  */
-gint gnc_quote_source_num_entries(QuoteSourceType type);
+int gnc_quote_source_num_entries(QuoteSourceType type);
 
 /** Create a new quote source. This is called by the F::Q startup code
  *  or the XML parsing code to add new entries to the list of
@@ -186,7 +188,7 @@ gnc_quote_source *gnc_quote_source_lookup_by_internal(const char * internal_name
  *  @return A pointer to the price quote source that has the specified
  *  type/index.
  */
-gnc_quote_source *gnc_quote_source_lookup_by_ti(QuoteSourceType type, gint index);
+gnc_quote_source *gnc_quote_source_lookup_by_ti(QuoteSourceType type, int index);
 
 /** Given a gnc_quote_source data structure, return the flag that
  *  indicates whether this particular quote source is supported by
@@ -214,7 +216,7 @@ QuoteSourceType gnc_quote_source_get_type (const gnc_quote_source *source);
  *
  *  @return The index of this quote source in its type.
  */
-gint gnc_quote_source_get_index (const gnc_quote_source *source);
+int gnc_quote_source_get_index (const gnc_quote_source *source);
 
 /** Given a gnc_quote_source data structure, return the user friendly
  *  name of this quote source.  E.G. "Yahoo Australia" or "Australia
@@ -759,8 +761,8 @@ const char * gnc_commodity_namespace_get_name (const gnc_commodity_namespace *ns
  *  @return A pointer to the list of structures.  NULL if an invalid
  *  argument was supplied.
  *
- *  @note This list is owned by the engine.  The caller must not free the list. */
-GList * gnc_commodity_namespace_get_commodity_list(const gnc_commodity_namespace * ns);
+ **/
+CommodityList_t gnc_commodity_namespace_get_commodity_list(const gnc_commodity_namespace * ns);
 
 
 /** Test to see if the indicated namespace exits in the commodity table.
@@ -776,21 +778,17 @@ int gnc_commodity_table_has_namespace(const gnc_commodity_table * table,
 
 /** Return a list of all namespaces in the commodity table.  This
  *  returns both system and user defined namespaces.
- *
- *  @return A pointer to the list of names.  NULL if an invalid
- *  argument was supplied.
- *
- *  @note It is the callers responsibility to free the list. */
-GList * gnc_commodity_table_get_namespaces(const gnc_commodity_table * t);
-
-/** Return a list of all namespace data structures in the commodity table.  This
- *  returns both system and user defined namespace structures.
- *
- *  @return A pointer to the list of structures.  NULL if an invalid
- *  argument was supplied.
- *
- *  @note This list is owned by the engine.  The caller must not free the list. */
-GList * gnc_commodity_table_get_namespaces_list(const gnc_commodity_table * t);
+ */
+std::list<gnc_commodity_namespace *> gnc_commodity_table_get_namespaces(const gnc_commodity_table * t);
+//
+///** Return a list of all namespace data structures in the commodity table.  This
+// *  returns both system and user defined namespace structures.
+// *
+// *  @return A pointer to the list of structures.  NULL if an invalid
+// *  argument was supplied.
+// *
+// *  @note This list is owned by the engine.  The caller must not free the list. */
+//GList * gnc_commodity_table_get_namespaces_list(const gnc_commodity_table * t);
 
 /** This function adds a new string to the list of commodity namespaces.
  *  If the new namespace already exists, nothing happens.
@@ -840,7 +838,7 @@ void      gnc_commodity_table_delete_namespace(gnc_commodity_table * table,
  *
  *  @return The number of commodities in the table. 0 if there are no
  *  commodities, or the routine was passed a bad argument. */
-guint gnc_commodity_table_get_size(const gnc_commodity_table* tbl);
+unsigned int gnc_commodity_table_get_size(const gnc_commodity_table* tbl);
 
 /** Return a list of all commodities in the commodity table that are
  *  in the given namespace.
@@ -854,7 +852,7 @@ guint gnc_commodity_table_get_size(const gnc_commodity_table* tbl);
  *  argument was supplied, or the namespace could not be found.
  *
  *  @note It is the callers responsibility to free the list. */
-CommodityList * gnc_commodity_table_get_commodities(
+CommodityList_t gnc_commodity_table_get_commodities(
     const gnc_commodity_table * table, const char * commodity_namespace);
 
 /** This function returns a list of commodities for which price quotes
@@ -874,7 +872,7 @@ CommodityList * gnc_commodity_table_get_commodities(
  *  quote retrieval.
  *
  *  @note It is the callers responsibility to free the list. */
-CommodityList * gnc_commodity_table_get_quotable_commodities(
+CommodityList_t gnc_commodity_table_get_quotable_commodities(
     const gnc_commodity_table * table);
 
 /** Call a function once for each commodity in the commodity table.
@@ -927,19 +925,17 @@ void gnc_commodity_commit_edit (gnc_commodity *cm);
 /** @name Monetary value, commodity identity and numeric value
 @{
   */
-struct _gnc_monetary
+struct gnc_monetary
 {
     gnc_commodity *commodity;
     gnc_numeric value;
 };
 
-typedef struct _gnc_monetary gnc_monetary;
-
 /* A list of monetary values.  This could be a hash table, but as currently
 * used it rarely contains more than one or two different commodities so
 * it doesn't seem worth the trouble.
 */
-typedef GList MonetaryList;
+typedef std::list<gnc_monetary*> MonetaryList_t;
 
 /** @name Constructors
 @{
@@ -975,11 +971,11 @@ gnc_numeric gnc_monetary_value(gnc_monetary a)
 */
 
 /** Add a gnc_monetary to the list */
-MonetaryList *gnc_monetary_list_add_monetary(MonetaryList *list, gnc_monetary mon);
+MonetaryList_t gnc_monetary_list_add_monetary(MonetaryList_t list, gnc_monetary mon);
 
 /** Add something to the list given a commodity and value */
 static inline
-MonetaryList *gnc_monetary_list_add_value(MonetaryList *list,
+MonetaryList_t gnc_monetary_list_add_value(MonetaryList_t list,
         gnc_commodity *commod,
         gnc_numeric value)
 {
@@ -988,10 +984,10 @@ MonetaryList *gnc_monetary_list_add_value(MonetaryList *list,
 }
 
 /** Delete all the zero-value entries from a list */
-MonetaryList *gnc_monetary_list_delete_zeros(MonetaryList *list);
+MonetaryList_t gnc_monetary_list_delete_zeros(MonetaryList_t list);
 
 /** Free a monetary list and all the items it points to */
-void gnc_monetary_list_free(MonetaryList *list);
+void gnc_monetary_list_free(MonetaryList_t list);
 /** @} */
 
 /** @} */

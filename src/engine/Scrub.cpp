@@ -618,8 +618,6 @@ xaccTransScrubImbalance (Transaction *trans, Account *root,
     }
     else
     {
-        MonetaryList *imbal_list;
-        MonetaryList *imbalance_commod;
         gnc_numeric imbalance;
         Split *balance_split = NULL;
 
@@ -693,8 +691,8 @@ xaccTransScrubImbalance (Transaction *trans, Account *root,
         }
 
         /* If the transaction is balanced, nothing more to do */
-        imbal_list = xaccTransGetImbalance (trans);
-        if (!imbal_list)
+        MonetaryList_t imbal_list = xaccTransGetImbalance (trans);
+        if (imbal_list.empty())
         {
             LEAVE("()");
             return;
@@ -702,10 +700,9 @@ xaccTransScrubImbalance (Transaction *trans, Account *root,
 
         PINFO ("Currency unbalanced transaction");
 
-        for (imbalance_commod = imbal_list; imbalance_commod;
-                imbalance_commod = imbalance_commod->next)
+        for (MonetaryList_t::const_iterator it = imbal_list.begin(); it != imbal_list.end(); it++)
         {
-            gnc_monetary *imbal_mon = imbalance_commod->data;
+            gnc_monetary *imbal_mon = *it;
             gnc_commodity *commodity;
             gnc_numeric old_amount, new_amount;
             gnc_numeric old_value, new_value, val_imbalance;

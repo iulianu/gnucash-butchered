@@ -901,6 +901,12 @@ compare_namespaces(gconstpointer a, gconstpointer b)
     return(g_strcmp0(sa, sb));
 }
 
+static bool
+compare_namespaces_strict_weak(const char * sa, const char *sb)
+{
+    return compare_namespaces(sa, sb) < 0;
+}
+
 static gint
 compare_commodity_ids(gconstpointer a, gconstpointer b)
 {
@@ -908,6 +914,11 @@ compare_commodity_ids(gconstpointer a, gconstpointer b)
     const gnc_commodity *cb = (const gnc_commodity *) b;
     return(g_strcmp0(gnc_commodity_get_mnemonic(ca),
                        gnc_commodity_get_mnemonic(cb)));
+}
+
+static bool compare_commodity_ids_strict_weak(const gnc_commodity* ca, const gnc_commodity* cb)
+{
+    return compare_commodity_ids(ca, cb) < 0;
 }
 
 static bool write_pricedb (FILE *out, QofBook *book, sixtp_gdv2 *gd);
@@ -1031,29 +1042,23 @@ bool
 write_commodities(FILE *out, QofBook *book, sixtp_gdv2 *gd)
 {
     gnc_commodity_table *tbl;
-    GList *namespaces;
-    GList *lp;
     bool success = TRUE;
 
     tbl = gnc_commodity_table_get_table(book);
 
-    namespaces = gnc_commodity_table_get_namespaces(tbl);
-    if (namespaces)
-    {
-        namespaces = g_list_sort(namespaces, compare_namespaces);
-    }
+    std::list<gnc_commodity_namespace*> namespaces = gnc_commodity_table_get_namespaces(tbl);
+    namespaces.sort(compare_namespaces);
 
-    for (lp = namespaces; success && lp; lp = lp->next)
+    for (std::list<gnc_commodity_namespace*>::iterator lp = namespaces.begin(); success && lp != namespaces.end(); lp++)
     {
-        GList *comms, *lp2;
         xmlNodePtr comnode;
 
-        comms = gnc_commodity_table_get_commodities(tbl, lp->data);
-        comms = g_list_sort(comms, compare_commodity_ids);
+        CommodityList_t comms = gnc_commodity_table_get_commodities(tbl, (*lp)->name);
+        comms.sort(compare_commodity_ids_strict_weak);
 
-        for (lp2 = comms; lp2; lp2 = lp2->next)
+        for (CommodityList_t::iterator lp2 = comms.begin(); lp2 != comms.end(); lp2++)
         {
-            comnode = gnc_commodity_dom_tree_create(lp2->data);
+            comnode = gnc_commodity_dom_tree_create(*lp2);
             if (comnode == NULL)
                 continue;
 
@@ -1068,11 +1073,7 @@ write_commodities(FILE *out, QofBook *book, sixtp_gdv2 *gd)
             gd->counter.commodities_loaded++;
             run_callback(gd, "commodities");
         }
-
-        g_list_free (comms);
     }
-
-    if (namespaces) g_list_free (namespaces);
 
     return success;
 }

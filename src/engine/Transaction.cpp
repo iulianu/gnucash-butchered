@@ -801,14 +801,14 @@ xaccTransGetImbalanceValue (const Transaction * trans)
     return imbal;
 }
 
-MonetaryList *
+MonetaryList_t
 xaccTransGetImbalance (const Transaction * trans)
 {
     /* imbal_value is used if either (1) the transaction has a non currency
        split or (2) all the splits are in the same currency.  If there are
        no non-currency splits and not all splits are in the same currency then
        imbal_list is used to compute the imbalance. */
-    MonetaryList *imbal_list = NULL;
+    MonetaryList_t imbal_list;
     gnc_numeric imbal_value = gnc_numeric_zero();
     bool trading_accts;
 
@@ -831,13 +831,13 @@ xaccTransGetImbalance (const Transaction * trans)
         gnc_commodity *commodity;
         commodity = xaccAccountGetCommodity(xaccSplitGetAccount(s));
         if (trading_accts &&
-        (imbal_list ||
+        (!imbal_list.empty() ||
         ! gnc_commodity_equiv(commodity, trans->common_currency) ||
         ! gnc_numeric_equal(xaccSplitGetAmount(s), xaccSplitGetValue(s))))
         {
             /* Need to use (or already are using) a list of imbalances in each of
                the currencies used in the transaction. */
-            if (! imbal_list)
+            if (imbal_list.empty())
             {
                 /* All previous splits have been in the transaction's common
                    currency, so imbal_value is in this currency. */
@@ -855,7 +855,7 @@ xaccTransGetImbalance (const Transaction * trans)
     } );
 
 
-    if (!imbal_list && !gnc_numeric_zero_p(imbal_value))
+    if (imbal_list.empty() && !gnc_numeric_zero_p(imbal_value))
     {
         /* Not balanced and no list, create one.  If we found multiple currencies
            and no non-currency commodity then imbal_list will already exist and
@@ -869,14 +869,13 @@ xaccTransGetImbalance (const Transaction * trans)
        empty list */
     imbal_list = gnc_monetary_list_delete_zeros(imbal_list);
 
-    LEAVE("(trans=%p), imbal=%p", trans, imbal_list);
+    LEAVE("(trans=%p), imbal size=%p", trans, imbal_list.size());
     return imbal_list;
 }
 
 bool
 xaccTransIsBalanced (const Transaction *trans)
 {
-    MonetaryList *imbal_list;
     bool result;
     gnc_numeric imbal = gnc_numeric_zero();
     gnc_numeric imbal_trading = gnc_numeric_zero();
@@ -910,8 +909,8 @@ xaccTransIsBalanced (const Transaction *trans)
     if (!xaccTransUseTradingAccounts (trans))
         return TRUE;
 
-    imbal_list = xaccTransGetImbalance(trans);
-    result = imbal_list == NULL;
+    MonetaryList_t imbal_list = xaccTransGetImbalance(trans);
+    result = imbal_list.empty();
     gnc_monetary_list_free(imbal_list);
     return result;
 }

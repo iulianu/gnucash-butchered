@@ -90,7 +90,7 @@ class gnc_commodity_table
 {
 public:
     GHashTable * ns_table;
-    GList      * ns_list;
+    std::list<gnc_commodity_namespace*> ns_list;
 };
 
 struct gnc_new_iso_code
@@ -1315,7 +1315,6 @@ gnc_commodity_namespace::gnc_commodity_namespace()
     name = NULL;
     iso4217 = false;
     cm_table = NULL;
-    cm_list = NULL;
 }
     
 gnc_commodity_namespace::~gnc_commodity_namespace()
@@ -1332,11 +1331,11 @@ gnc_commodity_namespace_get_name (const gnc_commodity_namespace *ns)
     return ns->name;
 }
 
-GList *
+CommodityList_t 
 gnc_commodity_namespace_get_commodity_list(const gnc_commodity_namespace *comm_namespace)
 {
     if (!comm_namespace)
-        return NULL;
+        return CommodityList_t();
 
     return comm_namespace->cm_list;
 }
@@ -1366,7 +1365,7 @@ gnc_commodity_table_new(void)
 {
     gnc_commodity_table * retval = new gnc_commodity_table;//g_new0(gnc_commodity_table, 1);
     retval->ns_table = g_hash_table_new(&g_str_hash, &g_str_equal);
-    retval->ns_list = NULL;
+//    retval->ns_list = NULL;
     return retval;
 }
 
@@ -1521,25 +1520,21 @@ gnc_commodity_table_find_full(const gnc_commodity_table * table,
                               const char * fullname)
 {
     gnc_commodity * retval = NULL;
-    GList         * all;
-    GList         * iterator;
 
     if (!fullname || (fullname[0] == '\0'))
         return NULL;
 
-    all = gnc_commodity_table_get_commodities(table, comm_namespace);
+    CommodityList_t all = gnc_commodity_table_get_commodities(table, comm_namespace);
 
-    for (iterator = all; iterator; iterator = iterator->next)
+    for (CommodityList_t::iterator it = all.begin(); it != all.end(); it++)
     {
         if (!strcmp(fullname,
-                    gnc_commodity_get_printname(iterator->data)))
+                    gnc_commodity_get_printname(*it)))
         {
-            retval = iterator->data;
+            retval = *it;
             break;
         }
     }
-
-    g_list_free (all);
 
     return retval;
 }
@@ -1609,7 +1604,7 @@ gnc_commodity_table_insert(gnc_commodity_table * table,
     g_hash_table_insert(nsp->cm_table,
                         CACHE_INSERT(priv->mnemonic),
                         (gpointer)comm);
-    nsp->cm_list = g_list_append(nsp->cm_list, comm);
+    nsp->cm_list.push_back(comm);
 
     qof_event_gen (comm, QOF_EVENT_ADD, NULL);
     LEAVE ("(table=%p, comm=%p)", table, comm);
@@ -1643,7 +1638,7 @@ gnc_commodity_table_remove(gnc_commodity_table * table,
     nsp = gnc_commodity_table_find_namespace(table, ns_name);
     if (!nsp) return;
 
-    nsp->cm_list = g_list_remove(nsp->cm_list, comm);
+    nsp->cm_list.remove(comm);
     g_hash_table_remove (nsp->cm_table, priv->mnemonic);
     /* XXX minor mem leak, should remove the key as well */
 }
@@ -1710,23 +1705,23 @@ g_hash_table_values(GHashTable * table)
  * see if any commodities in the namespace exist
  ********************************************************************/
 
-GList *
+std::list<gnc_commodity_namespace*>
 gnc_commodity_table_get_namespaces(const gnc_commodity_table * table)
 {
     if (!table)
-        return NULL;
+        return std::list<gnc_commodity_namespace*>();
 
-    return g_hash_table_keys(table->ns_table);
+    return table->ns_list;//g_hash_table_keys(table->ns_table);
 }
 
-GList *
-gnc_commodity_table_get_namespaces_list(const gnc_commodity_table * table)
-{
-    if (!table)
-        return NULL;
-
-    return table->ns_list;
-}
+//GList *
+//gnc_commodity_table_get_namespaces_list(const gnc_commodity_table * table)
+//{
+//    if (!table)
+//        return NULL;
+//
+//    return table->ns_list;
+//}
 
 /* Because gnc_commodity_table_add_namespace maps GNC_COMMODITY_NS_ISO to
    GNC_COMMODITY_NS_CURRENCY and then sets iso4217 if the namespace is
@@ -1762,20 +1757,26 @@ gnc_commodity_is_currency(const gnc_commodity *cm)
  * list commodities in a give namespace
  ********************************************************************/
 
-CommodityList *
+CommodityList_t
 gnc_commodity_table_get_commodities(const gnc_commodity_table * table,
                                     const char * comm_namespace)
 {
     gnc_commodity_namespace * ns = NULL;
 
     if (!table)
-        return NULL;
+        return CommodityList_t();
 
     ns = gnc_commodity_table_find_namespace(table, comm_namespace);
     if (!ns)
-        return NULL;
+        return CommodityList_t();
 
-    return g_hash_table_values(ns->cm_table);
+    GList * legacy_values = g_hash_table_values(ns->cm_table);
+    CommodityList_t list;
+    for(GList * it = legacy_values; it; it = it->next)
+    {
+        list.push_back(reinterpret_cast<gnc_commodity*>(it->data));
+    }
+    return list;
 }
 
 /********************************************************************
@@ -1788,53 +1789,52 @@ get_quotables_helper1(gpointer key, gpointer value, gpointer data)
 {
     gnc_commodity *comm = value;
     CommodityPrivate* priv = GET_PRIVATE(comm);
-    GList ** l = data;
+    CommodityList_t * l = reinterpret_cast<CommodityList_t*>(data);
 
     if (!priv->quote_flag ||
             !priv->quote_source || !priv->quote_source->supported)
         return;
-    *l = g_list_prepend(*l, value);
+    l->push_front(value);
 }
 
 static bool
 get_quotables_helper2 (gnc_commodity *comm, gpointer data)
 {
-    GList ** l = data;
+    CommodityList_t * l = reinterpret_cast<CommodityList_t*>(data);
     CommodityPrivate* priv = GET_PRIVATE(comm);
 
     if (!priv->quote_flag ||
             !priv->quote_source || !priv->quote_source->supported)
         return TRUE;
-    *l = g_list_prepend(*l, comm);
+    l->push_front(comm);
     return TRUE;
 }
 
-CommodityList *
+CommodityList_t
 gnc_commodity_table_get_quotable_commodities(const gnc_commodity_table * table)
 {
     gnc_commodity_namespace * ns = NULL;
     const char *comm_namespace;
-    GList * nslist, * tmp;
-    GList * l = NULL;
+    CommodityList_t l;
     regex_t pattern;
     const char *expression = gnc_main_get_namespace_regexp();
 
     ENTER("table=%p, expression=%s", table, expression);
     if (!table)
-        return NULL;
+        return l;
 
     if (expression && *expression)
     {
         if (regcomp(&pattern, expression, REG_EXTENDED | REG_ICASE) != 0)
         {
             LEAVE("Cannot compile regex");
-            return NULL;
+            return l;
         }
 
-        nslist = gnc_commodity_table_get_namespaces(table);
-        for (tmp = nslist; tmp; tmp = tmp->next)
+        std::list<gnc_commodity_namespace*> nslist = gnc_commodity_table_get_namespaces(table);
+        for (std::list<gnc_commodity_namespace*>::iterator it = nslist.begin(); it != nslist.end(); it++)
         {
-            comm_namespace = tmp->data;
+            comm_namespace = (*it)->name;
             if (regexec(&pattern, comm_namespace, 0, NULL, 0) == 0)
             {
                 DEBUG("Running list of %s commodities", comm_namespace);
@@ -1845,7 +1845,6 @@ gnc_commodity_table_get_quotable_commodities(const gnc_commodity_table * table)
                 }
             }
         }
-        g_list_free(nslist);
         regfree(&pattern);
     }
     else
@@ -1853,7 +1852,7 @@ gnc_commodity_table_get_quotable_commodities(const gnc_commodity_table * table)
         gnc_commodity_table_foreach_commodity(table, get_quotables_helper2,
                                               (gpointer) &l);
     }
-    LEAVE("list head %p", l);
+    LEAVE("list size %d", l.size());
     return l;
 }
 
@@ -1885,7 +1884,7 @@ gnc_commodity_table_add_namespace(gnc_commodity_table * table,
         g_hash_table_insert(table->ns_table,
                             (gpointer) ns->name,
                             (gpointer) ns);
-        table->ns_list = g_list_append(table->ns_list, ns);
+        table->ns_list.push_back(ns);
         qof_event_gen (ns, QOF_EVENT_ADD, NULL);
     }
     return ns;
@@ -1941,10 +1940,7 @@ gnc_commodity_table_delete_namespace(gnc_commodity_table * table,
 
     qof_event_gen (ns, QOF_EVENT_REMOVE, NULL);
     g_hash_table_remove(table->ns_table, comm_namespace);
-    table->ns_list = g_list_remove(table->ns_list, ns);
-
-    g_list_free(ns->cm_list);
-    ns->cm_list = NULL;
+    table->ns_list.remove(ns);
 
     g_hash_table_foreach_remove(ns->cm_table, ns_helper, NULL);
     g_hash_table_destroy(ns->cm_table);
@@ -2015,20 +2011,20 @@ void
 gnc_commodity_table_destroy(gnc_commodity_table * t)
 {
     gnc_commodity_namespace * ns;
-    GList *item, *next;
 
     if (!t) return;
     ENTER ("table=%p", t);
 
-    for (item = t->ns_list; item; item = next)
+    std::list<gnc_commodity_namespace*>::iterator item = t->ns_list.begin();
+    std::list<gnc_commodity_namespace*>::iterator next;
+    for (; item != t->ns_list.end(); item = next)
     {
-        next = g_list_next(item);
-        ns = item->data;
+        next = item;
+        next++;
+        ns = *item;
         gnc_commodity_table_delete_namespace(t, ns->name);
     }
 
-    g_list_free(t->ns_list);
-    t->ns_list = NULL;
     g_hash_table_destroy(t->ns_table);
     t->ns_table = NULL;
 //    g_free(t);
@@ -2171,13 +2167,13 @@ gnc_commodity_table_register (void)
 ********************************************************************/
 
 /** Add a gnc_monetary to the list */
-MonetaryList *
-gnc_monetary_list_add_monetary(MonetaryList *list, gnc_monetary add_mon)
+MonetaryList_t
+gnc_monetary_list_add_monetary(MonetaryList_t list, gnc_monetary add_mon)
 {
-    MonetaryList *l = list, *tmp;
-    for (tmp = list; tmp; tmp = tmp->next)
+    MonetaryList_t::iterator it = list.begin();
+    for (; it != list.end(); it++)
     {
-        gnc_monetary *list_mon = tmp->data;
+        gnc_monetary *list_mon = *it;
         if (gnc_commodity_equiv(list_mon->commodity, add_mon.commodity))
         {
             list_mon->value = gnc_numeric_add(list_mon->value, add_mon.value,
@@ -2187,31 +2183,34 @@ gnc_monetary_list_add_monetary(MonetaryList *list, gnc_monetary add_mon)
     }
 
     /* See if we found an entry, and add one if not */
-    if (tmp == NULL)
+    if (it == list.end())
     {
         gnc_monetary *new_mon = new gnc_monetary;//g_new0(gnc_monetary, 1);
         *new_mon = add_mon;
-        l = g_list_prepend(l, new_mon);
+        list.push_front(new_mon);
     }
 
-    return l;
+    return list;
 }
 
 /** Delete all entries in the list that have zero value.  Return list
     pointer will be a null pointer if there are no non-zero entries **/
-MonetaryList *
-gnc_monetary_list_delete_zeros(MonetaryList *list)
+MonetaryList_t
+gnc_monetary_list_delete_zeros(MonetaryList_t list)
 {
-    MonetaryList *node, *next;
-    for (node = list; node; node = next)
+    MonetaryList_t::iterator it = list.begin();
+    while(it != list.end())
     {
-        gnc_monetary *mon = node->data;
-        next = node->next;
+        gnc_monetary *mon = *it;
         if (gnc_numeric_zero_p(mon->value))
         {
 //            g_free(mon);
             delete mon;
-            list = g_list_delete_link(list, node);
+            list.erase(it++);
+        }
+        else
+        {
+            it++;
         }
     }
     return list;
@@ -2219,16 +2218,13 @@ gnc_monetary_list_delete_zeros(MonetaryList *list)
 
 /** Free a MonetaryList and all the monetaries it points to */
 void
-gnc_monetary_list_free(MonetaryList *list)
+gnc_monetary_list_free(MonetaryList_t list)
 {
-    MonetaryList *tmp;
-    for (tmp = list; tmp; tmp = tmp->next)
+    for(MonetaryList_t::iterator it = list.begin(); it != list.end(); it++)
     {
 //        g_free(tmp->data);
-        delete (gnc_monetary *)(tmp->data);
+        delete (gnc_monetary *)(*it);
     }
-
-    g_list_free(list);
 }
 
 /* ========================= END OF FILE ============================== */
